@@ -1,0 +1,71 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ImportGroup Label="PropertySheets" />
+	<PropertyGroup Label="UserMacros" />
+	<PropertyGroup />
+
+	<!-- Debug x86 and Win32 -->
+	<ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' and ('$(Platform)'=='x86' or '$(Platform)'=='Win32')">
+		<Link>
+			<AdditionalLibraryDirectories>$(SolutionDir)3rdParty\SFML_x86\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+			<AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-network-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+		</Link>
+		<ClCompile>
+			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\SFML_x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+		</ClCompile>
+		<PostBuildEvent>
+			<Command>
+				xcopy "$(SolutionDir)3rdParty\SFML_x86\bin\*.*" "$(OutputPath)" /R /Y
+			</Command>
+		</PostBuildEvent>
+	</ItemDefinitionGroup>
+
+	<!-- Release x86 and Win32 -->
+	<ItemDefinitionGroup Condition="'$(Configuration)'=='Release' and ('$(Platform)'=='x86' or '$(Platform)'=='Win32')">
+		<Link>
+			<AdditionalLibraryDirectories>$(SolutionDir)3rdParty\SFML_x86\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+			<AdditionalDependencies>sfml-graphics.lib;sfml-window.lib;sfml-system.lib;sfml-network.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+		</Link>
+		<ClCompile>
+			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\SFML_x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+		</ClCompile>
+		<PostBuildEvent>
+			<Command>
+				xcopy "$(SolutionDir)3rdParty\SFML_x86\bin\*.*" "$(OutputPath)" /R /Y
+			</Command>
+		</PostBuildEvent>
+	</ItemDefinitionGroup>
+
+	<!-- Debug x64 -->
+	<ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' and '$(Platform)'=='x64'">
+		<Link>
+			<AdditionalLibraryDirectories>$(SolutionDir)3rdParty\SFML_x64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+			<AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-network-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+		</Link>
+		<ClCompile>
+			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\SFML_x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+		</ClCompile>
+		<PostBuildEvent>
+			<Command>
+				xcopy "$(SolutionDir)3rdParty\SFML_x64\bin\*.*" "$(OutputPath)" /R /Y
+			</Command>
+		</PostBuildEvent>
+	</ItemDefinitionGroup>
+
+	<!-- Release x64 -->
+	<ItemDefinitionGroup Condition="'$(Configuration)'=='Release' and '$(Platform)'=='x64'">
+		<Link>
+			<AdditionalLibraryDirectories>$(SolutionDir)3rdParty\SFML_x64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+			<AdditionalDependencies>sfml-graphics.lib;sfml-window.lib;sfml-system.lib;sfml-network.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+		</Link>
+		<ClCompile>
+			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\SFML_x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+		</ClCompile>
+		<PostBuildEvent>
+			<Command>
+				xcopy "$(SolutionDir)3rdParty\SFML_x64\bin\*.*" "$(OutputPath)" /R /Y
+			</Command>
+		</PostBuildEvent>
+	</ItemDefinitionGroup>
+
+	<ItemGroup />
+</Project>
