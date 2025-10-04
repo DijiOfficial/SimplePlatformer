@@ -1,16 +1,18 @@
 ﻿#pragma once
 #include "Singleton.h"
 #include "../Core/Scene.h"
+#include "../Collision/PhysicsWorld.h"
 
 namespace diji
 {
+    class PhysicsWorld;
+
     class SceneManager final : public Singleton<SceneManager>
     {
     public:
         Scene* CreateScene(int id);
 
         // Similar loop to Unity
-
         // Initialization phase
         void Init() const;          // 1st
         void Start() const;         // 2nd
@@ -43,12 +45,15 @@ namespace diji
         void RegisterScene(const int id, SceneLoaderFunc loader) { m_SceneLoaders[id] = std::move(loader); }
 
         void SetMultiplayerSplitScreen(int numPlayers);
-        
+
+        [[nodiscard]] PhysicsWorld* GetPhysicsWorld() const { return m_PhysicsWorldUPtr.get(); }
+
     private:
         // todo: replace int with SceneId enum class??
         std::map<int, std::unique_ptr<Scene>> m_ScenesUPtrMap;
         std::vector<const GameObject*> m_PendingDestroyVec;
         std::unordered_map<int, SceneLoaderFunc> m_SceneLoaders;
+        std::unique_ptr<PhysicsWorld> m_PhysicsWorldUPtr = nullptr;
         
         int m_ActiveSceneId = 0;
         int m_NextScene = 0;

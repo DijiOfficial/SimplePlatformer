@@ -1,6 +1,8 @@
 ﻿#include "CustomCommands.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "../Components/PlayerCharacter.h"
+#include "Engine/Collision/Collider.h"
+#include "Engine/Singleton/RandNumber.h"
 
 thomasWasLate::MoveCharacter::MoveCharacter(diji::GameObject* actor, const sf::Vector2f& direction)
     : GameActorCommands{ actor }
@@ -27,5 +29,16 @@ void thomasWasLate::CharacterJump::Execute()
         m_Character->Jump();
     else
         m_Character->ClearJump();
+}
+
+thomasWasLate::TempAddImpulse::TempAddImpulse(diji::GameObject* actor)
+    : GameActorCommands{ actor }
+{
+    m_Collider = actor->GetComponent<diji::Collider>();
+}
+
+void thomasWasLate::TempAddImpulse::Execute()
+{
+    m_Collider->ApplyImpulse({ diji::RandNumber::GetRandomRangeFloat(-m_RandomForce, m_RandomForce), diji::RandNumber::GetRandomRangeFloat(-m_RandomForce, m_RandomForce) });
 }
 

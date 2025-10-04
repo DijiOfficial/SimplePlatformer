@@ -132,8 +132,10 @@ std::vector<thomasWasLate::PlayerCharacter::CollisionInfo> thomasWasLate::Player
     
     const auto center = m_Camera->GetCameraView().getCenter();
     const auto size = m_Camera->GetCameraView().getSize();
-    const auto col = m_ColliderCompPtr->GetCollisionBox();
-    const auto offset = m_ColliderCompPtr->GetOffset();
+    const auto col = sf::FloatRect{ m_TransformCompPtr->GetPosition(), sf::Vector2f{ 44, 70 } };
+    // const auto col = m_ColliderCompPtr->GetAABB();
+    // const auto offset = m_ColliderCompPtr->GetOffset();
+    const auto offset = sf::Vector2f{ 0.f, 0.f };
     // bool bounced = false;
 
     // Calculate bounds

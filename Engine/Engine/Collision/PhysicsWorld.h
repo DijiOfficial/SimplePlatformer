@@ -1,12 +1,14 @@
 ﻿#pragma once
-#include <map>
 #include <vector>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/Shape.hpp>
 #include <SFML/System/Vector2.hpp>
+
+#include "../Singleton/TimeSingleton.h"
 
 namespace diji
 {
 	class Collider;
-	enum Rectf;
 
 	class PhysicsWorld final
 	{
@@ -19,32 +21,62 @@ namespace diji
 		PhysicsWorld& operator=(const PhysicsWorld& other) = delete;
 		PhysicsWorld& operator=(PhysicsWorld&& other) = delete;
 		
-		// void Reset();
-		void AddCollider(const Collider* object);
-		void RemoveCollider(const Collider* object);
-		// void AddLevelCollider(const std::vector<sf::Vector2f>& vertices) { m_LevelCollider.emplace_back(vertices); }
-		// void ParseRectInLevelCollider(const Rectf& rect);
-		//
-		// void UpdateCollider(const Collider* object, const Rectf& collider);
+		void Reset();
+		void AddCollider(Collider* collider);
+		void RemoveCollider(Collider* collider);
+		void FixedUpdate();
+		
+		struct StaticColliderInfo
+		{
+			sf::FloatRect aabb;
+			Collider* collider; // perhaps this can be optimized for memory usage if needed
+		};
 
+		struct CollisionInfo
+		{
+			sf::Vector2f point;          // Contact point
+			sf::Vector2f normal;         // Collision normal (pointing away from surface)
+			float penetration;           // How much objects overlap
+			mutable float normalImpulse; // Impulse magnitude (calculated during resolution)
+			sf::Vector2f tangent;        // Tangent vector for friction calculation
+			bool hasCollision;           // Whether collision occurred
+		};
+		
+		static float Right(const sf::FloatRect& r)  { return r.left + r.width; }
+		static float Bottom(const sf::FloatRect& r) { return r.top  + r.height; }
+	
 	private:
-		std::vector<const Collider*> m_Colliders;
-		std::vector<std::vector<sf::Vector2f>> m_LevelCollider;
+		struct Prediction
+		{
+			Collider* collider;
+			sf::FloatRect AABB;
+			sf::Vector2f pos;
+			sf::Vector2f vel;
+			std::vector<CollisionInfo> collisionInfoVec;
+		};
+		
+		std::vector<Collider*> m_DynamicColliders;
+		std::vector<StaticColliderInfo> m_StaticInfos;
+		
+		sf::Vector2f m_Gravity{0.f, 980.f}; // This doesn't need to be a vector unless we want to simulate planets or some shit
+		const TimeSingleton& m_TimeSingletonInstance = TimeSingleton::GetInstance();
 
-		// [[nodiscard]] float Distance(const sf::Vector2f& a, const sf::Vector2f& b) const;
-		// [[nodiscard]] float DistanceSquared(const sf::Vector2f& a, const sf::Vector2f& b) const;
-		//
-		// // taken from Prog2 Engine credits to Koen Samyn
-		// [[nodiscard]] bool Raycast(const std::vector<sf::Vector2f>& vertices, const sf::Vector2f& rayP1, const sf::Vector2f& rayP2) const;
-		// [[nodiscard]] bool Raycast(const sf::Vector2f* vertices, const size_t nrVertices, const sf::Vector2f& rayP1, const sf::Vector2f& rayP2) const;
-		// [[nodiscard]] bool IntersectLineSegments(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& q1, const sf::Vector2f& q2, float& outLambda1, float& outLambda2, double epsilon = 1e-6) const;
-		// [[nodiscard]] bool IsPointOnLineSegment(const sf::Vector2f& p, const sf::Vector2f& a, const sf::Vector2f& b) const;
-		// [[nodiscard]] bool AreRectsColliding(const Rectf& rect1, const Rectf& rect2) const;
-		//
-		// [[nodiscard]] float CrossProduct(const sf::Vector2f& vec1, const sf::Vector2f& vec2) const { return vec1.x * vec2.y - vec1.y * vec2.x; }
-		// [[nodiscard]] float DotProduct(const sf::Vector2f& vec1, const sf::Vector2f& vec2) const { return vec1.x * vec2.x + vec1.y * vec2.y; }
-		//
-		// [[nodiscard]] sf::Vector2f CreateVector(const sf::Vector2f& fromPoint, const sf::Vector2f& tillPoint) const { return sf::Vector2f{ tillPoint.x - fromPoint.x, tillPoint.y - fromPoint.y }; }
+		static bool AABBOverlap(const sf::FloatRect& a, const sf::FloatRect& b)
+		{
+			return !(Right(a) <= b.left ||
+					 Right(b) <= a.left ||
+					 Bottom(a) <= b.top ||
+					 Bottom(b) <= a.top);
+		}
+		
+		void PredictMovement(std::vector<Prediction>& predictionsVec) const;
+		void DetectCollisions(std::vector<Prediction>& predictionsVec);
+
+		static void ResolveCollision(Prediction& prediction, const CollisionInfo& collision);
+		void ApplyFriction(Prediction& prediction, const CollisionInfo& collision) const;
+
+		static void UpdateFinalPosition(const Prediction& prediction);
+		void HandleStaticCollisions(const sf::FloatRect& dynamicRect, const sf::FloatRect& staticRect) const;
 	};
 }
 

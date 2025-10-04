@@ -21,7 +21,15 @@ void diji::RectRender::Init()
 void diji::RectRender::RenderFrame() const
 {
     if (m_IsDebug)
+    {
         GetOwner()->GetComponent<Render>()->RenderFrame();
+        // if (const auto& renderComp = GetOwner()->GetComponent<Render>())
+        // {
+        //     // Only call RenderFrame if it's not a RectRender
+        //     if (dynamic_cast<const RectRender*>(renderComp) == nullptr)
+        //         renderComp->RenderFrame();
+        // }
+    }
     
     if (not m_Render)
         return;
@@ -45,10 +53,10 @@ void diji::RectRender::SetDrawCollision()
     if (!collider)
         return;
 
-    const auto& rect = collider->GetCollisionBox();
+    const auto& rect = collider->GetAABB();
 
     m_RectangleShape.setSize({ rect.width, rect.height });
-    m_RectangleShape.setOrigin(-collider->GetOffset());
+    // m_RectangleShape.setOrigin(-collider->GetOffset());
 
     m_FillColor = sf::Color::Transparent;
     m_OutlineColor = sf::Color::Green;

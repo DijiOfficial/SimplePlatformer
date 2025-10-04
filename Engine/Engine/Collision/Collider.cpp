@@ -1,12 +1,19 @@
 ﻿#include "Collider.h"
 
+#include "PhysicsWorld.h"
 #include "../Components/TextureComp.h"
 #include "../Components/Transform.h"
+#include "../Components/RectRender.h"
 #include "../Core/GameObject.h"
+#include "../Singleton/Helpers.h"
+#include "../Singleton/SceneManager.h"
+
 
 void diji::Collider::Start()
 {
     m_TransformCompPtr = GetOwner()->GetComponent<Transform>();
+    m_LastPosition = m_TransformCompPtr->GetPosition();
+    m_NewPosition = m_TransformCompPtr->GetPosition();
 
     // if (!m_IsCollisionSet)
     // {
@@ -25,6 +32,28 @@ void diji::Collider::Start()
 
     // Add collider to WorldPhysics
     // CollisionSingleton::GetInstance().AddCollider(this, m_CollisionBox);
+
+    SceneManager::GetInstance().GetPhysicsWorld()->AddCollider(this);
+
+    if (const auto& rectRenderComp = GetOwner()->GetComponent<RectRender>())
+        rectRenderComp->SetRectangle(sf::RectangleShape{ m_Shape->GetAABB().getSize() });
+
+    if (m_IsStatic)
+        m_Shape->SetPosition(m_TransformCompPtr->GetPosition());
+}
+
+void diji::Collider::FixedUpdate()
+{
+    if (m_IsStatic) return;
+    
+    m_LastPosition = m_NewPosition;
+}
+
+void diji::Collider::Update()
+{
+    if (m_IsStatic) return;
+    
+    m_TransformCompPtr->SetPosition(Helpers::lerp(m_LastPosition, m_NewPosition, m_TimeSingletonInstance.GetFixedTimeAlpha()));
 }
 
 // // todo: this should be late update and check for world collision it;s shit right now
@@ -43,8 +72,34 @@ void diji::Collider::Start()
 
 void diji::Collider::OnDestroy()
 {
-    // todo: destroy from WorldPhysics
-    // CollisionSingleton::GetInstance().RemoveCollider(this);
+    SceneManager::GetInstance().GetPhysicsWorld()->RemoveCollider(this);
+}
+
+void diji::Collider::SetPosition(const sf::Vector2f& pos) const
+{
+    m_TransformCompPtr->SetPosition(pos);
+}
+
+sf::Vector2f diji::Collider::GetPosition() const
+{
+    return m_TransformCompPtr->GetPosition(); // null check? fuck no if you have no transform comp wtf did you do
+}
+
+sf::FloatRect diji::Collider::GetAABB() const
+{
+    return GetAABBAt(GetPosition());
+}
+
+sf::FloatRect diji::Collider::GetAABBAt(const sf::Vector2f& pos) const
+{
+    sf::FloatRect rect;
+    const sf::FloatRect& local = m_Shape->GetLocalShapeBounds();
+
+    rect.left   = pos.x + local.left;
+    rect.top    = pos.y + local.top;
+    rect.width  = local.width;
+    rect.height = local.height;
+    return rect;
 }
 
 // void diji::Collider::UpdateColliderFromTexture()

@@ -10,8 +10,11 @@
 
 diji::Scene* diji::SceneManager::CreateScene(const int id)
 {
+    if (!m_PhysicsWorldUPtr) // Kinda hacky but it works for now
+        m_PhysicsWorldUPtr = std::make_unique<PhysicsWorld>();
+    
     // Check if the scene already exists in the map
-    auto it = m_ScenesUPtrMap.find(id);
+    const auto it = m_ScenesUPtrMap.find(id);
     if (it != m_ScenesUPtrMap.end())
     {
         // Scene already exists, return the existing scene
@@ -41,6 +44,8 @@ void diji::SceneManager::Start() const
 
 void diji::SceneManager::FixedUpdate() const
 {
+    m_PhysicsWorldUPtr->FixedUpdate();
+    
     m_ScenesUPtrMap.at(m_ActiveSceneId)->FixedUpdate();
 }
 
@@ -93,6 +98,9 @@ void diji::SceneManager::EndFrameUpdate()
 
         // Clear all timers
         TimerManager::GetInstance().ClearAllTimers();
+
+        // Clear Physics World
+        m_PhysicsWorldUPtr->Reset();
         
         // Destroy current scene
         OnDestroy();
@@ -106,8 +114,8 @@ void diji::SceneManager::EndFrameUpdate()
         else
             throw std::runtime_error("SceneLoader not registered for SceneId.");
 
-        m_ScenesUPtrMap.at(m_ActiveSceneId)->Init();
-        m_ScenesUPtrMap.at(m_ActiveSceneId)->Start();
+        Init();
+        Start();
     }
 }
 

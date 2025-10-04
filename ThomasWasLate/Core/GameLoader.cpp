@@ -5,7 +5,7 @@
 #include "../Components/PlayerCharacter.h"
 #include "../Input/CustomCommands.h"
 #include "../Singletons/GameManager.h"
-#include "Engine//Collision/Collider.h"
+#include "Engine/Collision/Collider.h"
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Input/InputManager.h"
@@ -13,8 +13,10 @@
 #include "Engine/Components/Transform.h"
 #include "Engine/Components/Render.h"
 #include "Engine/Components/Camera.h"
+#include "Engine/Components/FPSCounter.h"
 #include "Engine/Components/RectRender.h"
 #include "Engine/Components/Sprite.h"
+#include "Engine/Components/TextComp.h"
 #include "Engine/Core/Engine.h"
 #include "Engine/Singleton/GameStateManager.h"
 
@@ -60,26 +62,83 @@ void SceneLoader::Level()
     // camera->GetComponent<Camera>()->SetLevelBoundaries(static_cast<sf::FloatRect>(arena));
     camera->GetComponent<Camera>()->SetClampingMode(false);
 
-    const auto thomas = scene->CreateGameObject("X_Thomas");
-    thomas->AddComponents<Transform>(0, 0);
-    thomas->AddComponents<TextureComp>("graphics/thomas.png");
-    thomas->AddComponents<Render>();
-    thomas->AddComponents<Collider>(44, 70, sf::Vector2f{ 3.f, 30.f });
-    thomas->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
-    thomas->AddComponents<RectRender>(true);
+    // const auto thomas = scene->CreateGameObject("X_Thomas");
+    // thomas->AddComponents<Transform>(0, 0);
+    // thomas->AddComponents<TextureComp>("graphics/thomas.png");
+    // thomas->AddComponents<Render>();
+    // // thomas->AddComponents<Collider>(44, 70, sf::Vector2f{ 3.f, 30.f });
+    // thomas->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
+    // // thomas->AddComponents<RectRender>(true);
 
-    const auto bob = scene->CreateGameObject("X_Thomas2", thomas);
-    bob->GetComponent<thomasWasLate::PlayerCharacter>()->SetMass(25);
+    const auto testBall = scene->CreateGameObject("X_TestBall");
+    testBall->AddComponents<Transform>(0, 0);
+    testBall->AddComponents<TextureComp>("graphics/thomas.png");
+    testBall->AddComponents<Render>();
+    testBall->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 100 });
+    // testBall->GetComponent<Collider>()->SetRestitution(0.5f);
+    // testBall->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
+    // testBall->AddComponents<RectRender>(true);
+
+    const auto tempBoundBottom = scene->CreateGameObject("Z_TempBoundBottom");
+    tempBoundBottom->AddComponents<Transform>(-959, 489);
+    tempBoundBottom->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 1918, 50 });
+    tempBoundBottom->GetComponent<Collider>()->SetStatic(true);
+    tempBoundBottom->AddComponents<RectRender>();
+
+    const auto tempTopBound = scene->CreateGameObject("Z_TempBoundTop");
+    tempTopBound->AddComponents<Transform>(-959, -539);
+    tempTopBound->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 1918, 50 });
+    tempTopBound->GetComponent<Collider>()->SetStatic(true);
+    tempTopBound->AddComponents<RectRender>();
+
+    const auto tempBoundLeft = scene->CreateGameObject("Z_TempBoundLeft");
+    tempBoundLeft->AddComponents<Transform>(-959, -539);
+    tempBoundLeft->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 1078 });
+    tempBoundLeft->GetComponent<Collider>()->SetStatic(true);
+    tempBoundLeft->AddComponents<RectRender>();
+
+    const auto tempBoundRight = scene->CreateGameObject("Z_TempBoundRight");
+    tempBoundRight->AddComponents<Transform>(909, -539);
+    tempBoundRight->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 1078 });
+    tempBoundRight->GetComponent<Collider>()->SetStatic(true);
+    tempBoundRight->AddComponents<RectRender>();
+    
+    const auto fpsCounter = scene->CreateGameObject("Z_FPSCounter");
+    fpsCounter->AddComponents<TextComp>("0 FPS", "fonts/Roboto-Light.ttf", sf::Color::White, true);
+    fpsCounter->GetComponent<TextComp>()->GetText().setCharacterSize(33);
+    fpsCounter->AddComponents<FPSCounter>();
+    fpsCounter->AddComponents<Transform>(window::VIEWPORT.x - 100, 40);
+    fpsCounter->AddComponents<Render>();
+    scene->SetGameObjectAsCanvasObject(fpsCounter);
+    
+
+    // const auto center = m_Camera->GetCameraView().getCenter();
+    // const auto size = m_Camera->GetCameraView().getSize();
+    // const auto col = sf::FloatRect{ m_TransformCompPtr->GetPosition(), sf::Vector2f{ 44, 70 } };
+    // // const auto col = m_ColliderCompPtr->GetAABB();
+    // // const auto offset = m_ColliderCompPtr->GetOffset();
+    // const auto offset = sf::Vector2f{ 0.f, 0.f };
+    // // bool bounced = false;
+    //
+    // // Calculate bounds
+    // const float leftBound = center.x - size.x * 0.5f;
+    // const float rightBound = center.x + size.x * 0.5f - col.width;
+    // const float topBound = center.y - size.y * 0.5f;
+    // const float bottomBound = center.y + size.y * 0.5f - col.height - offset.y;
+
+    // const auto bob = scene->CreateGameObject("X_Thomas2", thomas);
+    // bob->GetComponent<thomasWasLate::PlayerCharacter>()->SetMass(25);
     
 #pragma region Commands
     auto& input = InputManager::GetInstance();
 
-    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::D, thomas, sf::Vector2f{ 1.f, 0.f });
-    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::A, thomas, sf::Vector2f{ -1.f, 0.f });
+    // input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::D, thomas, sf::Vector2f{ 1.f, 0.f });
+    // input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::A, thomas, sf::Vector2f{ -1.f, 0.f });
+    //
+    // input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::W, thomas, true);
+    // input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::W, thomas, false);
 
-    input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::W, thomas, true);
-    input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::W, thomas, false);
-    
+    input.BindCommand<thomasWasLate::TempAddImpulse>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::Space, testBall);
     
 #pragma endregion
 

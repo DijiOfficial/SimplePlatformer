@@ -1,6 +1,11 @@
 ﻿#pragma once
 #include "Engine/Input/GameActorCommand.h"
 
+namespace diji
+{
+    class Collider;
+}
+
 namespace thomasWasLate
 {
     class PlayerCharacter;
@@ -29,5 +34,18 @@ namespace thomasWasLate
     private:
         PlayerCharacter* m_Character = nullptr;
         bool m_IsJumping = false;
+    };
+
+    class TempAddImpulse final : public diji::GameActorCommands
+    {
+    public:
+        explicit TempAddImpulse(diji::GameObject* actor);
+        ~TempAddImpulse() noexcept override = default;
+
+        void Execute() override;
+
+    private:
+        diji::Collider* m_Collider = nullptr;
+        float m_RandomForce = 2000.f;
     };
 }
