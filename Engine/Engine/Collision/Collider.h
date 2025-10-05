@@ -90,13 +90,6 @@ namespace diji
         void OnCollision(Collider*) {}
 
         void SetTag (const std::string& tag) { m_Tag = tag; }
-        // void UpdateColliderFromTexture();
-        // [[nodiscard]] const std::string& GetTag() const { return m_Tag; }
-        // [[nodiscard]] const GameObject* GetParent() const { return GetOwner(); }
-        // [[nodiscard]] Rectf GetLastState() const { return m_CollisionBox; }
-        // [[nodiscard]] sf::Vector2f GetOffset() const { return m_Offset; }
-        // [[nodiscard]] sf::Vector2f GetPosition() const;
-        // [[nodiscard]] sf::Vector2f GetCenter() const;
 
     private:
         Transform* m_TransformCompPtr = nullptr;
@@ -113,11 +106,8 @@ namespace diji
         float m_Restitution = 1.f; // bounciness [0,1]
         bool m_IsStatic = false; // immovable object
         bool m_AffectedByGravity = true;
-        
-        // sf::Vector2f m_Offset{ 0, 0 };
+  
         std::string m_Tag = "Untagged";
-        // bool m_IsOffsetSet = false;
-        // bool m_IsCollisionSet = true;
     };
 }
 

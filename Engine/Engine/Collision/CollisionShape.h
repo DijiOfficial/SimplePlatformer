@@ -31,7 +31,7 @@ namespace diji
         [[nodiscard]] virtual const sf::Shape& GetShape() const = 0;
         [[nodiscard]] virtual sf::FloatRect GetLocalShapeBounds() const = 0;
         virtual void SetPosition(const sf::Vector2f& pos) = 0;
-
+        virtual void SetRotation(float angleDeg) = 0;
         
         void UpdateAABB(const sf::Vector2f& pos) // todo: not necessary?
         {
@@ -75,6 +75,7 @@ namespace diji
         void CollideWith(std::vector<PhysicsWorld::CollisionInfo>&, const sf::FloatRect&, const sf::FloatRect&) override {}
 
         void SetPosition(const sf::Vector2f& pos) override { m_Circle.setPosition(pos); }
+        void SetRotation(const float angleDeg) override { m_Circle.setRotation(angleDeg); }
 
     protected:
         void HandleStaticCollisionWithRect(std::vector<PhysicsWorld::CollisionInfo>&, const sf::RectangleShape&, const sf::Vector2f&, const sf::RectangleShape&) override {}
@@ -105,6 +106,7 @@ namespace diji
         void HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&) override;
         void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override;
         void SetPosition(const sf::Vector2f& pos) override { m_Rect.setPosition(pos); }
+        void SetRotation(const float angleDeg) override { m_Rect.setRotation(angleDeg); }
 
     private:
         sf::RectangleShape m_Rect;
@@ -136,6 +138,7 @@ namespace diji
         void HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&) override {}
         void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override {}
         void SetPosition(const sf::Vector2f& pos) override { m_Triangle.setPosition(pos); }
+        void SetRotation(const float angleDeg) override { m_Triangle.setRotation(angleDeg); }
 
     private:
         sf::ConvexShape m_Triangle;

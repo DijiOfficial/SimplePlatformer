@@ -14,7 +14,7 @@
 #include "Engine/Components/Render.h"
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/FPSCounter.h"
-#include "Engine/Components/RectRender.h"
+#include "Engine/Components/ShapeRender.h"
 #include "Engine/Components/Sprite.h"
 #include "Engine/Components/TextComp.h"
 #include "Engine/Core/Engine.h"
@@ -75,33 +75,50 @@ void SceneLoader::Level()
     testBall->AddComponents<TextureComp>("graphics/thomas.png");
     testBall->AddComponents<Render>();
     testBall->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 100 });
-    // testBall->GetComponent<Collider>()->SetRestitution(0.5f);
+    testBall->GetComponent<Collider>()->SetRestitution(0.5f);
     // testBall->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
-    // testBall->AddComponents<RectRender>(true);
+    testBall->AddComponents<ShapeRender>(true);
 
+    // const auto testBall = scene->CreateGameObject("X_TestBall");
+    // testBall->AddComponents<Transform>(0, 0);
+    // testBall->AddComponents<TextureComp>("graphics/ball.png");
+    // testBall->AddComponents<Render>();
+    // testBall->AddComponents<Collider>(CollisionShape::ShapeType::CIRCLE, 65.f);
+    // testBall->GetComponent<Collider>()->SetRestitution(0.35f);
+    // // testBall->GetComponent<Collider>()->SetRestitution(0.5f);
+    // // testBall->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
+    // testBall->AddComponents<ShapeRender>(true);
+    
     const auto tempBoundBottom = scene->CreateGameObject("Z_TempBoundBottom");
     tempBoundBottom->AddComponents<Transform>(-959, 489);
     tempBoundBottom->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 1918, 50 });
     tempBoundBottom->GetComponent<Collider>()->SetStatic(true);
-    tempBoundBottom->AddComponents<RectRender>();
+    tempBoundBottom->AddComponents<ShapeRender>();
 
     const auto tempTopBound = scene->CreateGameObject("Z_TempBoundTop");
     tempTopBound->AddComponents<Transform>(-959, -539);
     tempTopBound->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 1918, 50 });
     tempTopBound->GetComponent<Collider>()->SetStatic(true);
-    tempTopBound->AddComponents<RectRender>();
+    tempTopBound->AddComponents<ShapeRender>();
 
     const auto tempBoundLeft = scene->CreateGameObject("Z_TempBoundLeft");
     tempBoundLeft->AddComponents<Transform>(-959, -539);
     tempBoundLeft->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 1078 });
     tempBoundLeft->GetComponent<Collider>()->SetStatic(true);
-    tempBoundLeft->AddComponents<RectRender>();
+    tempBoundLeft->AddComponents<ShapeRender>();
 
     const auto tempBoundRight = scene->CreateGameObject("Z_TempBoundRight");
     tempBoundRight->AddComponents<Transform>(909, -539);
     tempBoundRight->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 1078 });
     tempBoundRight->GetComponent<Collider>()->SetStatic(true);
-    tempBoundRight->AddComponents<RectRender>();
+    tempBoundRight->AddComponents<ShapeRender>();
+
+    
+    // const auto randomCircle = scene->CreateGameObject("Z_TemRoundCirlRight");
+    // randomCircle->AddComponents<Transform>(0, 339);
+    // randomCircle->AddComponents<Collider>(CollisionShape::ShapeType::CIRCLE, 100.f);
+    // randomCircle->GetComponent<Collider>()->SetStatic(true);
+    // randomCircle->AddComponents<ShapeRender>();
     
     const auto fpsCounter = scene->CreateGameObject("Z_FPSCounter");
     fpsCounter->AddComponents<TextComp>("0 FPS", "fonts/Roboto-Light.ttf", sf::Color::White, true);

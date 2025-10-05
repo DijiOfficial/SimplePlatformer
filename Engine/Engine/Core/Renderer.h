@@ -8,6 +8,9 @@ namespace sf
 {
 	class VertexArray;
 	class RectangleShape;
+	class CircleShape;
+	class ConvexShape;
+	class Shape;
 	class Color;
 	class Angle;
 	class RenderWindow;
@@ -35,29 +38,14 @@ namespace diji
 		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, float angle, float scaleX = 1, float scaleY = 1) const;
 		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, float angle, float scale = 1) const;
 		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, int width, int height, float angle) const;
-
-		// void DrawCircle(int x, int y, int radius)
-		// {
-		// 	SDL_SetRenderDrawColor(m_RendererPtr, 255, 255, 255, 255);
-		// 	for (int w = 0; w < radius * 2; w++)
-		// 	{
-		// 		for (int h = 0; h < radius * 2; h++)
-		// 		{
-		// 			int dx = radius - w; // horizontal offset
-		// 			int dy = radius - h; // vertical offset
-		// 			if ((dx * dx + dy * dy) <= (radius * radius))
-		// 			{
-		// 				SDL_RenderDrawPoint(m_RendererPtr, x + dx, y + dy);
-		// 			}
-		// 		}
-		// 	}
-		// }
-
-		// todo: overload this (the cpp versions)
+		
+		// todo: unecessary fucntions?
 		void DrawRect(const sf::RectangleShape& shape, const sf::Color& outline, const sf::Color& fill, float outlineWidth = 1.f) const;
 		void DrawRect(const sf::RectangleShape& shape) const;
 		void DrawFilledRect(const sf::RectangleShape& shape, const sf::Color& color) const;
-		
+
+		// Handle shape drawing with function overloading
+		void DrawShape(const sf::Shape& shape) const;
 		
 		// void DrawLine(const glm::vec2& p1, const glm::vec2& p2, const SDL_Color& color = { 255, 255, 255, 255 }) const
 		// {

@@ -6,6 +6,9 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/ConvexShape.hpp>
+#include <SFML/Graphics/Shape.hpp>
 
 void diji::Renderer::Init(sf::RenderWindow* window)
 {
@@ -126,12 +129,17 @@ void diji::Renderer::DrawRect(const sf::RectangleShape& shape, const sf::Color& 
 
 void diji::Renderer::DrawRect(const sf::RectangleShape& shape) const
 {
-	DrawRect(shape, sf::Color::White ,sf::Color::Transparent);
+	DrawRect(shape, shape.getOutlineColor() ,sf::Color::Transparent);
 }
 
 void diji::Renderer::DrawFilledRect(const sf::RectangleShape& shape, const sf::Color& color) const
 {
 	DrawRect(shape, color, color, 0);
+}
+
+void diji::Renderer::DrawShape(const sf::Shape& shape) const
+{
+	m_WindowPtr->draw(shape);
 }
 
 void diji::Renderer::SetBackgroundColor(const sf::Color& color)

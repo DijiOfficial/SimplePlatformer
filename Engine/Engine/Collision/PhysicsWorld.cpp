@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include "Collider.h"
+#include "CollisionsHelper.h"
 #include "../Singleton/Helpers.h"
 
 void diji::PhysicsWorld::Reset()
@@ -102,6 +103,7 @@ void diji::PhysicsWorld::PredictMovement(std::vector<Prediction>& predictionsVec
 
 void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVec)
 {
+    // for (size_t i = 0; i < predictionsVec.size() - 1; ++i)
     for (size_t i = 0; i < predictionsVec.size(); ++i)
     {
         auto& [colliderPtr, predictedAABB, pos, vel, collisionsVec] = predictionsVec[i];
@@ -112,75 +114,76 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             if (!AABBOverlap(predictedAABB, info.aabb))
                 continue;
 
+            HandleStaticCollisions(predictionsVec[i], info.collider);
             // todo: rework the collision handling system
             // colliderPtr->GetShape()->CollideWith(collisionsVec, info, pos);
             // this is not working?
             // colliderPtr->GetShape()->CollideWith(collisionsVec, predictedAABB, info.aabb);
 
-            // This only works for non-rotated rectangles (AABB)
-            const float leftA   = predictedAABB.left;
-            const float rightA  = PhysicsWorld::Right(predictedAABB);
-            const float topA    = predictedAABB.top;
-            const float bottomA = PhysicsWorld::Bottom(predictedAABB);
-
-            const float leftB   = info.aabb.left;
-            const float rightB  = PhysicsWorld::Right(info.aabb);
-            const float topB    = info.aabb.top;
-            const float bottomB = PhysicsWorld::Bottom(info.aabb);
-            
-            const float overlapX = std::min(rightA, rightB) - std::max(leftA, leftB);
-            const float overlapY = std::min(bottomA, bottomB) - std::max(topA, topB);
-            
-            if (overlapX > 0.f && overlapY > 0.f)
-            {
-                PhysicsWorld::CollisionInfo collision;
-                collision.hasCollision = true;
-                
-                // Choose smaller axis of penetration
-                if (overlapX < overlapY)
-                {
-                    // X-axis collision
-                    if (leftA < leftB)
-                    {
-                        // A is to the left of B, collision from left
-                        collision.normal = sf::Vector2f{-1.f, 0.f};
-                        collision.point  = sf::Vector2f{leftB, (topA + bottomA) * 0.5f};
-                    }
-                    else
-                    {
-                        // A is to the right of B, collision from right
-                        collision.normal = sf::Vector2f{1.f, 0.f};
-                        collision.point  = sf::Vector2f{rightB, (topA + bottomA) * 0.5f};
-                    }
-            
-                    collision.tangent = sf::Vector2f{0.f, 1.f}; // Perpendicular to normal
-                    collision.penetration = overlapX;
-                }
-                else
-                {
-                    // Y-axis collision
-                    if (topA < topB)
-                    {
-                        // A is above B, collision from top
-                        collision.normal = sf::Vector2f{0.f, -1.f};
-                        collision.point  = sf::Vector2f{(leftA + rightA) * 0.5f, topB};
-                    }
-                    else
-                    {
-                        // A is below B, collision from bottom
-                        collision.normal = sf::Vector2f{0.f, 1.f};
-                        collision.point  = sf::Vector2f{(leftA + rightA) * 0.5f, bottomB};
-                    }
-            
-                    collision.tangent = sf::Vector2f{1.f, 0.f};
-                    collision.penetration = overlapY;
-                }
-            
-                collisionsVec.push_back(collision);
-            }
+            // // This only works for non-rotated rectangles (AABB)
+            // const float leftA   = predictedAABB.left;
+            // const float rightA  = PhysicsWorld::Right(predictedAABB);
+            // const float topA    = predictedAABB.top;
+            // const float bottomA = PhysicsWorld::Bottom(predictedAABB);
+            //
+            // const float leftB   = info.aabb.left;
+            // const float rightB  = PhysicsWorld::Right(info.aabb);
+            // const float topB    = info.aabb.top;
+            // const float bottomB = PhysicsWorld::Bottom(info.aabb);
+            //
+            // const float overlapX = std::min(rightA, rightB) - std::max(leftA, leftB);
+            // const float overlapY = std::min(bottomA, bottomB) - std::max(topA, topB);
+            //
+            // if (overlapX > 0.f && overlapY > 0.f)
+            // {
+            //     PhysicsWorld::CollisionInfo collision;
+            //     collision.hasCollision = true;
+            //     
+            //     // Choose smaller axis of penetration
+            //     if (overlapX < overlapY)
+            //     {
+            //         // X-axis collision
+            //         if (leftA < leftB)
+            //         {
+            //             // A is to the left of B, collision from left
+            //             collision.normal = sf::Vector2f{-1.f, 0.f};
+            //             collision.point  = sf::Vector2f{leftB, (topA + bottomA) * 0.5f};
+            //         }
+            //         else
+            //         {
+            //             // A is to the right of B, collision from right
+            //             collision.normal = sf::Vector2f{1.f, 0.f};
+            //             collision.point  = sf::Vector2f{rightB, (topA + bottomA) * 0.5f};
+            //         }
+            //
+            //         collision.tangent = sf::Vector2f{0.f, 1.f}; // Perpendicular to normal
+            //         collision.penetration = overlapX;
+            //     }
+            //     else
+            //     {
+            //         // Y-axis collision
+            //         if (topA < topB)
+            //         {
+            //             // A is above B, collision from top
+            //             collision.normal = sf::Vector2f{0.f, -1.f};
+            //             collision.point  = sf::Vector2f{(leftA + rightA) * 0.5f, topB};
+            //         }
+            //         else
+            //         {
+            //             // A is below B, collision from bottom
+            //             collision.normal = sf::Vector2f{0.f, 1.f};
+            //             collision.point  = sf::Vector2f{(leftA + rightA) * 0.5f, bottomB};
+            //         }
+            //
+            //         collision.tangent = sf::Vector2f{1.f, 0.f};
+            //         collision.penetration = overlapY;
+            //     }
+            //
+            //     collisionsVec.push_back(collision);
+            // }
         }
 
-        for (size_t j = 0; j < predictionsVec.size(); ++j)
+        for (size_t j = i + 1; j < predictionsVec.size(); ++j)
         {
             if (i == j) continue;
             const Prediction& other = predictionsVec[j];
@@ -288,4 +291,66 @@ void diji::PhysicsWorld::UpdateFinalPosition(const Prediction& prediction)
 
     // Clear net forces for next frame
     prediction.collider->ClearNetForce();
+}
+
+void diji::PhysicsWorld::HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider)
+{
+    std::vector<CollisionInfo> emptyCollisionsVec;
+    switch (dynamicCollider.collider->GetShapeType())
+    {
+        case CollisionShape::ShapeType::CIRCLE:
+        {
+            auto shape = *dynamic_cast<const sf::CircleShape*>(&dynamicCollider.collider->GetShape()->GetShape());
+            shape.setPosition(dynamicCollider.pos);
+            switch (staticCollider->GetShapeType())
+            {
+            case CollisionShape::ShapeType::CIRCLE:
+            {
+                const auto otherCircle = dynamic_cast<const sf::CircleShape*>(&staticCollider->GetShape()->GetShape());
+                CollisionsHelper::ProcessCircleToCircleCollision(shape, *otherCircle, dynamicCollider.collisionInfoVec, emptyCollisionsVec);
+                break;
+            }
+            case CollisionShape::ShapeType::RECT:
+            {   
+                const auto otherRect = dynamic_cast<const sf::RectangleShape*>(&staticCollider->GetShape()->GetShape());
+                CollisionsHelper::ProcessCircleToBoxCollision(shape, *otherRect, dynamicCollider.collisionInfoVec, emptyCollisionsVec);
+                break;
+            }
+            case CollisionShape::ShapeType::TRIANGLE:
+                break;
+            default:
+                break;
+            }
+            break;
+        }
+        case CollisionShape::ShapeType::RECT:
+        {
+            auto shape = *dynamic_cast<const sf::RectangleShape*>(&dynamicCollider.collider->GetShape()->GetShape());
+            shape.setPosition(dynamicCollider.pos);
+            switch (staticCollider->GetShapeType())
+            {
+            case CollisionShape::ShapeType::CIRCLE:
+                {
+                    // const auto otherCircle = dynamic_cast<const sf::CircleShape*>(&staticCollider->GetShape()->GetShape());
+                    // CollisionsHelper::ProcessCircleToCircleCollision(shape, *otherCircle, dynamicCollider.collisionInfoVec, emptyCollisionsVec);
+                    break;
+                }
+            case CollisionShape::ShapeType::RECT:
+                {   
+                    const auto otherRect = dynamic_cast<const sf::RectangleShape*>(&staticCollider->GetShape()->GetShape());
+                    CollisionsHelper::ProcessBoxToBoxCollision(shape, *otherRect, dynamicCollider.collisionInfoVec, emptyCollisionsVec);
+                    break;
+                }
+            case CollisionShape::ShapeType::TRIANGLE:
+                break;
+            default:
+                break;
+            }
+            break;
+        }
+        case CollisionShape::ShapeType::TRIANGLE:
+            break;
+        default:
+            throw std::invalid_argument("Invalid collision shape");
+    }
 }

@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <vector>
 #include <SFML/Graphics/Rect.hpp>
-#include <SFML/Graphics/Shape.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include "../Singleton/TimeSingleton.h"
@@ -76,7 +75,8 @@ namespace diji
 		void ApplyFriction(Prediction& prediction, const CollisionInfo& collision) const;
 
 		static void UpdateFinalPosition(const Prediction& prediction);
-		void HandleStaticCollisions(const sf::FloatRect& dynamicRect, const sf::FloatRect& staticRect) const;
+		static void HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider);
+		// void HanldeDynamicCollisions(const sf::FloatRect& rectA, const sf::FloatRect& rectB) const;
 	};
 }
 

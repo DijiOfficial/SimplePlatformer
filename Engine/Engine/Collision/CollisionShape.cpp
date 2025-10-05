@@ -134,77 +134,77 @@ void diji::Rect::HandleStaticCollisionWithRect(std::vector<PhysicsWorld::Collisi
     (void)staticShape;
 
     // SAT for rotated rectangles not working quite right
-    // // Apply predicted position to moving shape transform
-    // sf::RectangleShape movedShape = movingShape;
-    // movedShape.setPosition(predictedPos);
-    //
-    // auto cornersA = GetCorners(movedShape);
-    // auto cornersB = GetCorners(staticShape);
-    //
-    // auto axesA = GetAxes(cornersA);
-    // auto axesB = GetAxes(cornersB);
-    //
-    // float minOverlap = std::numeric_limits<float>::max();
-    // sf::Vector2f smallestAxis;
-    // bool foundSeparation = false;
-    //
-    // // Test all axes from both shapes
-    // for (const auto& axis : axesA)
-    // {
-    //     float minA, maxA, minB, maxB;
-    //     ProjectOntoAxis(cornersA, axis, minA, maxA);
-    //     ProjectOntoAxis(cornersB, axis, minB, maxB);
-    //
-    //     if (maxA < minB || maxB < minA)
-    //     {
-    //         foundSeparation = true;
-    //         break; // No collision
-    //     }
-    //
-    //     float overlap = std::min(maxA, maxB) - std::max(minA, minB);
-    //     if (overlap < minOverlap)
-    //     {
-    //         minOverlap = overlap;
-    //         smallestAxis = axis;
-    //     }
-    // }
-    //
-    // if (!foundSeparation)
-    // {
-    //     for (const auto& axis : axesB)
-    //     {
-    //         float minA, maxA, minB, maxB;
-    //         ProjectOntoAxis(cornersA, axis, minA, maxA);
-    //         ProjectOntoAxis(cornersB, axis, minB, maxB);
-    //
-    //         if (maxA < minB || maxB < minA)
-    //         {
-    //             foundSeparation = true;
-    //             break; // No collision
-    //         }
-    //
-    //         float overlap = std::min(maxA, maxB) - std::max(minA, minB);
-    //         if (overlap < minOverlap)
-    //         {
-    //             minOverlap = overlap;
-    //             smallestAxis = axis;
-    //         }
-    //     }
-    // }
-    //
-    // if (!foundSeparation)
-    // {
-    //     PhysicsWorld::CollisionInfo collision;
-    //     collision.hasCollision = true;
-    //     collision.normal = smallestAxis;
-    //     collision.penetration = minOverlap;
-    //     collision.tangent = sf::Vector2f(-smallestAxis.y, smallestAxis.x);
-    //
-    //     // Estimate point of contact as center of overlap (approximation)
-    //     collision.point = 0.5f * (movedShape.getPosition() + staticShape.getPosition());
-    //
-    //     collisionsVec.push_back(collision);
-    // }
+    // Apply predicted position to moving shape transform
+    sf::RectangleShape movedShape = movingShape;
+    movedShape.setPosition(predictedPos);
+    
+    auto cornersA = GetCorners(movedShape);
+    auto cornersB = GetCorners(staticShape);
+    
+    auto axesA = GetAxes(cornersA);
+    auto axesB = GetAxes(cornersB);
+    
+    float minOverlap = std::numeric_limits<float>::max();
+    sf::Vector2f smallestAxis;
+    bool foundSeparation = false;
+    
+    // Test all axes from both shapes
+    for (const auto& axis : axesA)
+    {
+        float minA, maxA, minB, maxB;
+        ProjectOntoAxis(cornersA, axis, minA, maxA);
+        ProjectOntoAxis(cornersB, axis, minB, maxB);
+    
+        if (maxA < minB || maxB < minA)
+        {
+            foundSeparation = true;
+            break; // No collision
+        }
+    
+        float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+        if (overlap < minOverlap)
+        {
+            minOverlap = overlap;
+            smallestAxis = axis;
+        }
+    }
+    
+    if (!foundSeparation)
+    {
+        for (const auto& axis : axesB)
+        {
+            float minA, maxA, minB, maxB;
+            ProjectOntoAxis(cornersA, axis, minA, maxA);
+            ProjectOntoAxis(cornersB, axis, minB, maxB);
+    
+            if (maxA < minB || maxB < minA)
+            {
+                foundSeparation = true;
+                break; // No collision
+            }
+    
+            float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+            if (overlap < minOverlap)
+            {
+                minOverlap = overlap;
+                smallestAxis = axis;
+            }
+        }
+    }
+    
+    if (!foundSeparation)
+    {
+        PhysicsWorld::CollisionInfo collision;
+        collision.hasCollision = true;
+        collision.normal = smallestAxis;
+        collision.penetration = minOverlap;
+        collision.tangent = sf::Vector2f(-smallestAxis.y, smallestAxis.x);
+    
+        // Estimate point of contact as center of overlap (approximation)
+        collision.point = 0.5f * (movedShape.getPosition() + staticShape.getPosition());
+    
+        collisionsVec.push_back(collision);
+    }
 
 
 }

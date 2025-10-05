@@ -8,8 +8,6 @@
 
 #include "../../Engine/Engine/Collision/CollisionShape.h"
 #include "../Core/GameState.h"
-#include "Engine/Collision/CollisionSingleton.h"
-#include "Engine/Components/RectRender.h"
 #include "Engine/Singleton/SceneManager.h"
 
 void thomasWasLate::GameManager::SwitchPlayer()

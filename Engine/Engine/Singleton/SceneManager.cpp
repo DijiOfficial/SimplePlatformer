@@ -4,7 +4,6 @@
 #include <stdexcept>
 
 #include "TimerManager.h"
-#include "../Collision/CollisionSingleton.h"
 #include "../Components/Transform.h"
 #include "../Input/InputManager.h"
 
@@ -92,9 +91,6 @@ void diji::SceneManager::EndFrameUpdate()
 
         // Clear Commands assigned for that scene
         InputManager::GetInstance().ResetCommands();
-
-        // Clear All Colliders
-        CollisionSingleton::GetInstance().Reset();
 
         // Clear all timers
         TimerManager::GetInstance().ClearAllTimers();
