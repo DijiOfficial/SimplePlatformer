@@ -3,6 +3,7 @@
 #include "GameState.h"
 #include "../Components/BackgroundHandler.h"
 #include "../Components/PlayerCharacter.h"
+#include "../Components/tempTest.h"
 #include "../Input/CustomCommands.h"
 #include "../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
@@ -45,7 +46,7 @@ void SceneLoader::Level()
 
     // static_cast<float>(window::VIEWPORT.x) * -0.5f + 25.f, static_cast<float>(window::VIEWPORT.y) * -0.5f + 25.f
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
-    staticBackground->AddComponents<Transform>(0, 0);
+    staticBackground->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.5f);
     staticBackground->AddComponents<TextureComp>("graphics/background.png");
     staticBackground->AddComponents<Render>();
     scene->SetGameObjectAsStaticBackground(staticBackground);
@@ -71,11 +72,13 @@ void SceneLoader::Level()
     // // thomas->AddComponents<RectRender>(true);
 
     const auto testBall = scene->CreateGameObject("X_TestBall");
-    testBall->AddComponents<Transform>(0, 0);
+    testBall->AddComponents<Transform>(200, 0);
     testBall->AddComponents<TextureComp>("graphics/thomas.png");
     testBall->AddComponents<Render>();
     testBall->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 100 });
     testBall->GetComponent<Collider>()->SetRestitution(0.5f);
+    // testBall->GetComponent<Collider>()->SetAffectedByGravity(false);
+    testBall->AddComponents<thomasWasLate::tempTest>();
     // testBall->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
     testBall->AddComponents<ShapeRender>(true);
 
@@ -90,25 +93,25 @@ void SceneLoader::Level()
     // testBall->AddComponents<ShapeRender>(true);
     
     const auto tempBoundBottom = scene->CreateGameObject("Z_TempBoundBottom");
-    tempBoundBottom->AddComponents<Transform>(-959, 489);
+    tempBoundBottom->AddComponents<Transform>(0, 514);
     tempBoundBottom->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 1918, 50 });
     tempBoundBottom->GetComponent<Collider>()->SetStatic(true);
     tempBoundBottom->AddComponents<ShapeRender>();
 
     const auto tempTopBound = scene->CreateGameObject("Z_TempBoundTop");
-    tempTopBound->AddComponents<Transform>(-959, -539);
+    tempTopBound->AddComponents<Transform>(0, -514);
     tempTopBound->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 1918, 50 });
     tempTopBound->GetComponent<Collider>()->SetStatic(true);
     tempTopBound->AddComponents<ShapeRender>();
 
     const auto tempBoundLeft = scene->CreateGameObject("Z_TempBoundLeft");
-    tempBoundLeft->AddComponents<Transform>(-959, -539);
+    tempBoundLeft->AddComponents<Transform>(-934, 0);
     tempBoundLeft->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 1078 });
     tempBoundLeft->GetComponent<Collider>()->SetStatic(true);
     tempBoundLeft->AddComponents<ShapeRender>();
 
     const auto tempBoundRight = scene->CreateGameObject("Z_TempBoundRight");
-    tempBoundRight->AddComponents<Transform>(909, -539);
+    tempBoundRight->AddComponents<Transform>(934, 0);
     tempBoundRight->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 1078 });
     tempBoundRight->GetComponent<Collider>()->SetStatic(true);
     tempBoundRight->AddComponents<ShapeRender>();

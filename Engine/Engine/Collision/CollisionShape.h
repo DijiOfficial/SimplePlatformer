@@ -70,7 +70,7 @@ namespace diji
         }
 
         [[nodiscard]] const sf::Shape& GetShape() const override { return m_Circle; }
-        [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Circle.getLocalBounds(); }
+        [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Circle.getGlobalBounds(); }
         void CollideWith(std::vector<PhysicsWorld::CollisionInfo>&, const PhysicsWorld::StaticColliderInfo&, const sf::Vector2f&) override {}
         void CollideWith(std::vector<PhysicsWorld::CollisionInfo>&, const sf::FloatRect&, const sf::FloatRect&) override {}
 
@@ -98,7 +98,7 @@ namespace diji
         }
 
         [[nodiscard]] const sf::Shape& GetShape() const override { return m_Rect; }
-        [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Rect.getLocalBounds(); }
+        [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Rect.getGlobalBounds(); }
         void CollideWith(std::vector<PhysicsWorld::CollisionInfo>& collisionsVec, const PhysicsWorld::StaticColliderInfo& info, const sf::Vector2f& pos) override;
         void CollideWith(std::vector<PhysicsWorld::CollisionInfo>& collisionsVec, const sf::FloatRect& staticAABB, const sf::FloatRect& predictedAABB) override;
 
@@ -129,7 +129,7 @@ namespace diji
         }
 
         [[nodiscard]] const sf::Shape& GetShape() const override { return m_Triangle; }
-        [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Triangle.getLocalBounds(); }
+        [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Triangle.getGlobalBounds(); }
 
         void CollideWith(std::vector<PhysicsWorld::CollisionInfo>&, const PhysicsWorld::StaticColliderInfo&, const sf::Vector2f&) override {}
         void CollideWith(std::vector<PhysicsWorld::CollisionInfo>&, const sf::FloatRect&, const sf::FloatRect&) override {}

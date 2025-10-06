@@ -21,5 +21,6 @@ namespace diji
         static std::vector<sf::Vector2f> GetBoxCorners(const sf::RectangleShape& rect);
         static std::vector<sf::Vector2f> GetBoxAxes(const std::vector<sf::Vector2f>& corners);
         static void ProjectOntoAxis(const std::vector<sf::Vector2f>& points, const sf::Vector2f& axis, float& min, float& max);
+        static sf::Vector2f GetCenterOfMass(const std::vector<sf::Vector2f>& points);
     };
 }

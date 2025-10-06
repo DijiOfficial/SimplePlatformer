@@ -15,6 +15,7 @@ diji::ShapeRender::ShapeRender(GameObject* ownerPtr, const bool isDebug)
 void diji::ShapeRender::Init()
 {
     m_TransformCompPtr = GetOwner()->GetComponent<Transform>();
+    m_ColliderPtr = GetOwner()->GetComponent<Collider>();
 }
 
 void diji::ShapeRender::RenderFrame() const
@@ -43,6 +44,25 @@ void diji::ShapeRender::Update()
 {
     if (m_NeedsUpdate)
         SetDrawCollision();
+
+    if (m_ColliderPtr)
+    {
+        auto& shape = m_ColliderPtr->GetShape()->GetShape();
+        if (const auto* rect = dynamic_cast<const sf::RectangleShape*>(&shape))
+        {
+            m_Shape = sf::RectangleShape(*rect);
+        }
+        else if (const auto* circ = dynamic_cast<const sf::CircleShape*>(&shape))
+        {
+            m_Shape = sf::CircleShape(*circ);
+        }
+        else if (const auto* conv = dynamic_cast<const sf::ConvexShape*>(&shape))
+        {
+            m_Shape = sf::ConvexShape(*conv);
+        }
+
+        ApplyStyle();
+    }
 
     std::visit([this](auto& shape)
     {

@@ -8,7 +8,9 @@
 
 namespace diji
 {
-    using ShapeVariant = std::variant<sf::RectangleShape, sf::CircleShape, sf::ConvexShape>;
+    class Collider;
+
+    using ShapeVariant = std::variant<sf::RectangleShape, sf::CircleShape, sf::ConvexShape>; // don't know if this is still necessary
     class ShapeRender final : public Render
     {
     public:
@@ -31,6 +33,7 @@ namespace diji
         
     private:
         Transform* m_TransformCompPtr = nullptr;
+        Collider* m_ColliderPtr = nullptr;
         ShapeVariant m_Shape;
         sf::Color m_OutlineColor = sf::Color::White;
         sf::Color m_FillColor = sf::Color::Transparent;

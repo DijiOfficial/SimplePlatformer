@@ -257,7 +257,8 @@ void diji::CollisionsHelper::ProcessCircleToBoxCollision(
     collisionInfoVecB.push_back(collisionB);
 }
 
-void diji::CollisionsHelper::ProcessBoxToBoxCollision(const sf::RectangleShape& rectA, const sf::RectangleShape& rectB,
+void diji::CollisionsHelper::ProcessBoxToBoxCollision(
+    const sf::RectangleShape& rectA, const sf::RectangleShape& rectB,
     std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecA,
     std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecB)
 {
@@ -265,57 +266,54 @@ void diji::CollisionsHelper::ProcessBoxToBoxCollision(const sf::RectangleShape& 
     const auto cornersB = GetBoxCorners(rectB);
     const auto axesA = GetBoxAxes(cornersA);
     const auto axesB = GetBoxAxes(cornersB);
-    
+
+    const sf::Vector2f centerA = rectA.getPosition();
+    const sf::Vector2f centerB = rectB.getPosition();
+
     float minOverlap = std::numeric_limits<float>::max();
     sf::Vector2f smallestAxis;
-    
-    // Test all axes from both shapes
-    for (const auto& axis : axesA)
+
+    auto testAxes = [&](const std::vector<sf::Vector2f>& axes)
     {
-        float minA, maxA, minB, maxB;
-        ProjectOntoAxis(cornersA, axis, minA, maxA);
-        ProjectOntoAxis(cornersB, axis, minB, maxB);
-    
-        if (maxA <= minB || maxB <= minA) // Found separation
-            return;
-
-        const float overlap = std::min(maxA, maxB) - std::max(minA, minB);
-        if (overlap < minOverlap)
+        for (const auto& axisRaw : axes)
         {
-            minOverlap = overlap;
-            smallestAxis = axis;
-        }
-    }
-    
-    for (const auto& axis : axesB)
-    {
-        float minA, maxA, minB, maxB;
-        ProjectOntoAxis(cornersA, axis, minA, maxA);
-        ProjectOntoAxis(cornersB, axis, minB, maxB);
+            const sf::Vector2f axis = Helpers::Normalize(axisRaw); // Not ideal but I couldn't get it to work properly without normalizing
+            float minA, maxA, minB, maxB;
+            ProjectOntoAxis(cornersA, axis, minA, maxA);
+            ProjectOntoAxis(cornersB, axis, minB, maxB);
 
-        if (maxA <= minB || maxB <= minA)
-            return;
+            if (maxA <= minB || maxB <= minA)
+                return false; // Separation axis found, no collision
 
-        const float overlap = std::min(maxA, maxB) - std::max(minA, minB);
-        if (overlap < minOverlap)
-        {
-            minOverlap = overlap;
-            smallestAxis = axis;
+            const float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+            if (overlap < minOverlap)
+            {
+                minOverlap = overlap;
+                smallestAxis = axis;
+            }
         }
-    }
+        return true;
+    };
+
+    if (!testAxes(axesA)) return;
+    if (!testAxes(axesB)) return;
+
+    // Determine direction to push (centerB - centerA along the axis)
+    const sf::Vector2f centerDelta = centerB - centerA;
+    if (Helpers::DotProduct(centerDelta, smallestAxis) >= 0.f)
+        smallestAxis = -smallestAxis;
 
     PhysicsWorld::CollisionInfo collision;
     collision.hasCollision = true;
-    collision.penetration = minOverlap / Helpers::LengthFast(-smallestAxis);
-    
-    smallestAxis = Helpers::Normalize(smallestAxis) * -1.0f;
     collision.normal = smallestAxis;
+    collision.penetration = minOverlap;
     collision.tangent = sf::Vector2f(-smallestAxis.y, smallestAxis.x);
 
     collisionInfoVecA.push_back(collision);
 
+    // Flip normal/tangent for B
     collision.normal *= -1.0f;
-    collision.tangent *= -1.0f; // I have no idea if I should invert tangent too (I think so since the normal is opposite you'd think tangent rotates with it)
+    collision.tangent *= -1.0f;
     collisionInfoVecB.push_back(collision);
 }
 
@@ -327,7 +325,7 @@ std::vector<sf::Vector2f> diji::CollisionsHelper::GetBoxCorners(const sf::Rectan
     corners.reserve(rect.getPointCount());
     for (size_t i = 0; i < rect.getPointCount(); ++i)
     {
-        corners.emplace_back(transform.transformPoint(rect.getPoint(i)) + rect.getOrigin());
+        corners.emplace_back(transform.transformPoint(rect.getPoint(i)));
     }
 
     return corners;
@@ -350,13 +348,26 @@ std::vector<sf::Vector2f> diji::CollisionsHelper::GetBoxAxes(const std::vector<s
 
 void diji::CollisionsHelper::ProjectOntoAxis(const std::vector<sf::Vector2f>& points, const sf::Vector2f& axis, float& min, float& max)
 {
-    min = std::numeric_limits<float>::max();
-    max = std::numeric_limits<float>::min();
+    min = max = Helpers::DotProduct(points[0], axis);
     
-    for (size_t i = 1; i < points.size(); ++i)
+    for (auto point : points)
     {
-        const float projection = Helpers::DotProduct(points[i], axis);
+        const float projection = Helpers::DotProduct(point, axis);
         min = std::min(projection, min);
         max = std::max(projection, max);
     }
+}
+
+sf::Vector2f diji::CollisionsHelper::GetCenterOfMass(const std::vector<sf::Vector2f>& points)
+{
+    float sumX = 0.f;
+    float sumY = 0.f;
+
+    for (const auto& p : points)
+    {
+        sumX += p.x;
+        sumY += p.y;
+    }
+
+    return { sumX / static_cast<float>(points.size()), sumY / static_cast<float>(points.size()) };
 }

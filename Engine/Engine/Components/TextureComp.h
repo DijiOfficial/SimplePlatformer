@@ -70,7 +70,7 @@ namespace diji
 		float m_ScaleX = 1;
 		float m_ScaleY = 1;
 
-		bool m_NeedsCentering = false;
+		bool m_NeedsCentering = true;
 		bool m_IsCentered = false;
 	};
 }
