@@ -20,6 +20,7 @@
 #include "Engine/Components/TextComp.h"
 #include "Engine/Core/Engine.h"
 #include "Engine/Singleton/GameStateManager.h"
+#include "Engine/Singleton/RandNumber.h"
 
 using namespace diji;
 
@@ -71,33 +72,62 @@ void SceneLoader::Level()
     // thomas->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
     // // thomas->AddComponents<RectRender>(true);
 
+    // const auto testRect = scene->CreateGameObject("X_Testrectll");
+    // testRect->AddComponents<Transform>(200, 0);
+    // testRect->AddComponents<TextureComp>("graphics/thomas.png");
+    // testRect->AddComponents<Render>();
+    // testRect->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 100 });
+    // testRect->GetComponent<Collider>()->SetRestitution(0.5f);
+    // // testRect->GetComponent<Collider>()->SetAffectedByGravity(false);
+    // testRect->AddComponents<thomasWasLate::tempTest>();
+    // // testRect->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
+    // testRect->AddComponents<ShapeRender>(true);
+
     const auto testBall = scene->CreateGameObject("X_TestBall");
-    testBall->AddComponents<Transform>(200, 0);
-    testBall->AddComponents<TextureComp>("graphics/thomas.png");
+    testBall->AddComponents<Transform>(0, 0);
+    testBall->AddComponents<TextureComp>("graphics/ball.png");
     testBall->AddComponents<Render>();
-    testBall->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 100 });
-    testBall->GetComponent<Collider>()->SetRestitution(0.5f);
-    // testBall->GetComponent<Collider>()->SetAffectedByGravity(false);
-    testBall->AddComponents<thomasWasLate::tempTest>();
+    testBall->AddComponents<Collider>(CollisionShape::ShapeType::CIRCLE, 65.f);
+    testBall->GetComponent<Collider>()->SetRestitution(0.4f);
+    testBall->GetComponent<Collider>()->SetFriction(0.2f);
+    // testBall->GetComponent<Collider>()->SetRestitution(0.5f);
     // testBall->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
     testBall->AddComponents<ShapeRender>(true);
 
-    // const auto testBall = scene->CreateGameObject("X_TestBall");
-    // testBall->AddComponents<Transform>(0, 0);
-    // testBall->AddComponents<TextureComp>("graphics/ball.png");
-    // testBall->AddComponents<Render>();
-    // testBall->AddComponents<Collider>(CollisionShape::ShapeType::CIRCLE, 65.f);
-    // testBall->GetComponent<Collider>()->SetRestitution(0.35f);
-    // // testBall->GetComponent<Collider>()->SetRestitution(0.5f);
-    // // testBall->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
-    // testBall->AddComponents<ShapeRender>(true);
+    const auto randomCollider = scene->CreateGameObject("Z_RandomCollider");
+    randomCollider->AddComponents<Transform>(RandNumber::GetRandomRangeFloat(-900, 900), RandNumber::GetRandomRangeFloat(-500, 500));
+    randomCollider->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ RandNumber::GetRandomRangeFloat(200, 500), RandNumber::GetRandomRangeFloat(15, 50)});
+    randomCollider->GetComponent<Collider>()->SetStatic(true);
+    randomCollider->GetComponent<Collider>()->GetShape()->SetRotation(RandNumber::GetRandomRangeFloat(0, 360) );
+    randomCollider->AddComponents<ShapeRender>();
+
+    const auto randomCollider2 = scene->CreateGameObject("Z_RandomCollid4er");
+    randomCollider2->AddComponents<Transform>(RandNumber::GetRandomRangeFloat(-900, 900), RandNumber::GetRandomRangeFloat(-500, 500));
+    randomCollider2->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ RandNumber::GetRandomRangeFloat(200, 500), RandNumber::GetRandomRangeFloat(15, 50)});
+    randomCollider2->GetComponent<Collider>()->SetStatic(true);
+    randomCollider2->GetComponent<Collider>()->GetShape()->SetRotation(RandNumber::GetRandomRangeFloat(0, 360) );
+    randomCollider2->AddComponents<ShapeRender>();
+
+    const auto randomCollider3 = scene->CreateGameObject("Z_RandomCol5lider");
+    randomCollider3->AddComponents<Transform>(RandNumber::GetRandomRangeFloat(-900, 900), RandNumber::GetRandomRangeFloat(-500, 500));
+    randomCollider3->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ RandNumber::GetRandomRangeFloat(200, 500), RandNumber::GetRandomRangeFloat(15, 50)});
+    randomCollider3->GetComponent<Collider>()->SetStatic(true);
+    randomCollider3->GetComponent<Collider>()->GetShape()->SetRotation(RandNumber::GetRandomRangeFloat(0, 360) );
+    randomCollider3->AddComponents<ShapeRender>();
+
+    const auto randomCollider4 = scene->CreateGameObject("Z_RandomCol4lider");
+    randomCollider4->AddComponents<Transform>(RandNumber::GetRandomRangeFloat(-900, 900), RandNumber::GetRandomRangeFloat(-500, 500));
+    randomCollider4->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ RandNumber::GetRandomRangeFloat(200, 500), RandNumber::GetRandomRangeFloat(15, 50)});
+    randomCollider4->GetComponent<Collider>()->SetStatic(true);
+    randomCollider4->GetComponent<Collider>()->GetShape()->SetRotation(RandNumber::GetRandomRangeFloat(0, 360) );
+    randomCollider4->AddComponents<ShapeRender>();
     
     const auto tempBoundBottom = scene->CreateGameObject("Z_TempBoundBottom");
     tempBoundBottom->AddComponents<Transform>(0, 514);
     tempBoundBottom->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 1918, 50 });
     tempBoundBottom->GetComponent<Collider>()->SetStatic(true);
     tempBoundBottom->AddComponents<ShapeRender>();
-
+    
     const auto tempTopBound = scene->CreateGameObject("Z_TempBoundTop");
     tempTopBound->AddComponents<Transform>(0, -514);
     tempTopBound->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 1918, 50 });

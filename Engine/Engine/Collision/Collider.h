@@ -72,6 +72,9 @@ namespace diji
         
         void SetPosition(const sf::Vector2f& pos) const;
         [[nodiscard]] sf::Vector2f GetPosition() const;
+
+        void SetFriction(const float friction) { m_Friction = std::clamp(friction, 0.f, 1.f); }
+        [[nodiscard]] float GetFriction() const { return m_Friction; }
         
         [[nodiscard]] sf::FloatRect GetAABB() const;
         [[nodiscard]] sf::FloatRect GetAABBAt(const sf::Vector2f& pos) const;
@@ -103,6 +106,7 @@ namespace diji
         sf::Vector2f m_LastPosition{ 0.f, 0.f };
         sf::Vector2f m_NetForce{ 0.f, 0.f };
         float m_Mass = 1.f;
+        float m_Friction = 0.5f; // [0,1]
         float m_Restitution = 1.f; // bounciness [0,1]
         bool m_IsStatic = false; // immovable object
         bool m_AffectedByGravity = true;

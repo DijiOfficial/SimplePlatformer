@@ -20,7 +20,9 @@ namespace diji
     private:
         static std::vector<sf::Vector2f> GetBoxCorners(const sf::RectangleShape& rect);
         static std::vector<sf::Vector2f> GetBoxAxes(const std::vector<sf::Vector2f>& corners);
+        static sf::Vector2f FindClosestPointToCircle(const sf::CircleShape& circle, const std::vector<sf::Vector2f>& corners);
         static void ProjectOntoAxis(const std::vector<sf::Vector2f>& points, const sf::Vector2f& axis, float& min, float& max);
+        static void ProjectCircleOntoAxis(const sf::CircleShape& circle, const sf::Vector2f& axis, float& min, float& max);
         static sf::Vector2f GetCenterOfMass(const std::vector<sf::Vector2f>& points);
     };
 }

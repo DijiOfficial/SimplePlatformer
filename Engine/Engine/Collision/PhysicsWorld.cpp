@@ -109,78 +109,12 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         auto& [colliderPtr, predictedAABB, pos, vel, collisionsVec] = predictionsVec[i];
         
         // Handle dynamic vs static collisions
-        for (const auto& info : m_StaticInfos)
+        for (const auto& [aabb, collider] : m_StaticInfos)
         {
-            if (!AABBOverlap(predictedAABB, info.aabb))
+            if (!AABBOverlap(predictedAABB, aabb))
                 continue;
 
-            HandleStaticCollisions(predictionsVec[i], info.collider);
-            // todo: rework the collision handling system
-            // colliderPtr->GetShape()->CollideWith(collisionsVec, info, pos);
-            // this is not working?
-            // colliderPtr->GetShape()->CollideWith(collisionsVec, predictedAABB, info.aabb);
-
-            // // This only works for non-rotated rectangles (AABB)
-            // const float leftA   = predictedAABB.left;
-            // const float rightA  = PhysicsWorld::Right(predictedAABB);
-            // const float topA    = predictedAABB.top;
-            // const float bottomA = PhysicsWorld::Bottom(predictedAABB);
-            //
-            // const float leftB   = info.aabb.left;
-            // const float rightB  = PhysicsWorld::Right(info.aabb);
-            // const float topB    = info.aabb.top;
-            // const float bottomB = PhysicsWorld::Bottom(info.aabb);
-            //
-            // const float overlapX = std::min(rightA, rightB) - std::max(leftA, leftB);
-            // const float overlapY = std::min(bottomA, bottomB) - std::max(topA, topB);
-            //
-            // if (overlapX > 0.f && overlapY > 0.f)
-            // {
-            //     PhysicsWorld::CollisionInfo collision;
-            //     collision.hasCollision = true;
-            //     
-            //     // Choose smaller axis of penetration
-            //     if (overlapX < overlapY)
-            //     {
-            //         // X-axis collision
-            //         if (leftA < leftB)
-            //         {
-            //             // A is to the left of B, collision from left
-            //             collision.normal = sf::Vector2f{-1.f, 0.f};
-            //             collision.point  = sf::Vector2f{leftB, (topA + bottomA) * 0.5f};
-            //         }
-            //         else
-            //         {
-            //             // A is to the right of B, collision from right
-            //             collision.normal = sf::Vector2f{1.f, 0.f};
-            //             collision.point  = sf::Vector2f{rightB, (topA + bottomA) * 0.5f};
-            //         }
-            //
-            //         collision.tangent = sf::Vector2f{0.f, 1.f}; // Perpendicular to normal
-            //         collision.penetration = overlapX;
-            //     }
-            //     else
-            //     {
-            //         // Y-axis collision
-            //         if (topA < topB)
-            //         {
-            //             // A is above B, collision from top
-            //             collision.normal = sf::Vector2f{0.f, -1.f};
-            //             collision.point  = sf::Vector2f{(leftA + rightA) * 0.5f, topB};
-            //         }
-            //         else
-            //         {
-            //             // A is below B, collision from bottom
-            //             collision.normal = sf::Vector2f{0.f, 1.f};
-            //             collision.point  = sf::Vector2f{(leftA + rightA) * 0.5f, bottomB};
-            //         }
-            //
-            //         collision.tangent = sf::Vector2f{1.f, 0.f};
-            //         collision.penetration = overlapY;
-            //     }
-            //
-            //     collisionsVec.push_back(collision);
-            // }
+            HandleStaticCollisions(predictionsVec[i], collider);
         }
 
         for (size_t j = i + 1; j < predictionsVec.size(); ++j)
@@ -270,7 +204,7 @@ void diji::PhysicsWorld::ApplyFriction(Prediction& prediction, const CollisionIn
     const float gravityMagnitude = std::abs(m_Gravity.y);
     const float normalForce = mass * gravityMagnitude;
     
-    constexpr float kineticFriction = 0.5f;
+    const float kineticFriction = prediction.collider->GetFriction();
     const float frictionMagnitude = kineticFriction * normalForce;
     sf::Vector2f frictionForce = -std::copysign(frictionMagnitude, tangentialVelocity) * collision.tangent;
     
@@ -331,8 +265,8 @@ void diji::PhysicsWorld::HandleStaticCollisions(Prediction& dynamicCollider, con
             {
             case CollisionShape::ShapeType::CIRCLE:
                 {
-                    // const auto otherCircle = dynamic_cast<const sf::CircleShape*>(&staticCollider->GetShape()->GetShape());
-                    // CollisionsHelper::ProcessCircleToCircleCollision(shape, *otherCircle, dynamicCollider.collisionInfoVec, emptyCollisionsVec);
+                    const auto otherCircle = dynamic_cast<const sf::CircleShape*>(&staticCollider->GetShape()->GetShape());
+                    CollisionsHelper::ProcessCircleToBoxCollision(*otherCircle, shape, dynamicCollider.collisionInfoVec, emptyCollisionsVec);
                     break;
                 }
             case CollisionShape::ShapeType::RECT:
