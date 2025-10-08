@@ -21,7 +21,13 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
+        void SpawnRandomCollider();
+        void SetMousePos(const sf::Vector2i& pos) { m_MousePos = static_cast<sf::Vector2f>(pos); }
+
+        diji::Event<> OnBoxSpawnedEvent;
+
     private:
+        sf::Vector2f m_MousePos;
         diji::Collider* m_ColliderPtr = nullptr;
         float m_Angle = 0.f;
     };

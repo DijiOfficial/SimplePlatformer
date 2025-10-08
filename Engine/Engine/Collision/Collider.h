@@ -56,7 +56,7 @@ namespace diji
 
         [[nodiscard]] CollisionShape* GetShape() const { return m_Shape.get(); }
 
-        void SetVelocity(const sf::Vector2f& vel) { m_Velocity = vel; }
+        void SetVelocity(const sf::Vector2f& vel);
         [[nodiscard]] sf::Vector2f GetVelocity() const { return m_Velocity; }
         
         void ApplyImpulse(const sf::Vector2f& impulse) { m_Velocity += impulse; }
@@ -88,6 +88,9 @@ namespace diji
         void SetRestitution(const float restitution) { m_Restitution = restitution; }
         [[nodiscard]] float GetRestitution() const { return m_Restitution; }
 
+        void SetMaxVelocity(const sf::Vector2f& maxVel) { m_MaxVelocity = maxVel; }
+        [[nodiscard]] sf::Vector2f GetMaxVelocity() const { return m_MaxVelocity; }
+
         [[nodiscard]] CollisionShape::ShapeType GetShapeType() const { return m_Type; }
         [[nodiscard]] const GameObject* GetParent() const { return GetOwner(); }
         
@@ -116,6 +119,7 @@ namespace diji
         
         // physics state
         sf::Vector2f m_Velocity{0.f, 0.f};
+        sf::Vector2f m_MaxVelocity{0.f, 0.f};
         sf::Vector2f m_NewPosition{ 0.f, 0.f };
         sf::Vector2f m_LastPosition{ 0.f, 0.f };
         sf::Vector2f m_NetForce{ 0.f, 0.f };

@@ -21,9 +21,9 @@ namespace diji
         void OnEnable() override {}
         void Start() override {}
         
-        void Update() override;
+        void Update() override {}
         void FixedUpdate() override {}
-        void LateUpdate() override {}
+        void LateUpdate() override;
 
         void OnDisable() override {}
         void OnDestroy() override {}

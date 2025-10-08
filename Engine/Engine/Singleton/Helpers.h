@@ -9,6 +9,12 @@ namespace diji
     {
     public:
         static constexpr double PI = std::numbers::pi;
+        static constexpr double EPSILON = 1e-6f;
+
+        static bool isZero(const float value)
+        {
+            return std::fabs(value) < EPSILON;
+        }
 
         static sf::Vector2f Normalize(const sf::Vector2f& v)
         {
@@ -85,7 +91,7 @@ namespace diji
 
         constexpr float RadToDegF(const float r) noexcept { return RadToDeg<float>(r); }
         constexpr double RadToDegD(const double r) noexcept { return RadToDeg<double>(r); }
-    private:
+
         static float clamp01(const float v)
         {
             return v < 0.f ? 0.f : v > 1.f ? 1.f : v;

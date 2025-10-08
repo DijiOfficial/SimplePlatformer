@@ -24,6 +24,8 @@ namespace diji
 		void AddCollider(Collider* collider);
 		void RemoveCollider(Collider* collider);
 		void FixedUpdate();
+		void SetGravity(const sf::Vector2f& gravity) { m_Gravity = gravity; }
+		[[nodiscard]] sf::Vector2f GetGravity() const { return m_Gravity; }
 		
 		struct StaticColliderInfo
 		{
@@ -57,7 +59,7 @@ namespace diji
 		std::vector<Collider*> m_DynamicColliders;
 		std::vector<StaticColliderInfo> m_StaticInfos;
 		
-		sf::Vector2f m_Gravity{0.f, 980.f}; // This doesn't need to be a vector unless we want to simulate planets or some shit
+		sf::Vector2f m_Gravity{ 0.f, 980.f }; // This doesn't need to be a vector unless we want to simulate planets or some shit
 		const TimeSingleton& m_TimeSingletonInstance = TimeSingleton::GetInstance();
 
 		// physics trigger events

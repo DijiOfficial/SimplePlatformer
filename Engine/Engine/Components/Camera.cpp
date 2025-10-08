@@ -37,7 +37,7 @@ void diji::Camera::Init()
     window::g_window_ptr->setView(m_CameraView);
 }
 
-void diji::Camera::Update()
+void diji::Camera::LateUpdate()
 {
     if (m_IsLocked) return;
 
