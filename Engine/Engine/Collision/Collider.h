@@ -89,16 +89,30 @@ namespace diji
         [[nodiscard]] float GetRestitution() const { return m_Restitution; }
 
         [[nodiscard]] CollisionShape::ShapeType GetShapeType() const { return m_Type; }
+        [[nodiscard]] const GameObject* GetParent() const { return GetOwner(); }
         
-        void OnCollision(Collider*) {}
-
+        // not a fan of string tags perhaps use enums?
         void SetTag (const std::string& tag) { m_Tag = tag; }
+        [[nodiscard]] const std::string& GetTag() const { return m_Tag; }
+
+        enum class CollisionResponse
+        {
+            Ignore = 0, // todo: add support for ignore functionality
+            Overlap,
+            Block
+        };
+        
+        void SetCollisionResponse(const CollisionResponse response) { m_CollisionResponse = response; }
+        [[nodiscard]] CollisionResponse GetCollisionResponse() const { return m_CollisionResponse; }
 
     private:
         Transform* m_TransformCompPtr = nullptr;
         CollisionShape::ShapeType m_Type;
         std::unique_ptr<CollisionShape> m_Shape;
         const TimeSingleton& m_TimeSingletonInstance = TimeSingleton::GetInstance();
+
+        // physics settings
+        CollisionResponse m_CollisionResponse = CollisionResponse::Block;
         
         // physics state
         sf::Vector2f m_Velocity{0.f, 0.f};

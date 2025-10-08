@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Collision\Collider.h" />
+    <ClInclude Include="Engine\Collision\CollisionDispatcher.h" />
     <ClInclude Include="Engine\Collision\CollisionShape.h" />
     <ClInclude Include="Engine\Collision\CollisionsHelper.h" />
     <ClInclude Include="Engine\Collision\PhysicsWorld.h" />
@@ -56,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Collision\Collider.cpp" />
+    <ClCompile Include="Engine\Collision\CollisionDispatcher.cpp" />
     <ClCompile Include="Engine\Collision\CollisionShape.cpp" />
     <ClCompile Include="Engine\Collision\CollisionsHelper.cpp" />
     <ClCompile Include="Engine\Collision\PhysicsWorld.cpp" />

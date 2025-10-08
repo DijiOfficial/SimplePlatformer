@@ -184,33 +184,19 @@ diji::GameObject* diji::Scene::CreateGameObject(const std::string& name, const G
 
 diji::GameObject* diji::Scene::CreateGameObjectFromTemplate(const std::string& name, const GameObject* original)
 {
-    std::string finalName = name;
-
-    // Check if name already exists, if it does get the suffix and increment it until you get new name
-    // todo: Likely some optimization can be done here. Like keeping track of the last used suffix or internal counter or ...
-    while (m_ObjectsUPtrMap.contains(finalName))
-    {
-        // Find numeric suffix
-        size_t pos = finalName.size();
-        while (pos > 0 && std::isdigit(static_cast<unsigned char>(finalName[pos - 1])))
-            --pos;
-
-        if (pos == finalName.size()) // No number suffix so append 0
-        {
-            finalName += "0";
-        }
-        else
-        {
-            // Increment existing number suffix
-            std::string namePart = finalName.substr(0, pos);
-            const int number = std::stoi(finalName.substr(pos));
-            finalName = namePart + std::to_string(number + 1);
-        }
-    }
+    const std::string finalName = GenerateUniqueName(name);
 
     m_ObjectsUPtrMap[finalName] = std::make_unique<GameObject>();
     original->CreateDuplicate(m_ObjectsUPtrMap[finalName].get());
 
+    return m_ObjectsUPtrMap[finalName].get();
+}
+
+diji::GameObject* diji::Scene::AddObjectToScene(std::unique_ptr<GameObject> object, const std::string& desiredName)
+{
+    const std::string finalName = GenerateUniqueName(desiredName);
+
+    m_ObjectsUPtrMap[finalName] = std::move(object);
     return m_ObjectsUPtrMap[finalName].get();
 }
 
@@ -386,4 +372,33 @@ void diji::Scene::DrawGameObjects() const
     {
         gameObject->Render();
     }
+}
+
+std::string diji::Scene::GenerateUniqueName(const std::string& baseName) const
+{
+    std::string finalName = baseName;
+
+    // Check if name already exists, if it does get the suffix and increment it until you get new name
+    // todo: Likely some optimization can be done here. Like keeping track of the last used suffix or internal counter or ...
+    while (m_ObjectsUPtrMap.contains(finalName))
+    {
+        // Find numeric suffix
+        size_t pos = finalName.size();
+        while (pos > 0 && std::isdigit(static_cast<unsigned char>(finalName[pos - 1])))
+            --pos;
+
+        if (pos == finalName.size()) // No number suffix so append 0
+        {
+            finalName += "0";
+        }
+        else
+        {
+            // Increment existing number suffix
+            std::string namePart = finalName.substr(0, pos);
+            const int number = std::stoi(finalName.substr(pos));
+            finalName = namePart + std::to_string(number + 1);
+        }
+    }
+
+    return finalName;
 }

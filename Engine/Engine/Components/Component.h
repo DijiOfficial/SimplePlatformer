@@ -4,6 +4,7 @@
 namespace diji 
 {
     class GameObject;
+    class Collider;
 
     class Component
     {
@@ -26,6 +27,10 @@ namespace diji
 
         virtual void OnDisable() = 0;
         virtual void OnDestroy() = 0;
+
+        virtual void OnTriggerEnter(const Collider*) {}
+        virtual void OnTriggerStay(const Collider*) {}
+        virtual void OnTriggerExit(const Collider*) {}
 
     protected:
         explicit Component(GameObject* ownerPtr) : m_OwnerPtr{ ownerPtr } {}

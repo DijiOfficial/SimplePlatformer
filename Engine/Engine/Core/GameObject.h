@@ -9,6 +9,7 @@
 
 namespace diji
 {
+	class Collider;
 	class Render;
 	class Transform;
 
@@ -39,6 +40,14 @@ namespace diji
 
 		void Destroy() const;
 		void CreateDuplicate(GameObject* duplicate) const;
+
+		enum class TriggerEventType
+		{
+			Enter = 0,
+			Stay = 1,
+			Exit = 2
+		};
+		void NotifyTriggerEvent(const Collider* other, TriggerEventType eventType) const;
 		
 #pragma region Components
 		template<typename T, typename... Args>

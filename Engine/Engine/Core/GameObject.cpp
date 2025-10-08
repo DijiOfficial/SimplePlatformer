@@ -91,6 +91,25 @@ void diji::GameObject::CreateDuplicate(GameObject* duplicate) const
     duplicate->SetLocalPosition(m_LocalPosition);
 }
 
+void diji::GameObject::NotifyTriggerEvent(const Collider* other, TriggerEventType eventType) const
+{
+    for (const auto& component : m_ComponentsPtrVec)
+    {
+        switch (eventType)
+        {
+        case TriggerEventType::Enter:
+            component->OnTriggerEnter(other);
+            break;
+        case TriggerEventType::Stay:
+            component->OnTriggerStay(other);
+            break;
+        case TriggerEventType::Exit:
+            component->OnTriggerExit(other);
+            break;
+        }
+    }
+}
+
 sf::Vector2f diji::GameObject::GetWorldPosition()
 {
     if (m_PositionIsDirty)

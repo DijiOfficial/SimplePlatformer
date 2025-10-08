@@ -37,6 +37,7 @@ namespace diji
         [[nodiscard]] GameObject* CreateGameObject(const std::string& name);
         [[nodiscard]] GameObject* CreateGameObject(const std::string& name, const GameObject* original);
         [[nodiscard]] GameObject* CreateGameObjectFromTemplate(const std::string& name, const GameObject* original);
+        [[nodiscard]] GameObject* AddObjectToScene(std::unique_ptr<GameObject> object, const std::string& desiredName);
         void Remove(const GameObject* object);
         void Remove(const std::string& name);
         void RemoveAll();
@@ -67,5 +68,6 @@ namespace diji
         bool m_RenderBackground = false;
 
         void DrawGameObjects() const;
+        std::string GenerateUniqueName(const std::string& baseName) const;
     };
 }

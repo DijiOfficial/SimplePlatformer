@@ -1,17 +1,17 @@
 ﻿#include "PhysicsWorld.h"
-
-#include <map>
-#include <ranges>
-#include <stdexcept>
-
 #include "Collider.h"
-#include "CollisionsHelper.h"
+#include "CollisionDispatcher.h"
 #include "../Singleton/Helpers.h"
+#include "../Core/GameObject.h"
+
+#include <stdexcept>
 
 void diji::PhysicsWorld::Reset()
 {
     m_DynamicColliders = std::vector<Collider*>();
     m_StaticInfos = std::vector<StaticColliderInfo>();
+    m_ActiveTriggers = std::vector<TriggerPair>();
+    m_PreviousFrameTriggers = std::vector<TriggerPair>();
 }
 
 void diji::PhysicsWorld::AddCollider(Collider* collider)
@@ -76,6 +76,48 @@ void diji::PhysicsWorld::FixedUpdate()
     {
         UpdateFinalPosition(prediction);
     }
+
+    ProcessTriggerEvents();
+}
+
+void diji::PhysicsWorld::ProcessTriggerEvents()
+{
+    // Process Enter events (new triggers)
+    for (const auto& trigger : m_ActiveTriggers)
+    {
+        if (std::ranges::find(m_PreviousFrameTriggers, trigger) == m_PreviousFrameTriggers.end())
+        {
+            NotifyTriggerEvent(trigger, EventType::Enter);
+        }
+    }
+    
+    // Process Exit events (triggers that ended)
+    for (const auto& trigger : m_PreviousFrameTriggers)
+    {
+        if (std::ranges::find(m_ActiveTriggers, trigger) == m_ActiveTriggers.end())
+        {
+            NotifyTriggerEvent(trigger, EventType::Exit);
+        }
+    }
+    
+    // Process Stay events (continuing triggers)
+    for (const auto& trigger : m_ActiveTriggers)
+    {
+        if (std::ranges::find(m_PreviousFrameTriggers, trigger) != m_PreviousFrameTriggers.end())
+        {
+            NotifyTriggerEvent(trigger, EventType::Stay);
+        }
+    }
+}
+
+void diji::PhysicsWorld::NotifyTriggerEvent(const TriggerPair& trigger, EventType eventType)
+{
+    // Get GameObjects from both colliders and notify them
+    if (auto* triggerGameObject = trigger.trigger->GetParent())
+        triggerGameObject->NotifyTriggerEvent(trigger.other, static_cast<GameObject::TriggerEventType>(eventType));
+    
+    if (auto* otherGameObject = trigger.other->GetParent())
+        otherGameObject->NotifyTriggerEvent(trigger.trigger, static_cast<GameObject::TriggerEventType>(eventType));
 }
 
 void diji::PhysicsWorld::PredictMovement(std::vector<Prediction>& predictionsVec) const
@@ -114,7 +156,10 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             if (!AABBOverlap(predictedAABB, aabb))
                 continue;
 
-            HandleStaticCollisions(predictionsVec[i], collider);
+            if (HandleStaticCollisions(predictionsVec[i], collider))
+            {
+                m_ActiveTriggers.push_back({.trigger= colliderPtr, .other= collider});
+            }
         }
 
         for (size_t j = i + 1; j < predictionsVec.size(); ++j)
@@ -227,64 +272,8 @@ void diji::PhysicsWorld::UpdateFinalPosition(const Prediction& prediction)
     prediction.collider->ClearNetForce();
 }
 
-void diji::PhysicsWorld::HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider)
+bool diji::PhysicsWorld::HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider)
 {
-    std::vector<CollisionInfo> emptyCollisionsVec;
-    switch (dynamicCollider.collider->GetShapeType())
-    {
-        case CollisionShape::ShapeType::CIRCLE:
-        {
-            auto shape = *dynamic_cast<const sf::CircleShape*>(&dynamicCollider.collider->GetShape()->GetShape());
-            shape.setPosition(dynamicCollider.pos);
-            switch (staticCollider->GetShapeType())
-            {
-            case CollisionShape::ShapeType::CIRCLE:
-            {
-                const auto otherCircle = dynamic_cast<const sf::CircleShape*>(&staticCollider->GetShape()->GetShape());
-                CollisionsHelper::ProcessCircleToCircleCollision(shape, *otherCircle, dynamicCollider.collisionInfoVec, emptyCollisionsVec);
-                break;
-            }
-            case CollisionShape::ShapeType::RECT:
-            {   
-                const auto otherRect = dynamic_cast<const sf::RectangleShape*>(&staticCollider->GetShape()->GetShape());
-                CollisionsHelper::ProcessCircleToBoxCollision(shape, *otherRect, dynamicCollider.collisionInfoVec, emptyCollisionsVec);
-                break;
-            }
-            case CollisionShape::ShapeType::TRIANGLE:
-                break;
-            default:
-                break;
-            }
-            break;
-        }
-        case CollisionShape::ShapeType::RECT:
-        {
-            auto shape = *dynamic_cast<const sf::RectangleShape*>(&dynamicCollider.collider->GetShape()->GetShape());
-            shape.setPosition(dynamicCollider.pos);
-            switch (staticCollider->GetShapeType())
-            {
-            case CollisionShape::ShapeType::CIRCLE:
-                {
-                    const auto otherCircle = dynamic_cast<const sf::CircleShape*>(&staticCollider->GetShape()->GetShape());
-                    CollisionsHelper::ProcessCircleToBoxCollision(*otherCircle, shape, dynamicCollider.collisionInfoVec, emptyCollisionsVec);
-                    break;
-                }
-            case CollisionShape::ShapeType::RECT:
-                {   
-                    const auto otherRect = dynamic_cast<const sf::RectangleShape*>(&staticCollider->GetShape()->GetShape());
-                    CollisionsHelper::ProcessBoxToBoxCollision(shape, *otherRect, dynamicCollider.collisionInfoVec, emptyCollisionsVec);
-                    break;
-                }
-            case CollisionShape::ShapeType::TRIANGLE:
-                break;
-            default:
-                break;
-            }
-            break;
-        }
-        case CollisionShape::ShapeType::TRIANGLE:
-            break;
-        default:
-            throw std::invalid_argument("Invalid collision shape");
-    }
+    static CollisionDispatcher dispatcher;
+    return dispatcher.Dispatch(dynamicCollider, dynamicCollider.collider, staticCollider);
 }

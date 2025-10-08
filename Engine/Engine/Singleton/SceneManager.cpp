@@ -143,6 +143,18 @@ diji::GameObject* diji::SceneManager::SpawnGameObject(const std::string& name, c
     return gameObject;
 }
 
+diji::GameObject* diji::SceneManager::SpawnGameObject(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const
+{
+    const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->AddObjectToScene(std::move(original), name);
+
+    gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
+
+    gameObject->Init();
+    gameObject->Start();
+
+    return gameObject;
+}
+
 void diji::SceneManager::ChangePlayerViewCenter(const int currPlayer, const sf::Vector2f& newCenter) const
 {
     m_ScenesUPtrMap.at(m_ActiveSceneId)->ChangeViewCenter(currPlayer, newCenter);

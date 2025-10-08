@@ -1,14 +1,13 @@
 ﻿#include "GameManager.h"
+#include "../Core/GameState.h"
+#include "Engine/Singleton/SceneManager.h"
+#include "Engine/Components/Transform.h"
 
 #include <format>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
-
-#include "../../Engine/Engine/Collision/CollisionShape.h"
-#include "../Core/GameState.h"
-#include "Engine/Singleton/SceneManager.h"
 
 void thomasWasLate::GameManager::SwitchPlayer()
 {
@@ -101,90 +100,107 @@ void thomasWasLate::GameManager::ReadLevelInfo(const std::string& filepath)
     file.close();
 }
 
-void thomasWasLate::GameManager::CreateWorldCollision()
+void thomasWasLate::GameManager::CreateWorldCollision() const
 {
+    constexpr float kTileSize = 50.0f;
+
     // Clear previously created tagged colliders for tiles 2/3/4
-    m_TileColliders = std::vector<std::unique_ptr<diji::Collider>>();
+    // m_TileColliders = std::vector<std::unique_ptr<diji::Collider>>();
     
     for (int row = 0; row < m_Rows; ++row)
     {
-        // int col = 0;
-        // while (col < m_Cols)
-        // {
-        //     constexpr float kTileSize = 50.0f;
-        //     const int idx = row * m_Cols + col;
-        //     const int tile = m_LevelInfo[idx];
-        //
-        //     if (tile == 1)
-        //     {
-        //         const int startC = col;
-        //         while (col < m_Cols && m_LevelInfo[row * m_Cols + col] == 1)
-        //             ++col;
-        //
-        //         const int len = col - startC;
-        //
-        //         diji::Rectf rect{};
-        //         rect.left   = static_cast<float>(startC) * kTileSize;
-        //         rect.bottom = static_cast<float>(row) * kTileSize;
-        //         rect.width  = static_cast<float>(len) * kTileSize;
-        //         rect.height = kTileSize;
-        //
-        //         collision.ParseRectInLevelCollider(rect);
-        //     }
-        //     else
-        //     {
-        //         // Create individual colliders for special tiles 2/3/4 with tags
-        //         if (tile == 2 || tile == 3 || tile == 4)
-        //         {
-        //             diji::Rectf rect{};
-        //             rect.left   = static_cast<float>(col) * kTileSize;
-        //             rect.bottom = static_cast<float>(row) * kTileSize;
-        //             rect.width  = kTileSize;
-        //             rect.height = kTileSize;
-        //
-        //             auto wallTemplate = std::make_unique<diji::GameObject>();
-        //             wallTemplate->AddComponents<diji::Transform>(rect.left, rect.bottom);
-        //             wallTemplate->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ kTileSize, kTileSize });
-        //             wallTemplate->AddComponents<diji::RectRender>();
-        //             
-        //             // auto collider = std::make_unique<diji::Collider>(nullptr, diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ kTileSize, kTileSize });
-        //             auto gameObject = diji::SceneManager::GetInstance().SpawnGameObject("A_WallCollider", std::move(wallTemplate.get()), sf::Vector2f{ rect.left, rect.bottom });
-        //             auto collider = gameObject->GetComponent<diji::Collider>();
-        //             switch (tile)
-        //             {
-        //             case 2:
-        //                 collider->SetTag("lava");
-        //                 break;
-        //             case 3:
-        //                 collider->SetTag("water");
-        //                 break;
-        //             case 4:
-        //                 collider->SetTag("goal");
-        //                 break;
-        //             default:
-        //                 break;
-        //             }
-        //
-        //             collision.AddCollider(collider.get(), rect);
-        //             m_TileColliders.emplace_back(std::move(collider));
-        //         }
-        //         ++col;
-        //     }
-        // }
+        int col = 0;
+        while (col < m_Cols)
+        {
+            const int idx = row * m_Cols + col;
+            const int tile = m_LevelInfo[idx];
 
-        // if (row == m_Rows - 1)
-        // {
-        //     diji::Rectf voidRect{};
-        //     voidRect.left   = 0.0f;
-        //     voidRect.bottom = static_cast<float>(row) * kTileSize;
-        //     voidRect.width  = static_cast<float>(m_Cols) * kTileSize;
-        //     voidRect.height = kTileSize;
-        //
-        //     auto voidCollider = std::make_unique<diji::Collider>(nullptr, diji::Rectf{ .left= -voidRect.width * 0.5f, .bottom= 0.f, .width= voidRect.width * 2.f , .height= voidRect.height });
-        //     voidCollider->SetTag("void");
-        //     voidRect = diji::Rectf{ .left= -voidRect.width * 0.5f, .bottom= voidRect.bottom, .width= voidRect.width * 2.f , .height= voidRect.height };
-        //     collision.AddCollider(voidCollider.get(), voidRect);
-        //     m_TileColliders.emplace_back(std::move(voidCollider));
-        // }
+            if (tile == 1)
+            {
+                const int startC = col;
+                while (col < m_Cols && m_LevelInfo[row * m_Cols + col] == 1)
+                    ++col;
+
+                const int len = col - startC;
+
+                const float left = static_cast<float>(startC) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                const float width  = static_cast<float>(len) * kTileSize;
+                constexpr float height = kTileSize;
+                
+                sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
+
+                auto tempBound = std::make_unique<diji::GameObject>();
+                tempBound->AddComponents<diji::Transform>(center);
+                tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ static_cast<float>(len) * kTileSize, kTileSize });
+                tempBound->GetComponent<diji::Collider>()->SetStatic(true);
+                // tempBound->AddComponents<diji::ShapeRender>();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
+            }
+            else
+            {
+                // Create individual colliders for special tiles 2/3/4 with tags
+                if (tile == 2 || tile == 3 || tile == 4)
+                {
+                    const float left = static_cast<float>(col) * kTileSize;
+                    const float bottom = static_cast<float>(row) * kTileSize;
+                    constexpr float width  = kTileSize;
+                    constexpr float height = kTileSize;
+                
+                    sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
+
+                    // todo: set up overlap event collisions!
+                    auto tempBound = std::make_unique<diji::GameObject>();
+                    tempBound->AddComponents<diji::Transform>(center);
+                    tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ width, height });
+                    const auto collider = tempBound->GetComponent<diji::Collider>();
+                    collider->SetStatic(true);
+                    collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+
+                    // tempBound->AddComponents<diji::ShapeRender>();
+                   
+                    switch (tile)
+                    {
+                    case 2:
+                        collider->SetTag("lava");
+                        break;
+                    case 3:
+                        collider->SetTag("water");
+                        break;
+                    case 4:
+                        collider->SetTag("goal");
+                        break;
+                    default:
+                        break;
+                    }
+                    
+                    diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
+                }
+                ++col;
+            }
+        }
+
+        if (row == m_Rows - 1)
+        {
+            const float width  = static_cast<float>(m_Cols) * 1.5f * kTileSize;
+            const float left = -static_cast<float>(m_Cols) * kTileSize * 0.5f;
+            const float bottom = static_cast<float>(row + 2) * kTileSize;
+            constexpr float height = kTileSize;
+            
+            sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
+
+            auto tempBound = std::make_unique<diji::GameObject>();
+            tempBound->AddComponents<diji::Transform>(center);
+            tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ width, height });
+            // tempBound->AddComponents<diji::ShapeRender>();
+            
+            const auto collider = tempBound->GetComponent<diji::Collider>();
+            collider->SetStatic(true);
+            collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+            collider->SetTag("void");
+            
+            (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
+        }
     }
 }
