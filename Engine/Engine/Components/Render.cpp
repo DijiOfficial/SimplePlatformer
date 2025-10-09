@@ -7,7 +7,7 @@
 #include "TextComp.h"
 #include "Sprite.h"
 
-diji::Render::Render(GameObject* ownerPtr, const int scale) 
+diji::Render::Render(GameObject* ownerPtr, const float scale) 
     : Render(ownerPtr)
 {
     m_TextureCompPtr = nullptr;
@@ -39,7 +39,13 @@ void diji::Render::Init()
         m_SFMLTexture = m_TextureCompPtr->GetTexture();
     else if (m_SpriteCompPtr)
         m_SFMLTexture = m_SpriteCompPtr->GetTexture();
-}       
+}
+
+void diji::Render::Start()
+{
+    if (m_TextureCompPtr)
+        m_TextureCompPtr->SetScale(m_Scale);
+}
 
 void diji::Render::RenderFrame() const
 {
@@ -68,4 +74,12 @@ void diji::Render::RenderFrame() const
 void diji::Render::UpdateTexture(sf::Texture& texture)
 {
     m_SFMLTexture = texture;
+}
+
+void diji::Render::SetScale(const float scale)
+{
+    if (m_TextureCompPtr)
+        m_TextureCompPtr->SetScale(scale);
+
+    m_Scale = scale;
 }

@@ -173,6 +173,7 @@
   <ItemGroup>
     <ClCompile Include="Components\BackgroundHandler.cpp" />
     <ClCompile Include="Components\PlayerCharacter.cpp" />
+    <ClCompile Include="Components\PlayerStates.cpp" />
     <ClCompile Include="Components\tempTest.cpp" />
     <ClCompile Include="Core\GameLoader.cpp" />
     <ClCompile Include="Input\CustomCommands.cpp" />
@@ -182,6 +183,7 @@
   <ItemGroup>
     <ClInclude Include="Components\BackgroundHandler.h" />
     <ClInclude Include="Components\PlayerCharacter.h" />
+    <ClInclude Include="Components\PlayerStates.h" />
     <ClInclude Include="Components\tempTest.h" />
     <ClInclude Include="Core\GameLoader.h" />
     <ClInclude Include="Core\GameState.h" />

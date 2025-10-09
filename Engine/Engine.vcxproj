@@ -31,6 +31,7 @@
     <ClInclude Include="Engine\Components\ScoreCounter.h" />
     <ClInclude Include="Engine\Components\ShapeRender.h" />
     <ClInclude Include="Engine\Components\Sprite.h" />
+    <ClInclude Include="Engine\Components\SpriteRenderComp.h" />
     <ClInclude Include="Engine\Components\TextComp.h" />
     <ClInclude Include="Engine\Components\TextureComp.h" />
     <ClInclude Include="Engine\Components\Transform.h" />
@@ -67,6 +68,7 @@
     <ClCompile Include="Engine\Components\ScoreCounter.cpp" />
     <ClCompile Include="Engine\Components\ShapeRender.cpp" />
     <ClCompile Include="Engine\Components\Sprite.cpp" />
+    <ClCompile Include="Engine\Components\SpriteRenderComp.cpp" />
     <ClCompile Include="Engine\Components\TextComp.cpp" />
     <ClCompile Include="Engine\Components\TextureComp.cpp" />
     <ClCompile Include="Engine\Components\Transform.cpp" />

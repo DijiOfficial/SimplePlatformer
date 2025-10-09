@@ -142,6 +142,12 @@ void diji::Renderer::DrawShape(const sf::Shape& shape) const
 	m_WindowPtr->draw(shape);
 }
 
+void diji::Renderer::RenderSprite(const sf::Sprite& sprite) const
+{
+	m_WindowPtr->draw(sprite);
+}
+
+
 void diji::Renderer::SetBackgroundColor(const sf::Color& color)
 {
 	m_ClearColor = color;

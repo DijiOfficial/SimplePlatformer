@@ -15,7 +15,7 @@ namespace diji
     {
     public:
         explicit Render(GameObject* ownerPtr);
-        explicit Render(GameObject* ownerPtr, int scale);
+        explicit Render(GameObject* ownerPtr, float scale);
         ~Render() noexcept override = default;
 
         Render(const Render& other) = delete;
@@ -25,7 +25,7 @@ namespace diji
 
         void Init() override;
         void OnEnable() override {}
-        void Start() override {}
+        void Start() override;
         
         void Update() override {}
         void FixedUpdate() override {}
@@ -38,9 +38,11 @@ namespace diji
         virtual void UpdateTexture(sf::Texture& texture);
         void DisableRender() { m_Render = false; }
         void EnableRender() { m_Render = true; }
+
+        virtual void SetScale(float scale);
         
     protected:
-        int m_Scale = 1;
+        float m_Scale = 1;
         bool m_Render = true;
         
     private:

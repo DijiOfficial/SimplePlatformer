@@ -17,6 +17,7 @@
 #include "Engine/Components/FPSCounter.h"
 #include "Engine/Components/ShapeRender.h"
 #include "Engine/Components/Sprite.h"
+#include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Components/TextComp.h"
 #include "Engine/Core/Engine.h"
 #include "Engine/Singleton/GameStateManager.h"
@@ -65,17 +66,23 @@ void SceneLoader::Level()
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     player->AddComponents<Transform>(200, 0);
-    player->AddComponents<TextureComp>("graphics/thomas.png");
-    player->AddComponents<Render>();
-    player->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 100 });
+    // player->AddComponents<TextureComp>("graphics/player.png");
+    // player->AddComponents<Render>(3);
+    player->AddComponents<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3.f, 0.05f);
+    player->GetComponent<SpriteRenderComponent>()->SetScale(3);
+    // player->GetComponent<SpriteRenderComponent>()->SetFrameSize(sf::Vector2i{ 16, 16 });
+    player->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
     player->GetComponent<Collider>()->SetRestitution(0.f);
     player->GetComponent<Collider>()->SetMass(0.89f);
     player->GetComponent<Collider>()->SetFriction(0.25f);
     player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
     // player->GetComponent<Collider>()->SetAffectedByGravity(false);
     player->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
-    player->AddComponents<ShapeRender>(true);
+    // player->AddComponents<ShapeRender>(true);
+
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
+
+    
     // const auto testBall = scene->CreateGameObject("X_TestBall");
     // testBall->AddComponents<Transform>(0, 0);
     // testBall->AddComponents<TextureComp>("graphics/ball.png");

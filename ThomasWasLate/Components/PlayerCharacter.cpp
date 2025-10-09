@@ -4,6 +4,7 @@
 #include "Engine/Collision/Collider.h"
 #include "../Singletons/GameManager.h"
 #include "Engine/Components/Camera.h"
+#include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/RandNumber.h"
@@ -17,8 +18,12 @@ thomasWasLate::PlayerCharacter::PlayerCharacter(diji::GameObject* ownerPtr, cons
 
 void thomasWasLate::PlayerCharacter::Init()
 {
+    m_CurrentStateUPtr = std::make_unique<IdleState>();
+    m_CurrentStateUPtr->OnEnter(GetOwner());
+
     m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
+    m_SpriteRenderCompPtr = GetOwner()->GetComponent<diji::SpriteRenderComponent>();
 
     GameManager::GetInstance().OnNewLevelLoadedEvent.AddListener(this, &PlayerCharacter::OnNewLevelLoaded);
 
@@ -27,6 +32,14 @@ void thomasWasLate::PlayerCharacter::Init()
 
 void thomasWasLate::PlayerCharacter::Update()
 {
+    // auto state = m_CurrentStateUPtr->Execute(this);
+    // if (state)
+    // {
+    //     m_CurrentStateUPtr->OnExit();
+    //     m_CurrentStateUPtr = std::move(state);
+    //     m_CurrentStateUPtr->OnEnter(GetOwner());
+    // }
+    
     m_PreviousSpeed = m_CurrSpeed;
     m_CurrSpeed = m_ColliderCompPtr->GetVelocity();
 
@@ -65,7 +78,48 @@ void thomasWasLate::PlayerCharacter::Update()
             m_ColliderCompPtr->SetMaxVelocity(m_BaseMaxVelocity);
         }
     }
+}
 
+void thomasWasLate::PlayerCharacter::LateUpdate()
+{
+    const PlayerStates::PlayerState currentState = m_CurrentStateUPtr->GetState();
+    // animator controller code
+    // todo: EWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+    std::unique_ptr<PlayerStates> newState = nullptr;
+    if (m_IsOnGround)
+    {
+        if (diji::Helpers::isZero(m_CurrSpeed.x))
+        {
+            if (currentState != PlayerStates::PlayerState::Idle)
+                newState = std::make_unique<IdleState>();
+        }
+        else
+        {
+            if (std::abs(m_CurrSpeed.x) > m_BaseMaxVelocity.x)
+            {
+                if (currentState != PlayerStates::PlayerState::Running)
+                    newState = std::make_unique<RunningState>();
+            }
+            else
+            {
+                if (currentState != PlayerStates::PlayerState::Walking)
+                    newState = std::make_unique<WalkingState>();
+            }
+        }
+    }
+
+    if (newState)
+    {
+        m_CurrentStateUPtr = std::move(newState);
+        m_CurrentStateUPtr->OnEnter(GetOwner());
+    }
+
+    // other
+    const bool currLookDirection = m_IsLookingLeft;
+    m_IsLookingLeft = m_CurrSpeed.x < 0.f;
+
+    if (m_IsLookingLeft != currLookDirection)
+        m_SpriteRenderCompPtr->InvertSprite();
 }
 
 void thomasWasLate::PlayerCharacter::Move(const sf::Vector2f& direction) const
