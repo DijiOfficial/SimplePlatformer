@@ -115,10 +115,10 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             const int idx = row * m_Cols + col;
             const int tile = m_LevelInfo[idx];
 
-            if (tile == 1)
+            if (tile != 0)
             {
                 const int startC = col;
-                while (col < m_Cols && m_LevelInfo[row * m_Cols + col] == 1)
+                while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != 0)
                     ++col;
 
                 const int len = col - startC;
@@ -141,42 +141,42 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             else
             {
                 // Create individual colliders for special tiles 2/3/4 with tags
-                if (tile == 2 || tile == 3 || tile == 4)
-                {
-                    const float left = static_cast<float>(col) * kTileSize;
-                    const float bottom = static_cast<float>(row) * kTileSize;
-                    constexpr float width  = kTileSize;
-                    constexpr float height = kTileSize;
-                
-                    sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
-
-                    // todo: set up overlap event collisions!
-                    auto tempBound = std::make_unique<diji::GameObject>();
-                    tempBound->AddComponents<diji::Transform>(center);
-                    tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ width, height });
-                    const auto collider = tempBound->GetComponent<diji::Collider>();
-                    collider->SetStatic(true);
-                    collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
-
-                    // tempBound->AddComponents<diji::ShapeRender>();
-                   
-                    switch (tile)
-                    {
-                    case 2:
-                        collider->SetTag("lava");
-                        break;
-                    case 3:
-                        collider->SetTag("water");
-                        break;
-                    case 4:
-                        collider->SetTag("goal");
-                        break;
-                    default:
-                        break;
-                    }
-                    
-                    diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
-                }
+                // if (tile == 2 || tile == 3 || tile == 4)
+                // {
+                //     const float left = static_cast<float>(col) * kTileSize;
+                //     const float bottom = static_cast<float>(row) * kTileSize;
+                //     constexpr float width  = kTileSize;
+                //     constexpr float height = kTileSize;
+                //
+                //     sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
+                //
+                //     // todo: set up overlap event collisions!
+                //     auto tempBound = std::make_unique<diji::GameObject>();
+                //     tempBound->AddComponents<diji::Transform>(center);
+                //     tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ width, height });
+                //     const auto collider = tempBound->GetComponent<diji::Collider>();
+                //     collider->SetStatic(true);
+                //     collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+                //
+                //     // tempBound->AddComponents<diji::ShapeRender>();
+                //    
+                //     switch (tile)
+                //     {
+                //     case 2:
+                //         collider->SetTag("lava");
+                //         break;
+                //     case 3:
+                //         collider->SetTag("water");
+                //         break;
+                //     case 4:
+                //         collider->SetTag("goal");
+                //         break;
+                //     default:
+                //         break;
+                //     }
+                //     
+                //     diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
+                // }
                 ++col;
             }
         }

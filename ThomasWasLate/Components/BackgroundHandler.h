@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "Engine/Components/Component.h"
 
+#include <SFML/System/Vector2.hpp>
+
 namespace diji
 {
     class Sprite;
@@ -27,6 +29,7 @@ namespace thomasWasLate
 
     private:
         diji::Sprite* m_BackgroundSprite = nullptr;
+        std::unordered_map<int, sf::Vector2i> m_TileIDToAtlasPos;
 
         void OnNewLevelLoaded() const;
     };
