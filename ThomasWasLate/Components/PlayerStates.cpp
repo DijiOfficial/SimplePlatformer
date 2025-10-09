@@ -43,7 +43,7 @@ thomasWasLate::WalkingState::WalkingState()
         .startingFrameX= 1,
         .startingFrameY= 0,
         .totalAnimationFrames= 4,
-        .frameDuration = 0.1f,
+        .frameDuration = 0.2f,
         .m_IsPlaying= true,
         .m_IsLooping= true
     };
@@ -58,7 +58,7 @@ thomasWasLate::RunningState::RunningState()
         .startingFrameX= 1,
         .startingFrameY= 0,
         .totalAnimationFrames= 4,
-        .frameDuration = 0.05f,
+        .frameDuration = 0.1f,
         .m_IsPlaying= true,
         .m_IsLooping= true
     };

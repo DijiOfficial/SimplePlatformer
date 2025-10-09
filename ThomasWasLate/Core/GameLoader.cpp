@@ -2,6 +2,7 @@
 
 #include "GameState.h"
 #include "../Components/BackgroundHandler.h"
+#include "../Components/CustomBackgroundRenderer.h"
 #include "../Components/PlayerCharacter.h"
 #include "../Components/tempTest.h"
 #include "../Input/CustomCommands.h"
@@ -47,22 +48,25 @@ void SceneLoader::Level()
 
     // static_cast<float>(window::VIEWPORT.x) * -0.5f + 25.f, static_cast<float>(window::VIEWPORT.y) * -0.5f + 25.f
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
-    staticBackground->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.5f);
+    // staticBackground->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.5f);
+    staticBackground->AddComponents<Transform>(0, 0);
     staticBackground->AddComponents<TextureComp>("graphics/background.png");
-    staticBackground->AddComponents<Render>();
-    scene->SetGameObjectAsStaticBackground(staticBackground);
+    staticBackground->AddComponents<thomasWasLate::CustomBackgroundRenderer>();
+    // scene->SetGameObjectAsStaticBackground(staticBackground);
 
     const auto background = scene->CreateGameObject("B_Background");
     background->AddComponents<Transform>(0, 0);
     background->AddComponents<Sprite>("graphics/tiles_sheet.png");
     background->AddComponents<Render>();
     background->AddComponents<thomasWasLate::BackgroundHandler>();
-    
+
+    const sf::FloatRect arena{ 0,-(115 * 4.5),12000.f, 1080.f };
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->AddComponents<Transform>(0, 0);
     camera->AddComponents<Camera>(window::VIEWPORT);
-    // camera->GetComponent<Camera>()->SetLevelBoundaries(static_cast<sf::FloatRect>(arena));
-    camera->GetComponent<Camera>()->SetClampingMode(false);
+    // camera->AddComponents<Camera>(window::VIEWPORT);
+    camera->GetComponent<Camera>()->SetLevelBoundaries(arena);
+    // camera->GetComponent<Camera>()->SetClampingMode(false);
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     player->AddComponents<Transform>(200, 0);
