@@ -35,7 +35,8 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
-        void Move(const sf::Vector2f& direction) const;
+        void Move(const sf::Vector2f& direction);
+        void StopMove();
         void Jump();
         void ClearJump();
         void Sprint();
@@ -55,6 +56,14 @@ namespace thomasWasLate
         sf::Vector2f m_BaseMaxVelocity = { 400.f, 800.f };
         sf::Vector2f m_SprintMaxVelocity = { 800.f, 800.f };
 
+        enum class MovementDirection
+        {
+            Left,
+            Right,
+            None,
+        };
+        MovementDirection m_MovementDirection = MovementDirection::None;
+        
         float m_JumpForce = 2000.f;
         float m_Acceleration = 500.f;
         float m_BaseAcceleration = 500.f;

@@ -5,16 +5,20 @@
 #include "Engine/Collision/Collider.h"
 #include "Engine/Singleton/RandNumber.h"
 
-thomasWasLate::MoveCharacter::MoveCharacter(diji::GameObject* actor, const sf::Vector2f& direction)
+thomasWasLate::MoveCharacter::MoveCharacter(diji::GameObject* actor, const sf::Vector2f& direction, const bool isMoving)
     : GameActorCommands{ actor }
     , m_Direction{ direction }
+    , m_IsMoving{ isMoving }
 {
     m_Character = actor->GetComponent<PlayerCharacter>();
 }
 
 void thomasWasLate::MoveCharacter::Execute()
 {
-    m_Character->Move(m_Direction);
+    if (m_IsMoving)
+        m_Character->Move(m_Direction);
+    else
+        m_Character->StopMove();
 }
 
 thomasWasLate::CharacterJump::CharacterJump(diji::GameObject* actor, const bool isJumping)

@@ -39,7 +39,8 @@ namespace thomasWasLate
             Walking,
             Running,
             Jumping,
-            Falling
+            Death,
+            Drifting
         };
         [[nodiscard]] PlayerState GetState() const { return m_CurrentState; }
         
@@ -65,5 +66,23 @@ namespace thomasWasLate
     {
     public:
         RunningState();
+    };
+
+    class JumpingState final : public PlayerStates
+    {
+    public:
+        JumpingState();
+    };
+
+    class DeathState final : public PlayerStates
+    {
+    public:
+        DeathState();
+    };
+
+    class DriftingState final : public PlayerStates
+    {
+    public:
+        DriftingState();
     };
 }

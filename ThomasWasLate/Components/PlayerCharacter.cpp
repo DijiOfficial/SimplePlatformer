@@ -95,17 +95,36 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
         }
         else
         {
-            if (std::abs(m_CurrSpeed.x) > m_BaseMaxVelocity.x)
+
+            if (m_CurrSpeed.x < 0 && m_MovementDirection == MovementDirection::Right)
             {
-                if (currentState != PlayerStates::PlayerState::Running)
-                    newState = std::make_unique<RunningState>();
+                if (currentState != PlayerStates::PlayerState::Drifting)
+                    newState = std::make_unique<DriftingState>();
+            }
+            else if (m_CurrSpeed.x > 0 && m_MovementDirection == MovementDirection::Left)
+            {
+                if (currentState != PlayerStates::PlayerState::Drifting)
+                    newState = std::make_unique<DriftingState>();
             }
             else
             {
-                if (currentState != PlayerStates::PlayerState::Walking)
-                    newState = std::make_unique<WalkingState>();
+                if (std::abs(m_CurrSpeed.x) > m_BaseMaxVelocity.x)
+                {                               
+                    if (currentState != PlayerStates::PlayerState::Running)
+                        newState = std::make_unique<RunningState>();
+                }
+                else
+                {
+                    if (currentState != PlayerStates::PlayerState::Walking)
+                        newState = std::make_unique<WalkingState>();
+                }
             }
         }
+    }
+    else
+    {
+        if (currentState != PlayerStates::PlayerState::Jumping)
+            newState = std::make_unique<JumpingState>();
     }
 
     if (newState)
@@ -122,10 +141,17 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
         m_SpriteRenderCompPtr->InvertSprite();
 }
 
-void thomasWasLate::PlayerCharacter::Move(const sf::Vector2f& direction) const
+void thomasWasLate::PlayerCharacter::Move(const sf::Vector2f& direction)
 {
     const float multiplier = m_IsOnGround ? 1.f : 0.75f;
     m_ColliderCompPtr->ApplyForce(direction * m_Acceleration * multiplier);
+
+    m_MovementDirection = direction.x > 0.f ? MovementDirection::Right : (direction.x < 0.f ? MovementDirection::Left : MovementDirection::None);
+}
+
+void thomasWasLate::PlayerCharacter::StopMove()
+{
+    m_MovementDirection = MovementDirection::None;
 }
 
 void thomasWasLate::PlayerCharacter::OnNewLevelLoaded()

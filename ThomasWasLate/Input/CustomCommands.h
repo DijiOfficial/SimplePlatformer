@@ -18,7 +18,7 @@ namespace thomasWasLate
     class MoveCharacter final : public diji::GameActorCommands
     {
     public:
-        explicit MoveCharacter(diji::GameObject* actor, const sf::Vector2f& direction);
+        explicit MoveCharacter(diji::GameObject* actor, const sf::Vector2f& direction, bool isMoving);
         ~MoveCharacter() noexcept override = default;
 
         void Execute() override;
@@ -26,6 +26,7 @@ namespace thomasWasLate
     private:
         const sf::Vector2f m_Direction;
         PlayerCharacter* m_Character = nullptr;
+        bool m_IsMoving = false;
     };
 
     class CharacterJump final : public diji::GameActorCommands

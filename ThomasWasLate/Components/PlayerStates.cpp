@@ -65,3 +65,48 @@ thomasWasLate::RunningState::RunningState()
 
     m_CurrentState = PlayerState::Running;
 }
+
+thomasWasLate::JumpingState::JumpingState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 0,
+        .startingFrameY= 1,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.25f,
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::Jumping;
+}
+
+thomasWasLate::DeathState::DeathState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 1,
+        .startingFrameY= 1,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.25f,
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::Death;
+}
+
+thomasWasLate::DriftingState::DriftingState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 2,
+        .startingFrameY= 1,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.25f,
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::Drifting;
+}
