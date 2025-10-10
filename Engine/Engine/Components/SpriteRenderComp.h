@@ -35,7 +35,7 @@ namespace diji
         void SetStartingFrameY(const int frame) { m_StartingFrameY = frame; }
         void SetStartingFrame(const int x, const int y) { m_StartingFrameX = x; m_StartingFrameY = y; }
 
-        void SetTotalAnimationFrames(const int count) { m_TotalAnimationFrames = count; }
+        void SetTotalAnimationFrames(const int count);
         void SetCurrentAnimationFrame(int frame);
 
         void SetScale(float scale) override;

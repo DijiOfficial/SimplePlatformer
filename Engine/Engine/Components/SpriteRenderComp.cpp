@@ -106,6 +106,11 @@ void diji::SpriteRenderComponent::SetFrameSizeY(const int y)
     m_Sprite.setOrigin(static_cast<float>(m_FrameSize.x) * 0.5f, static_cast<float>(m_FrameSize.y) * 0.5f);
 }
 
+void diji::SpriteRenderComponent::SetTotalAnimationFrames(const int count)
+{
+    m_TotalAnimationFrames = count <= 0 ? 1 : count;
+}
+
 void diji::SpriteRenderComponent::SetCurrentAnimationFrame(const int frame)
 {
     m_CurrentFrame = std::clamp(frame, 0, m_TotalAnimationFrames - 1); 
