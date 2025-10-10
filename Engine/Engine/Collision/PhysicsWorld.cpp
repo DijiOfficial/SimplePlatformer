@@ -12,6 +12,7 @@ void diji::PhysicsWorld::Reset()
     m_StaticInfos = std::vector<StaticColliderInfo>();
     m_ActiveTriggers = std::vector<TriggerPair>();
     m_PreviousFrameTriggers = std::vector<TriggerPair>();
+    m_HitEventTriggers = std::vector<TriggerPair>();
 }
 
 void diji::PhysicsWorld::AddCollider(Collider* collider)
@@ -100,7 +101,7 @@ void diji::PhysicsWorld::ProcessTriggerEvents()
         }
     }
     
-    // Process Stay events (continuing triggers)
+    // Process Stay events (continuing triggers) 
     for (const auto& trigger : m_ActiveTriggers)
     {
         if (std::ranges::find(m_PreviousFrameTriggers, trigger) != m_PreviousFrameTriggers.end())
@@ -109,10 +110,15 @@ void diji::PhysicsWorld::ProcessTriggerEvents()
         }
     }
 
+    // Process Hit events (only fire once per new collision)
     for (const auto& trigger : m_HitEventTriggers)
     {
         NotifyTriggerEvent(trigger, EventType::Hit);
     }
+
+    m_PreviousFrameTriggers = m_ActiveTriggers;
+    m_ActiveTriggers.clear();
+    m_HitEventTriggers.clear();
 }
 
 void diji::PhysicsWorld::NotifyTriggerEvent(const TriggerPair& trigger, EventType eventType)
@@ -165,7 +171,7 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             if (Overlap)
                 m_ActiveTriggers.push_back({.trigger= colliderPtr, .other= collider});
 
-            if (Hit && colliderPtr->IsTriggerHitEvents())
+            if (Hit && colliderPtr->IsGenerateHitEvents())
                 m_HitEventTriggers.push_back({.trigger= colliderPtr, .other= collider});
         }
 
