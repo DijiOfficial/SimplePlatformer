@@ -178,7 +178,7 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             const auto [Overlap, Hit] = HandleStaticCollisions(predictionsVec[i], staticCollider);
             
             if (Overlap)
-                m_ActiveTriggers.push_back({.trigger = colliderPtr, .other = staticCollider, .hitInfo = collisionsVec.back()});
+                m_ActiveTriggers.push_back({.trigger = colliderPtr, .other = staticCollider, .hitInfo = {}});
 
             if (Hit && colliderPtr->IsGenerateHitEvents())
                 m_HitEventTriggers.push_back({.trigger = colliderPtr, .other = staticCollider, .hitInfo = collisionsVec.back()});
@@ -195,7 +195,7 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             const auto [Overlap, Hit] = HandleDynamicCollisions(predictionsVec[i], otherPrediction);
             
             if (Overlap)
-                m_ActiveTriggers.push_back({.trigger = colliderPtr, .other = otherPrediction.collider, .hitInfo = collisionsVec.back()});
+                m_ActiveTriggers.push_back({.trigger = colliderPtr, .other = otherPrediction.collider, .hitInfo = {}});
 
             if (Hit)
             {
