@@ -18,10 +18,10 @@ diji::SpriteRenderComponent::SpriteRenderComponent(GameObject* ownerPtr, const s
     m_Sprite.setOrigin(static_cast<float>(m_FrameSize.x) * 0.5f, static_cast<float>(m_FrameSize.y) * 0.5f);
 }
 
-diji::SpriteRenderComponent::SpriteRenderComponent(GameObject* ownerPtr, const std::string& texturePath, const sf::Vector2i& frameSize, float totalAnimationFrames, float frameDurationSec)
+diji::SpriteRenderComponent::SpriteRenderComponent(GameObject* ownerPtr, const std::string& texturePath, const sf::Vector2i& frameSize, int totalAnimationFrames, float frameDurationSec)
     : Render{ ownerPtr }
     , m_FrameSize{ frameSize }
-    , m_TotalAnimationFrames{ totalAnimationFrames <= 0.f ? 1 : static_cast<int>(totalAnimationFrames) }
+    , m_TotalAnimationFrames{ totalAnimationFrames <= 0 ? 1 : totalAnimationFrames }
     , m_FrameDuration{ frameDurationSec <= 0.f ? 0.1f : frameDurationSec }
 {
     m_Texture = ResourceManager::GetInstance().LoadTexture(texturePath);

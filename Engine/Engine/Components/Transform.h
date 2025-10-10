@@ -22,7 +22,7 @@ namespace diji
 		Transform& operator=(const Transform& other) = delete;
 		Transform& operator=(Transform&& other) = delete;
 
-		void Init() override {}
+		void Init() override;
 		void OnEnable() override {}
 		void Start() override {}
 		
@@ -34,10 +34,10 @@ namespace diji
 		void OnDestroy() override {}
 
 		[[nodiscard]] sf::Vector2f GetPosition() const { return m_Position; }
-		void SetPosition(const float x, const float y) { m_Position.x = x; m_Position.y = y; }
-		void SetPosition(const sf::Vector2f pos) { m_Position = pos; }
-		void AddOffset(const float  x, const float y) { m_Position.x += x; m_Position.y += y; }
-		void AddOffset(const sf::Vector2f& offset) { m_Position.x += offset.x; m_Position.y += offset.y; }
+		void SetPosition(const float x, const float y) { m_Position.x = x; m_Position.y = y; UpdateColliderPosition(); }
+		void SetPosition(const sf::Vector2f pos) { m_Position = pos; UpdateColliderPosition(); }
+		void AddOffset(const float  x, const float y) { m_Position.x += x; m_Position.y += y; UpdateColliderPosition(); }
+		void AddOffset(const sf::Vector2f& offset) { m_Position.x += offset.x; m_Position.y += offset.y; UpdateColliderPosition(); }
 
 		// this probably should be separate later or if revisited with more behaviours
 		void Seek(float speed);
@@ -46,9 +46,13 @@ namespace diji
 		
 	private:
 		sf::Vector2f m_Position;
+		Collider* m_ColliderCompPtr = nullptr;
 
 		// also separate 
 		Transform* m_Target = nullptr;
 		TimeSingleton& m_TimeSingleton = TimeSingleton::GetInstance();
+
+		void UpdateColliderPosition() const;
 	};
+
 }

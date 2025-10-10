@@ -1,6 +1,13 @@
 ﻿#include "Transform.h"
+
+#include "../Collision/Collider.h"
 #include "../Core/GameObject.h"
 #include "../Singleton/Helpers.h"
+
+void diji::Transform::Init()
+{
+    m_ColliderCompPtr = GetOwner()->GetComponent<Collider>();
+}
 
 void diji::Transform::Seek(const float speed)
 {
@@ -18,4 +25,11 @@ void diji::Transform::Seek(const float speed)
 void diji::Transform::SetTarget(const GameObject* target)
 {
     m_Target = target->GetComponent<Transform>();
+}
+
+
+void diji::Transform::UpdateColliderPosition() const
+{
+    if (m_ColliderCompPtr)
+        m_ColliderCompPtr->SetNewPosition(m_Position);
 }

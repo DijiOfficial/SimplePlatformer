@@ -11,7 +11,7 @@ namespace diji
     {
     public:
         explicit SpriteRenderComponent(GameObject* ownerPtr, const std::string& texturePath);
-        explicit SpriteRenderComponent(GameObject* ownerPtr, const std::string& texturePath, const sf::Vector2i& frameSize, float totalAnimationFrames, float frameDurationSec);
+        explicit SpriteRenderComponent(GameObject* ownerPtr, const std::string& texturePath, const sf::Vector2i& frameSize, int totalAnimationFrames, float frameDurationSec);
         ~SpriteRenderComponent() noexcept override = default;
         
         void Init() override;

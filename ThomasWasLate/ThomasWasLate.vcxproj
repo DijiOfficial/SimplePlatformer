@@ -173,6 +173,7 @@
   <ItemGroup>
     <ClCompile Include="Components\BackgroundHandler.cpp" />
     <ClCompile Include="Components\CustomBackgroundRenderer.cpp" />
+    <ClCompile Include="Components\GoombaAI.cpp" />
     <ClCompile Include="Components\PlayerCharacter.cpp" />
     <ClCompile Include="Components\PlayerStates.cpp" />
     <ClCompile Include="Components\tempTest.cpp" />
@@ -184,6 +185,7 @@
   <ItemGroup>
     <ClInclude Include="Components\BackgroundHandler.h" />
     <ClInclude Include="Components\CustomBackgroundRenderer.h" />
+    <ClInclude Include="Components\GoombaAI.h" />
     <ClInclude Include="Components\PlayerCharacter.h" />
     <ClInclude Include="Components\PlayerStates.h" />
     <ClInclude Include="Components\tempTest.h" />

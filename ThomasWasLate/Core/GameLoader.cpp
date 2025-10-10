@@ -3,6 +3,7 @@
 #include "GameState.h"
 #include "../Components/BackgroundHandler.h"
 #include "../Components/CustomBackgroundRenderer.h"
+#include "../Components/GoombaAI.h"
 #include "../Components/PlayerCharacter.h"
 #include "../Components/tempTest.h"
 #include "../Input/CustomCommands.h"
@@ -72,7 +73,7 @@ void SceneLoader::Level()
     player->AddComponents<Transform>(200, 0);
     // player->AddComponents<TextureComp>("graphics/player.png");
     // player->AddComponents<Render>(3);
-    player->AddComponents<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3.f, 0.05f);
+    player->AddComponents<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
     player->GetComponent<SpriteRenderComponent>()->SetScale(3);
     // player->GetComponent<SpriteRenderComponent>()->SetFrameSize(sf::Vector2i{ 16, 16 });
     player->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
@@ -86,23 +87,16 @@ void SceneLoader::Level()
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
 
+    const auto goombaTest = scene->CreateGameObject("Y_GoombaTest");
+    goombaTest->AddComponents<Transform>(1200, 0);
+    goombaTest->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
+    goombaTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    goombaTest->GetComponent<Collider>()->SetRestitution(0.f);
+    goombaTest->GetComponent<Collider>()->SetMass(0.89f);
+    goombaTest->GetComponent<Collider>()->SetFriction(0.25f);
+    goombaTest->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
+    goombaTest->AddComponents<thomasWasLate::GoombaAI>();
     
-    // const auto testBall = scene->CreateGameObject("X_TestBall");
-    // testBall->AddComponents<Transform>(0, 0);
-    // testBall->AddComponents<TextureComp>("graphics/ball.png");
-    // testBall->AddComponents<Render>();
-    // testBall->AddComponents<Collider>(CollisionShape::ShapeType::CIRCLE, 65.f);
-    // testBall->GetComponent<Collider>()->SetRestitution(0.4f);
-    // testBall->GetComponent<Collider>()->SetFriction(0.2f);
-    // // testBall->GetComponent<Collider>()->SetRestitution(0.5f);
-    // // testBall->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
-    // testBall->AddComponents<ShapeRender>(true);
-
-    // const auto randomCircle = scene->CreateGameObject("Z_TemRoundCirlRight");
-    // randomCircle->AddComponents<Transform>(0, 339);
-    // randomCircle->AddComponents<Collider>(CollisionShape::ShapeType::CIRCLE, 100.f);
-    // randomCircle->GetComponent<Collider>()->SetStatic(true);
-    // randomCircle->AddComponents<ShapeRender>();
     
     const auto fpsCounter = scene->CreateGameObject("Z_FPSCounter");
     fpsCounter->AddComponents<TextComp>("0 FPS", "fonts/Roboto-Light.ttf", sf::Color::White, true);
@@ -112,23 +106,6 @@ void SceneLoader::Level()
     fpsCounter->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(fpsCounter);
 
-    // const auto center = m_Camera->GetCameraView().getCenter();
-    // const auto size = m_Camera->GetCameraView().getSize();
-    // const auto col = sf::FloatRect{ m_TransformCompPtr->GetPosition(), sf::Vector2f{ 44, 70 } };
-    // // const auto col = m_ColliderCompPtr->GetAABB();
-    // // const auto offset = m_ColliderCompPtr->GetOffset();
-    // const auto offset = sf::Vector2f{ 0.f, 0.f };
-    // // bool bounced = false;
-    //
-    // // Calculate bounds
-    // const float leftBound = center.x - size.x * 0.5f;
-    // const float rightBound = center.x + size.x * 0.5f - col.width;
-    // const float topBound = center.y - size.y * 0.5f;
-    // const float bottomBound = center.y + size.y * 0.5f - col.height - offset.y;
-
-    // const auto bob = scene->CreateGameObject("X_Thomas2", thomas);
-    // bob->GetComponent<thomasWasLate::PlayerCharacter>()->SetMass(25);
-    
 #pragma region Commands
     auto& input = InputManager::GetInstance();
 
