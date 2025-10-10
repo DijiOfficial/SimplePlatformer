@@ -37,6 +37,7 @@ namespace diji
         };
 
         std::vector<Timer> m_Timers;
+        std::vector<Timer> m_PendingTimers;
         size_t m_NextId = 1;
     };
 }

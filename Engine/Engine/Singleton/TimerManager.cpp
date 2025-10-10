@@ -8,6 +8,12 @@ void diji::TimerManager::Init()
 
 void diji::TimerManager::Update()
 {
+    if (!m_PendingTimers.empty())
+    {
+        m_Timers.insert(m_Timers.end(), m_PendingTimers.begin(), m_PendingTimers.end());
+        m_PendingTimers.clear(); // This might cause memory usage to spike if a lot of timers are created and destroyed frequently
+    }
+    
     const float deltaTime = m_TimeSingleton->GetDeltaTime();
     for (auto it = m_Timers.begin(); it != m_Timers.end();)
     {
@@ -43,7 +49,7 @@ diji::TimerManager::TimerHandle diji::TimerManager::SetTimer(std::function<void(
     timer.interval = interval;
     timer.looping = isLooping;
 
-    m_Timers.push_back(timer);
+    m_PendingTimers.push_back(timer);
 
     return TimerHandle{ timer.id };
 }
@@ -57,9 +63,18 @@ void diji::TimerManager::ClearTimer(const TimerHandle& handle) // Todo: consider
 
     if (it != m_Timers.end())
         m_Timers.erase(it);
+
+    const auto& itPending = std::ranges::find_if(m_PendingTimers, [&](const Timer& timer)
+    {
+        return timer.id == handle.id;
+    });
+
+    if (itPending != m_PendingTimers.end())
+        m_PendingTimers.erase(itPending);
 }
 
 void diji::TimerManager::ClearAllTimers()
 {
     m_Timers = std::vector<Timer>();
+    m_PendingTimers = std::vector<Timer>();
 }
