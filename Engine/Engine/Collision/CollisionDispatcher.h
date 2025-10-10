@@ -18,43 +18,45 @@ namespace diji
         CollisionDispatcher(CollisionDispatcher&&) noexcept = default;
         CollisionDispatcher& operator=(CollisionDispatcher&&) noexcept = default;
         
-        PhysicsWorld::CollisionDetectionResult Dispatch(PhysicsWorld::Prediction& prediction, const Collider* dynamic, const Collider* staticCol) const;
+        PhysicsWorld::CollisionDetectionResult Dispatch(PhysicsWorld::Prediction& predictionA, PhysicsWorld::Prediction& predictionB, const Collider* colliderA, const Collider* colliderB) const;
 
     private:
-        using CollisionFunc = std::function<PhysicsWorld::CollisionDetectionResult(PhysicsWorld::Prediction&, const Collider*, const Collider*)>;
+        using CollisionFunc = std::function<PhysicsWorld::CollisionDetectionResult(PhysicsWorld::Prediction&, PhysicsWorld::Prediction&, const Collider*, const Collider*)>;
             
         // 2D lookup table indexed by shape types
         std::array<std::array<CollisionFunc, 3>, 3> collisionTable_;
             
-        static PhysicsWorld::CollisionDetectionResult HandleCircleCircle(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol);
-        static PhysicsWorld::CollisionDetectionResult HandleCircleRect(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol);
-        static PhysicsWorld::CollisionDetectionResult HandleRectRect(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol);
+        static PhysicsWorld::CollisionDetectionResult HandleCircleCircle(   PhysicsWorld::Prediction& predA, PhysicsWorld::Prediction& predB, const Collider* colliderA, const Collider* colliderB);
+        static PhysicsWorld::CollisionDetectionResult HandleCircleRect(     PhysicsWorld::Prediction& predA, PhysicsWorld::Prediction& predB, const Collider* colliderA, const Collider* colliderB);
+        static PhysicsWorld::CollisionDetectionResult HandleRectRect(       PhysicsWorld::Prediction& predA, PhysicsWorld::Prediction& predB, const Collider* colliderA, const Collider* colliderB);
 
-        template<typename DynamicShapeT, typename StaticShapeT>
+        template<typename ShapeA, typename ShapeB>
         static PhysicsWorld::CollisionDetectionResult DispatchCollision
         (
-            PhysicsWorld::Prediction& pred,
-            const Collider* dynamic,
-            const Collider* staticCol,
+            PhysicsWorld::Prediction& predA,
+            PhysicsWorld::Prediction& predB,
+            const Collider* colliderA,
+            const Collider* colliderB,
             PhysicsWorld::CollisionDetectionResult (*collisionFunc)
                 (
-                    const DynamicShapeT&, const StaticShapeT&, 
+                    const ShapeA&, const ShapeB&, 
                     std::vector<PhysicsWorld::CollisionInfo>&, 
                     std::vector<PhysicsWorld::CollisionInfo>&,
                     bool
                 )
         )
         {
-            const bool isOverlap = dynamic->GetCollisionResponse() == Collider::CollisionResponse::Overlap ||
-                                   staticCol->GetCollisionResponse() == Collider::CollisionResponse::Overlap;
+            const bool isOverlap = colliderA->GetCollisionResponse() == Collider::CollisionResponse::Overlap ||
+                                   colliderB->GetCollisionResponse() == Collider::CollisionResponse::Overlap;
 
-            auto dynamicShape = *dynamic_cast<const DynamicShapeT*>(&dynamic->GetShape()->GetShape());
-            dynamicShape.setPosition(pred.pos);
+            auto shapeA = *dynamic_cast<const ShapeA*>(&colliderA->GetShape()->GetShape());
+            shapeA.setPosition(predA.pos);
 
-            const auto staticShape = dynamic_cast<const StaticShapeT*>(&staticCol->GetShape()->GetShape());
+            auto shapeB = *dynamic_cast<const ShapeB*>(&colliderB->GetShape()->GetShape());
+            if (!colliderB->IsStatic())
+                shapeB.setPosition(predB.pos);
 
-            std::vector<PhysicsWorld::CollisionInfo> emptyVec;
-            return collisionFunc(dynamicShape, *staticShape, pred.collisionInfoVec, emptyVec, isOverlap);
+            return collisionFunc(shapeA, shapeB, predA.collisionInfoVec, predB.collisionInfoVec, isOverlap);
         }
     };
 }

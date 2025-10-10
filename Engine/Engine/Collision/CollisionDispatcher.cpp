@@ -13,28 +13,28 @@ diji::CollisionDispatcher::CollisionDispatcher()
     // ... initialize remaining combinations
 }
 
-diji::PhysicsWorld::CollisionDetectionResult diji::CollisionDispatcher::Dispatch(PhysicsWorld::Prediction& prediction, const Collider* dynamic, const Collider* staticCol) const
+diji::PhysicsWorld::CollisionDetectionResult diji::CollisionDispatcher::Dispatch(PhysicsWorld::Prediction& predictionA, PhysicsWorld::Prediction& predictionB, const Collider* colliderA, const Collider* colliderB) const
 {
-    const auto dynamicType = static_cast<int>(dynamic->GetShapeType());
-    const auto staticType = static_cast<int>(staticCol->GetShapeType());
+    const auto dynamicAType = static_cast<int>(colliderA->GetShapeType());
+    const auto dynamicBType = static_cast<int>(colliderB->GetShapeType());
 
-    if (const auto handler = collisionTable_[dynamicType][staticType])
-        return handler(prediction, dynamic, staticCol);
+    if (const auto handler = collisionTable_[dynamicAType][dynamicBType])
+        return handler(predictionA, predictionB, colliderA, colliderB);
 
     throw std::runtime_error("No collision handler for given shape types.");
 }
 
-diji::PhysicsWorld::CollisionDetectionResult diji::CollisionDispatcher::HandleCircleCircle(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol)
+diji::PhysicsWorld::CollisionDetectionResult diji::CollisionDispatcher::HandleCircleCircle(PhysicsWorld::Prediction& predA, PhysicsWorld::Prediction& predB, const Collider* colliderA, const Collider* colliderB)
 {
-    return DispatchCollision<sf::CircleShape, sf::CircleShape>(pred, dynamic, staticCol, CollisionsHelper::ProcessCircleToCircleCollision);
+    return DispatchCollision<sf::CircleShape, sf::CircleShape>(predA, predB, colliderA, colliderB, CollisionsHelper::ProcessCircleToCircleCollision);
 }
 
-diji::PhysicsWorld::CollisionDetectionResult diji::CollisionDispatcher::HandleCircleRect(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol)
+diji::PhysicsWorld::CollisionDetectionResult diji::CollisionDispatcher::HandleCircleRect(PhysicsWorld::Prediction& predA, PhysicsWorld::Prediction& predB, const Collider* colliderA, const Collider* colliderB)
 {
-    return DispatchCollision<sf::CircleShape, sf::RectangleShape>(pred, dynamic, staticCol, CollisionsHelper::ProcessCircleToBoxCollision);
+    return DispatchCollision<sf::CircleShape, sf::RectangleShape>(predA, predB, colliderA, colliderB, CollisionsHelper::ProcessCircleToBoxCollision);
 }
 
-diji::PhysicsWorld::CollisionDetectionResult diji::CollisionDispatcher::HandleRectRect(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol)
+diji::PhysicsWorld::CollisionDetectionResult diji::CollisionDispatcher::HandleRectRect(PhysicsWorld::Prediction& predA, PhysicsWorld::Prediction& predB, const Collider* colliderA, const Collider* colliderB)
 {
-    return DispatchCollision<sf::RectangleShape, sf::RectangleShape>(pred, dynamic, staticCol, CollisionsHelper::ProcessBoxToBoxCollision);
+    return DispatchCollision<sf::RectangleShape, sf::RectangleShape>(predA, predB, colliderA, colliderB, CollisionsHelper::ProcessBoxToBoxCollision);
 }

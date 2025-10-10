@@ -93,6 +93,7 @@ namespace diji
 		std::vector<TriggerPair> m_PreviousFrameTriggers;
 		void ProcessTriggerEvents();
 		static void NotifyTriggerEvent(const TriggerPair& trigger, EventType eventType);
+		static void NotifyHitEvent(const TriggerPair& trigger, EventType eventType);
 		
 		// Collision detection/resolution
 		static bool AABBOverlap(const sf::FloatRect& a, const sf::FloatRect& b)
@@ -111,7 +112,7 @@ namespace diji
 
 		static void UpdateFinalPosition(const Prediction& prediction);
 		static CollisionDetectionResult HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider);
-		// void HanldeDynamicCollisions(const sf::FloatRect& rectA, const sf::FloatRect& rectB) const;
+		static CollisionDetectionResult HandleDynamicCollisions(Prediction& dynamicColliderA, Prediction& dynamicColliderB);
 	};
 }
 
