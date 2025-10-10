@@ -4,6 +4,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include "../Singleton/TimeSingleton.h"
+#include "CollisionStructs.h"
 
 namespace diji
 {
@@ -33,16 +34,6 @@ namespace diji
 			Collider* collider; // perhaps this can be optimized for memory usage if needed
 		};
 
-		struct CollisionInfo
-		{
-			sf::Vector2f point;          // Contact point
-			sf::Vector2f normal;         // Collision normal (pointing away from surface)
-			float penetration;           // How much objects overlap
-			mutable float normalImpulse; // Impulse magnitude (calculated during resolution)
-			sf::Vector2f tangent;        // Tangent vector for friction calculation
-			bool hasCollision;           // Whether collision occurred
-		};
-
 		struct Prediction
 		{
 			Collider* collider;
@@ -57,7 +48,7 @@ namespace diji
 			bool Overlap;
 			bool Hit;
 		};
-		
+
 		static float Right(const sf::FloatRect& r)  { return r.left + r.width; }
 		static float Bottom(const sf::FloatRect& r) { return r.top  + r.height; }
 	
@@ -73,19 +64,12 @@ namespace diji
 		{
 			Collider* trigger;
 			Collider* other;
-            
+			CollisionInfo hitInfo;
+			
 			bool operator==(const TriggerPair& rhs) const
 			{
 				return (trigger == rhs.trigger && other == rhs.other) || (trigger == rhs.other && other == rhs.trigger);
 			}
-		};
-
-		enum class EventType
-		{
-			Enter = 0,
-			Stay = 1,
-			Exit = 2,
-			Hit = 3
 		};
 		
 		std::vector<TriggerPair> m_HitEventTriggers;

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../Interfaces/EventSystem.h" // Included for all inherited classes
+#include "../Collision/CollisionStructs.h"
 
 namespace diji 
 {
@@ -28,11 +29,12 @@ namespace diji
         virtual void OnDisable() = 0;
         virtual void OnDestroy() = 0;
 
+        // these can easily be expanded to include CollisionInfo if needed.
         virtual void OnTriggerEnter(const Collider*) {}
         virtual void OnTriggerStay(const Collider*) {}
         virtual void OnTriggerExit(const Collider*) {}
 
-        virtual void OnHitEvent(const Collider*) {}
+        virtual void OnHitEvent(const Collider*, const CollisionInfo&) {}
 
     protected:
         explicit Component(GameObject* ownerPtr) : m_OwnerPtr{ ownerPtr } {}

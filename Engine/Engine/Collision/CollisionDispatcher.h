@@ -40,8 +40,8 @@ namespace diji
             PhysicsWorld::CollisionDetectionResult (*collisionFunc)
                 (
                     const ShapeA&, const ShapeB&, 
-                    std::vector<PhysicsWorld::CollisionInfo>&, 
-                    std::vector<PhysicsWorld::CollisionInfo>&,
+                    std::vector<CollisionInfo>&, 
+                    std::vector<CollisionInfo>&,
                     bool
                 )
         )

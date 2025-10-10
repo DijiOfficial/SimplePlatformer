@@ -49,7 +49,7 @@ void diji::CollisionShape::ProjectOntoAxis(const std::vector<sf::Vector2f>& poin
     }
 }
 
-void diji::Rect::CollideWith(std::vector<PhysicsWorld::CollisionInfo>& collisionsVec, const PhysicsWorld::StaticColliderInfo& info, const sf::Vector2f& pos)
+void diji::Rect::CollideWith(std::vector<CollisionInfo>& collisionsVec, const PhysicsWorld::StaticColliderInfo& info, const sf::Vector2f& pos)
 {
     const auto rectShape = dynamic_cast<const sf::RectangleShape*>(&GetShape());
     const auto other = dynamic_cast<const sf::RectangleShape*>(&info.collider->GetShape()->GetShape());
@@ -61,7 +61,7 @@ void diji::Rect::CollideWith(std::vector<PhysicsWorld::CollisionInfo>& collision
     info.collider->GetShape()->HandleStaticCollisionWithRect(collisionsVec, *rectShape, pos, *other);
 }
 
-void diji::Rect::CollideWith(std::vector<PhysicsWorld::CollisionInfo>& collisionsVec, const sf::FloatRect& staticAABB, const sf::FloatRect& predictedAABB)
+void diji::Rect::CollideWith(std::vector<CollisionInfo>& collisionsVec, const sf::FloatRect& staticAABB, const sf::FloatRect& predictedAABB)
 {
     // This only works for non-rotated rectangles (AABB)
     const float leftA   = predictedAABB.left;
@@ -79,7 +79,7 @@ void diji::Rect::CollideWith(std::vector<PhysicsWorld::CollisionInfo>& collision
     
     if (overlapX > 0.f && overlapY > 0.f)
     {
-        PhysicsWorld::CollisionInfo collision;
+        CollisionInfo collision;
         collision.hasCollision = true;
         
         // Choose smaller axis of penetration
@@ -126,7 +126,7 @@ void diji::Rect::CollideWith(std::vector<PhysicsWorld::CollisionInfo>& collision
     }
 }
 
-void diji::Rect::HandleStaticCollisionWithRect(std::vector<PhysicsWorld::CollisionInfo>& collisionsVec, const sf::RectangleShape& movingShape, const sf::Vector2f& predictedPos, const sf::RectangleShape& staticShape)
+void diji::Rect::HandleStaticCollisionWithRect(std::vector<CollisionInfo>& collisionsVec, const sf::RectangleShape& movingShape, const sf::Vector2f& predictedPos, const sf::RectangleShape& staticShape)
 {
     (void)collisionsVec;
     (void)movingShape;
@@ -194,7 +194,7 @@ void diji::Rect::HandleStaticCollisionWithRect(std::vector<PhysicsWorld::Collisi
     
     if (!foundSeparation)
     {
-        PhysicsWorld::CollisionInfo collision;
+        CollisionInfo collision;
         collision.hasCollision = true;
         collision.normal = smallestAxis;
         collision.penetration = minOverlap;

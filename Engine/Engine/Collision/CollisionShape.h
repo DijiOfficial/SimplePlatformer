@@ -42,10 +42,10 @@ namespace diji
 
         void UpdateAABB(const float x, const float y) { UpdateAABB(sf::Vector2f{x, y}); }
 
-        virtual void CollideWith(std::vector<PhysicsWorld::CollisionInfo>& collisionsVec, const PhysicsWorld::StaticColliderInfo& info, const sf::Vector2f& pos) = 0;
-        virtual void CollideWith(std::vector<PhysicsWorld::CollisionInfo>& collisionsVec, const sf::FloatRect& staticAABB, const sf::FloatRect& predictedAABB) = 0;
+        virtual void CollideWith(std::vector<CollisionInfo>& collisionsVec, const PhysicsWorld::StaticColliderInfo& info, const sf::Vector2f& pos) = 0;
+        virtual void CollideWith(std::vector<CollisionInfo>& collisionsVec, const sf::FloatRect& staticAABB, const sf::FloatRect& predictedAABB) = 0;
 
-        virtual void HandleStaticCollisionWithRect(std::vector<PhysicsWorld::CollisionInfo>& collisionsVec, const sf::RectangleShape& movingShape, const sf::Vector2f& predictedPos, const sf::RectangleShape& staticShape) = 0;
+        virtual void HandleStaticCollisionWithRect(std::vector<CollisionInfo>& collisionsVec, const sf::RectangleShape& movingShape, const sf::Vector2f& predictedPos, const sf::RectangleShape& staticShape) = 0;
         virtual void HandleStaticCollisionWithCircle(class Circle& circle, PhysicsWorld::StaticColliderInfo const& info) = 0;
         virtual void HandleStaticCollisionWithTriangle(class Triangle& triangle, PhysicsWorld::StaticColliderInfo const& info) = 0;
         
@@ -71,14 +71,14 @@ namespace diji
 
         [[nodiscard]] const sf::Shape& GetShape() const override { return m_Circle; }
         [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Circle.getGlobalBounds(); }
-        void CollideWith(std::vector<PhysicsWorld::CollisionInfo>&, const PhysicsWorld::StaticColliderInfo&, const sf::Vector2f&) override {}
-        void CollideWith(std::vector<PhysicsWorld::CollisionInfo>&, const sf::FloatRect&, const sf::FloatRect&) override {}
+        void CollideWith(std::vector<CollisionInfo>&, const PhysicsWorld::StaticColliderInfo&, const sf::Vector2f&) override {}
+        void CollideWith(std::vector<CollisionInfo>&, const sf::FloatRect&, const sf::FloatRect&) override {}
 
         void SetPosition(const sf::Vector2f& pos) override { m_Circle.setPosition(pos); }
         void SetRotation(const float angleDeg) override { m_Circle.setRotation(angleDeg); }
 
     protected:
-        void HandleStaticCollisionWithRect(std::vector<PhysicsWorld::CollisionInfo>&, const sf::RectangleShape&, const sf::Vector2f&, const sf::RectangleShape&) override {}
+        void HandleStaticCollisionWithRect(std::vector<CollisionInfo>&, const sf::RectangleShape&, const sf::Vector2f&, const sf::RectangleShape&) override {}
         void HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&) override {}
         void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override {}
 
@@ -99,10 +99,10 @@ namespace diji
 
         [[nodiscard]] const sf::Shape& GetShape() const override { return m_Rect; }
         [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Rect.getGlobalBounds(); }
-        void CollideWith(std::vector<PhysicsWorld::CollisionInfo>& collisionsVec, const PhysicsWorld::StaticColliderInfo& info, const sf::Vector2f& pos) override;
-        void CollideWith(std::vector<PhysicsWorld::CollisionInfo>& collisionsVec, const sf::FloatRect& staticAABB, const sf::FloatRect& predictedAABB) override;
+        void CollideWith(std::vector<CollisionInfo>& collisionsVec, const PhysicsWorld::StaticColliderInfo& info, const sf::Vector2f& pos) override;
+        void CollideWith(std::vector<CollisionInfo>& collisionsVec, const sf::FloatRect& staticAABB, const sf::FloatRect& predictedAABB) override;
 
-        void HandleStaticCollisionWithRect(std::vector<PhysicsWorld::CollisionInfo>& collisionsVec, const sf::RectangleShape& movingShape, const sf::Vector2f& predictedPos, const sf::RectangleShape& staticShape) override;
+        void HandleStaticCollisionWithRect(std::vector<CollisionInfo>& collisionsVec, const sf::RectangleShape& movingShape, const sf::Vector2f& predictedPos, const sf::RectangleShape& staticShape) override;
         void HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&) override;
         void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override;
         void SetPosition(const sf::Vector2f& pos) override { m_Rect.setPosition(pos); }
@@ -131,10 +131,10 @@ namespace diji
         [[nodiscard]] const sf::Shape& GetShape() const override { return m_Triangle; }
         [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Triangle.getGlobalBounds(); }
 
-        void CollideWith(std::vector<PhysicsWorld::CollisionInfo>&, const PhysicsWorld::StaticColliderInfo&, const sf::Vector2f&) override {}
-        void CollideWith(std::vector<PhysicsWorld::CollisionInfo>&, const sf::FloatRect&, const sf::FloatRect&) override {}
+        void CollideWith(std::vector<CollisionInfo>&, const PhysicsWorld::StaticColliderInfo&, const sf::Vector2f&) override {}
+        void CollideWith(std::vector<CollisionInfo>&, const sf::FloatRect&, const sf::FloatRect&) override {}
 
-        void HandleStaticCollisionWithRect(std::vector<PhysicsWorld::CollisionInfo>&, const sf::RectangleShape&, const sf::Vector2f&, const sf::RectangleShape&) override {}
+        void HandleStaticCollisionWithRect(std::vector<CollisionInfo>&, const sf::RectangleShape&, const sf::Vector2f&, const sf::RectangleShape&) override {}
         void HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&) override {}
         void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override {}
         void SetPosition(const sf::Vector2f& pos) override { m_Triangle.setPosition(pos); }

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../Components/Component.h"
+#include "../Collision/CollisionStructs.h"
 
 #include <algorithm>
 #include <memory>
@@ -41,14 +42,7 @@ namespace diji
 		void Destroy() const;
 		void CreateDuplicate(GameObject* duplicate) const;
 
-		enum class TriggerEventType
-		{
-			Enter = 0,
-			Stay = 1,
-			Exit = 2,
-			Hit = 3
-		};
-		void NotifyTriggerEvent(const Collider* other, TriggerEventType eventType) const;
+		void NotifyTriggerEvent(const Collider* other, const EventType& eventType, const CollisionInfo& hitInfo) const;
 		
 #pragma region Components
 		template<typename T, typename... Args>

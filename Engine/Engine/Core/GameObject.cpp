@@ -3,7 +3,6 @@
 #include "../Components/Render.h"
 #include "../Components/Transform.h"
 #include "../Singleton/SceneManager.h"
-
 #include <variant>
 
 void diji::GameObject::Init() const
@@ -91,23 +90,23 @@ void diji::GameObject::CreateDuplicate(GameObject* duplicate) const
     duplicate->SetLocalPosition(m_LocalPosition);
 }
 
-void diji::GameObject::NotifyTriggerEvent(const Collider* other, const TriggerEventType eventType) const
+void diji::GameObject::NotifyTriggerEvent(const Collider* other, const EventType& eventType, const CollisionInfo& hitInfo) const
 {
     for (const auto& component : m_ComponentsPtrVec)
     {
         switch (eventType)
         {
-        case TriggerEventType::Enter:
+        case EventType::Enter:
             component->OnTriggerEnter(other);
             break;
-        case TriggerEventType::Stay:
+        case EventType::Stay:
             component->OnTriggerStay(other);
             break;
-        case TriggerEventType::Exit:
+        case EventType::Exit:
             component->OnTriggerExit(other);
             break;
-        case TriggerEventType::Hit:
-            component->OnHitEvent(other);
+        case EventType::Hit:
+            component->OnHitEvent(other, hitInfo);
             break;
         default:
             throw std::exception("Unknown trigger event");

@@ -23,6 +23,7 @@
     <ClInclude Include="Engine\Collision\CollisionDispatcher.h" />
     <ClInclude Include="Engine\Collision\CollisionShape.h" />
     <ClInclude Include="Engine\Collision\CollisionsHelper.h" />
+    <ClInclude Include="Engine\Collision\CollisionStructs.h" />
     <ClInclude Include="Engine\Collision\PhysicsWorld.h" />
     <ClInclude Include="Engine\Components\Camera.h" />
     <ClInclude Include="Engine\Components\Component.h" />

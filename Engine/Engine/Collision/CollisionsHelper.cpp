@@ -10,8 +10,8 @@
 diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCircleToCircleCollision(
     const sf::CircleShape& circleA,
     const sf::CircleShape& circleB,
-    std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecA,
-    std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecB,
+    std::vector<CollisionInfo>& collisionInfoVecA,
+    std::vector<CollisionInfo>& collisionInfoVecB,
     const bool isCheckingOverlap)
 {
     PhysicsWorld::CollisionDetectionResult result = { .Overlap = false, .Hit = false };
@@ -34,7 +34,7 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
         return result;
     }
 
-    PhysicsWorld::CollisionInfo collision;
+    CollisionInfo collision;
     collision.hasCollision = true;
 
     // Calculate actual distance and penetration depth
@@ -53,8 +53,8 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
 diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCircleToBoxCollision(
     const sf::CircleShape& circleA,
     const sf::RectangleShape& rect,
-    std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecA,
-    std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecB,
+    std::vector<CollisionInfo>& collisionInfoVecA,
+    std::vector<CollisionInfo>& collisionInfoVecB,
     const bool isCheckingOverlap)
 {
     PhysicsWorld::CollisionDetectionResult collisionResult = { .Overlap = false, .Hit = false };
@@ -100,7 +100,7 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
     if (Helpers::DotProduct(centerDelta, smallestAxis) >= 0.f)
         smallestAxis = -smallestAxis;
 
-    PhysicsWorld::CollisionInfo collision;
+    CollisionInfo collision;
     collision.hasCollision = true;
     collision.normal = smallestAxis;
     collision.penetration = minOverlap;
@@ -119,8 +119,8 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
 
 diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessBoxToBoxCollision(
     const sf::RectangleShape& rectA, const sf::RectangleShape& rectB,
-    std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecA,
-    std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecB,
+    std::vector<CollisionInfo>& collisionInfoVecA,
+    std::vector<CollisionInfo>& collisionInfoVecB,
     const bool isCheckingOverlap)
 {
     PhysicsWorld::CollisionDetectionResult collisionResult = { .Overlap = false, .Hit = false };
@@ -174,7 +174,7 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessBoxT
     if (Helpers::DotProduct(centerDelta, smallestAxis) >= 0.f)
         smallestAxis = -smallestAxis;
 
-    PhysicsWorld::CollisionInfo collision;
+    CollisionInfo collision;
     collision.hasCollision = true;
     collision.normal = smallestAxis;
     collision.penetration = minOverlap;
