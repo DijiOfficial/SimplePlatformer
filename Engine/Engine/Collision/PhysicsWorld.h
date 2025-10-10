@@ -51,6 +51,12 @@ namespace diji
 			sf::Vector2f vel;
 			std::vector<CollisionInfo> collisionInfoVec;
 		};
+
+		struct CollisionDetectionResult
+		{
+			bool Overlap;
+			bool Hit;
+		};
 		
 		static float Right(const sf::FloatRect& r)  { return r.left + r.width; }
 		static float Bottom(const sf::FloatRect& r) { return r.top  + r.height; }
@@ -78,9 +84,11 @@ namespace diji
 		{
 			Enter = 0,
 			Stay = 1,
-			Exit = 2
+			Exit = 2,
+			Hit = 3
 		};
 		
+		std::vector<TriggerPair> m_HitEventTriggers;
 		std::vector<TriggerPair> m_ActiveTriggers;
 		std::vector<TriggerPair> m_PreviousFrameTriggers;
 		void ProcessTriggerEvents();
@@ -102,7 +110,7 @@ namespace diji
 		void ApplyFriction(Prediction& prediction, const CollisionInfo& collision) const;
 
 		static void UpdateFinalPosition(const Prediction& prediction);
-		static bool HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider);
+		static CollisionDetectionResult HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider);
 		// void HanldeDynamicCollisions(const sf::FloatRect& rectA, const sf::FloatRect& rectB) const;
 	};
 }

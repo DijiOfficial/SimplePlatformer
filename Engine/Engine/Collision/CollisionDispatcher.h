@@ -18,25 +18,25 @@ namespace diji
         CollisionDispatcher(CollisionDispatcher&&) noexcept = default;
         CollisionDispatcher& operator=(CollisionDispatcher&&) noexcept = default;
         
-        bool Dispatch(PhysicsWorld::Prediction& prediction, const Collider* dynamic, const Collider* staticCol) const;
+        PhysicsWorld::CollisionDetectionResult Dispatch(PhysicsWorld::Prediction& prediction, const Collider* dynamic, const Collider* staticCol) const;
 
     private:
-        using CollisionFunc = std::function<bool(PhysicsWorld::Prediction&, const Collider*, const Collider*)>;
+        using CollisionFunc = std::function<PhysicsWorld::CollisionDetectionResult(PhysicsWorld::Prediction&, const Collider*, const Collider*)>;
             
         // 2D lookup table indexed by shape types
         std::array<std::array<CollisionFunc, 3>, 3> collisionTable_;
             
-        static bool HandleCircleCircle(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol);
-        static bool HandleCircleRect(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol);
-        static bool HandleRectRect(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol);
+        static PhysicsWorld::CollisionDetectionResult HandleCircleCircle(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol);
+        static PhysicsWorld::CollisionDetectionResult HandleCircleRect(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol);
+        static PhysicsWorld::CollisionDetectionResult HandleRectRect(PhysicsWorld::Prediction& pred, const Collider* dynamic, const Collider* staticCol);
 
         template<typename DynamicShapeT, typename StaticShapeT>
-        static bool DispatchCollision
+        static PhysicsWorld::CollisionDetectionResult DispatchCollision
         (
             PhysicsWorld::Prediction& pred,
             const Collider* dynamic,
             const Collider* staticCol,
-            bool (*collisionFunc)
+            PhysicsWorld::CollisionDetectionResult (*collisionFunc)
                 (
                     const DynamicShapeT&, const StaticShapeT&, 
                     std::vector<PhysicsWorld::CollisionInfo>&, 

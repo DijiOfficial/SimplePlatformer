@@ -12,9 +12,9 @@ namespace diji
     class CollisionsHelper final
     {
     public:
-        static bool ProcessCircleToCircleCollision(const sf::CircleShape& circleA, const sf::CircleShape& circleB, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecA, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecB, bool isCheckingOverlap);
-        static bool ProcessCircleToBoxCollision(const sf::CircleShape& circleA, const sf::RectangleShape& rect, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecA, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecB, bool isCheckingOverlap);
-        static bool ProcessBoxToBoxCollision(const sf::RectangleShape& rectA, const sf::RectangleShape& rectB, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecA, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecB, bool isCheckingOverlap);
+        static PhysicsWorld::CollisionDetectionResult ProcessCircleToCircleCollision(const sf::CircleShape& circleA, const sf::CircleShape& circleB, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecA, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecB, bool isCheckingOverlap);
+        static PhysicsWorld::CollisionDetectionResult ProcessCircleToBoxCollision(const sf::CircleShape& circleA, const sf::RectangleShape& rect, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecA, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecB, bool isCheckingOverlap);
+        static PhysicsWorld::CollisionDetectionResult ProcessBoxToBoxCollision(const sf::RectangleShape& rectA, const sf::RectangleShape& rectB, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecA, std::vector<PhysicsWorld::CollisionInfo>& collisionInfoVecB, bool isCheckingOverlap);
         
     private:
         static std::vector<sf::Vector2f> GetBoxCorners(const sf::RectangleShape& rect);

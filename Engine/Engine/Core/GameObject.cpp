@@ -91,7 +91,7 @@ void diji::GameObject::CreateDuplicate(GameObject* duplicate) const
     duplicate->SetLocalPosition(m_LocalPosition);
 }
 
-void diji::GameObject::NotifyTriggerEvent(const Collider* other, TriggerEventType eventType) const
+void diji::GameObject::NotifyTriggerEvent(const Collider* other, const TriggerEventType eventType) const
 {
     for (const auto& component : m_ComponentsPtrVec)
     {
@@ -106,6 +106,11 @@ void diji::GameObject::NotifyTriggerEvent(const Collider* other, TriggerEventTyp
         case TriggerEventType::Exit:
             component->OnTriggerExit(other);
             break;
+        case TriggerEventType::Hit:
+            component->OnHitEvent(other);
+            break;
+        default:
+            throw std::exception("Unknown trigger event");
         }
     }
 }

@@ -45,7 +45,8 @@ namespace diji
 		{
 			Enter = 0,
 			Stay = 1,
-			Exit = 2
+			Exit = 2,
+			Hit = 3
 		};
 		void NotifyTriggerEvent(const Collider* other, TriggerEventType eventType) const;
 		

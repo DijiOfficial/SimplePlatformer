@@ -91,6 +91,9 @@ namespace diji
         void SetMaxVelocity(const sf::Vector2f& maxVel) { m_MaxVelocity = maxVel; }
         [[nodiscard]] sf::Vector2f GetMaxVelocity() const { return m_MaxVelocity; }
 
+        void SetTriggerHitEvents(const bool trigger) { m_TriggerHitEvents = trigger; }
+        [[nodiscard]] bool IsTriggerHitEvents() const { return m_TriggerHitEvents; }
+
         [[nodiscard]] CollisionShape::ShapeType GetShapeType() const { return m_Type; }
         [[nodiscard]] const GameObject* GetParent() const { return GetOwner(); }
         
@@ -128,6 +131,7 @@ namespace diji
         float m_Restitution = 1.f; // bounciness [0,1]
         bool m_IsStatic = false; // immovable object
         bool m_AffectedByGravity = true;
+        bool m_TriggerHitEvents = false;
   
         std::string m_Tag = "Untagged";
     };

@@ -108,6 +108,11 @@ void diji::PhysicsWorld::ProcessTriggerEvents()
             NotifyTriggerEvent(trigger, EventType::Stay);
         }
     }
+
+    for (const auto& trigger : m_HitEventTriggers)
+    {
+        NotifyTriggerEvent(trigger, EventType::Hit);
+    }
 }
 
 void diji::PhysicsWorld::NotifyTriggerEvent(const TriggerPair& trigger, EventType eventType)
@@ -156,10 +161,12 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             if (!AABBOverlap(predictedAABB, aabb))
                 continue;
 
-            if (HandleStaticCollisions(predictionsVec[i], collider))
-            {
+            const auto [Overlap, Hit] = HandleStaticCollisions(predictionsVec[i], collider);
+            if (Overlap)
                 m_ActiveTriggers.push_back({.trigger= colliderPtr, .other= collider});
-            }
+
+            if (Hit && colliderPtr->IsTriggerHitEvents())
+                m_HitEventTriggers.push_back({.trigger= colliderPtr, .other= collider});
         }
 
         for (size_t j = i + 1; j < predictionsVec.size(); ++j)
@@ -272,7 +279,7 @@ void diji::PhysicsWorld::UpdateFinalPosition(const Prediction& prediction)
     prediction.collider->ClearNetForce();
 }
 
-bool diji::PhysicsWorld::HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider)
+diji::PhysicsWorld::CollisionDetectionResult diji::PhysicsWorld::HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider)
 {
     static CollisionDispatcher dispatcher;
     return dispatcher.Dispatch(dynamicCollider, dynamicCollider.collider, staticCollider);
