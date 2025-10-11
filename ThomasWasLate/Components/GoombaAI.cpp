@@ -6,6 +6,7 @@
 #include "Engine/Components/Transform.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Components/SpriteRenderComp.h"
+#include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Singleton/TimerManager.h"
 #include "Engine/Singleton/TimeSingleton.h"
@@ -32,15 +33,15 @@ void thomasWasLate::GoombaAI::Update()
         diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
 }
 
-void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const int multiplier)
+void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const std::string& score)
 {
     const auto& collider = GetOwner()->GetComponent<diji::Collider>();
     if (other != collider) return;
 
+    // dont change collider, just set it to ignore the player!
     collider->SetAffectedByGravity(false);
     collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
     
-    m_StompMultiplier = multiplier;
     m_Paused = true;
 
     // Change to stomped animation
@@ -63,17 +64,19 @@ void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const int
     m_Speed = 0.f;
     
     // Spawn points text
-    const int score = 100 * m_StompMultiplier;
     const auto& pos = m_TransformCompPtr->GetPosition();
     const auto& yOffset = collider->GetShape()->GetAABB().getSize().y * 3.f;
     const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
     GameManager::SpawnPointsText(scorePos, score);
 }
 
-void thomasWasLate::GoombaAI::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)
+void thomasWasLate::GoombaAI::OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo)
 {
     if (m_Paused) return;
-    if (other->GetTag() == "ground") return;
+    // if (other->GetTag() == "ground") return;
+
+    if (diji::Helpers::isZero(hitInfo.normal.x))
+        return;
 
     m_Speed = -m_Speed;
 }

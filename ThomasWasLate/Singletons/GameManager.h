@@ -33,7 +33,7 @@ namespace thomasWasLate
         void SetLevelCleared();
         void ResetLevel();
 
-        static void SpawnPointsText(const sf::Vector2f& position, int points);
+        static void SpawnPointsText(const sf::Vector2f& position, const std::string& score);
     
     private:
         std::vector<std::unique_ptr<diji::Collider>> m_TileColliders;

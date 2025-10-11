@@ -5,7 +5,6 @@
 #include "../Components/CustomBackgroundRenderer.h"
 #include "../Components/GoombaAI.h"
 #include "../Components/PlayerCharacter.h"
-#include "../Components/PointsBehaviour.h"
 #include "../Components/TimerScript.h"
 #include "../Input/CustomCommands.h"
 #include "../Singletons/GameManager.h"
@@ -104,7 +103,7 @@ void SceneLoader::Level()
     goombaTest->AddComponents<thomasWasLate::GoombaAI>();
 
     const auto goombaTest2 = scene->CreateGameObject("Y_Goomba2Test");
-    goombaTest2->AddComponents<Transform>(1600, 0);
+    goombaTest2->AddComponents<Transform>(1800, 0);
     goombaTest2->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
     goombaTest2->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
     goombaTest2->GetComponent<Collider>()->SetRestitution(0.f);
@@ -114,6 +113,18 @@ void SceneLoader::Level()
     goombaTest2->GetComponent<Collider>()->SetGenerateHitEvents(true);
     goombaTest2->GetComponent<Collider>()->SetTag("enemy");
     goombaTest2->AddComponents<thomasWasLate::GoombaAI>();
+
+    const auto goombaTest3 = scene->CreateGameObject("Y_Goomba32Test");
+    goombaTest3->AddComponents<Transform>(2300, 0);
+    goombaTest3->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
+    goombaTest3->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    goombaTest3->GetComponent<Collider>()->SetRestitution(0.f);
+    goombaTest3->GetComponent<Collider>()->SetMass(0.89f);
+    goombaTest3->GetComponent<Collider>()->SetFriction(0.25f);
+    goombaTest3->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
+    goombaTest3->GetComponent<Collider>()->SetGenerateHitEvents(true);
+    goombaTest3->GetComponent<Collider>()->SetTag("enemy");
+    goombaTest3->AddComponents<thomasWasLate::GoombaAI>();
 
     // Create the HUD
     const auto marioName = scene->CreateGameObject("Z_MarioName");
@@ -232,7 +243,6 @@ void SceneLoader::Level()
 
 #pragma region Events
 
-    // zombiesRemainingText->GetComponent<ScoreCounter>()->OnGivenScoreReachedEvent.AddListener(pistol->GetComponent<zombieArena::Pistol>(), &zombieArena::Pistol::SaveInfo);
-    
+    player->GetComponent<thomasWasLate::PlayerCharacter>()->OnPointsScoredEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
 #pragma endregion
 }

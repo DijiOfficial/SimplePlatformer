@@ -48,14 +48,13 @@ void thomasWasLate::GameManager::ResetLevel()
     diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::Level));
 }
 
-void thomasWasLate::GameManager::SpawnPointsText(const sf::Vector2f& position, const int points)
+void thomasWasLate::GameManager::SpawnPointsText(const sf::Vector2f& position, const std::string& score)
 {
     sf::Vector2f screenPos = diji::SceneManager::GetInstance().GetScreenPosition(position);
     // screenPos.y += static_cast<float>(window::VIEWPORT.y) * 0.5f;
     auto pointsText = std::make_unique<diji::GameObject>();
     pointsText->AddComponents<diji::Transform>(screenPos);
-    const auto& value = std::to_string(points); // not sure why putting this directly in AddComponents causes issues?
-    pointsText->AddComponents<diji::TextComp>(value, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    pointsText->AddComponents<diji::TextComp>(score, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     pointsText->GetComponent<diji::TextComp>()->GetText().setCharacterSize(18);
     pointsText->AddComponents<diji::Render>();
     pointsText->AddComponents<PointsBehaviour>();
@@ -166,8 +165,7 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
                 collider->SetStatic(true);
                 // tempBound->AddComponents<diji::ShapeRender>();
 
-                if (tile == 1)
-                    collider->SetTag("ground");
+                collider->SetTag("ground");
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
             }

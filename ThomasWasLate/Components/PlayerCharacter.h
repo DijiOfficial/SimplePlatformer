@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <memory>
+#include <string>
 #include <SFML/System/Vector2.hpp>
 
 #include "Engine/Components/Component.h"
@@ -46,9 +47,12 @@ namespace thomasWasLate
 
         diji::Event<> OnHitByEnemyEvent;
         diji::Event<> OnFallingInHoleEvent;
-        diji::Event<const diji::Collider*, int> OnEnemyStompedEvent;
+        diji::Event<> OnExtraLifeGainedEvent;
+        diji::Event<int> OnPointsScoredEvent;
+        diji::Event<const diji::Collider*, const std::string&> OnEnemyStompedEvent;
 
     private:
+        static const std::vector<int> s_StompPointsTable;
         std::unique_ptr<PlayerStates> m_CurrentStateUPtr = nullptr;
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
@@ -88,5 +92,6 @@ namespace thomasWasLate
         void HandleDeathSequence();
         void PlayDeathSequence() const;
         void OnNewLevelLoaded();
+        [[nodiscard]] std::string GetStompPointsAsString(int bounceMultiplier);
     };
 }

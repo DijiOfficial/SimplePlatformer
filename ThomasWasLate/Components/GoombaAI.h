@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <string>
+
 #include "Engine/Components/Component.h"
 
 namespace diji
@@ -28,14 +30,13 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
-        void HandleStomp(const diji::Collider* other, int multiplier);
+        void HandleStomp(const diji::Collider* other, const std::string& score);
 
-        void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&) override;
+        void OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo) override;
 
     private:
         diji::Transform* m_TransformCompPtr = nullptr;
         bool m_Paused = false;
-        int m_StompMultiplier = 0;
 
         float m_Speed = 400.f;
     };
