@@ -35,7 +35,9 @@ namespace diji
         void SetGoalScore(const int goalScore) { m_GoalScore = goalScore; }
         void Reset();
         void SetScoreIncreaseIncrement(const int increment) { m_ScoreIncrease = increment; }
-
+        void SetUsingZeroPadding(bool isUsing, int totalDigits = 6);
+        void SetTotalDigits(int digits);
+        
         Event<int> OnScoreIncreasedEvent;
         Event<int> OnScoreDecreasedEvent;
         Event<> OnGivenScoreReachedEvent;
@@ -47,6 +49,8 @@ namespace diji
     private:
         const int m_StartingScore = 0;
         bool m_ShouldCallEvent = false;
+        bool m_IsUsingZeroPadding = false;
+        int m_TotalDigits = 6;
         int m_GoalScore = 0;
         int m_ScoreIncrease = 1;
         std::string m_StringScore = "Score = ";
