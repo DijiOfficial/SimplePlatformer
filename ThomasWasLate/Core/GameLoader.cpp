@@ -206,8 +206,6 @@ void SceneLoader::Level()
     timerHUD->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(timerHUD);
 
-    
-
     const auto fpsCounter = scene->CreateGameObject("Z_FPSCounter");
     fpsCounter->AddComponents<TextComp>("0 FPS", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     fpsCounter->GetComponent<TextComp>()->GetText().setCharacterSize(10);

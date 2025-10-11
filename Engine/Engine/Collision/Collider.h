@@ -94,6 +94,9 @@ namespace diji
         void SetGenerateHitEvents(const bool generateHitEvent) { m_IsGenerateHitEvents = generateHitEvent; }
         [[nodiscard]] bool IsGenerateHitEvents() const { return m_IsGenerateHitEvents; }
 
+        void IgnoreCollider(const Collider* collider);
+        [[nodiscard]] bool IsIgnoringCollider(const Collider* collider) const;
+
         [[nodiscard]] CollisionShape::ShapeType GetShapeType() const { return m_Type; }
         [[nodiscard]] const GameObject* GetParent() const { return GetOwner(); }
         
@@ -113,6 +116,7 @@ namespace diji
 
     private:
         Transform* m_TransformCompPtr = nullptr;
+        std::vector<const Collider*> m_IgnoredColliders;
         CollisionShape::ShapeType m_Type;
         std::unique_ptr<CollisionShape> m_Shape;
         const TimeSingleton& m_TimeSingletonInstance = TimeSingleton::GetInstance();

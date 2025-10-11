@@ -73,3 +73,13 @@ sf::FloatRect diji::Collider::GetAABBAt(const sf::Vector2f& pos) const
     rect.height = local.height;
     return rect;
 }
+
+void diji::Collider::IgnoreCollider(const Collider* collider)
+{
+    m_IgnoredColliders.push_back(collider);
+}
+
+bool diji::Collider::IsIgnoringCollider(const Collider* collider) const
+{
+    return std::ranges::find(m_IgnoredColliders, collider) != m_IgnoredColliders.end();
+}

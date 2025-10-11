@@ -38,9 +38,7 @@ void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const std
     const auto& collider = GetOwner()->GetComponent<diji::Collider>();
     if (other != collider) return;
 
-    // dont change collider, just set it to ignore the player!
-    collider->SetAffectedByGravity(false);
-    collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+    collider->IgnoreCollider(other);
     
     m_Paused = true;
 

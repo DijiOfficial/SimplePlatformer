@@ -55,7 +55,6 @@ void diji::PhysicsWorld::RemoveCollider(Collider* collider)
     RemoveFromTriggerLists(collider);
 }
 
-
 void diji::PhysicsWorld::FixedUpdate()
 {
     // Phase 1: Predict movement
@@ -195,9 +194,11 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         // STATIC COLLISIONS: Check against all static colliders
         for (const auto& [aabb, staticCollider] : m_StaticInfos)
         {
+            // todo: Do I need to check for ignored static colliders?
+            
             if (!AABBOverlap(predictedAABB, aabb))
                 continue;
-
+            
             const auto [Overlap, Hit] = HandleStaticCollisions(predictionsVec[i], staticCollider);
             
             if (Overlap)
@@ -212,6 +213,9 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         {
             Prediction& otherPrediction = predictionsVec[j];
 
+            if (colliderPtr->IsIgnoringCollider(otherPrediction.collider) || otherPrediction.collider->IsIgnoringCollider(colliderPtr))
+                continue;
+            
             if (!AABBOverlap(predictedAABB, otherPrediction.AABB))
                 continue;
             
