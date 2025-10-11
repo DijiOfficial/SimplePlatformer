@@ -176,6 +176,7 @@
     <ClCompile Include="Components\GoombaAI.cpp" />
     <ClCompile Include="Components\PlayerCharacter.cpp" />
     <ClCompile Include="Components\PlayerStates.cpp" />
+    <ClCompile Include="Components\PointsBehaviour.cpp" />
     <ClCompile Include="Components\tempTest.cpp" />
     <ClCompile Include="Core\GameLoader.cpp" />
     <ClCompile Include="Input\CustomCommands.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="Components\GoombaAI.h" />
     <ClInclude Include="Components\PlayerCharacter.h" />
     <ClInclude Include="Components\PlayerStates.h" />
+    <ClInclude Include="Components\PointsBehaviour.h" />
     <ClInclude Include="Components\tempTest.h" />
     <ClInclude Include="Core\GameLoader.h" />
     <ClInclude Include="Core\GameState.h" />

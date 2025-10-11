@@ -8,14 +8,11 @@ namespace diji
 
 namespace thomasWasLate
 {
-    class PlayerStates;
-
-    class GoombaAI final : public diji::Component
+    class PointsBehaviour final : public diji::Component
     {
     public:
-        // using Component::Component;
-        explicit GoombaAI(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
-        ~GoombaAI() noexcept override = default;
+        explicit PointsBehaviour(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
+        ~PointsBehaviour() noexcept override = default;
 
         void Init() override;
         void OnEnable() override {}
@@ -28,12 +25,10 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
-        void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&) override;
+        void SetValue(int value) const;
 
     private:
         diji::Transform* m_TransformCompPtr = nullptr;
-        bool m_Paused = false;
-
-        float m_Speed = 400.f;
+        float m_Speed = -130.f;
     };
 }

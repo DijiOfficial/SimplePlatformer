@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "Engine/Components/ShapeRender.h"
+
 void thomasWasLate::GameManager::SwitchPlayer()
 {
     m_CurrentPlayer = static_cast<bool>(m_CurrentPlayer) ? CurrentPlayer::Thomas : CurrentPlayer::Bob;
@@ -29,6 +31,11 @@ void thomasWasLate::GameManager::SetLevelCleared()
 {
     ++m_CurrentLevel;
 
+    ResetLevel();
+}
+
+void thomasWasLate::GameManager::ResetLevel()
+{
     OnNewLevelLoadedEvent.ClearListeners();
     OnPlayerSwitchedEvent.ClearListeners();
     diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::Level));
@@ -118,7 +125,7 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             if (tile != 0)
             {
                 const int startC = col;
-                while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != 0)
+                while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != 0) // == tile? will work but colliders like pipes will become seprate
                     ++col;
 
                 const int len = col - startC;
@@ -133,8 +140,12 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
                 auto tempBound = std::make_unique<diji::GameObject>();
                 tempBound->AddComponents<diji::Transform>(center);
                 tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ static_cast<float>(len) * kTileSize, kTileSize });
-                tempBound->GetComponent<diji::Collider>()->SetStatic(true);
+                const auto collider = tempBound->GetComponent<diji::Collider>();
+                collider->SetStatic(true);
                 // tempBound->AddComponents<diji::ShapeRender>();
+
+                if (tile == 1)
+                    collider->SetTag("ground");
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
             }

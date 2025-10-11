@@ -32,13 +32,12 @@ void thomasWasLate::PlayerCharacter::Init()
 
 void thomasWasLate::PlayerCharacter::Update()
 {
-    // auto state = m_CurrentStateUPtr->Execute(this);
-    // if (state)
-    // {
-    //     m_CurrentStateUPtr->OnExit();
-    //     m_CurrentStateUPtr = std::move(state);
-    //     m_CurrentStateUPtr->OnEnter(GetOwner());
-    // }
+    if (m_IsDead) return;
+    
+    if (m_TransformCompPtr->GetPosition().y > 600.f)
+    {
+        HandleDeathSequence();
+    }
     
     m_PreviousSpeed = m_CurrSpeed;
     m_CurrSpeed = m_ColliderCompPtr->GetVelocity();
@@ -82,6 +81,8 @@ void thomasWasLate::PlayerCharacter::Update()
 
 void thomasWasLate::PlayerCharacter::LateUpdate()
 {
+    if (m_IsDead) return;
+    
     const PlayerStates::PlayerState currentState = m_CurrentStateUPtr->GetState();
     // animator controller code
     // todo: EWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
@@ -95,7 +96,6 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
         }
         else
         {
-
             if (m_CurrSpeed.x < 0 && m_MovementDirection == MovementDirection::Right)
             {
                 if (currentState != PlayerStates::PlayerState::Drifting)
@@ -141,8 +141,31 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
         m_SpriteRenderCompPtr->InvertSprite();
 }
 
+void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo)
+{
+    if (m_IsDead) return;
+    
+    if (other->GetTag() != "enemy") return;
+    
+    const float slope = std::abs(hitInfo.normal.y) / (std::abs(hitInfo.normal.x) + 0.001f); // Avoid divide by zero
+    constexpr float minStompSlope = 1.2f; // Mario uses ~1.0, we're slightly more generous
+    
+    // Must be hitting from above (normal.y < 0) and steep enough angle
+    if (hitInfo.normal.y < 0 && slope >= minStompSlope)
+    {
+        // I'm capping vertical velocity so max it out to ensure the bounce is same height as normal jump
+        m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -m_JumpForce * 2.f));
+    }
+    else
+    {
+        OnHitByEnemyEvent.Broadcast();
+        HandleDeathSequence();
+    }
+}
+
 void thomasWasLate::PlayerCharacter::Move(const sf::Vector2f& direction)
 {
+    if (m_IsDead) return;
     const float multiplier = m_IsOnGround ? 1.f : 0.75f;
     m_ColliderCompPtr->ApplyForce(direction * m_Acceleration * multiplier);
 
@@ -154,6 +177,35 @@ void thomasWasLate::PlayerCharacter::StopMove()
     m_MovementDirection = MovementDirection::None;
 }
 
+void thomasWasLate::PlayerCharacter::HandleDeathSequence()
+{
+    m_IsDead = true;
+
+    auto newState = std::make_unique<DeathState>();
+    m_CurrentStateUPtr = std::move(newState);
+    m_CurrentStateUPtr->OnEnter(GetOwner());
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0, 0 });
+    m_ColliderCompPtr->SetAffectedByGravity(false);
+
+    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    {
+        PlayDeathSequence();
+    }, 0.25f, false);
+}
+
+void thomasWasLate::PlayerCharacter::PlayDeathSequence() const
+{
+    m_ColliderCompPtr->SetAffectedByGravity(true);
+    m_ColliderCompPtr->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+
+    m_ColliderCompPtr->ApplyImpulse(sf::Vector2f{ 0, -m_JumpForce });
+
+    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    {
+        GameManager::GetInstance().ResetLevel();
+    }, 3.41f, false);
+}
+
 void thomasWasLate::PlayerCharacter::OnNewLevelLoaded()
 {
     m_TransformCompPtr->SetPosition(static_cast<sf::Vector2f>(GameManager::GetInstance().GetStartPosition()));
@@ -163,6 +215,8 @@ void thomasWasLate::PlayerCharacter::OnNewLevelLoaded()
 
 void thomasWasLate::PlayerCharacter::Jump()
 {
+    if (m_IsDead) return;
+    
     const float multiplier = m_CurrSpeed.x == 0.f ? 1.f : std::abs(m_CurrSpeed.x) * 0.005f;
     
     if (m_IsOnGround)
@@ -192,7 +246,7 @@ void thomasWasLate::PlayerCharacter::ClearJump()
 
 void thomasWasLate::PlayerCharacter::Sprint()
 {
-    if (!m_IsOnGround) return;
+    if (!m_IsOnGround || m_IsDead) return;
     
     m_Acceleration = m_SprintAcceleration;
     m_ColliderCompPtr->SetMaxVelocity(m_SprintMaxVelocity);
@@ -201,6 +255,8 @@ void thomasWasLate::PlayerCharacter::Sprint()
 
 void thomasWasLate::PlayerCharacter::StopSprint()
 {
+    if (m_IsDead) return;
+    
     m_Acceleration = m_BaseAcceleration;
     m_StoppedSprinting = true;
     m_SprintDecelerationTimer = 1.f;

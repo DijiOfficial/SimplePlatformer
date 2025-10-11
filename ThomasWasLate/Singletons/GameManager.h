@@ -31,6 +31,7 @@ namespace thomasWasLate
         [[nodiscard]] int GetRows() const { return m_Rows; }
         [[nodiscard]] int GetCols() const { return m_Cols; }
         void SetLevelCleared();
+        void ResetLevel();
     
     private:
         std::vector<std::unique_ptr<diji::Collider>> m_TileColliders;

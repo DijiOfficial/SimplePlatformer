@@ -35,12 +35,16 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
+        void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo) override;
+
         void Move(const sf::Vector2f& direction);
         void StopMove();
         void Jump();
         void ClearJump();
         void Sprint();
         void StopSprint();
+
+        diji::Event<> OnHitByEnemyEvent;
 
     private:
         std::unique_ptr<PlayerStates> m_CurrentStateUPtr = nullptr;
@@ -76,7 +80,10 @@ namespace thomasWasLate
         bool m_IsJumping = false;
         bool m_StoppedSprinting = false;
         bool m_IsLookingLeft = false;
+        bool m_IsDead = false;
 
+        void HandleDeathSequence();
+        void PlayDeathSequence() const;
         void OnNewLevelLoaded();
     };
 }
