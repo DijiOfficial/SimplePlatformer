@@ -55,13 +55,6 @@ void diji::ScoreCounter::DecreaseScore(const int score)
     ScoreChangeCheck();
 }
 
-void diji::ScoreCounter::DecreaseScore()
-{
-    --m_Score;
-    OnScoreDecreasedEvent.Broadcast(m_Score);
-    ScoreChangeCheck();
-}
-
 void diji::ScoreCounter::Reset()
 {
     m_Score = m_StartingScore;

@@ -29,7 +29,6 @@ namespace diji
         void IncreaseScore(int score = 1);
         void IncreaseScore();
         void DecreaseScore(int score = 1);
-        void DecreaseScore();
         [[nodiscard]] int GetScore() const { return m_Score; }
         void SetString(const std::string& str) { m_StringScore = str; }
         void SetGoalScore(const int goalScore) { m_GoalScore = goalScore; }
