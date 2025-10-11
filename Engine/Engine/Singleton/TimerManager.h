@@ -36,6 +36,7 @@ namespace diji
             bool looping;
         };
 
+        // todo: use a deque or linked list to avoid allocations issues
         std::vector<Timer> m_Timers;
         std::vector<Timer> m_PendingTimers;
         size_t m_NextId = 1;

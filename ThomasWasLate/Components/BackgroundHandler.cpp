@@ -12,7 +12,7 @@ void thomasWasLate::BackgroundHandler::Init()
 
     m_TileIDToAtlasPos =
     {
-        { 0,  {3, 0} }, // Empty tile
+        { 0,  {0, 4} }, // Empty tile
         { 1,  {0, 0} }, // Ground tile
         { 2,  {0, 1} }, // Stair tile
         { 3,  {1, 0} }, // TopLeft Up Pipe
