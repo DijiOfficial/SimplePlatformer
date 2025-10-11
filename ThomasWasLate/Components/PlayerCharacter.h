@@ -45,6 +45,8 @@ namespace thomasWasLate
         void StopSprint();
 
         diji::Event<> OnHitByEnemyEvent;
+        diji::Event<> OnFallingInHoleEvent;
+        diji::Event<const diji::Collider*, int> OnEnemyStompedEvent;
 
     private:
         std::unique_ptr<PlayerStates> m_CurrentStateUPtr = nullptr;
@@ -67,7 +69,8 @@ namespace thomasWasLate
             None,
         };
         MovementDirection m_MovementDirection = MovementDirection::None;
-        
+
+        int m_BounceScoreMultiplier = 1;
         float m_JumpForce = 2000.f;
         float m_Acceleration = 500.f;
         float m_BaseAcceleration = 500.f;

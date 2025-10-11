@@ -32,6 +32,8 @@ namespace thomasWasLate
         [[nodiscard]] int GetCols() const { return m_Cols; }
         void SetLevelCleared();
         void ResetLevel();
+
+        static void SpawnPointsText(const sf::Vector2f& position, int points);
     
     private:
         std::vector<std::unique_ptr<diji::Collider>> m_TileColliders;

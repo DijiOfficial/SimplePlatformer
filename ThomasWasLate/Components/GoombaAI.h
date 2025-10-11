@@ -28,11 +28,14 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
+        void HandleStomp(const diji::Collider* other, int multiplier);
+
         void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&) override;
 
     private:
         diji::Transform* m_TransformCompPtr = nullptr;
         bool m_Paused = false;
+        int m_StompMultiplier = 0;
 
         float m_Speed = 400.f;
     };

@@ -36,6 +36,7 @@ void thomasWasLate::PlayerCharacter::Update()
     
     if (m_TransformCompPtr->GetPosition().y > 600.f)
     {
+        OnFallingInHoleEvent.Broadcast();
         HandleDeathSequence();
     }
     
@@ -155,6 +156,8 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
     {
         // I'm capping vertical velocity so max it out to ensure the bounce is same height as normal jump
         m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -m_JumpForce * 2.f));
+        ++m_BounceScoreMultiplier;
+        OnEnemyStompedEvent.Broadcast(other, m_BounceScoreMultiplier);
     }
     else
     {

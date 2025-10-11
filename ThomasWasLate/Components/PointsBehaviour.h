@@ -29,6 +29,6 @@ namespace thomasWasLate
 
     private:
         diji::Transform* m_TransformCompPtr = nullptr;
-        float m_Speed = -130.f;
+        float m_Speed = -90.f;
     };
 }

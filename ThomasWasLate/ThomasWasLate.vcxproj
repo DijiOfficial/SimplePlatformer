@@ -178,6 +178,7 @@
     <ClCompile Include="Components\PlayerStates.cpp" />
     <ClCompile Include="Components\PointsBehaviour.cpp" />
     <ClCompile Include="Components\tempTest.cpp" />
+    <ClCompile Include="Components\TimerScript.cpp" />
     <ClCompile Include="Core\GameLoader.cpp" />
     <ClCompile Include="Input\CustomCommands.cpp" />
     <ClCompile Include="main.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="Components\PlayerStates.h" />
     <ClInclude Include="Components\PointsBehaviour.h" />
     <ClInclude Include="Components\tempTest.h" />
+    <ClInclude Include="Components\TimerScript.h" />
     <ClInclude Include="Core\GameLoader.h" />
     <ClInclude Include="Core\GameState.h" />
     <ClInclude Include="Input\CustomCommands.h" />

@@ -6,6 +6,7 @@
 #include "../Components/GoombaAI.h"
 #include "../Components/PlayerCharacter.h"
 #include "../Components/PointsBehaviour.h"
+#include "../Components/TimerScript.h"
 #include "../Input/CustomCommands.h"
 #include "../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
@@ -102,14 +103,17 @@ void SceneLoader::Level()
     goombaTest->GetComponent<Collider>()->SetTag("enemy");
     goombaTest->AddComponents<thomasWasLate::GoombaAI>();
 
-    // todo: translate to screen space and add to canvas
-    // const auto pointTest = scene->CreateGameObject("Z_PointTest");
-    // pointTest->AddComponents<Transform>(500, 400);
-    // pointTest->AddComponents<TextComp>("100", "fonts/super-mario-bros-score.otf", sf::Color::White, true);
-    // pointTest->GetComponent<TextComp>()->GetText().setCharacterSize(20);
-    // pointTest->AddComponents<Render>();
-    // pointTest->AddComponents<thomasWasLate::PointsBehaviour>();
-
+    const auto goombaTest2 = scene->CreateGameObject("Y_Goomba2Test");
+    goombaTest2->AddComponents<Transform>(1600, 0);
+    goombaTest2->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
+    goombaTest2->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    goombaTest2->GetComponent<Collider>()->SetRestitution(0.f);
+    goombaTest2->GetComponent<Collider>()->SetMass(0.89f);
+    goombaTest2->GetComponent<Collider>()->SetFriction(0.25f);
+    goombaTest2->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
+    goombaTest2->GetComponent<Collider>()->SetGenerateHitEvents(true);
+    goombaTest2->GetComponent<Collider>()->SetTag("enemy");
+    goombaTest2->AddComponents<thomasWasLate::GoombaAI>();
 
     // Create the HUD
     const auto marioName = scene->CreateGameObject("Z_MarioName");
@@ -170,14 +174,6 @@ void SceneLoader::Level()
     worldCountHUD->GetComponent<TextComp>()->SetCentered(true);
     worldCountHUD->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(worldCountHUD);
-    
-    const auto fpsCounter = scene->CreateGameObject("Z_FPSCounter");
-    fpsCounter->AddComponents<TextComp>("0 FPS", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
-    fpsCounter->GetComponent<TextComp>()->GetText().setCharacterSize(10);
-    fpsCounter->AddComponents<FPSCounter>();
-    fpsCounter->AddComponents<Transform>(window::VIEWPORT.x - 100, 40);
-    fpsCounter->AddComponents<Render>();
-    scene->SetGameObjectAsCanvasObject(fpsCounter);
 
     const auto timerName = scene->CreateGameObject("Z_timerName");
     timerName->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.85f, static_cast<float>(window::VIEWPORT.y) * 0.05f);
@@ -188,15 +184,26 @@ void SceneLoader::Level()
     scene->SetGameObjectAsCanvasObject(timerName);
     
     const auto timerHUD = scene->CreateGameObject("Z_timerHUD");
-    timerHUD->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.85f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f);
+    timerHUD->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.85f + 12, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f);
     timerHUD->AddComponents<TextComp>("300", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     timerHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     timerHUD->GetComponent<TextComp>()->SetCentered(true);
     timerHUD->AddComponents<ScoreCounter>(300, true);
     timerHUD->GetComponent<ScoreCounter>()->SetString("");
     timerHUD->GetComponent<ScoreCounter>()->SetUsingZeroPadding(true, 3);
+    timerHUD->AddComponents<thomasWasLate::TimerScript>();
     timerHUD->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(timerHUD);
+
+    
+
+    const auto fpsCounter = scene->CreateGameObject("Z_FPSCounter");
+    fpsCounter->AddComponents<TextComp>("0 FPS", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    fpsCounter->GetComponent<TextComp>()->GetText().setCharacterSize(10);
+    fpsCounter->AddComponents<FPSCounter>();
+    fpsCounter->AddComponents<Transform>(window::VIEWPORT.x - 100, 40);
+    fpsCounter->AddComponents<Render>();
+    scene->SetGameObjectAsCanvasObject(fpsCounter);
 
 #pragma region Commands
     auto& input = InputManager::GetInstance();
