@@ -142,6 +142,9 @@ void diji::Scene::RenderMultiplayerViews() const
 
 void diji::Scene::OnDestroy()
 {
+    // Clear listeners from objects in this scene and free the memory used by the events
+    EventRegistry::GetInstance().ClearAllEvents();
+    
     for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
     {
         gameObject->OnDestroy();

@@ -75,6 +75,7 @@ namespace diji
 		std::vector<TriggerPair> m_HitEventTriggers;
 		std::vector<TriggerPair> m_ActiveTriggers;
 		std::vector<TriggerPair> m_PreviousFrameTriggers;
+		void RemoveFromTriggerLists(Collider* collider);
 		void ProcessTriggerEvents();
 		static void NotifyTriggerEvent(const TriggerPair& trigger, EventType eventType);
 		static void NotifyHitEvent(const TriggerPair& trigger, EventType eventType);

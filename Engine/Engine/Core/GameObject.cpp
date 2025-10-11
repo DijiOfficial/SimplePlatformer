@@ -69,9 +69,16 @@ void diji::GameObject::OnDisable() const
 
 void diji::GameObject::OnDestroy() const
 {
-    for (const auto& component : m_ComponentsPtrVec)
+    // Call component OnDestroy methods
+    for (auto& component : m_ComponentsPtrVec)
     {
         component->OnDestroy();
+    }
+
+    // Remove all event listeners for all components
+    for (auto& component : m_ComponentsPtrVec)
+    {
+        EventRegistry::GetInstance().RemoveAllListenersForObject(component.get());
     }
 }
 

@@ -44,6 +44,7 @@
     <ClInclude Include="Engine\Input\Controller.h" />
     <ClInclude Include="Engine\Input\GameActorCommand.h" />
     <ClInclude Include="Engine\Input\InputManager.h" />
+    <ClInclude Include="Engine\Interfaces\EventRegistry.h" />
     <ClInclude Include="Engine\Interfaces\EventSystem.h" />
     <ClInclude Include="Engine\Interfaces\ISoundSystem.h" />
     <ClInclude Include="Engine\RAII_Wrappers\SplitScreenView.h" />
@@ -79,6 +80,7 @@
     <ClCompile Include="Engine\Core\Scene.cpp" />
     <ClCompile Include="Engine\Input\Controller.cpp" />
     <ClCompile Include="Engine\Input\InputManager.cpp" />
+    <ClCompile Include="Engine\Interfaces\EventRegistry.cpp" />
     <ClCompile Include="Engine\Interfaces\ISoundSystem.cpp" />
     <ClCompile Include="Engine\RAII_Wrappers\SplitScreenView.cpp" />
     <ClCompile Include="Engine\Singleton\ResourceManager.cpp" />

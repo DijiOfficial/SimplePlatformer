@@ -36,6 +36,9 @@ void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const int
 {
     const auto& collider = GetOwner()->GetComponent<diji::Collider>();
     if (other != collider) return;
+
+    collider->SetAffectedByGravity(false);
+    collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
     
     m_StompMultiplier = multiplier;
     m_Paused = true;
@@ -65,9 +68,6 @@ void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const int
     const auto& yOffset = collider->GetShape()->GetAABB().getSize().y * 3.f;
     const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
     GameManager::SpawnPointsText(scorePos, score);
-
-    // unsubscribe from player events
-    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.RemoveListener(this);
 }
 
 void thomasWasLate::GoombaAI::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)

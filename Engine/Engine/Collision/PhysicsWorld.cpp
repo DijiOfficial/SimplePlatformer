@@ -40,14 +40,21 @@ void diji::PhysicsWorld::AddCollider(Collider* collider)
 
 void diji::PhysicsWorld::RemoveCollider(Collider* collider)
 {
-    std::erase(m_DynamicColliders, collider); // yoo can we get big up for c+++ 20 fr?
+    std::erase(m_DynamicColliders, collider);
 
-    // remove any static info with matching owner
-    const auto it = std::ranges::find_if(m_StaticInfos,[collider](const StaticColliderInfo& sColInfo){ return sColInfo.collider == collider; });
+    // Remove any static info with matching owner
+    const auto it = std::ranges::find_if(m_StaticInfos,
+        [collider](const StaticColliderInfo& sColInfo)
+        { 
+            return sColInfo.collider == collider; 
+        });
 
     if (it != m_StaticInfos.end())
         m_StaticInfos.erase(it);
+        
+    RemoveFromTriggerLists(collider);
 }
+
 
 void diji::PhysicsWorld::FixedUpdate()
 {
@@ -79,6 +86,22 @@ void diji::PhysicsWorld::FixedUpdate()
     }
 
     ProcessTriggerEvents();
+}
+
+void diji::PhysicsWorld::RemoveFromTriggerLists(Collider* collider)
+{
+    // Remove from current frame triggers
+    auto removeFromActive = [collider](const TriggerPair& pair)
+    {
+        return pair.trigger == collider || pair.other == collider;
+    };
+    std::erase_if(m_ActiveTriggers, removeFromActive);
+    
+    // Remove from previous frame triggers
+    std::erase_if(m_PreviousFrameTriggers, removeFromActive);
+    
+    // Remove from hit event triggers
+    std::erase_if(m_HitEventTriggers, removeFromActive);
 }
 
 void diji::PhysicsWorld::ProcessTriggerEvents()

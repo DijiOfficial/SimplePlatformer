@@ -40,8 +40,11 @@ void thomasWasLate::GameManager::SetLevelCleared()
 
 void thomasWasLate::GameManager::ResetLevel()
 {
-    OnNewLevelLoadedEvent.ClearListeners();
-    OnPlayerSwitchedEvent.ClearListeners();
+    // I don't think I need to clear them anymore?
+    OnNewLevelLoadedEvent.ClearAllListeners();
+    OnPlayerSwitchedEvent.ClearAllListeners();
+
+    
     diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::Level));
 }
 
