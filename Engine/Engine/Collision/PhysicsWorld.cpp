@@ -186,6 +186,7 @@ void diji::PhysicsWorld::PredictMovement(std::vector<Prediction>& predictionsVec
 
 void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVec)
 {
+    // todo: I believe this can be multithreaded?
     const size_t& size = predictionsVec.size(); 
     for (size_t i = 0; i < size; ++i)
     {
