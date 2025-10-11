@@ -205,12 +205,11 @@ diji::GameObject* diji::Scene::AddObjectToScene(std::unique_ptr<GameObject> obje
 
 void diji::Scene::Remove(const GameObject* object)
 {
-    object->OnDestroy();
-    
     for (auto it = m_ObjectsUPtrMap.begin(); it != m_ObjectsUPtrMap.end(); ++it)
     {
         if (it->second.get() == object)
         {
+            it->second->OnDestroy();
             m_ObjectsUPtrMap.erase(it);
             break;
         }
@@ -220,6 +219,7 @@ void diji::Scene::Remove(const GameObject* object)
     {
         if (it->second.get() == object)
         {
+            it->second->OnDestroy();
             m_CanvasObjectsUPtrMap.erase(it);
             break;
         }
