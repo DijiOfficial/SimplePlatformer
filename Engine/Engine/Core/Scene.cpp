@@ -110,7 +110,7 @@ void diji::Scene::Render() const
             m_StaticBackgroundObjUPtr->Render();
         }
         
-        if (m_MainCameraCompPtr)
+        if (m_MainCameraCompPtr) // todo: what happens if there is no camera?
             window::g_window_ptr->setView(m_MainCameraCompPtr->GetCameraView());
         
         DrawGameObjects();
@@ -212,6 +212,15 @@ void diji::Scene::Remove(const GameObject* object)
             break;
         }
     }
+
+    for (auto it = m_CanvasObjectsUPtrMap.begin(); it != m_CanvasObjectsUPtrMap.end(); ++it)
+    {
+        if (it->second.get() == object)
+        {
+            m_CanvasObjectsUPtrMap.erase(it);
+            break;
+        }
+    }
 }
 
 void diji::Scene::Remove(const std::string& name)
@@ -258,6 +267,15 @@ void diji::Scene::SetViewParameters(const int idx, const Transform* target, cons
     m_MultiplayerViews.at(idx).SetIsFollowing(isFollowing);
     m_MultiplayerViews.at(idx).SetOffset(offset);
 }
+
+sf::Vector2i diji::Scene::GetScreenPosition(const sf::Vector2f& worldCoords) const
+{
+    if (m_MainCameraCompPtr)
+        return window::g_window_ptr->mapCoordsToPixel(worldCoords, m_MainCameraCompPtr->GetCameraView());
+
+    return window::g_window_ptr->mapCoordsToPixel(worldCoords); // Use default view
+}
+
 
 void diji::Scene::SetGameObjectAsCanvasObject(const std::string& name)
 {

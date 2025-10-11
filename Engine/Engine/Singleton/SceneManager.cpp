@@ -146,8 +146,35 @@ diji::GameObject* diji::SceneManager::SpawnGameObject(const std::string& name, c
 diji::GameObject* diji::SceneManager::SpawnGameObject(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const
 {
     const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->AddObjectToScene(std::move(original), name);
-
     gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
+
+    gameObject->Init();
+    gameObject->Start();
+
+    return gameObject;
+}
+
+diji::GameObject* diji::SceneManager::AddGameObjectToCanvas(const std::string& name, const GameObject* original, const sf::Vector2f& spawnLocation) const
+{
+    const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->CreateGameObjectFromTemplate(name, original);
+    gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
+
+    // Set as canvas object
+    m_ScenesUPtrMap.at(m_ActiveSceneId).get()->SetGameObjectAsCanvasObject(gameObject);
+
+    gameObject->Init();
+    gameObject->Start();
+
+    return gameObject;
+}
+
+diji::GameObject* diji::SceneManager::AddGameObjectToCanvas(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const
+{
+    const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->AddObjectToScene(std::move(original), name);
+    gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
+
+    // Set as canvas object
+    m_ScenesUPtrMap.at(m_ActiveSceneId).get()->SetGameObjectAsCanvasObject(gameObject);
 
     gameObject->Init();
     gameObject->Start();
@@ -166,6 +193,11 @@ void diji::SceneManager::SetViewParameters(const int idx, const Transform* targe
     {
         scene->SetViewParameters(idx, target, isFollowing, offset);
     }
+}
+
+sf::Vector2f diji::SceneManager::GetScreenPosition(const sf::Vector2f& mapCoords) const
+{
+    return static_cast<sf::Vector2f>(m_ScenesUPtrMap.at(m_ActiveSceneId)->GetScreenPosition(mapCoords));
 }
 
 void diji::SceneManager::SetMultiplayerSplitScreen(const int numPlayers)

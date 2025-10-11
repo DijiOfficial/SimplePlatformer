@@ -45,6 +45,7 @@ namespace diji
         [[nodiscard]] std::string GetGameObjectName(const GameObject* object) const;
         void ChangeViewCenter(int idx, const sf::Vector2f& newCenter);
         void SetViewParameters(int idx, const Transform* target, bool isFollowing = false, const sf::Vector2f& offset = {});
+        [[nodiscard]] sf::Vector2i GetScreenPosition(const sf::Vector2f& worldCoords) const;
 
         void SetGameObjectAsCanvasObject(const std::string& name);
         void SetGameObjectAsCanvasObject(const GameObject* object);
@@ -53,7 +54,7 @@ namespace diji
         void SetMultiplayerSplitScreen(int numPlayers);
         void SetGameObjectAsStaticBackground(const std::string& name);
         void SetGameObjectAsStaticBackground(const GameObject* object);
-        
+    
     private:
         std::map<std::string, std::unique_ptr<GameObject>> m_ObjectsUPtrMap;
         std::map<std::string, std::unique_ptr<GameObject>> m_CanvasObjectsUPtrMap;
