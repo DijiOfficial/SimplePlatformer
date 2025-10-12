@@ -32,6 +32,8 @@ namespace diji
         [[nodiscard]] virtual sf::FloatRect GetLocalShapeBounds() const = 0;
         virtual void SetPosition(const sf::Vector2f& pos) = 0;
         virtual void SetRotation(float angleDeg) = 0;
+
+        // todo: take into account SFML inverted Y axis
         [[nodiscard]] virtual sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& p) const = 0;
 
         void UpdateAABB(const sf::Vector2f& pos) // todo: not necessary?

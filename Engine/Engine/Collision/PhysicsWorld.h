@@ -54,7 +54,7 @@ namespace diji
 		static float Bottom(const sf::FloatRect& r) { return r.top  + r.height; }
 
 		std::optional<RaycastHit> Raycast(const sf::Vector2f& origin, const sf::Vector2f& direction, float maxDistance, const Collider* collider = nullptr) const;
-	
+
 	private:
 		std::vector<Collider*> m_DynamicColliders;
 		std::vector<StaticColliderInfo> m_StaticInfos;

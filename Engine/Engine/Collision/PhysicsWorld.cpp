@@ -92,8 +92,12 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
     std::optional<RaycastHit> closestHit;
     float closestDist = maxDistance;
     
-    // Precompute inverse direction
-    const sf::Vector2f invDir(1.f / direction.x, 1.f / direction.y);
+    // Handle zero direction
+    const sf::Vector2f invDir
+    {
+        direction.x == 0.0f ? std::numeric_limits<float>::max() : 1.0f / direction.x,
+        direction.y == 0.0f ? std::numeric_limits<float>::max() : 1.0f / direction.y
+    };
 
     auto testCollider = [&](const Collider* col, const sf::FloatRect& rect)
     {
@@ -115,49 +119,55 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
         tExit  = std::min(tExit,  std::max(t3, t4));
 
         // No hit if outside [0,∞) or entry after exit
-        if (tExit < 0.f || tEnter > tExit) return;
+        if (tExit < 0.0f || tEnter > tExit) return;
 
-        const float hitDist = (tEnter >= 0.f ? tEnter : tExit);
-        if (hitDist < 0.f || hitDist > closestDist) return;
+        const float hitParam = (tEnter >= 0.0f ? tEnter : tExit);
+        if (hitParam < 0.0f || hitParam > closestDist) return;
 
-        // Impact point & normal
-        const sf::Vector2f hitPoint = origin + direction * hitDist;
-        const sf::Vector2f normal   = col->GetSurfaceNormalAt(hitPoint);
+        // Calculate actual hit point
+        const sf::Vector2f hitPoint = origin + direction * hitParam;
+        
+        // Calculate ACTUAL distance from origin to hit point
+        const sf::Vector2f deltaToHit = hitPoint - origin;
+        const float actualDistance = Helpers::LengthFast(deltaToHit);
+        
+        if (actualDistance > closestDist) return;
+
+        const sf::Vector2f normal = col->GetSurfaceNormalAt(hitPoint);
 
         // Record hit
         RaycastHit hit;
         hit.collider            = col;
         hit.info.point          = hitPoint;
         hit.info.normal         = normal;
-        hit.distance            = hitDist;
-        
-        // not used for raycasts
+        hit.distance            = actualDistance;  // Use actual pixel distance
         hit.info.hasCollision   = true;
-        hit.info.penetration    = 0.f;
-        hit.info.tangent        = sf::Vector2f{0.f, 0.f};
-        hit.info.normalImpulse  = 0.f;
+        hit.info.penetration    = 0.0f;
+        hit.info.tangent        = sf::Vector2f{0.0f, 0.0f};
+        hit.info.normalImpulse  = 0.0f;
         
-        closestDist = hitDist;
+        closestDist = actualDistance;
         closestHit = hit;
     };
 
     // 1) Dynamic colliders
     for (const Collider* col : m_DynamicColliders)
     {
-        if (collider && (col == collider || collider->IsIgnoringCollider(col)))
+        if (!collider || col == collider || collider->IsIgnoringCollider(col))
             continue;
-        
+
+        // I haven't tested this one
         testCollider(col, col->GetAABB());
     }
 
     // 2) Static colliders
     for (const auto& [aabb, colliderPtr] : m_StaticInfos)
     {
-        const Collider* col = collider;
-        if (collider && (col == collider || collider->IsIgnoringCollider(col)))
+        if (!collider || colliderPtr == collider || collider->IsIgnoringCollider(colliderPtr))
             continue;
-        
-        testCollider(col, aabb);
+
+        // if anyone can figure out why I need to use the local bounds and not the AABB here please tell me, I don't know what the fuck is going on
+        testCollider(colliderPtr, colliderPtr->GetShape()->GetLocalShapeBounds());
     }
 
     return closestHit;

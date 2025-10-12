@@ -25,7 +25,7 @@ namespace diji
         static sf::Vector2f Normalize(const sf::Vector2f& v)
         {
             const float length = std::sqrt(v.x * v.x + v.y * v.y);
-            if (length == 0.f) return sf::Vector2f{0.f, 0.f};
+            if (isZero(length)) return sf::Vector2f{0.f, 0.f};
             return sf::Vector2f{v.x / length, v.y / length};
         }
 

@@ -56,17 +56,15 @@ void thomasWasLate::PlayerCharacter::Update()
         HandleDeathSequence();
     }
     
-    m_PreviousSpeed = m_CurrSpeed;
-    m_CurrSpeed = m_ColliderCompPtr->GetVelocity();
-
-    m_IsOnGround = diji::Helpers::isZero(m_CurrSpeed.y); // todo: if platforming feels unresponsive, detect grounding with raycasts instead
-
+    CheckIfPlayerIsGrounded();
+    
     if (m_IsJumping && m_IsOnGround)
     {
         m_IsJumping = false;
         m_JumpTime = 0.0f;
     }
 
+    // Adjust jump height based on speed
     if (m_MinJumpTime > 0.f)
     {
         const float multiplier = std::clamp(std::abs(m_CurrSpeed.x) * 0.005f, 1.f, 1000.f);
@@ -74,26 +72,9 @@ void thomasWasLate::PlayerCharacter::Update()
         m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 0.5f * multiplier });
     }
 
+    // If player stopped sprinting, interpolate back to base speed over 1 second
     if (m_StoppedSprinting)
-    {
-        if (m_SprintDecelerationTimer > 0.f)
-        {
-            // Calculate interpolation factor (alpha) from 0 to 1
-            constexpr float maxDecelTime = 1.0f;
-            const float t = diji::Helpers::clamp01(m_SprintDecelerationTimer / maxDecelTime);
-
-            // Interpolate from sprint to base velocity
-            const sf::Vector2f newVel = diji::Helpers::lerp(m_SprintMaxVelocity, m_BaseMaxVelocity, 1.0f - t);
-
-            m_ColliderCompPtr->SetMaxVelocity(newVel);
-            m_SprintDecelerationTimer -= m_TimeSingletonInstance.GetDeltaTime();
-        }
-        else
-        {
-            m_StoppedSprinting = false;
-            m_ColliderCompPtr->SetMaxVelocity(m_BaseMaxVelocity);
-        }
-    }
+        DecelerateAfterSprint();
 }
 
 void thomasWasLate::PlayerCharacter::LateUpdate()
@@ -158,7 +139,7 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
         m_SpriteRenderCompPtr->InvertSprite();
 }
 
-void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo)
+void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)
 {
     if (m_IsDead) return;
 
@@ -169,12 +150,15 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
     }
     
     if (other->GetTag() != "enemy") return;
+
+    const sf::Vector2f playerCenter = m_TransformCompPtr->GetPosition();
+    const sf::Vector2f enemyCenter = other->GetPosition();
     
-    const float slope = std::abs(hitInfo.normal.y) / (std::abs(hitInfo.normal.x) + 0.001f); // Avoid divide by zero
-    constexpr float minStompSlope = 2.f;
-    
-    // Must be hitting from above (normal.y < 0) and steep enough angle
-    if (hitInfo.normal.y < 0 && slope >= minStompSlope)
+    // Calculate vector from enemy to player
+    sf::Vector2f enemyToPlayer = playerCenter - enemyCenter;
+    enemyToPlayer = diji::Helpers::Normalize(enemyToPlayer);
+    const float dotProduct =  diji::Helpers::DotProduct(enemyToPlayer, UP_VECTOR);
+    if (dotProduct > STOMP_THRESHOLD)
     {
         // I'm capping vertical velocity so max it out to ensure the bounce is same height as normal jump
         m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -m_JumpForce * 2.f));
@@ -183,6 +167,7 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
         ++m_BounceScoreMultiplier;
         const std::string& pointsString = GetStompPointsAsString(m_BounceScoreMultiplier);
         OnEnemyStompedEvent.Broadcast(other, pointsString);
+        m_ColliderCompPtr->IgnoreCollider(other);
     }
     else
     {
@@ -203,6 +188,55 @@ void thomasWasLate::PlayerCharacter::Move(const sf::Vector2f& direction)
 void thomasWasLate::PlayerCharacter::StopMove()
 {
     m_MovementDirection = MovementDirection::None;
+}
+
+void thomasWasLate::PlayerCharacter::Jump()
+{
+    if (m_IsDead) return;
+    
+    const float multiplier = m_CurrSpeed.x == 0.f ? 1.f : std::abs(m_CurrSpeed.x) * 0.005f;
+    
+    if (m_IsOnGround && !m_IsJumping)
+    {
+        m_ColliderCompPtr->ApplyImpulse({ 0.f, -m_JumpForce });
+        m_IsOnGround = false;
+        m_IsJumping = true;
+        m_MinJumpTime = m_MaxJumpTime * 0.25f;
+        return;
+    }
+
+    if (!m_IsJumping) return;
+
+    m_JumpTime += diji::TimeSingleton::GetInstance().GetDeltaTime();
+    
+    if (m_JumpTime < m_MaxJumpTime)
+    {
+        // (void)multiplier;
+        m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 0.5f * multiplier });
+    }
+}
+
+void thomasWasLate::PlayerCharacter::ClearJump()
+{
+    m_JumpTime = m_MaxJumpTime;
+}
+
+void thomasWasLate::PlayerCharacter::Sprint()
+{
+    if (!m_IsOnGround || m_IsDead) return;
+    
+    m_Acceleration = m_SprintAcceleration;
+    m_ColliderCompPtr->SetMaxVelocity(m_SprintMaxVelocity);
+    m_StoppedSprinting = false;
+}
+
+void thomasWasLate::PlayerCharacter::StopSprint()
+{
+    if (m_IsDead) return;
+    
+    m_Acceleration = m_BaseAcceleration;
+    m_StoppedSprinting = true;
+    m_SprintDecelerationTimer = 1.f;
 }
 
 void thomasWasLate::PlayerCharacter::HandleDeathSequence()
@@ -256,52 +290,64 @@ std::string thomasWasLate::PlayerCharacter::GetStompPointsAsString(const int bou
     return std::to_string(s_StompPointsTable[index]);
 }
 
-void thomasWasLate::PlayerCharacter::Jump()
+void thomasWasLate::PlayerCharacter::DecelerateAfterSprint()
 {
-    if (m_IsDead) return;
-    
-    const float multiplier = m_CurrSpeed.x == 0.f ? 1.f : std::abs(m_CurrSpeed.x) * 0.005f;
-    
-    if (m_IsOnGround)
+    if (m_SprintDecelerationTimer > 0.f)
     {
-        m_ColliderCompPtr->ApplyImpulse({ 0.f, -m_JumpForce });
-        m_IsOnGround = false;
-        m_IsJumping = true;
-        m_MinJumpTime = m_MaxJumpTime * 0.25f;
-        return;
+        // Calculate interpolation factor (alpha) from 0 to 1
+        constexpr float maxDecelTime = 1.0f;
+        const float t = diji::Helpers::clamp01(m_SprintDecelerationTimer / maxDecelTime);
+
+        // Interpolate from sprint to base velocity
+        const sf::Vector2f newVel = diji::Helpers::lerp(m_SprintMaxVelocity, m_BaseMaxVelocity, 1.0f - t);
+
+        m_ColliderCompPtr->SetMaxVelocity(newVel);
+        m_SprintDecelerationTimer -= m_TimeSingletonInstance.GetDeltaTime();
     }
-
-    if (!m_IsJumping) return;
-
-    m_JumpTime += diji::TimeSingleton::GetInstance().GetDeltaTime();
-    
-    if (m_JumpTime < m_MaxJumpTime)
+    else
     {
-        // (void)multiplier;
-        m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 0.5f * multiplier });
+        m_StoppedSprinting = false;
+        m_ColliderCompPtr->SetMaxVelocity(m_BaseMaxVelocity);
     }
 }
 
-void thomasWasLate::PlayerCharacter::ClearJump()
-{
-    m_JumpTime = 5.0f;
-}
 
-void thomasWasLate::PlayerCharacter::Sprint()
+#include <iostream>
+void thomasWasLate::PlayerCharacter::CheckIfPlayerIsGrounded()
 {
-    if (!m_IsOnGround || m_IsDead) return;
+    m_CurrSpeed = m_ColliderCompPtr->GetVelocity();
     
-    m_Acceleration = m_SprintAcceleration;
-    m_ColliderCompPtr->SetMaxVelocity(m_SprintMaxVelocity);
-    m_StoppedSprinting = false;
-}
+    // if(!diji::Helpers::isZero(m_CurrSpeed.y)) return;
 
-void thomasWasLate::PlayerCharacter::StopSprint()
-{
-    if (m_IsDead) return;
+    // Inside your game loop or input handler:
+    const sf::Vector2f origin = m_TransformCompPtr->GetPosition();
+    std::cout << "Player Pos: " << origin.x << ", " << origin.y << "\n";
+    const sf::Vector2f dir = { 0, 1 };
+    const sf::Vector2f bottomLeft = { origin.x - 23, origin.y + 22 };
+    const sf::Vector2f bottomRight = { origin.x + 23, origin.y + 22 };
     
-    m_Acceleration = m_BaseAcceleration;
-    m_StoppedSprinting = true;
-    m_SprintDecelerationTimer = 1.f;
-}
+    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(bottomLeft, dir, 10.f, m_ColliderCompPtr))
+    {
+        if (hit->info.hasCollision && hit->collider->GetTag() == "ground")
+        {
+            // std::cout << "true " + std::to_string(m_TimeSingletonInstance.GetDeltaTime()) + "\n";
+            m_IsOnGround = true;
+            return;
+        }
+    }
 
+    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(bottomRight, dir, 10.f, m_ColliderCompPtr))
+    {
+        if (hit->info.hasCollision && hit->collider->GetTag() == "ground")
+        {
+            // std::cout << "true " + std::to_string(m_TimeSingletonInstance.GetDeltaTime()) + "\n";
+            m_IsOnGround = true;
+            return;
+        }
+    }
+
+    // std::cout << "false " + std::to_string(m_TimeSingletonInstance.GetDeltaTime()) + "\n";
+
+        
+    m_IsOnGround = false;
+}

@@ -38,8 +38,6 @@ void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const std
     const auto& collider = GetOwner()->GetComponent<diji::Collider>();
     if (other != collider) return;
 
-    collider->IgnoreCollider(other);
-    
     m_Paused = true;
 
     // Change to stomped animation

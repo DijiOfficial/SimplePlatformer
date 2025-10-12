@@ -36,7 +36,7 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
-        void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo) override;
+        void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&) override;
 
         void Move(const sf::Vector2f& direction);
         void StopMove();
@@ -59,9 +59,9 @@ namespace thomasWasLate
         diji::Collider* m_ColliderCompPtr = nullptr;
         sf::Vector2f m_SpawnPoint = { 0.f, 0.f };
         const diji::TimeSingleton& m_TimeSingletonInstance = diji::TimeSingleton::GetInstance();
-        
+        const sf::Vector2f UP_VECTOR = { 0.f, -1.f };
+
         sf::Vector2f m_CurrSpeed = { 0.f, 0.f };
-        sf::Vector2f m_PreviousSpeed = { 0.f, 0.f };
 
         sf::Vector2f m_BaseMaxVelocity = { 400.f, 800.f };
         sf::Vector2f m_SprintMaxVelocity = { 800.f, 800.f };
@@ -75,6 +75,7 @@ namespace thomasWasLate
         MovementDirection m_MovementDirection = MovementDirection::None;
 
         int m_BounceScoreMultiplier = 1;
+        const float STOMP_THRESHOLD = 0.5f;
         float m_JumpForce = 2000.f;
         float m_Acceleration = 500.f;
         float m_BaseAcceleration = 500.f;
@@ -93,5 +94,7 @@ namespace thomasWasLate
         void PlayDeathSequence() const;
         void OnNewLevelLoaded();
         [[nodiscard]] std::string GetStompPointsAsString(int bounceMultiplier);
+        void DecelerateAfterSprint();
+        void CheckIfPlayerIsGrounded();
     };
 }
