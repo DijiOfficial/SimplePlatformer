@@ -14,26 +14,22 @@ namespace diji
     class EventRegistry final : public Singleton<EventRegistry>
     {
     public:
-        // Register an event with the system
         template<typename... Args>
         void RegisterEvent(Event<Args...>* event) 
         {
             m_AllEvents.insert(event);
         }
-
-        // Unregister an event (when event is destroyed)
+        
         template<typename... Args>
         void UnregisterEvent(Event<Args...>* event) 
         {
             m_AllEvents.erase(event);
         }
-
-        // Remove all listeners associated with a GameObject or Component
+        
         void RemoveAllListenersForObject(void* object) const;
         void ClearAllEvents();
 
     private:
-        // Store as void* to handle any Event<Args...>
         std::unordered_set<void*> m_AllEvents;
     };
 
