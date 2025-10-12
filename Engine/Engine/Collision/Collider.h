@@ -114,6 +114,8 @@ namespace diji
         void SetCollisionResponse(const CollisionResponse response) { m_CollisionResponse = response; }
         [[nodiscard]] CollisionResponse GetCollisionResponse() const { return m_CollisionResponse; }
 
+        [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const;
+        
     private:
         Transform* m_TransformCompPtr = nullptr;
         std::vector<const Collider*> m_IgnoredColliders;

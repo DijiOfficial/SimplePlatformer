@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "Collider.h"
+#include "../Singleton/Helpers.h"
 
 std::vector<sf::Vector2f> diji::CollisionShape::GetCorners(const sf::RectangleShape& rect)
 {
@@ -205,8 +206,6 @@ void diji::Rect::HandleStaticCollisionWithRect(std::vector<CollisionInfo>& colli
     
         collisionsVec.push_back(collision);
     }
-
-
 }
 
 void diji::Rect::HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&)
@@ -215,4 +214,45 @@ void diji::Rect::HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::St
 
 void diji::Rect::HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&)
 {
+}
+
+sf::Vector2f diji::Rect::GetSurfaceNormalAt(const sf::Vector2f& point) const
+{
+    // Compute distances to each face
+    float leftDist   =  point.x - m_AABB.left;
+    float rightDist  = m_AABB.left + m_AABB.width - point.x;
+    float topDist    =  point.y - m_AABB.top;
+    float bottomDist = m_AABB.top  + m_AABB.height - point.y;
+
+    // Find the minimal penetration axis
+    const float minDist = std::min({ leftDist, rightDist, topDist, bottomDist });
+
+    if (Helpers::AreFloatEqual(minDist, leftDist))
+        return {-1.f,  0.f};
+    
+    if (Helpers::AreFloatEqual(minDist, rightDist))
+        return {1.f,  0.f};
+
+    if (Helpers::AreFloatEqual(minDist, topDist))
+        return {0.f, -1.f};
+    
+    return {0.f,  1.f};
+}
+
+sf::Vector2f diji::Triangle::GetSurfaceNormalAt(const sf::Vector2f&) const
+{
+    return {0, 0 }; // TODO
+}
+
+sf::Vector2f diji::Circle::GetSurfaceNormalAt(const sf::Vector2f& point) const
+{
+    // Vector from center to point
+    const sf::Vector2f dir = point - m_Circle.getOrigin();
+    const float length =  Helpers::LengthFast(dir);
+
+    // Degenerate: arbitrarily choose up
+    if (length == 0.f)
+        return { 0.f, -1.f };
+    
+    return { dir.x / length, dir.y / length };
 }

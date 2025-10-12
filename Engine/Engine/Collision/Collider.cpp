@@ -83,3 +83,8 @@ bool diji::Collider::IsIgnoringCollider(const Collider* collider) const
 {
     return std::ranges::find(m_IgnoredColliders, collider) != m_IgnoredColliders.end();
 }
+
+sf::Vector2f diji::Collider::GetSurfaceNormalAt(const sf::Vector2f& point) const
+{
+    return m_Shape->GetSurfaceNormalAt(point);
+}

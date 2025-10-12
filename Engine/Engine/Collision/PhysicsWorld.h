@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <optional>
 #include <vector>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -51,6 +52,8 @@ namespace diji
 
 		static float Right(const sf::FloatRect& r)  { return r.left + r.width; }
 		static float Bottom(const sf::FloatRect& r) { return r.top  + r.height; }
+
+		std::optional<RaycastHit> Raycast(const sf::Vector2f& origin, const sf::Vector2f& direction, float maxDistance, const Collider* collider = nullptr) const;
 	
 	private:
 		std::vector<Collider*> m_DynamicColliders;

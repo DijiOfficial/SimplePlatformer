@@ -87,6 +87,82 @@ void diji::PhysicsWorld::FixedUpdate()
     ProcessTriggerEvents();
 }
 
+std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& origin, const sf::Vector2f& direction, const float maxDistance, const Collider* collider) const
+{
+    std::optional<RaycastHit> closestHit;
+    float closestDist = maxDistance;
+    
+    // Precompute inverse direction
+    const sf::Vector2f invDir(1.f / direction.x, 1.f / direction.y);
+
+    auto testCollider = [&](const Collider* col, const sf::FloatRect& rect)
+    {
+        // Slab method: x slabs
+        const float minX = rect.left;
+        const float maxX = rect.left + rect.width;
+        const float t1 = (minX - origin.x) * invDir.x;
+        const float t2 = (maxX - origin.x) * invDir.x;
+        float tEnter = std::min(t1, t2);
+        float tExit  = std::max(t1, t2);
+
+        // y slabs
+        const float minY = rect.top;
+        const float maxY = rect.top + rect.height;
+        const float t3 = (minY - origin.y) * invDir.y;
+        const float t4 = (maxY - origin.y) * invDir.y;
+        
+        tEnter = std::max(tEnter, std::min(t3, t4));
+        tExit  = std::min(tExit,  std::max(t3, t4));
+
+        // No hit if outside [0,∞) or entry after exit
+        if (tExit < 0.f || tEnter > tExit) return;
+
+        const float hitDist = (tEnter >= 0.f ? tEnter : tExit);
+        if (hitDist < 0.f || hitDist > closestDist) return;
+
+        // Impact point & normal
+        const sf::Vector2f hitPoint = origin + direction * hitDist;
+        const sf::Vector2f normal   = col->GetSurfaceNormalAt(hitPoint);
+
+        // Record hit
+        RaycastHit hit;
+        hit.collider            = col;
+        hit.info.point          = hitPoint;
+        hit.info.normal         = normal;
+        hit.distance            = hitDist;
+        
+        // not used for raycasts
+        hit.info.hasCollision   = true;
+        hit.info.penetration    = 0.f;
+        hit.info.tangent        = sf::Vector2f{0.f, 0.f};
+        hit.info.normalImpulse  = 0.f;
+        
+        closestDist = hitDist;
+        closestHit = hit;
+    };
+
+    // 1) Dynamic colliders
+    for (const Collider* col : m_DynamicColliders)
+    {
+        if (collider && (col == collider || collider->IsIgnoringCollider(col)))
+            continue;
+        
+        testCollider(col, col->GetAABB());
+    }
+
+    // 2) Static colliders
+    for (const auto& [aabb, colliderPtr] : m_StaticInfos)
+    {
+        const Collider* col = collider;
+        if (collider && (col == collider || collider->IsIgnoringCollider(col)))
+            continue;
+        
+        testCollider(col, aabb);
+    }
+
+    return closestHit;
+}
+
 void diji::PhysicsWorld::RemoveFromTriggerLists(Collider* collider)
 {
     // Remove from current frame triggers

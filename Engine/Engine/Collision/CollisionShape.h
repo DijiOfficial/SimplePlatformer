@@ -32,7 +32,8 @@ namespace diji
         [[nodiscard]] virtual sf::FloatRect GetLocalShapeBounds() const = 0;
         virtual void SetPosition(const sf::Vector2f& pos) = 0;
         virtual void SetRotation(float angleDeg) = 0;
-        
+        [[nodiscard]] virtual sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& p) const = 0;
+
         void UpdateAABB(const sf::Vector2f& pos) // todo: not necessary?
         {
             m_AABB = GetLocalShapeBounds();
@@ -76,12 +77,12 @@ namespace diji
 
         void SetPosition(const sf::Vector2f& pos) override { m_Circle.setPosition(pos); }
         void SetRotation(const float angleDeg) override { m_Circle.setRotation(angleDeg); }
+        [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const override;
 
     protected:
         void HandleStaticCollisionWithRect(std::vector<CollisionInfo>&, const sf::RectangleShape&, const sf::Vector2f&, const sf::RectangleShape&) override {}
         void HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&) override {}
         void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override {}
-
 
     private:
         sf::CircleShape m_Circle;     
@@ -107,6 +108,7 @@ namespace diji
         void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override;
         void SetPosition(const sf::Vector2f& pos) override { m_Rect.setPosition(pos); }
         void SetRotation(const float angleDeg) override { m_Rect.setRotation(angleDeg); }
+        [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const override;
 
     private:
         sf::RectangleShape m_Rect;
@@ -130,6 +132,7 @@ namespace diji
 
         [[nodiscard]] const sf::Shape& GetShape() const override { return m_Triangle; }
         [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Triangle.getGlobalBounds(); }
+        [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f&) const override;
 
         void CollideWith(std::vector<CollisionInfo>&, const PhysicsWorld::StaticColliderInfo&, const sf::Vector2f&) override {}
         void CollideWith(std::vector<CollisionInfo>&, const sf::FloatRect&, const sf::FloatRect&) override {}

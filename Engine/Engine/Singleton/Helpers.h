@@ -11,9 +11,15 @@ namespace diji
         static constexpr double PI = std::numbers::pi;
         static constexpr double EPSILON = 1e-6f;
 
+        // todo: rename isFloatZero
         static bool isZero(const float value)
         {
             return std::fabs(value) < EPSILON;
+        }
+
+        static bool AreFloatEqual(const float a, const float b)
+        {
+            return std::fabs(a - b) < EPSILON;
         }
 
         static sf::Vector2f Normalize(const sf::Vector2f& v)
