@@ -57,24 +57,45 @@ void thomasWasLate::PlayerCharacter::Update()
     }
     
     CheckIfPlayerIsGrounded();
-    
-    if (m_IsJumping && m_IsOnGround)
+
+    if (diji::Helpers::isZero(m_CurrSpeed.y) && m_IsJumping)
     {
         m_IsJumping = false;
-        m_JumpTime = 0.0f;
-    }
-
-    // Adjust jump height based on speed
-    if (m_MinJumpTime > 0.f)
-    {
-        const float multiplier = std::clamp(std::abs(m_CurrSpeed.x) * 0.005f, 1.f, 1000.f);
-        m_MinJumpTime -= m_TimeSingletonInstance.GetDeltaTime();
-        m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 0.5f * multiplier });
+        m_JumpTime = m_MaxJumpTime;
     }
 
     // If player stopped sprinting, interpolate back to base speed over 1 second
     if (m_StoppedSprinting)
         DecelerateAfterSprint();
+}
+
+void thomasWasLate::PlayerCharacter::FixedUpdate()
+{
+    if (m_IsDead) return;
+
+    if (m_MovementDirection != MovementDirection::None)
+    {
+        const float multiplier = m_IsOnGround ? 1.f : 0.75f;
+        const sf::Vector2f direction = m_MovementDirection == MovementDirection::Right ? sf::Vector2f{ 1, 0 } : sf::Vector2f{ -1, 0 };
+        m_ColliderCompPtr->ApplyForce(direction * m_Acceleration * multiplier);
+    }
+
+    // speed is currently way to strong of an influence
+    const float multiplier = m_CurrSpeed.x == 0.f ? 1.f : std::abs(m_CurrSpeed.x) * 0.005f;
+    if (m_IsJumping)
+    {
+        m_JumpTime += diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime();
+
+        if (m_JumpTime < m_MaxJumpTime)
+            m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 0.5f * multiplier });
+    }
+
+    // Adjust jump height based on speed
+    if (m_MinJumpTime > 0.f)
+    {
+        m_MinJumpTime -= m_TimeSingletonInstance.GetDeltaTime();
+        m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 0.5f * multiplier });
+    }
 }
 
 void thomasWasLate::PlayerCharacter::LateUpdate()
@@ -179,8 +200,6 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
 void thomasWasLate::PlayerCharacter::Move(const sf::Vector2f& direction)
 {
     if (m_IsDead) return;
-    const float multiplier = m_IsOnGround ? 1.f : 0.75f;
-    m_ColliderCompPtr->ApplyForce(direction * m_Acceleration * multiplier);
 
     m_MovementDirection = direction.x > 0.f ? MovementDirection::Right : (direction.x < 0.f ? MovementDirection::Left : MovementDirection::None);
 }
@@ -193,32 +212,22 @@ void thomasWasLate::PlayerCharacter::StopMove()
 void thomasWasLate::PlayerCharacter::Jump()
 {
     if (m_IsDead) return;
-    
-    const float multiplier = m_CurrSpeed.x == 0.f ? 1.f : std::abs(m_CurrSpeed.x) * 0.005f;
-    
-    if (m_IsOnGround && !m_IsJumping)
-    {
-        m_ColliderCompPtr->ApplyImpulse({ 0.f, -m_JumpForce });
-        m_IsOnGround = false;
-        m_IsJumping = true;
-        m_MinJumpTime = m_MaxJumpTime * 0.25f;
-        return;
-    }
+    if (!m_IsOnGround || m_IsJumping) return;
+    if (!m_CanJump) return;
 
-    if (!m_IsJumping) return;
-
-    m_JumpTime += diji::TimeSingleton::GetInstance().GetDeltaTime();
-    
-    if (m_JumpTime < m_MaxJumpTime)
-    {
-        // (void)multiplier;
-        m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 0.5f * multiplier });
-    }
+    m_ColliderCompPtr->ApplyImpulse({ 0.f, -m_JumpForce });
+    m_IsOnGround = false;
+    m_IsJumping = true;
+    m_CanJump = false;
+    m_MinJumpTime = m_MaxJumpTime * 0.25f;
 }
 
 void thomasWasLate::PlayerCharacter::ClearJump()
 {
     m_JumpTime = m_MaxJumpTime;
+    m_CanJump = true;
+    m_IsJumping = false;
+    m_JumpTime = 0.0f;
 }
 
 void thomasWasLate::PlayerCharacter::Sprint()

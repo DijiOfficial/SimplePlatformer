@@ -31,7 +31,7 @@ namespace thomasWasLate
         void Start() override {}
         
         void Update() override;
-        void FixedUpdate() override {}
+        void FixedUpdate() override;
         void LateUpdate() override;
 
         void OnDisable() override {}
@@ -79,9 +79,9 @@ namespace thomasWasLate
         int m_BounceScoreMultiplier = 1;
         const float STOMP_THRESHOLD = 0.5f;
         float m_JumpForce = 2000.f;
-        float m_Acceleration = 500.f;
-        float m_BaseAcceleration = 500.f;
-        float m_SprintAcceleration = 900.f;
+        float m_BaseAcceleration = 1000.f;
+        float m_Acceleration = m_BaseAcceleration;
+        float m_SprintAcceleration = 1500.f;
         float m_JumpTime = 0.0f;
         float m_MaxJumpTime = 0.25f;
         float m_MinJumpTime = 0.25f;
@@ -91,6 +91,7 @@ namespace thomasWasLate
         bool m_StoppedSprinting = false;
         bool m_IsLookingLeft = false;
         bool m_IsDead = false;
+        bool m_CanJump = true;
 
         void HandleDeathSequence();
         void PlayDeathSequence() const;

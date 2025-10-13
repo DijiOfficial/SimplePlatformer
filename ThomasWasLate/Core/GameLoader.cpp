@@ -96,7 +96,7 @@ void SceneLoader::Level()
     
     const auto luckyBlockTest = scene->CreateGameObject("Y_luckyBlockTest");
     luckyBlockTest->AddComponents<Transform>(500, 200);
-    luckyBlockTest->AddComponents<SpriteRenderComponent>("graphics/luckyBlock.png", sf::Vector2i{ 50,50 }, 3, 0.15f);
+    luckyBlockTest->AddComponents<SpriteRenderComponent>("graphics/luckyBlock.png", sf::Vector2i{ 50,50 }, 3, 0.25f);
     luckyBlockTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
     luckyBlockTest->GetComponent<Collider>()->SetTag("luckyBlock");
     luckyBlockTest->GetComponent<Collider>()->SetAffectedByGravity(false);
