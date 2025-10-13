@@ -288,6 +288,8 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         for (const auto& [aabb, staticCollider] : m_StaticInfos)
         {
             // todo: Do I need to check for ignored static colliders?
+            if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore)
+                continue;
             
             if (!AABBOverlap(predictedAABB, aabb))
                 continue;
@@ -305,6 +307,8 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         for (size_t j = i + 1; j < size; ++j)
         {
             Prediction& otherPrediction = predictionsVec[j];
+            if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore || otherPrediction.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore)
+                continue;
 
             if (colliderPtr->IsIgnoringCollider(otherPrediction.collider) || otherPrediction.collider->IsIgnoringCollider(colliderPtr))
                 continue;
