@@ -16,7 +16,8 @@ namespace diji
         TimelineId id = 0;
         [[nodiscard]] bool valid() const { return id != 0; }
     };
-    
+
+    // todo: add automatic timeline cleanup after timeline has finished playing and is not looping
     class TimelineManager final
     {
     public:
