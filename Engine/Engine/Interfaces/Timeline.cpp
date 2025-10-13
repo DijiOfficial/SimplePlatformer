@@ -35,19 +35,15 @@ float diji::FloatTrack::Evaluate(const float time) const
     throw std::runtime_error("FloatTrack::Evaluate - should not reach here");
 }
 
-void diji::Timeline::Play(const bool restart)
+void diji::Timeline::PlayFromStart()
 {
-    if (restart)
-    {
-        m_Time = m_Reverse ? m_Length : 0.f;
+    m_Time = m_Reverse ? m_Length : 0.f;
         
-        for (auto& [name, keys] : m_EventTracks)
-            for (auto& key : keys)
-                key.fired = false;
+    for (auto& [name, keys] : m_EventTracks)
+        for (auto& key : keys)
+            key.fired = false;
         
-        m_Finished = false;
-    }
-    
+    m_Finished = false;
     m_Playing = true;
 }
 

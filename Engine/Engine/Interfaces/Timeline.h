@@ -46,7 +46,9 @@ namespace diji
         Timeline& operator=(const Timeline& other) = delete;
         Timeline& operator=(Timeline&& other) = delete;
         
-        void Play(bool restart = false);
+        void Play() { m_Playing = true; }
+        void Pause() { m_Playing = false; }
+        void PlayFromStart();
         void Stop();
         void JumpToTime(float time, bool fireEvents = false);
         void SetPlayRate(const float playRate) { m_PlayRate = playRate; }
