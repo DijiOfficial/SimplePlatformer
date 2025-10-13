@@ -30,6 +30,7 @@ namespace diji
         virtual void OnDestroy() = 0;
 
         // these can easily be expanded to include CollisionInfo if needed.
+        // todo: rename to OnOverlapEnter/Stay/Exit
         virtual void OnTriggerEnter(const Collider*) {}
         virtual void OnTriggerStay(const Collider*) {}
         virtual void OnTriggerExit(const Collider*) {}
