@@ -94,6 +94,9 @@ namespace diji
         void SetGenerateHitEvents(const bool generateHitEvent) { m_IsGenerateHitEvents = generateHitEvent; }
         [[nodiscard]] bool IsGenerateHitEvents() const { return m_IsGenerateHitEvents; }
 
+        void SetIsMoveable(const bool isMoveable) { m_IsMoveable = isMoveable; }
+        [[nodiscard]] bool IsMoveable() const { return m_IsMoveable; }
+
         void IgnoreCollider(const Collider* collider);
         [[nodiscard]] bool IsIgnoringCollider(const Collider* collider) const;
 
@@ -138,6 +141,7 @@ namespace diji
         bool m_IsStatic = false; // immovable object
         bool m_AffectedByGravity = true;
         bool m_IsGenerateHitEvents = false;
+        bool m_IsMoveable = true;
   
         std::string m_Tag = "Untagged";
     };

@@ -72,6 +72,9 @@ void diji::PhysicsWorld::FixedUpdate()
             if (!collision.hasCollision)
                 continue;
 
+            if (!prediction.collider->IsMoveable())
+                continue;
+
             // Apply resolution logic here
             ResolveCollision(prediction, collision);
             ApplyFriction(prediction, collision);
@@ -81,6 +84,9 @@ void diji::PhysicsWorld::FixedUpdate()
     // Phase 4: Update final state
     for (Prediction& prediction : predictionsVec)
     {
+        if (!prediction.collider->IsMoveable())
+            continue;
+        
         UpdateFinalPosition(prediction);
     }
 
@@ -322,7 +328,6 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         }
     }
 }
-
 
 void diji::PhysicsWorld::ResolveCollision(Prediction& prediction, const CollisionInfo& collision)
 {
