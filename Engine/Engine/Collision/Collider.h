@@ -1,11 +1,10 @@
 ﻿#pragma once
 #include "../Components/Component.h"
 #include "CollisionShape.h"
+#include "../Singleton/TimeSingleton.h"
 
 #include <memory>
 #include <stdexcept>
-
-#include "../Singleton/TimeSingleton.h"
 
 namespace diji 
 {
@@ -131,7 +130,7 @@ namespace diji
         
         // physics state
         sf::Vector2f m_Velocity{0.f, 0.f};
-        sf::Vector2f m_MaxVelocity{0.f, 0.f};
+        sf::Vector2f m_MaxVelocity{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
         sf::Vector2f m_NewPosition{ 0.f, 0.f };
         sf::Vector2f m_LastPosition{ 0.f, 0.f };
         sf::Vector2f m_NetForce{ 0.f, 0.f };
