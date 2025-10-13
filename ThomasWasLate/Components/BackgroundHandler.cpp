@@ -25,9 +25,10 @@ void thomasWasLate::BackgroundHandler::Init()
         { 10, {0, 3} }, // TopLeft Side Pipe
         { 11, {1, 3} }, // MiddleLeft Side Pipe
         { 12, {2, 3} }, // BottomLeft Side Pipe
+        { 13, {0, 4} }, // LuckyBlock (invisible tile because it's rendered by LuckyBlock component)
+        { 14, {0, 4} }, // BreakableBlock (invisible tile because it's rendered by BreakableBlock component)
         // ... etc.
     };
-
 }
 
 void thomasWasLate::BackgroundHandler::Start()

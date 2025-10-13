@@ -172,7 +172,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Components\BackgroundHandler.cpp" />
+    <ClCompile Include="Components\BreakableBlock.cpp" />
     <ClCompile Include="Components\CustomBackgroundRenderer.cpp" />
+    <ClCompile Include="Components\Debris.cpp" />
     <ClCompile Include="Components\GoombaAI.cpp" />
     <ClCompile Include="Components\LuckyBlock.cpp" />
     <ClCompile Include="Components\PlayerCharacter.cpp" />
@@ -187,7 +189,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Components\BackgroundHandler.h" />
+    <ClInclude Include="Components\BreakableBlock.h" />
     <ClInclude Include="Components\CustomBackgroundRenderer.h" />
+    <ClInclude Include="Components\Debris.h" />
     <ClInclude Include="Components\GoombaAI.h" />
     <ClInclude Include="Components\LuckyBlock.h" />
     <ClInclude Include="Components\PlayerCharacter.h" />

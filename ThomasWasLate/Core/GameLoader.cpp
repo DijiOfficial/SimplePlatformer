@@ -2,7 +2,9 @@
 
 #include "GameState.h"
 #include "../Components/BackgroundHandler.h"
+#include "../Components/BreakableBlock.h"
 #include "../Components/CustomBackgroundRenderer.h"
+#include "../Components/Debris.h"
 #include "../Components/GoombaAI.h"
 #include "../Components/LuckyBlock.h"
 #include "../Components/PlayerCharacter.h"
@@ -102,28 +104,41 @@ void SceneLoader::Level()
     luckyBlockTest->GetComponent<Collider>()->SetAffectedByGravity(false);
     luckyBlockTest->GetComponent<Collider>()->SetGenerateHitEvents(true);
     luckyBlockTest->GetComponent<Collider>()->SetIsMoveable(false);
-    luckyBlockTest->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 0.f, 0.f }); // will that work?
     luckyBlockTest->AddComponents<thomasWasLate::LuckyBlock>();
-
-    // const auto breakBlockTest = scene->CreateGameObject("Y_breakBlockTest");
-    // breakBlockTest->AddComponents<Transform>(500, 200);
-    // breakBlockTest->AddComponents<TextureComp>("graphics/luckyBlock.png");
-    // breakBlockTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    // breakBlockTest->GetComponent<Collider>()->SetTag("luckyBlock");
-    // breakBlockTest->GetComponent<Collider>()->SetAffectedByGravity(false);
-    // breakBlockTest->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    // breakBlockTest->GetComponent<Collider>()->SetIsMoveable(false);
-    // breakBlockTest->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 0.f, 0.f }); // will that work?
-    // breakBlockTest->AddComponents<thomasWasLate::LuckyBlock>();
-
-
-
-
-
-
-
-
     
+    const auto breakBlockTest = scene->CreateGameObject("Y_breakBlockTest");
+    breakBlockTest->AddComponents<Transform>(600, 300);
+    breakBlockTest->AddComponents<TextureComp>("graphics/breakableBlock.png");
+    breakBlockTest->AddComponents<Render>();
+    breakBlockTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    breakBlockTest->GetComponent<Collider>()->SetTag("breakBlock");
+    breakBlockTest->GetComponent<Collider>()->SetAffectedByGravity(false);
+    breakBlockTest->GetComponent<Collider>()->SetGenerateHitEvents(true);
+    breakBlockTest->GetComponent<Collider>()->SetIsMoveable(false);
+    breakBlockTest->AddComponents<thomasWasLate::BreakableBlock>();
+
+    const auto breakBlockTest2 = scene->CreateGameObject("Y_breakBlockTest2");
+    breakBlockTest2->AddComponents<Transform>(650, 300);
+    breakBlockTest2->AddComponents<TextureComp>("graphics/breakableBlock.png");
+    breakBlockTest2->AddComponents<Render>();
+    breakBlockTest2->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    breakBlockTest2->GetComponent<Collider>()->SetTag("breakBlock");
+    breakBlockTest2->GetComponent<Collider>()->SetAffectedByGravity(false);
+    breakBlockTest2->GetComponent<Collider>()->SetGenerateHitEvents(true);
+    breakBlockTest2->GetComponent<Collider>()->SetIsMoveable(false);
+    breakBlockTest2->AddComponents<thomasWasLate::BreakableBlock>();
+
+    const auto breakBlockTest3 = scene->CreateGameObject("Y_breakBlockTest3");
+    breakBlockTest3->AddComponents<Transform>(550, 300);
+    breakBlockTest3->AddComponents<TextureComp>("graphics/breakableBlock.png");
+    breakBlockTest3->AddComponents<Render>();
+    breakBlockTest3->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    breakBlockTest3->GetComponent<Collider>()->SetTag("breakBlock");
+    breakBlockTest3->GetComponent<Collider>()->SetAffectedByGravity(false);
+    breakBlockTest3->GetComponent<Collider>()->SetGenerateHitEvents(true);
+    breakBlockTest3->GetComponent<Collider>()->SetIsMoveable(false);
+    breakBlockTest3->AddComponents<thomasWasLate::BreakableBlock>();
+
     const auto goombaTest = scene->CreateGameObject("Y_GoombaTest");
     goombaTest->AddComponents<Transform>(2000, 0);
     goombaTest->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);

@@ -9,17 +9,17 @@
 
 namespace thomasWasLate
 {
-    enum class CurrentPlayer
+    enum class PlayerHealthState : std::uint8_t
     {
-        Thomas = 0,
-        Bob
+        Small = 0,
+        Big = 1,
+        Fire = 2
     };
     
     class GameManager final : public diji::Singleton<GameManager>
     {
     public:
-        [[nodiscard]] CurrentPlayer GetCurrentPlayer() const { return m_CurrentPlayer; }
-        void SwitchPlayer();
+        [[nodiscard]] PlayerHealthState GetCurrentPlayerState() const { return m_CurrentPlayerState; }
 
         diji::Event<> OnPlayerSwitchedEvent;
         diji::Event<> OnNewLevelLoadedEvent;
@@ -37,7 +37,7 @@ namespace thomasWasLate
     
     private:
         std::vector<std::unique_ptr<diji::Collider>> m_TileColliders;
-        CurrentPlayer m_CurrentPlayer = CurrentPlayer::Thomas;
+        PlayerHealthState m_CurrentPlayerState = PlayerHealthState::Small;
         sf::Vector2u m_StartPosition;
         std::vector<int> m_LevelInfo;
         int m_CurrentLevel = 1;

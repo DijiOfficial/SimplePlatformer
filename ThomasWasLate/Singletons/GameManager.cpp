@@ -15,13 +15,6 @@ namespace thomasWasLate
     class PointsBehaviour;
 }
 
-void thomasWasLate::GameManager::SwitchPlayer()
-{
-    m_CurrentPlayer = static_cast<bool>(m_CurrentPlayer) ? CurrentPlayer::Thomas : CurrentPlayer::Bob;
-
-    OnPlayerSwitchedEvent.Broadcast();
-}
-
 void thomasWasLate::GameManager::LoadLevel()
 {
     ReadLevelInfo(LoadInformation());

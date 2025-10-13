@@ -81,7 +81,7 @@ void thomasWasLate::PlayerCharacter::FixedUpdate()
     }
 
     // speed is currently way to strong of an influence
-    const float multiplier = m_CurrSpeed.x == 0.f ? 1.f : std::abs(m_CurrSpeed.x) * 0.005f;
+    const float multiplier = std::abs(m_CurrSpeed.x) * 0.005f <= 1 ? 1.f : std::abs(m_CurrSpeed.x) * 0.005f;
     if (m_IsJumping)
     {
         m_JumpTime += diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime();

@@ -1,15 +1,22 @@
 ﻿#pragma once
 #include "Engine/Components/Component.h"
 
+namespace diji
+{
+    class Timeline;
+}
+
 namespace thomasWasLate
 {
-    class LuckyBlock final : public diji::Component
+    class PlayerStates;
+
+    class BreakableBlock final : public diji::Component
     {
     public:
-        explicit LuckyBlock(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
-        ~LuckyBlock() noexcept override = default;
+        explicit BreakableBlock(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
+        ~BreakableBlock() noexcept override = default;
 
-        void Init() override {}
+        void Init() override;
         void OnEnable() override {}
         void Start() override {}
         
@@ -23,9 +30,10 @@ namespace thomasWasLate
         void OnHitEvent(const diji::Collider* collider, const diji::CollisionInfo& hitInfo) override;
         
     private:
+        diji::Timeline* m_TimelinePtr = nullptr;
         bool m_IsHit = false;
 
         void PlayAnimation() const;
-        void CreateTimeline() const;
+        void CreateTimeline();
     };
 }

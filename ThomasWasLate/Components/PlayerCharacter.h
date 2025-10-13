@@ -55,7 +55,7 @@ namespace thomasWasLate
     private:
         static const std::vector<int> s_StompPointsTable;
         std::unique_ptr<PlayerStates> m_CurrentStateUPtr = nullptr;
-        const std::set<std::string> GROUND_TAGS = { "ground", "luckyBlock" };
+        const std::set<std::string> GROUND_TAGS = { "ground", "luckyBlock", "breakBlock" };
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
