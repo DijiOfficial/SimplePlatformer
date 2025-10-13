@@ -25,12 +25,15 @@ void thomasWasLate::GoombaAI::Init()
 
 void thomasWasLate::GoombaAI::Update()
 {
-    if (m_Paused) return;
-    
-    m_TransformCompPtr->AddOffset(-1 * m_Speed * diji::TimeSingleton::GetInstance().GetDeltaTime(), 0.f);
-
     if (m_TransformCompPtr->GetPosition().y > 600.f)
         diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+}
+
+void thomasWasLate::GoombaAI::FixedUpdate()
+{
+    if (m_Paused) return;
+    
+    m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
 }
 
 void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const std::string& score)

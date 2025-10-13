@@ -24,7 +24,7 @@ namespace thomasWasLate
         void Start() override {}
         
         void Update() override;
-        void FixedUpdate() override {}
+        void FixedUpdate() override; 
         void LateUpdate() override {}
 
         void OnDisable() override {}
@@ -37,7 +37,9 @@ namespace thomasWasLate
     private:
         diji::Transform* m_TransformCompPtr = nullptr;
         bool m_Paused = false;
+        sf::Vector2f m_NewPosition = { 0.f, 0.f };
+        sf::Vector2f m_OldPosition = { 0.f, 0.f };
 
-        float m_Speed = 400.f;
+        float m_Speed = -600.f;
     };
 }

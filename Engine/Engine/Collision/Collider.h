@@ -79,7 +79,7 @@ namespace diji
         [[nodiscard]] sf::FloatRect GetAABB() const;
         [[nodiscard]] sf::FloatRect GetAABBAt(const sf::Vector2f& pos) const;
 
-        void SetNewPosition(const sf::Vector2f& pos) { m_NewPosition = pos; }
+        void SetNewPosition(const sf::Vector2f& pos) { m_LastPosition = m_NewPosition; m_NewPosition = pos; }
         [[nodiscard]] sf::Vector2f GetNewPosition() const { return m_NewPosition; }
 
         void ClearNetForce() { m_NetForce = sf::Vector2f{ 0, 0 }; }
