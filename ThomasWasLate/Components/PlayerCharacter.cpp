@@ -311,8 +311,6 @@ void thomasWasLate::PlayerCharacter::DecelerateAfterSprint()
     }
 }
 
-
-#include <iostream>
 void thomasWasLate::PlayerCharacter::CheckIfPlayerIsGrounded()
 {
     m_CurrSpeed = m_ColliderCompPtr->GetVelocity();
@@ -321,16 +319,14 @@ void thomasWasLate::PlayerCharacter::CheckIfPlayerIsGrounded()
 
     // Inside your game loop or input handler:
     const sf::Vector2f origin = m_TransformCompPtr->GetPosition();
-    std::cout << "Player Pos: " << origin.x << ", " << origin.y << "\n";
     const sf::Vector2f dir = { 0, 1 };
     const sf::Vector2f bottomLeft = { origin.x - 23, origin.y + 22 };
     const sf::Vector2f bottomRight = { origin.x + 23, origin.y + 22 };
     
     if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(bottomLeft, dir, 10.f, m_ColliderCompPtr))
     {
-        if (hit->info.hasCollision && hit->collider->GetTag() == "ground")
+        if (hit->info.hasCollision && GROUND_TAGS.contains(hit->collider->GetTag()))
         {
-            // std::cout << "true " + std::to_string(m_TimeSingletonInstance.GetDeltaTime()) + "\n";
             m_IsOnGround = true;
             return;
         }
@@ -338,16 +334,12 @@ void thomasWasLate::PlayerCharacter::CheckIfPlayerIsGrounded()
 
     if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(bottomRight, dir, 10.f, m_ColliderCompPtr))
     {
-        if (hit->info.hasCollision && hit->collider->GetTag() == "ground")
+        if (hit->info.hasCollision && GROUND_TAGS.contains(hit->collider->GetTag()))
         {
-            // std::cout << "true " + std::to_string(m_TimeSingletonInstance.GetDeltaTime()) + "\n";
             m_IsOnGround = true;
             return;
         }
     }
-
-    // std::cout << "false " + std::to_string(m_TimeSingletonInstance.GetDeltaTime()) + "\n";
-
         
     m_IsOnGround = false;
 }

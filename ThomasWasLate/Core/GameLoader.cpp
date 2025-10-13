@@ -4,6 +4,7 @@
 #include "../Components/BackgroundHandler.h"
 #include "../Components/CustomBackgroundRenderer.h"
 #include "../Components/GoombaAI.h"
+#include "../Components/LuckyBlock.h"
 #include "../Components/PlayerCharacter.h"
 #include "../Components/TimerScript.h"
 #include "../Input/CustomCommands.h"
@@ -90,6 +91,28 @@ void SceneLoader::Level()
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
 
+
+
+    
+    const auto luckyBlockTest = scene->CreateGameObject("Y_luckyBlockTest");
+    luckyBlockTest->AddComponents<Transform>(500, 200);
+    luckyBlockTest->AddComponents<SpriteRenderComponent>("graphics/luckyBlock.png", sf::Vector2i{ 50,50 }, 3, 0.15f);
+    luckyBlockTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    luckyBlockTest->GetComponent<Collider>()->SetTag("luckyBlock");
+    luckyBlockTest->GetComponent<Collider>()->SetAffectedByGravity(false);
+    luckyBlockTest->GetComponent<Collider>()->SetGenerateHitEvents(true);
+    luckyBlockTest->GetComponent<Collider>()->SetIsMoveable(false);
+    luckyBlockTest->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 0.f, 0.f }); // will that work?
+    luckyBlockTest->AddComponents<thomasWasLate::LuckyBlock>();
+
+
+
+
+
+
+
+
+    
     const auto goombaTest = scene->CreateGameObject("Y_GoombaTest");
     goombaTest->AddComponents<Transform>(2000, 0);
     goombaTest->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);

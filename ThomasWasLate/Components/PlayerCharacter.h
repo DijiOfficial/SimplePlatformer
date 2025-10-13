@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <memory>
+#include <set>
 #include <string>
 #include <SFML/System/Vector2.hpp>
 
@@ -54,6 +55,7 @@ namespace thomasWasLate
     private:
         static const std::vector<int> s_StompPointsTable;
         std::unique_ptr<PlayerStates> m_CurrentStateUPtr = nullptr;
+        const std::set<std::string> GROUND_TAGS = { "ground", "luckyBlock" };
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
