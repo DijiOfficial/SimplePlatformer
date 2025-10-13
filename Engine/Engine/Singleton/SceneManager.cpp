@@ -1,16 +1,18 @@
 ﻿#include "SceneManager.h"
-
-#include <ranges>
-#include <stdexcept>
-
 #include "TimerManager.h"
 #include "../Components/Transform.h"
 #include "../Input/InputManager.h"
 
+#include <ranges>
+#include <stdexcept>
+
 diji::Scene* diji::SceneManager::CreateScene(const int id)
 {
-    if (!m_PhysicsWorldUPtr) // Kinda hacky but it works for now
+    if (!m_PhysicsWorldUPtr)
         m_PhysicsWorldUPtr = std::make_unique<PhysicsWorld>();
+
+    if (!m_TimelineManagerUPtr)
+        m_TimelineManagerUPtr = std::make_unique<TimelineManager>();
     
     // Check if the scene already exists in the map
     const auto it = m_ScenesUPtrMap.find(id);
@@ -30,8 +32,14 @@ diji::Scene* diji::SceneManager::CreateScene(const int id)
     return m_ScenesUPtrMap[id].get();
 }
 
-void diji::SceneManager::Init() const
+void diji::SceneManager::Init()
 {
+    if (!m_PhysicsWorldUPtr)
+        m_PhysicsWorldUPtr = std::make_unique<PhysicsWorld>();
+
+    if (!m_TimelineManagerUPtr)
+        m_TimelineManagerUPtr = std::make_unique<TimelineManager>();
+    
     TimerManager::GetInstance().Init();
     m_ScenesUPtrMap.at(m_ActiveSceneId)->Init();
 }
@@ -52,6 +60,8 @@ void diji::SceneManager::Update() const
 {
     m_ScenesUPtrMap.at(m_ActiveSceneId)->Update();
     TimerManager::GetInstance().Update(); // I'm not sure if it matters where/when this is updated. (before/after comps, late update?)
+
+    m_TimelineManagerUPtr->UpdateAll();
 }
 
 void diji::SceneManager::LateUpdate() const
@@ -78,6 +88,7 @@ void diji::SceneManager::EndFrameUpdate()
         for (const auto gameObject : m_PendingDestroyVec)
         {
             m_ScenesUPtrMap.at(m_ActiveSceneId)->Remove(gameObject);
+            m_TimelineManagerUPtr->ClearGameObjectTimelines(gameObject);
         }
 
         m_PendingDestroyVec = std::vector<const GameObject*>();
@@ -97,6 +108,9 @@ void diji::SceneManager::EndFrameUpdate()
 
         // Clear Physics World
         m_PhysicsWorldUPtr->Reset();
+
+        // Clear Timeline Manager
+        m_TimelineManagerUPtr->ClearAll();
         
         // Destroy current scene
         OnDestroy();
@@ -213,4 +227,9 @@ void diji::SceneManager::SetMultiplayerSplitScreen(const int numPlayers)
     {
         scene->SetMultiplayerSplitScreen(numPlayers);
     }
+}
+
+diji::Timeline* diji::SceneManager::CreateTimeline(const GameObject* owner) const
+{
+    return m_TimelineManagerUPtr->CreateTimeline(owner);
 }

@@ -3,6 +3,11 @@
 
 namespace diji
 {
+    class Timeline;
+}
+
+namespace diji
+{
     class Transform;
 }
 
@@ -42,5 +47,6 @@ namespace thomasWasLate
         float m_PositionOffsetSpeed = -200.f;
 
         void PlayAnimation();
+        void CreateTimeline() const;
     };
 }

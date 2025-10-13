@@ -2,10 +2,11 @@
 #include "Singleton.h"
 #include "../Core/Scene.h"
 #include "../Collision/PhysicsWorld.h"
+#include "../Interfaces/TimelineManager.h"
 
 namespace diji
 {
-    class PhysicsWorld;
+    class Timeline;
 
     class SceneManager final : public Singleton<SceneManager>
     {
@@ -14,7 +15,7 @@ namespace diji
 
         // Similar loop to Unity
         // Initialization phase
-        void Init() const;          // 1st
+        void Init();                // 1st
         void Start() const;         // 2nd
 
         // Game loop
@@ -52,6 +53,7 @@ namespace diji
         void SetMultiplayerSplitScreen(int numPlayers);
 
         [[nodiscard]] PhysicsWorld* GetPhysicsWorld() const { return m_PhysicsWorldUPtr.get(); }
+        Timeline* CreateTimeline(const GameObject* owner) const;
 
     private:
         // todo: replace int with SceneId enum class??
@@ -59,6 +61,7 @@ namespace diji
         std::vector<const GameObject*> m_PendingDestroyVec;
         std::unordered_map<int, SceneLoaderFunc> m_SceneLoaders;
         std::unique_ptr<PhysicsWorld> m_PhysicsWorldUPtr = nullptr;
+        std::unique_ptr<TimelineManager> m_TimelineManagerUPtr = nullptr;
         
         int m_ActiveSceneId = 0;
         int m_NextScene = 0;

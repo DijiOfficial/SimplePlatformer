@@ -105,6 +105,17 @@ void SceneLoader::Level()
     luckyBlockTest->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 0.f, 0.f }); // will that work?
     luckyBlockTest->AddComponents<thomasWasLate::LuckyBlock>();
 
+    // const auto breakBlockTest = scene->CreateGameObject("Y_breakBlockTest");
+    // breakBlockTest->AddComponents<Transform>(500, 200);
+    // breakBlockTest->AddComponents<TextureComp>("graphics/luckyBlock.png");
+    // breakBlockTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    // breakBlockTest->GetComponent<Collider>()->SetTag("luckyBlock");
+    // breakBlockTest->GetComponent<Collider>()->SetAffectedByGravity(false);
+    // breakBlockTest->GetComponent<Collider>()->SetGenerateHitEvents(true);
+    // breakBlockTest->GetComponent<Collider>()->SetIsMoveable(false);
+    // breakBlockTest->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 0.f, 0.f }); // will that work?
+    // breakBlockTest->AddComponents<thomasWasLate::LuckyBlock>();
+
 
 
 

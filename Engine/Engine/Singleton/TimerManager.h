@@ -8,6 +8,8 @@ namespace diji
     class TimeSingleton;
 
     // todo: add a delay until next tick
+    // todo: Link every callback to an id linked to a GameObject and destroy all timers linked to that object when it gets destroyed!
+    // Ideally would be managed by the Scene/SceneManager
     class TimerManager final : public Singleton<TimerManager>
     {
     public:

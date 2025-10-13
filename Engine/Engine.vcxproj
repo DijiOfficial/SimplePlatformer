@@ -47,6 +47,8 @@
     <ClInclude Include="Engine\Interfaces\EventRegistry.h" />
     <ClInclude Include="Engine\Interfaces\EventSystem.h" />
     <ClInclude Include="Engine\Interfaces\ISoundSystem.h" />
+    <ClInclude Include="Engine\Interfaces\Timeline.h" />
+    <ClInclude Include="Engine\Interfaces\TimelineManager.h" />
     <ClInclude Include="Engine\RAII_Wrappers\SplitScreenView.h" />
     <ClInclude Include="Engine\Singleton\GameStateManager.h" />
     <ClInclude Include="Engine\Singleton\Helpers.h" />
@@ -82,6 +84,8 @@
     <ClCompile Include="Engine\Input\InputManager.cpp" />
     <ClCompile Include="Engine\Interfaces\EventRegistry.cpp" />
     <ClCompile Include="Engine\Interfaces\ISoundSystem.cpp" />
+    <ClCompile Include="Engine\Interfaces\Timeline.cpp" />
+    <ClCompile Include="Engine\Interfaces\TimelineManager.cpp" />
     <ClCompile Include="Engine\RAII_Wrappers\SplitScreenView.cpp" />
     <ClCompile Include="Engine\Singleton\ResourceManager.cpp" />
     <ClCompile Include="Engine\Singleton\SceneManager.cpp" />
