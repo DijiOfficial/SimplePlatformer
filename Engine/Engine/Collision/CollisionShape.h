@@ -15,7 +15,7 @@ namespace diji
     class CollisionShape
     {
     public:
-        enum class ShapeType { CIRCLE, RECT, TRIANGLE };
+        enum class ShapeType : uint8_t { CIRCLE, RECT, TRIANGLE };
 
         CollisionShape() noexcept = default;
         virtual ~CollisionShape() noexcept = default;
@@ -32,6 +32,10 @@ namespace diji
         [[nodiscard]] virtual sf::FloatRect GetLocalShapeBounds() const = 0;
         virtual void SetPosition(const sf::Vector2f& pos) = 0;
         virtual void SetRotation(float angleDeg) = 0;
+
+        // figure out how to restrict these functions so they can only be called through the collider class
+        virtual void Resize(const sf::Vector2f&) {}
+        virtual void Resize(const float) {}
 
         // todo: take into account SFML inverted Y axis
         [[nodiscard]] virtual sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& p) const = 0;
@@ -66,7 +70,8 @@ namespace diji
     {
     public:
         explicit Circle(float radius)
-            : CollisionShape(), m_Circle(radius)
+            : CollisionShape()
+            , m_Circle{ radius }
         {
             // Center origin to make AABB centered by default (common for physics)
             m_Circle.setOrigin(radius, radius);
@@ -94,7 +99,8 @@ namespace diji
     {
     public:
         explicit Rect(const sf::Vector2f& size)
-            : CollisionShape(), m_Rect(size)
+            : CollisionShape()
+            , m_Rect{ size }
         {
             // center origin
             m_Rect.setOrigin(size.x * 0.5f, size.y * 0.5f);
@@ -111,6 +117,11 @@ namespace diji
         void SetPosition(const sf::Vector2f& pos) override { m_Rect.setPosition(pos); }
         void SetRotation(const float angleDeg) override { m_Rect.setRotation(angleDeg); }
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const override;
+        void Resize(const sf::Vector2f& size) override
+        {
+            m_Rect.setSize(size);
+            m_Rect.setOrigin(size.x * 0.5f, size.y * 0.5f);
+        }
 
     private:
         sf::RectangleShape m_Rect;
@@ -119,15 +130,15 @@ namespace diji
     class Triangle final : public CollisionShape
     {
     public:
-        // Accept 3 vertex positions in local space. The constructor will create a ConvexShape.
         explicit Triangle(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c)
-            : CollisionShape(), m_Triangle(3)
+            : CollisionShape()
+            , m_Triangle{ 3 }
         {
             m_Triangle.setPoint(0, a);
             m_Triangle.setPoint(1, b);
             m_Triangle.setPoint(2, c);
 
-            // Optionally set origin to centroid for easier transforms:
+            // set origin to centroid for easier transforms:
             const sf::Vector2f centroid{ (a.x + b.x + c.x) / 3.f, (a.y + b.y + c.y) / 3.f };
             m_Triangle.setOrigin(centroid);
         }

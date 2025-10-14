@@ -25,8 +25,12 @@ void diji::Collider::Start()
 void diji::Collider::FixedUpdate()
 {
     if (m_IsStatic) return;
-    
-    m_LastPosition = m_NewPosition;
+
+    if (!m_PositionIsChanged)
+    {
+        m_LastPosition = m_NewPosition;
+        m_PositionIsChanged = false;
+    }
 }
 
 void diji::Collider::Update()
@@ -82,6 +86,26 @@ void diji::Collider::IgnoreCollider(const Collider* collider)
 bool diji::Collider::IsIgnoringCollider(const Collider* collider) const
 {
     return std::ranges::find(m_IgnoredColliders, collider) != m_IgnoredColliders.end();
+}
+
+void diji::Collider::ResizeCollider(const sf::Vector2f& size) const
+{
+    if (m_Type == CollisionShape::ShapeType::RECT)
+        m_Shape->Resize(size);
+    else
+        throw std::logic_error("ResizeCollider with sf::Vector2f argument is only valid for RECT shape type.");
+
+    m_Shape->UpdateAABB(m_TransformCompPtr->GetPosition());
+}
+
+void diji::Collider::ResizeCollider(const float radius) const
+{
+    if (m_Type == CollisionShape::ShapeType::CIRCLE)
+        m_Shape->Resize(radius);
+    else
+        throw std::logic_error("ResizeCollider with float argument is only valid for CIRCLE shape type.");
+
+    m_Shape->UpdateAABB(m_TransformCompPtr->GetPosition());
 }
 
 sf::Vector2f diji::Collider::GetSurfaceNormalAt(const sf::Vector2f& point) const

@@ -81,7 +81,7 @@ namespace diji
         [[nodiscard]] sf::FloatRect GetAABB() const;
         [[nodiscard]] sf::FloatRect GetAABBAt(const sf::Vector2f& pos) const;
 
-        void SetNewPosition(const sf::Vector2f& pos) { m_LastPosition = m_NewPosition; m_NewPosition = pos; }
+        void SetNewPosition(const sf::Vector2f& pos) { m_LastPosition = m_NewPosition; m_NewPosition = pos; m_PositionIsChanged = true; }
         [[nodiscard]] sf::Vector2f GetNewPosition() const { return m_NewPosition; }
 
         void ClearNetForce() { m_NetForce = sf::Vector2f{ 0, 0 }; }
@@ -104,14 +104,17 @@ namespace diji
 
         [[nodiscard]] CollisionShape::ShapeType GetShapeType() const { return m_Type; }
         [[nodiscard]] const GameObject* GetParent() const { return GetOwner(); }
+
+        void ResizeCollider(const sf::Vector2f& size) const;
+        void ResizeCollider(float radius) const;
         
         // not a fan of string tags perhaps use enums?
         void SetTag (const std::string& tag) { m_Tag = tag; }
         [[nodiscard]] const std::string& GetTag() const { return m_Tag; }
 
-        enum class CollisionResponse
+        enum class CollisionResponse : uint8_t
         {
-            Ignore = 0, // todo: add support for ignore functionality
+            Ignore = 0,
             Overlap,
             Block
         };
@@ -145,6 +148,7 @@ namespace diji
         bool m_AffectedByGravity = true;
         bool m_IsGenerateHitEvents = false;
         bool m_IsMoveable = true;
+        bool m_PositionIsChanged = false;
   
         std::string m_Tag = "Untagged";
     };
