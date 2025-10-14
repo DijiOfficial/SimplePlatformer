@@ -96,7 +96,12 @@ namespace diji
 		void DetectCollisions(std::vector<Prediction>& predictionsVec);
 
 		static void ResolveCollision(Prediction& prediction, const CollisionInfo& collision);
+		
+		// different friction models, not sure which one to use
+		void ApplyFrictionOnceWithStaticKinetic(Prediction& prediction) const;
+		void ApplyFrictionOnce(Prediction& prediction) const;
 		void ApplyFriction(Prediction& prediction, const CollisionInfo& collision) const;
+		static void ApplyFriction(Prediction& prediction);
 
 		static void UpdateFinalPosition(const Prediction& prediction);
 		static CollisionDetectionResult HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider);

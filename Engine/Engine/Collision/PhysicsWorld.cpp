@@ -61,6 +61,8 @@ void diji::PhysicsWorld::FixedUpdate()
     std::vector<Prediction> predictionsVec;
     PredictMovement(predictionsVec);
 
+    // todo: Spatial partitioning here
+    // todo: Massive issue with rect colliders and composed ground colliders, where colliders moving along the ground get stopped on seams because the collider is getting pushed back instead of up
     // Phase 2: Detect collisions using predicted positions
     DetectCollisions(predictionsVec);
 
@@ -77,8 +79,10 @@ void diji::PhysicsWorld::FixedUpdate()
 
             // Apply resolution logic here
             ResolveCollision(prediction, collision);
-            ApplyFriction(prediction, collision);
+            // ApplyFriction(prediction, collision);
         }
+
+        ApplyFrictionOnce(prediction);
     }
 
     // Phase 4: Update final state
@@ -366,6 +370,209 @@ void diji::PhysicsWorld::ResolveCollision(Prediction& prediction, const Collisio
     // prediction.pos = collision.point;
 }
 
+void diji::PhysicsWorld::ApplyFrictionOnceWithStaticKinetic(Prediction& prediction) const
+{
+    const float dt = m_TimeSingletonInstance.GetFixedUpdateDeltaTime();
+    const float mass = prediction.collider->GetMass();
+    if (mass <= 0.0f) return;
+
+    // 1) Gather total normal impulse (impulse units: mass * deltaV)
+    float totalNormalImpulse = 0.0f;
+    sf::Vector2f weightedTangent{0.0f, 0.0f};
+
+    bool anyCollision = false;
+    for (const auto& collisionInfo : prediction.collisionInfoVec)
+    {
+        if (!collisionInfo.hasCollision) continue;
+        anyCollision = true;
+        const float absN = std::abs(collisionInfo.normalImpulse);
+        totalNormalImpulse += absN;
+        weightedTangent += collisionInfo.tangent * absN; // weight tangent by contact normal impulse
+    }
+
+    // If no collisions, do nothing
+    if (!anyCollision) return;
+
+    // If total normal impulse is essentially zero, fallback to simple frame-based budget
+    // (This happens if ResolveCollision didn't set impulses for some reason)
+    constexpr float eps = std::numeric_limits<float>::epsilon();
+    if (totalNormalImpulse < eps)
+    {
+        // fallback: use force-based friction budget = mu * normalForce * dt
+        const float gravityMag = std::abs(m_Gravity.y);
+        const float normalForce = mass * gravityMag;
+        const float muFallback = prediction.collider->GetKineticFriction();
+        const float maxFrictionImpulseFallback = muFallback * normalForce * dt; // impulse units
+
+        // Cancel velocity magnitude up to that budget (opposite direction of velocity)
+        const float speed = Helpers::LengthFast(prediction.vel);
+        if (speed <= 1e-6f) return;
+        const sf::Vector2f velDir = prediction.vel / speed;
+        const float neededImpulse = mass * speed; // impulse to stop
+        const float appliedImpulse = std::min(maxFrictionImpulseFallback, neededImpulse);
+        const sf::Vector2f deltaV = -(appliedImpulse / mass) * velDir;
+        prediction.vel += deltaV;
+        return;
+    }
+
+    // 2) Determine representative tangent direction
+    const float tlen = Helpers::LengthFast(weightedTangent);
+    sf::Vector2f repTangent;
+    if (tlen > eps)
+        repTangent = weightedTangent / tlen; // normalized
+    else
+    {
+        // As fallback use current velocity's direction orthogonal to normal sum.
+        const float speed = Helpers::LengthFast(prediction.vel);
+        if (speed <= 1e-6f) return; // not moving tangentially
+        // Direction opposite to velocity (we'll compute tangential later)
+        repTangent = prediction.vel / speed;
+    }
+
+    // 3) Compute tangential velocity along representative tangent
+    const float tangentialVelocity = Helpers::DotProduct(prediction.vel, repTangent);
+    // small threshold: no significant tangential motion
+    if (std::abs(tangentialVelocity) < 1e-5f) return;
+
+    // 4) Friction budget (impulse) via Coulomb: maxFrictionImpulse = mu * totalNormalImpulse
+    // Support both static and kinetic friction coefficients:
+    // If your Collider only has one friction value, treat it as kinetic and compute static=1.5*mu_kinetic for a bit "stickiness".
+    float mu_k = prediction.collider->GetKineticFriction();       // kinetic
+    float mu_s = prediction.collider->GetStaticFriction(); // static; ensure you add this accessor or fallback below
+
+    // Fallback if collider doesn't expose static friction separately:
+    if (mu_s <= 0.0f)
+        mu_s = std::max(mu_k * 1.5f, mu_k); // a reasonable default (static >= kinetic)
+
+    const float maxStaticImpulse = mu_s * totalNormalImpulse;
+    const float maxKineticImpulse = mu_k * totalNormalImpulse;
+
+    // 5) Determine needed impulse to stop tangential motion immediately:
+    const float neededImpulse = std::abs(tangentialVelocity) * mass; // impulse = m * |v_t|
+
+    float appliedImpulse;
+    if (neededImpulse <= maxStaticImpulse)
+    {
+        // We can stop the tangential motion completely (static friction case)
+        appliedImpulse = neededImpulse;
+    }
+    else
+    {
+        // Sliding (kinetic friction): apply kinetic friction impulse (opposes motion)
+        appliedImpulse = maxKineticImpulse;
+    }
+
+    if (appliedImpulse <= 0.0f) return;
+
+    // 6) Apply impulse opposite to tangential velocity:
+    const float sign = (tangentialVelocity > 0.0f) ? -1.0f : 1.0f;
+    const float deltaV = (appliedImpulse / mass) * sign;
+    prediction.vel += repTangent * deltaV;
+}
+
+void diji::PhysicsWorld::ApplyFrictionOnce(Prediction& prediction) const
+{
+    const float dt = m_TimeSingletonInstance.GetFixedUpdateDeltaTime();
+    const float mass = prediction.collider->GetMass();
+    if (mass <= 0.0f) return;
+
+    // If there were no collisions this frame, do nothing
+    bool hadCollision = false;
+    for (const auto& collisionInfo : prediction.collisionInfoVec)
+    {
+        if (collisionInfo.hasCollision)
+        {
+            hadCollision = true;
+            break;
+        }
+    }
+    if (!hadCollision) return;
+
+    // Current linear speed
+    const float speed = Helpers::LengthFast(prediction.vel);
+    if (speed <= Helpers::EPSILON) return; // already stopped or too small to matter
+
+    // Friction force (simple model): F = mu * normalForce
+    // Use normalForce = mass * |g.y| (simple vertical gravity assumption)
+    const float gravityMagnitude = std::abs(m_Gravity.y);
+    const float normalForce = mass * gravityMagnitude;
+
+    const float mu = prediction.collider->GetStaticFriction(); // friction coefficient
+    const float frictionForce = mu * normalForce;
+
+    // Convert friction force to impulse over this frame: impulse = F * dt
+    const float maxFrictionImpulseThisFrame = frictionForce * dt; // units: mass * velocity
+
+    // Impulse needed to stop this frame: impulse = mass * speed
+    const float neededImpulse = mass * speed;
+
+    // Clamp so we don't reverse velocity: applied impulse is min of the two
+    const float appliedImpulse = std::min(maxFrictionImpulseThisFrame, neededImpulse);
+
+    if (appliedImpulse <= 0.0f) return;
+
+    // Apply impulse opposite to current velocity vector
+    const sf::Vector2f velDir = prediction.vel / speed; // normalized direction
+    const sf::Vector2f deltaV = -(appliedImpulse / mass) * velDir; // deltaV = impulse/mass, opposite direction
+
+    prediction.vel += deltaV;
+}
+
+void diji::PhysicsWorld::ApplyFriction(Prediction& prediction)
+{
+    // We treat normals with y < -threshold as ground contacts.
+    constexpr float groundNormalThreshold = 0.7f; // cos ~ 45 degrees -> consider as ground
+    const float mass = prediction.collider->GetMass();
+    if (mass <= 0.0f) return;
+
+    // Sum normal impulses and compute a representative tangent (averaged)
+    float totalNormalImpulse = 0.0f;
+    sf::Vector2f avgTangent{0.0f, 0.0f};
+    int groundContactCount = 0;
+
+    for (const auto& collisionInfo : prediction.collisionInfoVec)
+    {
+        if (!collisionInfo.hasCollision) continue;
+
+        // Only consider contacts that are roughly "under" the body (ground-like)
+        if (collisionInfo.normal.y < -groundNormalThreshold)
+        {
+            totalNormalImpulse += std::abs(collisionInfo.normalImpulse);
+            avgTangent += collisionInfo.tangent;
+            ++groundContactCount;
+        }
+    }
+
+    if (groundContactCount == 0) return;
+
+    // Average and normalize tangent
+    avgTangent /= static_cast<float>(groundContactCount);
+    const float tangentLen = Helpers::LengthFast(avgTangent);
+    if (tangentLen <= std::numeric_limits<float>::epsilon()) return;
+    avgTangent /= tangentLen;
+
+    // Compute current tangential (sliding) velocity along the averaged tangent
+    const float tangentialVelocity = Helpers::DotProduct(prediction.vel, avgTangent);
+    if (std::abs(tangentialVelocity) < Helpers::EPSILON) return; // effectively not sliding
+
+    // Coulomb friction: maximum friction impulse = mu * totalNormalImpulse
+    const float mu = prediction.collider->GetStaticFriction(); // use friction coefficient stored per-collider
+    const float maxFrictionImpulse = mu * totalNormalImpulse; // units: impulse (mass * deltaV)
+
+    // Required impulse to stop tangential velocity in a single impulse: impulse = mass * |v_t|
+    const float neededImpulse = std::abs(tangentialVelocity) * mass;
+
+    // Choose the impulse we will actually apply (do not exceed Coulomb limit)
+    const float appliedImpulse = std::min(maxFrictionImpulse, neededImpulse);
+
+    // Direction: opposite current tangential velocity
+    const float sign = (tangentialVelocity > 0.0f) ? -1.0f : 1.0f;
+
+    // Apply resulting Δv to prediction.vel: Δv = appliedImpulse / mass
+    const float deltaV = (appliedImpulse / mass) * sign;
+    prediction.vel += avgTangent * deltaV;
+}
+
 void diji::PhysicsWorld::ApplyFriction(Prediction& prediction, const CollisionInfo& collision) const
 {
     // if (collision.normalImpulse <= 0) return;
@@ -403,7 +610,7 @@ void diji::PhysicsWorld::ApplyFriction(Prediction& prediction, const CollisionIn
     const float gravityMagnitude = std::abs(m_Gravity.y);
     const float normalForce = mass * gravityMagnitude;
     
-    const float kineticFriction = prediction.collider->GetFriction();
+    const float kineticFriction = prediction.collider->GetStaticFriction();
     const float frictionMagnitude = kineticFriction * normalForce;
     sf::Vector2f frictionForce = -std::copysign(frictionMagnitude, tangentialVelocity) * collision.tangent;
     
