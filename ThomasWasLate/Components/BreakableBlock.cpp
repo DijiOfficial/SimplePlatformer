@@ -10,6 +10,7 @@
 #include "Engine/Interfaces/Timeline.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Collision/Collider.h"
+#include "Engine/Singleton/Helpers.h"
 
 void thomasWasLate::BreakableBlock::Init()
 {
@@ -21,6 +22,24 @@ void thomasWasLate::BreakableBlock::OnHitEvent(const diji::Collider* collider, c
 {
     if (collider->GetTag() != "player" || hitInfo.normal.y >= 0.f || m_IsHit)
         return;
+
+    const sf::Vector2f playerCenter = collider->GetPosition();
+    const sf::FloatRect blockAABB = GetOwner()->GetComponent<diji::Collider>()->GetAABB();
+
+    const sf::Vector2f blockCenter{ blockAABB.left + blockAABB.width * 0.5f, blockAABB.top  + blockAABB.height * 0.5f };
+    const sf::Vector2f halfExtents{ blockAABB.width * 0.5f, blockAABB.height * 0.5f };
+
+    const sf::Vector2f normal = diji::Helpers::Normalize(hitInfo.normal);
+    const sf::Vector2f tangent{ -normal.y, normal.x };
+
+    const sf::Vector2f rel = playerCenter - blockCenter;
+    const float coordAlongTangent = rel.x * tangent.x + rel.y * tangent.y;
+    const float halfExtentAlongTangent = std::abs(tangent.x) * halfExtents.x + std::abs(tangent.y) * halfExtents.y + 8.f;
+
+    // is block above player center
+    if (std::abs(coordAlongTangent) > halfExtentAlongTangent)
+        return;
+
     m_IsHit = true;
 
     if (GameManager::GetInstance().GetCurrentPlayerState() == PlayerHealthState::Small)
