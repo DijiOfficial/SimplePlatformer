@@ -49,6 +49,9 @@ void thomasWasLate::PlayerCharacter::Init()
 void thomasWasLate::PlayerCharacter::Update()
 {
     if (m_IsDead || m_IsPaused) return;
+
+    if (m_IsInvincible)
+        InvisibilityFlash();
     
     if (m_TransformCompPtr->GetPosition().y > 600.f)
     {
@@ -217,7 +220,7 @@ void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other)
 
 void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)
 {
-    if (m_IsDead || m_IsPaused) return;
+    if (m_IsDead || m_IsPaused || m_IsInvincible) return;
     const std::string& otherTag = other->GetTag();
 
     if (otherTag == "powerUp")
@@ -255,7 +258,13 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
     else
     {
         OnHitByEnemyEvent.Broadcast();
-        HandleDeathSequence();
+        if (m_PowerUpState == PowerUpState::Big)
+        {
+            m_PowerUpState = PowerUpState::Small;
+            PlayShrinkAnimation();
+        }
+        else if (m_PowerUpState == PowerUpState::Small)
+            HandleDeathSequence();
     }
 }
 
@@ -439,6 +448,40 @@ void thomasWasLate::PlayerCharacter::PlayGrowthAnimation()
     }, 0.78f, false);
 }
 
+void thomasWasLate::PlayerCharacter::PlayShrinkAnimation()
+{
+    m_IsPaused = true;
+    OnPoweringUpEvent.Broadcast(true);
+    GameManager::GetInstance().SwitchCurrentPlayerState();
+
+    // play animation
+    std::unique_ptr<PlayerStates> newState = std::make_unique<ShrinkAnimationState>();
+    m_CurrentStateUPtr = std::move(newState);
+    m_CurrentStateUPtr->OnEnter(GetOwner());
+    
+    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    {
+        m_SpriteRenderCompPtr->SetStartingFrameX(2);
+        m_SpriteRenderCompPtr->SetTotalAnimationFrames(8);
+        m_SpriteRenderCompPtr->SetCurrentAnimationFrame(0);
+        m_SpriteRenderCompPtr->UpdateFrame();
+    }, 0.32f, false);
+
+    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    {
+        m_ColliderCompPtr->ResizeCollider(sf::Vector2f{ 48, 48 });
+        m_ColliderCompPtr->SetIgnoreAllDynamicColliders(true);
+        std::unique_ptr<PlayerStates> newBigState = std::make_unique<IdleState>();
+        m_CurrentStateUPtr = std::move(newBigState);
+        m_CurrentStateUPtr->OnEnter(GetOwner());
+
+        m_IsInvincible = true;
+        m_InvincibilityTimer = 2.2f;
+        m_IsPaused = false;
+        OnPoweringUpEvent.Broadcast(false);
+    }, 1.12f, false);
+}
+
 void thomasWasLate::PlayerCharacter::HandlePowerUpCollision()
 {
     if (m_PowerUpState == PowerUpState::Small)
@@ -450,4 +493,24 @@ void thomasWasLate::PlayerCharacter::HandlePowerUpCollision()
 
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(1000);
     OnPoweringUpEvent.Broadcast(true);
+}
+
+void thomasWasLate::PlayerCharacter::InvisibilityFlash()
+{
+    m_InvincibilityTimer -= m_TimeSingletonInstance.GetDeltaTime();
+    m_InvincibilityRenderTimer -= m_TimeSingletonInstance.GetDeltaTime();
+
+    if (m_InvincibilityRenderTimer <= 0.f)
+    {
+        m_InvincibilityRenderTimer += 0.05f;
+        m_SpriteRenderCompPtr->ToggleRendering();
+    }
+    
+    if (m_InvincibilityTimer <= 0.f)
+    {
+        m_InvincibilityRenderTimer = 0.f;
+        m_ColliderCompPtr->SetIgnoreAllDynamicColliders(false);
+        m_SpriteRenderCompPtr->EnableRender();
+        m_IsInvincible = false;
+    }
 }

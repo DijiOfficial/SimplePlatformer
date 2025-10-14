@@ -97,6 +97,8 @@ namespace thomasWasLate
         float m_MaxJumpTime = 0.25f;
         float m_MinJumpTime = 0.25f;
         float m_SprintDecelerationTimer = 0.f;
+        float m_InvincibilityTimer = 0.f;
+        float m_InvincibilityRenderTimer = 0.f;
         bool m_IsOnGround = false;
         bool m_IsJumping = false;
         bool m_StoppedSprinting = false;
@@ -104,6 +106,7 @@ namespace thomasWasLate
         bool m_IsDead = false;
         bool m_CanJump = true;
         bool m_IsPaused = false;
+        bool m_IsInvincible = true;
 
         void HandleDeathSequence();
         void PlayDeathSequence() const;
@@ -112,6 +115,8 @@ namespace thomasWasLate
         void DecelerateAfterSprint();
         void CheckIfPlayerIsGrounded();
         void PlayGrowthAnimation();
+        void PlayShrinkAnimation();
         void HandlePowerUpCollision();
+        void InvisibilityFlash();
     };
 }

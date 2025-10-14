@@ -44,6 +44,8 @@ namespace thomasWasLate
             Death,
             Drifting,
             Growing,
+            Shrinking,
+            Invincibility,
             BigIdle,
             BigWalking,
             BigRunning,
@@ -98,6 +100,12 @@ namespace thomasWasLate
     {
     public:
         GrowthAnimationState();
+    };
+
+    class ShrinkAnimationState final : public PlayerStates
+    {
+    public:
+        ShrinkAnimationState();
     };
 
     class BigIdleState final : public PlayerStates

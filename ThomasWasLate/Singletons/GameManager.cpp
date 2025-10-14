@@ -21,6 +21,7 @@ namespace thomasWasLate
 
 void thomasWasLate::GameManager::LoadLevel()
 {
+    m_CurrentPlayerState = PlayerHealthState::Small;
     ReadLevelInfo(LoadInformation());
 
     CreateWorldCollision();
@@ -40,7 +41,8 @@ void thomasWasLate::GameManager::ResetLevel()
     // I don't think I need to clear them anymore?
     OnNewLevelLoadedEvent.ClearAllListeners();
     OnPlayerSwitchedEvent.ClearAllListeners();
-
+    OnScoreAddedEvent.ClearAllListeners();
+    OnCoinCollectedEvent.ClearAllListeners();
     
     diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::Level));
 }
@@ -74,22 +76,18 @@ std::string thomasWasLate::GameManager::LoadInformation()
     case 1:
         m_StartPosition.x = 100;
         m_StartPosition.y = 100;
-        m_LevelTimeLimit = 30.0f;
         break;
     case 2:
         m_StartPosition.x = 100;
         m_StartPosition.y = 3600;
-        m_LevelTimeLimit = 100.0f;
         break;
     case 3:
         m_StartPosition.x = 1250;
         m_StartPosition.y = 0;
-        m_LevelTimeLimit = 30.0f;
         break;
     case 4:
         m_StartPosition.x = 50;
         m_StartPosition.y = 200;
-        m_LevelTimeLimit = 50.0f;
         break;
     default:
         throw std::runtime_error("Invalid Level.");

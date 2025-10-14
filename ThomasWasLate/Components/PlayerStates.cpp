@@ -129,6 +129,23 @@ thomasWasLate::GrowthAnimationState::GrowthAnimationState()
     m_CurrentState = PlayerState::Drifting;
 }
 
+thomasWasLate::ShrinkAnimationState::ShrinkAnimationState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 0,
+        .startingFrameY= 2,
+        .totalAnimationFrames= 2,
+        .frameDuration = 0.02f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+        
+        .m_IsPlaying= true,
+        .m_IsLooping= true
+    };
+
+    m_CurrentState = PlayerState::Shrinking;
+}
+
 thomasWasLate::BigIdleState::BigIdleState()
 {
     m_AnimationState =

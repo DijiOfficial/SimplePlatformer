@@ -35,9 +35,9 @@ namespace thomasWasLate
         void SetLevelCleared();
         void ResetLevel();
         void SwitchCurrentPlayerState();
+        void SetPlayerState(const PlayerHealthState newState) { m_CurrentPlayerState = newState; }
 
         static void SpawnPointsText(const sf::Vector2f& position, const std::string& score);
-    
     private:
         std::vector<std::unique_ptr<diji::Collider>> m_TileColliders;
         PlayerHealthState m_CurrentPlayerState = PlayerHealthState::Small;
@@ -46,7 +46,6 @@ namespace thomasWasLate
         int m_CurrentLevel = 1;
         int m_Rows = 0;
         int m_Cols = 0;
-        float m_LevelTimeLimit = 0.0f;
 
         std::string LoadInformation();
         void ReadLevelInfo(const std::string& filepath);
