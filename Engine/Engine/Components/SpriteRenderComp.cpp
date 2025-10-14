@@ -114,7 +114,7 @@ void diji::SpriteRenderComponent::SetTotalAnimationFrames(const int count)
 void diji::SpriteRenderComponent::SetCurrentAnimationFrame(const int frame)
 {
     m_CurrentFrame = std::clamp(frame, 0, m_TotalAnimationFrames - 1); 
-    m_Sprite.setTextureRect({ m_StartingFrameX + m_CurrentFrame * m_FrameSize.x, m_StartingFrameY, m_FrameSize.x, m_FrameSize.y });
+    m_Sprite.setTextureRect({ m_StartingFrameX + m_CurrentFrame * m_FrameSize.x, m_StartingFrameY * m_FrameSize.y, m_FrameSize.x, m_FrameSize.y });
 }
 
 void diji::SpriteRenderComponent::SetScale(const float scale)
