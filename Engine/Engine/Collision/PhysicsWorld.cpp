@@ -314,6 +314,9 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore || otherPrediction.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore)
                 continue;
 
+            if (colliderPtr->IsIgnoringAllDynamicColliders() || otherPrediction.collider->IsIgnoringAllDynamicColliders())
+                continue;
+
             if (colliderPtr->IsIgnoringCollider(otherPrediction.collider) || otherPrediction.collider->IsIgnoringCollider(colliderPtr))
                 continue;
             

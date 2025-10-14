@@ -122,6 +122,9 @@ namespace diji
         void SetCollisionResponse(const CollisionResponse response) { m_CollisionResponse = response; }
         [[nodiscard]] CollisionResponse GetCollisionResponse() const { return m_CollisionResponse; }
 
+        void SetIgnoreAllDynamicColliders(const bool ignore) { m_IsIgnoringDynamicColliders = ignore; }
+        [[nodiscard]] bool IsIgnoringAllDynamicColliders() const { return m_IsIgnoringDynamicColliders; }
+        
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const;
         
     private:
@@ -149,6 +152,7 @@ namespace diji
         bool m_IsGenerateHitEvents = false;
         bool m_IsMoveable = true;
         bool m_PositionIsChanged = false;
+        bool m_IsIgnoringDynamicColliders = false; // todo: this should be like Unreal collision settings instead
   
         std::string m_Tag = "Untagged";
     };
