@@ -12,21 +12,21 @@ void thomasWasLate::BackgroundHandler::Init()
 
     m_TileIDToAtlasPos =
     {
-        { 0,  {0, 4} }, // Empty tile
-        { 1,  {0, 0} }, // Ground tile
-        { 2,  {0, 1} }, // Stair tile
-        { 3,  {1, 0} }, // TopLeft Up Pipe
-        { 4,  {2, 0} }, // TopRight Up Pipe
-        { 5,  {1, 1} }, // MiddleLeft Up Pipe
-        { 6,  {2, 1} }, // MiddleRight Up Pipe
-        { 7,  {0, 2} }, // TopRight Side Pipe
-        { 8,  {1, 2} }, // MiddleRight Side Pipe
-        { 9,  {2, 2} }, // BottomRight Side Pipe
-        { 10, {0, 3} }, // TopLeft Side Pipe
-        { 11, {1, 3} }, // MiddleLeft Side Pipe
-        { 12, {2, 3} }, // BottomLeft Side Pipe
-        { 13, {0, 4} }, // LuckyBlock (invisible tile because it's rendered by LuckyBlock component)
-        { 14, {0, 4} }, // BreakableBlock (invisible tile because it's rendered by BreakableBlock component)
+        { '0',  {0, 4} }, // Empty tile
+        { '1',  {0, 0} }, // Ground tile
+        { '2',  {0, 1} }, // Stair tile
+        { '3',  {1, 0} }, // TopLeft Up Pipe
+        { '4',  {2, 0} }, // TopRight Up Pipe
+        { '5',  {1, 1} }, // MiddleLeft Up Pipe
+        { '6',  {2, 1} }, // MiddleRight Up Pipe
+        { '7',  {0, 2} }, // TopRight Side Pipe
+        { '8',  {1, 2} }, // MiddleRight Side Pipe
+        { '9',  {2, 2} }, // BottomRight Side Pipe
+        { 'a', {0, 3} }, // TopLeft Side Pipe
+        { 'b', {1, 3} }, // MiddleLeft Side Pipe
+        { 'c', {2, 3} }, // BottomLeft Side Pipe
+        { 'd', {0, 4} }, // LuckyBlock (invisible tile because it's rendered by LuckyBlock component)
+        { 'e', {0, 4} }, // BreakableBlock (invisible tile because it's rendered by BreakableBlock component)
         // ... etc.
     };
 }
@@ -45,7 +45,7 @@ void thomasWasLate::BackgroundHandler::OnNewLevelLoaded() const
     m_BackgroundSprite->SetTileCount(gameManager.GetRows(), gameManager.GetCols());
     m_BackgroundSprite->ResizeVertexArray();
 
-    const std::vector<int>& levelData = gameManager.GetLevelInfo();
+    const std::vector<char>& levelData = gameManager.GetLevelInfo();
     const int cols = gameManager.GetCols();
     const int rows = gameManager.GetRows();
 
@@ -55,7 +55,7 @@ void thomasWasLate::BackgroundHandler::OnNewLevelLoaded() const
     {
         for (int x = 0; x < cols; ++x)
         {
-            const int tileID = levelData[y * cols + x];
+            const char tileID = levelData[y * cols + x];
             const int vertexIndex = (y * cols + x) * 6;
             sf::Vertex* quad = &tempVertexArray[vertexIndex];
 

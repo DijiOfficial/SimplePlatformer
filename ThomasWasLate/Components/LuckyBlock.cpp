@@ -1,4 +1,6 @@
 ﻿#include "LuckyBlock.h"
+
+#include "SmallCoinScript.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Core/GameObject.h"
@@ -31,6 +33,12 @@ void thomasWasLate::LuckyBlock::PlayAnimation() const
     spriteRenderComp->UpdateFrame();
 
     CreateTimeline();
+
+    auto coinTest = std::make_unique<diji::GameObject>();
+    coinTest->AddComponents<diji::Transform>(600, 0);
+    coinTest->AddComponents<diji::SpriteRenderComponent>("graphics/smallCoins.png", sf::Vector2i{ 25,50 }, 4, 0.03f);
+    coinTest->AddComponents<SmallCoinScript>();
+    diji::SceneManager::GetInstance().SpawnGameObject("G_SmallCoin", std::move(coinTest), { GetOwner()->GetComponent<diji::Transform>()->GetPosition().x, GetOwner()->GetComponent<diji::Transform>()->GetPosition().y - 50.f });
 }
 
 void thomasWasLate::LuckyBlock::CreateTimeline() const

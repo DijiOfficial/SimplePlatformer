@@ -4,11 +4,18 @@
 #include "Engine/Components/Transform.h"
 #include "Engine/Components/TextComp.h"
 #include "Engine/Components/Render.h"
+#include "Engine/Components/TextureComp.h"
 #include "Engine/Core/GameObject.h"
 #include "../Components/PointsBehaviour.h"
+#include "../Components/LuckyBlock.h"
+#include "Engine/Components/SpriteRenderComp.h"
 
 #include <format>
 #include <fstream>
+
+#include "../Components/BreakableBlock.h"
+#include "Engine/Components/ShapeRender.h"
+
 
 namespace thomasWasLate
 {
@@ -95,7 +102,7 @@ void thomasWasLate::GameManager::ReadLevelInfo(const std::string& filepath)
     std::string line;
     m_Rows = 0;
     m_Cols = 0;
-    m_LevelInfo = std::vector<int>();
+    m_LevelInfo = std::vector<char>();
 
     while (std::getline(file, line))
     {
@@ -103,12 +110,8 @@ void thomasWasLate::GameManager::ReadLevelInfo(const std::string& filepath)
 
         for (const char c : line)
         {
-            if (std::isdigit(c))
-            {
-                int number = c - '0';
-                m_LevelInfo.push_back(number);
-                ++colCount;
-            }
+            m_LevelInfo.push_back(c);
+            ++colCount;
         }
 
         if (m_Rows == 0)
@@ -134,12 +137,12 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
         while (col < m_Cols)
         {
             const int idx = row * m_Cols + col;
-            const int tile = m_LevelInfo[idx];
+            const char tile = m_LevelInfo[idx];
 
-            if (tile != 0)
+            if (tile != '0' && tile != 'e' && tile != 'd')
             {
                 const int startC = col;
-                while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != 0) // == tile? will work but colliders like pipes will become seprate
+                while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
                     ++col;
 
                 const int len = col - startC;
@@ -162,45 +165,111 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
             }
+            else if (tile == 'e')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                // constexpr float width  = kTileSize;
+                // constexpr float height = kTileSize;
+                // sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
+                sf::Vector2f center{ left + 25.f, bottom + + 25.f };
+
+                auto luckyBlock = std::make_unique<diji::GameObject>();
+                luckyBlock->AddComponents<diji::Transform>(500, 200);
+                luckyBlock->AddComponents<diji::SpriteRenderComponent>("graphics/luckyBlock.png", sf::Vector2i{ 50,50 }, 3, 0.25f);
+                luckyBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                const auto collider = luckyBlock->GetComponent<diji::Collider>();
+                collider->SetTag("luckyBlock");
+                collider->SetAffectedByGravity(false);
+                collider->SetGenerateHitEvents(true);
+                collider->SetIsMoveable(false);
+                luckyBlock->AddComponents<LuckyBlock>();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_luckyBlock", std::move(luckyBlock), center);
+
+                ++col;
+            }
+            // else if (tile == 'd')
+            // {
+            //     int startC = col;
+            //     while (startC < m_Cols && m_LevelInfo[row * m_Cols + startC] == 'd')
+            //         ++startC;
+            //
+            //     const int len = startC - col;
+            //     const float left = static_cast<float>(col) * kTileSize;
+            //     const float top  = static_cast<float>(row) * kTileSize;
+            //     const float width  = static_cast<float>(len) * kTileSize;
+            //     constexpr float height = kTileSize * 0.5f;
+            //     sf::Vector2f bigCenter{ left + width * 0.5f, top + height * 0.5f };
+            //
+            //     // Create the big top collider
+            //     auto longColliderObj = std::make_unique<diji::GameObject>();
+            //     longColliderObj->AddComponents<diji::Transform>(bigCenter);
+            //     longColliderObj->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ width, height });
+            //     longColliderObj->AddComponents<diji::ShapeRender>();
+            //     diji::Collider* longCol = longColliderObj->GetComponent<diji::Collider>();
+            //     longCol->SetStatic(true);
+            //     longCol->SetTag("ground");
+            //     diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(longColliderObj), bigCenter);
+            //
+            //     // Now create each breakable block in this run and mark them to ignore the long collider
+            //     for (int i = 0; i < len; ++i)
+            //     {
+            //         const float blockLeft = static_cast<float>(col + i) * kTileSize;
+            //         const float blockTop  = static_cast<float>(row) * kTileSize;
+            //         constexpr float blockSize = kTileSize;
+            //         sf::Vector2f blockCenter{ blockLeft + blockSize * 0.5f, blockTop + blockSize * 0.5f };
+            //
+            //         auto breakableBlock = std::make_unique<diji::GameObject>();
+            //         breakableBlock->AddComponents<diji::Transform>(blockCenter);
+            //         breakableBlock->AddComponents<diji::TextureComp>("graphics/breakableBlock.png");
+            //         breakableBlock->AddComponents<diji::Render>();
+            //         breakableBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ blockSize, blockSize });
+            //         breakableBlock->AddComponents<diji::ShapeRender>(true);
+            //         const auto collider = breakableBlock->GetComponent<diji::Collider>();
+            //         collider->SetTag("breakBlock");
+            //         collider->SetAffectedByGravity(false);
+            //         collider->SetGenerateHitEvents(true);
+            //         collider->SetIsMoveable(false);
+            //
+            //         collider->IgnoreCollider(longCol);
+            //         longCol->IgnoreCollider(collider);
+            //
+            //         breakableBlock->AddComponents<BreakableBlock>();
+            //
+            //         diji::SceneManager::GetInstance().SpawnGameObject("E_breakableBlock", std::move(breakableBlock), blockCenter);
+            //     }
+            //
+            //     col = startC;
+            // }
+
+            else if (tile == 'd')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                // constexpr float width  = kTileSize;
+                // constexpr float height = kTileSize;
+                // sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
+                sf::Vector2f center{ left + 25.f, bottom + + 25.f };
+            
+                auto breakableBlock = std::make_unique<diji::GameObject>();
+                breakableBlock->AddComponents<diji::Transform>(600, 300);
+                breakableBlock->AddComponents<diji::TextureComp>("graphics/breakableBlock.png");
+                breakableBlock->AddComponents<diji::Render>();
+                breakableBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                const auto collider = breakableBlock->GetComponent<diji::Collider>();
+                collider->SetTag("breakBlock");
+                collider->SetAffectedByGravity(false);
+                collider->SetGenerateHitEvents(true);
+                collider->SetIsMoveable(false);
+                breakableBlock->AddComponents<BreakableBlock>();
+            
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_breakableBlock", std::move(breakableBlock), center);
+                
+                ++col;
+            }
             else
             {
-                // Create individual colliders for special tiles 2/3/4 with tags
-                // if (tile == 2 || tile == 3 || tile == 4)
-                // {
-                //     const float left = static_cast<float>(col) * kTileSize;
-                //     const float bottom = static_cast<float>(row) * kTileSize;
-                //     constexpr float width  = kTileSize;
-                //     constexpr float height = kTileSize;
-                //
-                //     sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
-                //
-                //     // todo: set up overlap event collisions!
-                //     auto tempBound = std::make_unique<diji::GameObject>();
-                //     tempBound->AddComponents<diji::Transform>(center);
-                //     tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ width, height });
-                //     const auto collider = tempBound->GetComponent<diji::Collider>();
-                //     collider->SetStatic(true);
-                //     collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
-                //
-                //     // tempBound->AddComponents<diji::ShapeRender>();
-                //    
-                //     switch (tile)
-                //     {
-                //     case 2:
-                //         collider->SetTag("lava");
-                //         break;
-                //     case 3:
-                //         collider->SetTag("water");
-                //         break;
-                //     case 4:
-                //         collider->SetTag("goal");
-                //         break;
-                //     default:
-                //         break;
-                //     }
-                //     
-                //     diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
-                // }
                 ++col;
             }
         }

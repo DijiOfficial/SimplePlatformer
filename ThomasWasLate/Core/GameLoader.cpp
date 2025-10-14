@@ -2,12 +2,10 @@
 
 #include "GameState.h"
 #include "../Components/BackgroundHandler.h"
-#include "../Components/BreakableBlock.h"
 #include "../Components/CustomBackgroundRenderer.h"
-#include "../Components/Debris.h"
 #include "../Components/GoombaAI.h"
-#include "../Components/LuckyBlock.h"
 #include "../Components/PlayerCharacter.h"
+#include "../Components/SmallCoinScript.h"
 #include "../Components/TimerScript.h"
 #include "../Input/CustomCommands.h"
 #include "../Singletons/GameManager.h"
@@ -83,7 +81,8 @@ void SceneLoader::Level()
     player->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
     player->GetComponent<Collider>()->SetRestitution(0.f);
     player->GetComponent<Collider>()->SetMass(0.89f);
-    player->GetComponent<Collider>()->SetFriction(0.25f);
+    player->GetComponent<Collider>()->SetStaticFriction(0.25f);
+    player->GetComponent<Collider>()->SetKineticFriction(0.15f);
     player->GetComponent<Collider>()->SetGenerateHitEvents(true);
     player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
     player->GetComponent<Collider>()->SetTag("player");
@@ -94,50 +93,12 @@ void SceneLoader::Level()
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
 
 
-
     
-    const auto luckyBlockTest = scene->CreateGameObject("Y_luckyBlockTest");
-    luckyBlockTest->AddComponents<Transform>(500, 200);
-    luckyBlockTest->AddComponents<SpriteRenderComponent>("graphics/luckyBlock.png", sf::Vector2i{ 50,50 }, 3, 0.25f);
-    luckyBlockTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    luckyBlockTest->GetComponent<Collider>()->SetTag("luckyBlock");
-    luckyBlockTest->GetComponent<Collider>()->SetAffectedByGravity(false);
-    luckyBlockTest->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    luckyBlockTest->GetComponent<Collider>()->SetIsMoveable(false);
-    luckyBlockTest->AddComponents<thomasWasLate::LuckyBlock>();
+    const auto coinTest = scene->CreateGameObject("Y_coinTest");
+    coinTest->AddComponents<Transform>(600, 0);
+    coinTest->AddComponents<SpriteRenderComponent>("graphics/smallCoins.png", sf::Vector2i{ 25,50 }, 4, 0.03f);
+    coinTest->AddComponents<thomasWasLate::SmallCoinScript>();
     
-    const auto breakBlockTest = scene->CreateGameObject("Y_breakBlockTest");
-    breakBlockTest->AddComponents<Transform>(600, 300);
-    breakBlockTest->AddComponents<TextureComp>("graphics/breakableBlock.png");
-    breakBlockTest->AddComponents<Render>();
-    breakBlockTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    breakBlockTest->GetComponent<Collider>()->SetTag("breakBlock");
-    breakBlockTest->GetComponent<Collider>()->SetAffectedByGravity(false);
-    breakBlockTest->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    breakBlockTest->GetComponent<Collider>()->SetIsMoveable(false);
-    breakBlockTest->AddComponents<thomasWasLate::BreakableBlock>();
-
-    const auto breakBlockTest2 = scene->CreateGameObject("Y_breakBlockTest2");
-    breakBlockTest2->AddComponents<Transform>(650, 300);
-    breakBlockTest2->AddComponents<TextureComp>("graphics/breakableBlock.png");
-    breakBlockTest2->AddComponents<Render>();
-    breakBlockTest2->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    breakBlockTest2->GetComponent<Collider>()->SetTag("breakBlock");
-    breakBlockTest2->GetComponent<Collider>()->SetAffectedByGravity(false);
-    breakBlockTest2->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    breakBlockTest2->GetComponent<Collider>()->SetIsMoveable(false);
-    breakBlockTest2->AddComponents<thomasWasLate::BreakableBlock>();
-
-    const auto breakBlockTest3 = scene->CreateGameObject("Y_breakBlockTest3");
-    breakBlockTest3->AddComponents<Transform>(550, 300);
-    breakBlockTest3->AddComponents<TextureComp>("graphics/breakableBlock.png");
-    breakBlockTest3->AddComponents<Render>();
-    breakBlockTest3->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    breakBlockTest3->GetComponent<Collider>()->SetTag("breakBlock");
-    breakBlockTest3->GetComponent<Collider>()->SetAffectedByGravity(false);
-    breakBlockTest3->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    breakBlockTest3->GetComponent<Collider>()->SetIsMoveable(false);
-    breakBlockTest3->AddComponents<thomasWasLate::BreakableBlock>();
 
     const auto goombaTest = scene->CreateGameObject("Y_GoombaTest");
     goombaTest->AddComponents<Transform>(2000, 0);
@@ -145,7 +106,8 @@ void SceneLoader::Level()
     goombaTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
     goombaTest->GetComponent<Collider>()->SetRestitution(0.f);
     goombaTest->GetComponent<Collider>()->SetMass(0.89f);
-    goombaTest->GetComponent<Collider>()->SetFriction(0.25f);
+    goombaTest->GetComponent<Collider>()->SetStaticFriction(0.25f);
+    goombaTest->GetComponent<Collider>()->SetKineticFriction(0.15f);
     goombaTest->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
     goombaTest->GetComponent<Collider>()->SetGenerateHitEvents(true);
     goombaTest->GetComponent<Collider>()->SetTag("enemy");
@@ -157,7 +119,8 @@ void SceneLoader::Level()
     goombaTest2->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
     goombaTest2->GetComponent<Collider>()->SetRestitution(0.f);
     goombaTest2->GetComponent<Collider>()->SetMass(0.89f);
-    goombaTest2->GetComponent<Collider>()->SetFriction(0.25f);
+    goombaTest2->GetComponent<Collider>()->SetStaticFriction(0.25f);
+    goombaTest2->GetComponent<Collider>()->SetKineticFriction(0.15f);
     goombaTest2->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
     goombaTest2->GetComponent<Collider>()->SetGenerateHitEvents(true);
     goombaTest2->GetComponent<Collider>()->SetTag("enemy");
@@ -169,7 +132,8 @@ void SceneLoader::Level()
     goombaTest3->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
     goombaTest3->GetComponent<Collider>()->SetRestitution(0.f);
     goombaTest3->GetComponent<Collider>()->SetMass(0.89f);
-    goombaTest3->GetComponent<Collider>()->SetFriction(0.25f);
+    goombaTest3->GetComponent<Collider>()->SetStaticFriction(0.25f);
+    goombaTest3->GetComponent<Collider>()->SetKineticFriction(0.15f);
     goombaTest3->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
     goombaTest3->GetComponent<Collider>()->SetGenerateHitEvents(true);
     goombaTest3->GetComponent<Collider>()->SetTag("enemy");
@@ -291,5 +255,6 @@ void SceneLoader::Level()
 #pragma region Events
 
     player->GetComponent<thomasWasLate::PlayerCharacter>()->OnPointsScoredEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
+    thomasWasLate::GameManager::GetInstance().OnScoreAddedEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
 #pragma endregion
 }

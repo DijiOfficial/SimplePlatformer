@@ -29,7 +29,7 @@ namespace thomasWasLate
 
     private:
         diji::Sprite* m_BackgroundSprite = nullptr;
-        std::unordered_map<int, sf::Vector2i> m_TileIDToAtlasPos;
+        std::unordered_map<char, sf::Vector2i> m_TileIDToAtlasPos;
 
         void OnNewLevelLoaded() const;
     };

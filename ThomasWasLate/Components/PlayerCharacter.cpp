@@ -77,6 +77,7 @@ void thomasWasLate::PlayerCharacter::FixedUpdate()
     {
         const float multiplier = m_IsOnGround ? 1.f : 0.75f;
         const sf::Vector2f direction = m_MovementDirection == MovementDirection::Right ? sf::Vector2f{ 1, 0 } : sf::Vector2f{ -1, 0 };
+        // const float acceleration = diji::Helpers::isZero(m_CurrSpeed.x) ? m_Acceleration * 5.f : m_Acceleration;
         m_ColliderCompPtr->ApplyForce(direction * m_Acceleration * multiplier);
     }
 
