@@ -84,7 +84,9 @@ namespace diji
         {
             for (auto& [id, observer, callback] : m_Listeners)
             {
-                callback(args...);
+                // todo: I'm not sure how to feel about this, because if a callback is nullptr, it might have not be freed properly meaning memory leak
+                if (callback)
+                    callback(args...);
             }
         }
 
