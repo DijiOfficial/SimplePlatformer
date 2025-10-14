@@ -31,7 +31,6 @@ namespace thomasWasLate
         void OnDestroy() override {}
 
         void HandleStomp(const diji::Collider* other, const std::string& score);
-
         void OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo) override;
 
     private:
@@ -39,5 +38,6 @@ namespace thomasWasLate
         bool m_Paused = false;
 
         float m_Speed = -400.f;
+        void SetPauseState(const bool isPause) { m_Paused = isPause; }
     };
 }

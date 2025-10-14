@@ -52,6 +52,8 @@ namespace thomasWasLate
         diji::Event<> OnExtraLifeGainedEvent;
         diji::Event<int> OnPointsScoredEvent;
         diji::Event<const diji::Collider*, const std::string&> OnEnemyStompedEvent;
+        diji::Event<bool> OnPoweringUpEvent;
+        
 
     private:
         static const std::vector<int> s_StompPointsTable;

@@ -418,10 +418,7 @@ void thomasWasLate::PlayerCharacter::CheckIfPlayerIsGrounded()
 
 void thomasWasLate::PlayerCharacter::PlayGrowthAnimation()
 {
-    // pause game
     m_IsPaused = true;
-    //broadcast event
-
     
     // play animation
     std::unique_ptr<PlayerStates> newState = std::make_unique<GrowthAnimationState>();
@@ -437,10 +434,8 @@ void thomasWasLate::PlayerCharacter::PlayGrowthAnimation()
         m_CurrentStateUPtr = std::move(newBigState);
         m_CurrentStateUPtr->OnEnter(GetOwner());
     
-        // unpause game
         m_IsPaused = false;
-        // broadcast event
-        
+        OnPoweringUpEvent.Broadcast(false);
     }, 0.78f, false);
 }
 
@@ -451,8 +446,8 @@ void thomasWasLate::PlayerCharacter::HandlePowerUpCollision()
         GameManager::GetInstance().SwitchCurrentPlayerState();
         m_PowerUpState = PowerUpState::Big;
         PlayGrowthAnimation();
-        // OnPowerUpGainedEvent.Broadcast();
     }
 
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(1000);
+    OnPoweringUpEvent.Broadcast(true);
 }

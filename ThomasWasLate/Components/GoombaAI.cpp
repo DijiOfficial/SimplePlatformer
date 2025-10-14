@@ -21,6 +21,7 @@ void thomasWasLate::GoombaAI::Init()
     });
 
     diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnEnemyStompedEvent.AddListener(this, &GoombaAI::HandleStomp);
+    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener(this, &GoombaAI::SetPauseState);
 }
 
 void thomasWasLate::GoombaAI::Update()
