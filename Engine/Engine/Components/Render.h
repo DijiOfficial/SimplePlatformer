@@ -38,6 +38,7 @@ namespace diji
         virtual void UpdateTexture(sf::Texture& texture);
         void DisableRender() { m_Render = false; }
         void EnableRender() { m_Render = true; }
+        void ToggleRendering() { m_Render = !m_Render; }
 
         virtual void SetScale(float scale);
         
