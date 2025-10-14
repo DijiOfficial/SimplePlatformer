@@ -7,6 +7,7 @@ void thomasWasLate::PlayerStates::OnEnter(const diji::GameObject* parent)
 {
     m_SpriteRenderComponent = parent->GetComponent<diji::SpriteRenderComponent>();
 
+    m_SpriteRenderComponent->SetFrameSize(m_AnimationState.frameSize);
     m_SpriteRenderComponent->SetStartingFrame(m_AnimationState.startingFrameX, m_AnimationState.startingFrameY);
     m_SpriteRenderComponent->SetTotalAnimationFrames(m_AnimationState.totalAnimationFrames);
     m_SpriteRenderComponent->SetFrameDuration(m_AnimationState.frameDuration);
@@ -42,8 +43,8 @@ thomasWasLate::WalkingState::WalkingState()
     {
         .startingFrameX= 1,
         .startingFrameY= 0,
-        .totalAnimationFrames= 4,
-        .frameDuration = 0.2f,
+        .totalAnimationFrames= 3,
+        .frameDuration = 0.12f,
         .m_IsPlaying= true,
         .m_IsLooping= true
     };
@@ -57,8 +58,8 @@ thomasWasLate::RunningState::RunningState()
 {
         .startingFrameX= 1,
         .startingFrameY= 0,
-        .totalAnimationFrames= 4,
-        .frameDuration = 0.1f,
+        .totalAnimationFrames= 3,
+        .frameDuration = 0.065f,
         .m_IsPlaying= true,
         .m_IsLooping= true
     };
@@ -109,4 +110,106 @@ thomasWasLate::DriftingState::DriftingState()
     };
 
     m_CurrentState = PlayerState::Drifting;
+}
+
+thomasWasLate::GrowthAnimationState::GrowthAnimationState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 0,
+        .startingFrameY= 1,
+        .totalAnimationFrames= 12,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+        
+        .m_IsPlaying= true,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::Drifting;
+}
+
+thomasWasLate::BigIdleState::BigIdleState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 11,
+        .startingFrameY= 1,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+    
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::BigIdle;
+}
+
+thomasWasLate::BigWalkingState::BigWalkingState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 4,
+        .startingFrameY= 0,
+        .totalAnimationFrames= 3,
+        .frameDuration = 0.12f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+    
+        .m_IsPlaying= true,
+        .m_IsLooping= true
+    };
+
+    m_CurrentState = PlayerState::BigWalking;
+}
+
+thomasWasLate::BigRunningState::BigRunningState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 4,
+        .startingFrameY= 0,
+        .totalAnimationFrames= 3,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+    
+        .m_IsPlaying= true,
+        .m_IsLooping= true
+    };
+
+    m_CurrentState = PlayerState::BigRunning;
+}
+
+thomasWasLate::BigJumpingState::BigJumpingState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 7,
+        .startingFrameY= 0,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+    
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::BigJumping;
+}
+
+thomasWasLate::BigDriftingState::BigDriftingState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 8,
+        .startingFrameY= 0,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+    
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::BigDrifting;
 }

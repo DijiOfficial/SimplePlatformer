@@ -177,6 +177,7 @@
     <ClCompile Include="Components\Debris.cpp" />
     <ClCompile Include="Components\GoombaAI.cpp" />
     <ClCompile Include="Components\LuckyBlock.cpp" />
+    <ClCompile Include="Components\MushroomScript.cpp" />
     <ClCompile Include="Components\PlayerCharacter.cpp" />
     <ClCompile Include="Components\PlayerStates.cpp" />
     <ClCompile Include="Components\PointsBehaviour.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="Components\Debris.h" />
     <ClInclude Include="Components\GoombaAI.h" />
     <ClInclude Include="Components\LuckyBlock.h" />
+    <ClInclude Include="Components\MushroomScript.h" />
     <ClInclude Include="Components\PlayerCharacter.h" />
     <ClInclude Include="Components\PlayerStates.h" />
     <ClInclude Include="Components\PointsBehaviour.h" />

@@ -9,13 +9,10 @@
 #include "../Components/PointsBehaviour.h"
 #include "../Components/LuckyBlock.h"
 #include "Engine/Components/SpriteRenderComp.h"
+#include "../Components/BreakableBlock.h"
 
 #include <format>
 #include <fstream>
-
-#include "../Components/BreakableBlock.h"
-#include "Engine/Components/ShapeRender.h"
-
 
 namespace thomasWasLate
 {
@@ -46,6 +43,14 @@ void thomasWasLate::GameManager::ResetLevel()
 
     
     diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::Level));
+}
+
+void thomasWasLate::GameManager::SwitchCurrentPlayerState()
+{
+    if (m_CurrentPlayerState == PlayerHealthState::Small)
+        m_CurrentPlayerState = PlayerHealthState::Big;
+    else
+        m_CurrentPlayerState = PlayerHealthState::Small;
 }
 
 void thomasWasLate::GameManager::SpawnPointsText(const sf::Vector2f& position, const std::string& score)

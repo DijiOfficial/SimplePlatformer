@@ -69,6 +69,7 @@ void thomasWasLate::BreakableBlock::PlayAnimation() const
     }
     
     diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+    GameManager::GetInstance().OnScoreAddedEvent.Broadcast(50);
 }
 
 void thomasWasLate::BreakableBlock::CreateTimeline()

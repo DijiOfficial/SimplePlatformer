@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <SFML/System/Vector2.hpp>
 
 namespace diji
 {
@@ -28,6 +29,7 @@ namespace thomasWasLate
             int startingFrameY = 0;
             int totalAnimationFrames = 1;
             float frameDuration = 0.25f;
+            sf::Vector2i frameSize = { 16, 16 };
 
             bool m_IsPlaying = true;
             bool m_IsLooping = true;
@@ -40,7 +42,13 @@ namespace thomasWasLate
             Running,
             Jumping,
             Death,
-            Drifting
+            Drifting,
+            Growing,
+            BigIdle,
+            BigWalking,
+            BigRunning,
+            BigJumping,
+            BigDrifting            
         };
         [[nodiscard]] PlayerState GetState() const { return m_CurrentState; }
         
@@ -84,5 +92,41 @@ namespace thomasWasLate
     {
     public:
         DriftingState();
+    };
+
+    class GrowthAnimationState final : public PlayerStates
+    {
+    public:
+        GrowthAnimationState();
+    };
+
+    class BigIdleState final : public PlayerStates
+    {
+    public:
+        BigIdleState();
+    };
+
+    class BigWalkingState final : public PlayerStates
+    {
+    public:
+        BigWalkingState();
+    };
+
+    class BigRunningState final : public PlayerStates
+    {
+    public:
+        BigRunningState();
+    };
+
+    class BigJumpingState final : public PlayerStates
+    {
+    public:
+        BigJumpingState();
+    };
+
+    class BigDriftingState final : public PlayerStates
+    {
+    public:
+        BigDriftingState();
     };
 }

@@ -37,6 +37,7 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
+        void OnTriggerEnter(const diji::Collider* other) override;
         void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&) override;
 
         void Move(const sf::Vector2f& direction);
@@ -65,10 +66,10 @@ namespace thomasWasLate
 
         sf::Vector2f m_CurrSpeed = { 0.f, 0.f };
 
-        sf::Vector2f m_BaseMaxVelocity = { 400.f, 800.f };
-        sf::Vector2f m_SprintMaxVelocity = { 800.f, 800.f };
+        sf::Vector2f m_BaseMaxVelocity = { 800.f, 1000.f };
+        sf::Vector2f m_SprintMaxVelocity = { 1000.f, 1000.f };
 
-        enum class MovementDirection
+        enum class MovementDirection : uint8_t
         {
             Left,
             Right,
@@ -76,6 +77,14 @@ namespace thomasWasLate
         };
         MovementDirection m_MovementDirection = MovementDirection::None;
 
+        enum class PowerUpState : uint8_t
+        {
+            Small,
+            Big,
+            Fire
+        };
+        PowerUpState m_PowerUpState = PowerUpState::Small;
+        
         int m_BounceScoreMultiplier = 1;
         const float STOMP_THRESHOLD = 0.5f;
         float m_JumpForce = 2000.f;
@@ -92,6 +101,7 @@ namespace thomasWasLate
         bool m_IsLookingLeft = false;
         bool m_IsDead = false;
         bool m_CanJump = true;
+        bool m_IsPaused = false;
 
         void HandleDeathSequence();
         void PlayDeathSequence() const;
@@ -99,5 +109,7 @@ namespace thomasWasLate
         [[nodiscard]] std::string GetStompPointsAsString(int bounceMultiplier);
         void DecelerateAfterSprint();
         void CheckIfPlayerIsGrounded();
+        void PlayGrowthAnimation();
+        void HandlePowerUpCollision();
     };
 }

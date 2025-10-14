@@ -29,6 +29,7 @@ void thomasWasLate::SmallCoinScript::Init()
                 const auto& pos = GetOwner()->GetComponent<diji::Transform>()->GetPosition();
                 GameManager::SpawnPointsText(pos, "200");
                 GameManager::GetInstance().OnScoreAddedEvent.Broadcast(200);
+                GameManager::GetInstance().OnCoinCollectedEvent.Broadcast();
             }
         }
     };

@@ -24,6 +24,7 @@ namespace thomasWasLate
         diji::Event<> OnPlayerSwitchedEvent;
         diji::Event<> OnNewLevelLoadedEvent;
         diji::Event<int> OnScoreAddedEvent;
+        diji::Event<> OnCoinCollectedEvent;
         void LoadLevel();
         void ClearLevelInfo() { m_LevelInfo = std::vector<char>(); }
         [[nodiscard]] const std::vector<char>& GetLevelInfo() const { return m_LevelInfo; }
@@ -33,6 +34,7 @@ namespace thomasWasLate
         [[nodiscard]] int GetCols() const { return m_Cols; }
         void SetLevelCleared();
         void ResetLevel();
+        void SwitchCurrentPlayerState();
 
         static void SpawnPointsText(const sf::Vector2f& position, const std::string& score);
     

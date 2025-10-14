@@ -48,7 +48,7 @@ void thomasWasLate::PlayerCharacter::Init()
 
 void thomasWasLate::PlayerCharacter::Update()
 {
-    if (m_IsDead) return;
+    if (m_IsDead || m_IsPaused) return;
     
     if (m_TransformCompPtr->GetPosition().y > 600.f)
     {
@@ -62,6 +62,7 @@ void thomasWasLate::PlayerCharacter::Update()
     {
         m_IsJumping = false;
         m_JumpTime = m_MaxJumpTime;
+        m_MinJumpTime = 0.f;
     }
 
     // If player stopped sprinting, interpolate back to base speed over 1 second
@@ -71,7 +72,7 @@ void thomasWasLate::PlayerCharacter::Update()
 
 void thomasWasLate::PlayerCharacter::FixedUpdate()
 {
-    if (m_IsDead) return;
+    if (m_IsDead || m_IsPaused) return;
 
     if (m_MovementDirection != MovementDirection::None)
     {
@@ -91,60 +92,105 @@ void thomasWasLate::PlayerCharacter::FixedUpdate()
             m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 0.5f * multiplier });
     }
 
-    // Adjust jump height based on speed
+    // If player jumped for one frame, ensure they get a consistent minimum jump
     if (m_MinJumpTime > 0.f)
     {
-        m_MinJumpTime -= m_TimeSingletonInstance.GetDeltaTime();
+        m_MinJumpTime -= m_TimeSingletonInstance.GetFixedUpdateDeltaTime();
         m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 0.5f * multiplier });
     }
 }
 
 void thomasWasLate::PlayerCharacter::LateUpdate()
 {
-    if (m_IsDead) return;
+    if (m_IsDead || m_IsPaused) return;
     
     const PlayerStates::PlayerState currentState = m_CurrentStateUPtr->GetState();
     // animator controller code
     // todo: EWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
     std::unique_ptr<PlayerStates> newState = nullptr;
-    if (m_IsOnGround)
+    if (m_PowerUpState == PowerUpState::Small)
     {
-        if (diji::Helpers::isZero(m_CurrSpeed.x))
+        if (m_IsOnGround)
         {
-            if (currentState != PlayerStates::PlayerState::Idle)
-                newState = std::make_unique<IdleState>();
-        }
-        else
-        {
-            if (m_CurrSpeed.x < 0 && m_MovementDirection == MovementDirection::Right)
+            if (diji::Helpers::isZero(m_CurrSpeed.x))
             {
-                if (currentState != PlayerStates::PlayerState::Drifting)
-                    newState = std::make_unique<DriftingState>();
-            }
-            else if (m_CurrSpeed.x > 0 && m_MovementDirection == MovementDirection::Left)
-            {
-                if (currentState != PlayerStates::PlayerState::Drifting)
-                    newState = std::make_unique<DriftingState>();
+                if (currentState != PlayerStates::PlayerState::Idle)
+                    newState = std::make_unique<IdleState>();
             }
             else
             {
-                if (std::abs(m_CurrSpeed.x) > m_BaseMaxVelocity.x)
-                {                               
-                    if (currentState != PlayerStates::PlayerState::Running)
-                        newState = std::make_unique<RunningState>();
+                if (m_CurrSpeed.x < 0 && m_MovementDirection == MovementDirection::Right)
+                {
+                    if (currentState != PlayerStates::PlayerState::Drifting)
+                        newState = std::make_unique<DriftingState>();
+                }
+                else if (m_CurrSpeed.x > 0 && m_MovementDirection == MovementDirection::Left)
+                {
+                    if (currentState != PlayerStates::PlayerState::Drifting)
+                        newState = std::make_unique<DriftingState>();
                 }
                 else
                 {
-                    if (currentState != PlayerStates::PlayerState::Walking)
-                        newState = std::make_unique<WalkingState>();
+                    if (std::abs(m_CurrSpeed.x) > m_BaseMaxVelocity.x)
+                    {                               
+                        if (currentState != PlayerStates::PlayerState::Running)
+                            newState = std::make_unique<RunningState>();
+                    }
+                    else
+                    {
+                        if (currentState != PlayerStates::PlayerState::Walking)
+                            newState = std::make_unique<WalkingState>();
+                    }
                 }
             }
         }
+        else
+        {
+            if (currentState != PlayerStates::PlayerState::Jumping)
+                newState = std::make_unique<JumpingState>();
+        }
     }
-    else
+    else if (currentState != PlayerStates::PlayerState::Growing)
     {
-        if (currentState != PlayerStates::PlayerState::Jumping)
-            newState = std::make_unique<JumpingState>();
+        if (m_IsOnGround)
+        {
+            if (diji::Helpers::isZero(m_CurrSpeed.x))
+            {
+                if (currentState != PlayerStates::PlayerState::BigIdle)
+                    newState = std::make_unique<BigIdleState>();
+            }
+            else
+            {
+                if (m_CurrSpeed.x < 0 && m_MovementDirection == MovementDirection::Right)
+                {
+                    if (currentState != PlayerStates::PlayerState::BigDrifting)
+                        newState = std::make_unique<BigDriftingState>();
+                }
+                else if (m_CurrSpeed.x > 0 && m_MovementDirection == MovementDirection::Left)
+                {
+                    if (currentState != PlayerStates::PlayerState::BigDrifting)
+                        newState = std::make_unique<BigDriftingState>();
+                }
+                else
+                {
+                    if (std::abs(m_CurrSpeed.x) > m_BaseMaxVelocity.x)
+                    {                               
+                        if (currentState != PlayerStates::PlayerState::BigRunning)
+                            newState = std::make_unique<BigRunningState>();
+                    }
+                    else
+                    {
+                        if (currentState != PlayerStates::PlayerState::BigWalking)
+                            newState = std::make_unique<BigWalkingState>();
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (currentState != PlayerStates::PlayerState::BigJumping)
+                newState = std::make_unique<BigJumpingState>();
+        }
     }
 
     if (newState)
@@ -161,17 +207,32 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
         m_SpriteRenderCompPtr->InvertSprite();
 }
 
+void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other)
+{
+    if (m_IsDead || m_IsPaused) return;
+
+    if (other->GetTag() == "powerUp")
+        HandlePowerUpCollision();
+}
+
 void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)
 {
-    if (m_IsDead) return;
+    if (m_IsDead || m_IsPaused) return;
+    const std::string& otherTag = other->GetTag();
 
-    if (other->GetTag() == "ground")
+    if (otherTag == "powerUp")
+    {
+        HandlePowerUpCollision();
+        return;
+    }
+
+    if (otherTag == "ground")
     {
         m_BounceScoreMultiplier = 0;
         return;
     }
     
-    if (other->GetTag() != "enemy") return;
+    if (otherTag != "enemy") return;
 
     const sf::Vector2f playerCenter = m_TransformCompPtr->GetPosition();
     const sf::Vector2f enemyCenter = other->GetPosition();
@@ -200,7 +261,7 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
 
 void thomasWasLate::PlayerCharacter::Move(const sf::Vector2f& direction)
 {
-    if (m_IsDead) return;
+    if (m_IsDead || m_IsPaused) return;
 
     m_MovementDirection = direction.x > 0.f ? MovementDirection::Right : (direction.x < 0.f ? MovementDirection::Left : MovementDirection::None);
 }
@@ -212,7 +273,7 @@ void thomasWasLate::PlayerCharacter::StopMove()
 
 void thomasWasLate::PlayerCharacter::Jump()
 {
-    if (m_IsDead) return;
+    if (m_IsDead || m_IsPaused) return;
     if (!m_IsOnGround || m_IsJumping) return;
     if (!m_CanJump) return;
 
@@ -233,7 +294,7 @@ void thomasWasLate::PlayerCharacter::ClearJump()
 
 void thomasWasLate::PlayerCharacter::Sprint()
 {
-    if (!m_IsOnGround || m_IsDead) return;
+    if (!m_IsOnGround || m_IsDead || m_IsPaused) return;
     
     m_Acceleration = m_SprintAcceleration;
     m_ColliderCompPtr->SetMaxVelocity(m_SprintMaxVelocity);
@@ -328,10 +389,11 @@ void thomasWasLate::PlayerCharacter::CheckIfPlayerIsGrounded()
     // if(!diji::Helpers::isZero(m_CurrSpeed.y)) return;
 
     // Inside your game loop or input handler:
+    const float offset = m_PowerUpState == PowerUpState::Small ? 22.f : 44.f;
     const sf::Vector2f origin = m_TransformCompPtr->GetPosition();
     const sf::Vector2f dir = { 0, 1 };
-    const sf::Vector2f bottomLeft = { origin.x - 23, origin.y + 22 };
-    const sf::Vector2f bottomRight = { origin.x + 23, origin.y + 22 };
+    const sf::Vector2f bottomLeft = { origin.x - 23, origin.y + offset };
+    const sf::Vector2f bottomRight = { origin.x + 23, origin.y + offset };
     
     if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(bottomLeft, dir, 10.f, m_ColliderCompPtr))
     {
@@ -352,4 +414,45 @@ void thomasWasLate::PlayerCharacter::CheckIfPlayerIsGrounded()
     }
         
     m_IsOnGround = false;
+}
+
+void thomasWasLate::PlayerCharacter::PlayGrowthAnimation()
+{
+    // pause game
+    m_IsPaused = true;
+    //broadcast event
+
+    
+    // play animation
+    std::unique_ptr<PlayerStates> newState = std::make_unique<GrowthAnimationState>();
+    m_CurrentStateUPtr = std::move(newState);
+    m_CurrentStateUPtr->OnEnter(GetOwner());
+
+    m_ColliderCompPtr->ResizeCollider(sf::Vector2f{ 48, 96 });
+    m_TransformCompPtr->SetPosition(m_TransformCompPtr->GetPosition() + sf::Vector2f{ 0.f, -24.f });
+    
+    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    {
+        std::unique_ptr<PlayerStates> newBigState = std::make_unique<BigIdleState>();
+        m_CurrentStateUPtr = std::move(newBigState);
+        m_CurrentStateUPtr->OnEnter(GetOwner());
+    
+        // unpause game
+        m_IsPaused = false;
+        // broadcast event
+        
+    }, 0.78f, false);
+}
+
+void thomasWasLate::PlayerCharacter::HandlePowerUpCollision()
+{
+    if (m_PowerUpState == PowerUpState::Small)
+    {
+        GameManager::GetInstance().SwitchCurrentPlayerState();
+        m_PowerUpState = PowerUpState::Big;
+        PlayGrowthAnimation();
+        // OnPowerUpGainedEvent.Broadcast();
+    }
+
+    GameManager::GetInstance().OnScoreAddedEvent.Broadcast(1000);
 }

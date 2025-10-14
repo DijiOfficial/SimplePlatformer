@@ -1,6 +1,4 @@
 ﻿#pragma once
-#include <string>
-
 #include "Engine/Components/Component.h"
 
 namespace diji
@@ -12,12 +10,11 @@ namespace thomasWasLate
 {
     class PlayerStates;
 
-    class GoombaAI final : public diji::Component
+    class MushroomScript final : public diji::Component
     {
     public:
-        // using Component::Component;
-        explicit GoombaAI(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
-        ~GoombaAI() noexcept override = default;
+        explicit MushroomScript(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
+        ~MushroomScript() noexcept override = default;
 
         void Init() override;
         void OnEnable() override {}
@@ -30,14 +27,15 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
-        void HandleStomp(const diji::Collider* other, const std::string& score);
-
+        void OnTriggerEnter(const diji::Collider* other) override;
         void OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo) override;
 
     private:
         diji::Transform* m_TransformCompPtr = nullptr;
-        bool m_Paused = false;
+        bool m_Paused = true;
 
-        float m_Speed = -400.f;
+        float m_Speed = 400.f;
+
+        void PlayStartAnimation();
     };
 }

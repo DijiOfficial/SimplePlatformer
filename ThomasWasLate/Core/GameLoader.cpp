@@ -4,8 +4,8 @@
 #include "../Components/BackgroundHandler.h"
 #include "../Components/CustomBackgroundRenderer.h"
 #include "../Components/GoombaAI.h"
+#include "../Components/MushroomScript.h"
 #include "../Components/PlayerCharacter.h"
-#include "../Components/SmallCoinScript.h"
 #include "../Components/TimerScript.h"
 #include "../Input/CustomCommands.h"
 #include "../Singletons/GameManager.h"
@@ -84,7 +84,7 @@ void SceneLoader::Level()
     player->GetComponent<Collider>()->SetStaticFriction(0.25f);
     player->GetComponent<Collider>()->SetKineticFriction(0.15f);
     player->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
+    player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.f, 1000.f });
     player->GetComponent<Collider>()->SetTag("player");
     // player->GetComponent<Collider>()->SetAffectedByGravity(false);
     player->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
@@ -92,15 +92,17 @@ void SceneLoader::Level()
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
 
+    const auto mushroomTest = scene->CreateGameObject("A_mushroomTest");
+    mushroomTest->AddComponents<Transform>(1000, 300);
+    mushroomTest->AddComponents<TextureComp>("graphics/mushroom.png");
+    mushroomTest->AddComponents<Render>();
+    mushroomTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    mushroomTest->GetComponent<Collider>()->SetCollisionResponse(Collider::CollisionResponse::Overlap);
+    mushroomTest->GetComponent<Collider>()->SetAffectedByGravity(false);
+    mushroomTest->AddComponents<thomasWasLate::MushroomScript>();
 
     
-    const auto coinTest = scene->CreateGameObject("Y_coinTest");
-    coinTest->AddComponents<Transform>(600, 0);
-    coinTest->AddComponents<SpriteRenderComponent>("graphics/smallCoins.png", sf::Vector2i{ 25,50 }, 4, 0.03f);
-    coinTest->AddComponents<thomasWasLate::SmallCoinScript>();
-    
-
-    const auto goombaTest = scene->CreateGameObject("Y_GoombaTest");
+    const auto goombaTest = scene->CreateGameObject("Y_goombaTest");
     goombaTest->AddComponents<Transform>(2000, 0);
     goombaTest->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
     goombaTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
@@ -167,6 +169,7 @@ void SceneLoader::Level()
     coinsCounterHud->AddComponents<ScoreCounter>(0, true);
     coinsCounterHud->GetComponent<ScoreCounter>()->SetString("");
     coinsCounterHud->GetComponent<ScoreCounter>()->SetUsingZeroPadding(true, 2);
+    coinsCounterHud->GetComponent<ScoreCounter>()->SetGoalScore(100);
     coinsCounterHud->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(coinsCounterHud);
     
@@ -209,12 +212,13 @@ void SceneLoader::Level()
     
     const auto timerHUD = scene->CreateGameObject("Z_timerHUD");
     timerHUD->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.85f + 12, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f);
-    timerHUD->AddComponents<TextComp>("300", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    timerHUD->AddComponents<TextComp>("400", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     timerHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     timerHUD->GetComponent<TextComp>()->SetCentered(true);
-    timerHUD->AddComponents<ScoreCounter>(300, true);
+    timerHUD->AddComponents<ScoreCounter>(400, true);
     timerHUD->GetComponent<ScoreCounter>()->SetString("");
     timerHUD->GetComponent<ScoreCounter>()->SetUsingZeroPadding(true, 3);
+    timerHUD->GetComponent<ScoreCounter>()->SetGoalScore(0);
     timerHUD->AddComponents<thomasWasLate::TimerScript>();
     timerHUD->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(timerHUD);
@@ -256,5 +260,7 @@ void SceneLoader::Level()
 
     player->GetComponent<thomasWasLate::PlayerCharacter>()->OnPointsScoredEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
     thomasWasLate::GameManager::GetInstance().OnScoreAddedEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
+    thomasWasLate::GameManager::GetInstance().OnCoinCollectedEvent.AddListener(coinsCounterHud->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
+    
 #pragma endregion
 }
