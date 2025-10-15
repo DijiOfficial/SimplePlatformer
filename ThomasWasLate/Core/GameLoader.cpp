@@ -91,16 +91,6 @@ void SceneLoader::Level()
     // player->AddComponents<ShapeRender>(true);
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
-
-    const auto mushroomTest = scene->CreateGameObject("A_mushroomTest");
-    mushroomTest->AddComponents<Transform>(1000, 300);
-    mushroomTest->AddComponents<TextureComp>("graphics/mushroom.png");
-    mushroomTest->AddComponents<Render>();
-    mushroomTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    mushroomTest->GetComponent<Collider>()->SetCollisionResponse(Collider::CollisionResponse::Overlap);
-    mushroomTest->GetComponent<Collider>()->SetAffectedByGravity(false);
-    mushroomTest->AddComponents<thomasWasLate::MushroomScript>();
-
     
     const auto goombaTest = scene->CreateGameObject("Y_goombaTest");
     goombaTest->AddComponents<Transform>(2000, 0);
@@ -235,13 +225,18 @@ void SceneLoader::Level()
     auto& input = InputManager::GetInstance();
 
     input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::D, player, sf::Vector2f{ 1.f, 0.f }, true);
-    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::A, player, sf::Vector2f{ -1.f, 0.f }, true);
-    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::Right, player, sf::Vector2f{ 1.f, 0.f }, true);
-    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::Left, player, sf::Vector2f{ -1.f, 0.f }, true);
     input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::D, player, sf::Vector2f{ 1.f, 0.f }, false);
-    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::A, player, sf::Vector2f{ -1.f, 0.f }, false);
+    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::Right, player, sf::Vector2f{ 1.f, 0.f }, true);
     input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::Right, player, sf::Vector2f{ 1.f, 0.f }, false);
+    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::HELD, Controller::Button::DPadRight, player, sf::Vector2f{ 1.f, 0.f }, true);
+    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadRight, player, sf::Vector2f{ 1.f, 0.f }, false);
+    
+    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::A, player, sf::Vector2f{ -1.f, 0.f }, true);
+    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::A, player, sf::Vector2f{ -1.f, 0.f }, false);
+    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::Left, player, sf::Vector2f{ -1.f, 0.f }, true);
     input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::Left, player, sf::Vector2f{ -1.f, 0.f }, false);
+    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::HELD, Controller::Button::DPadLeft, player, sf::Vector2f{ -1.f, 0.f }, true);
+    input.BindCommand<thomasWasLate::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadLeft, player, sf::Vector2f{ -1.f, 0.f }, false);
     
     input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::W, player, true);
     input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::W, player, false);
@@ -249,11 +244,19 @@ void SceneLoader::Level()
     input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::Space, player, false);
     input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Key::Up, player, true);
     input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::Up, player, false);
+    input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::PLAYER1, KeyState::HELD, Controller::Button::DPadUp, player, true);
+    input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadUp, player, false);
+    input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::PLAYER1, KeyState::HELD, Controller::Button::A, player, true);
+    input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::A, player, false);
+    // input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::PLAYER1, KeyState::HELD, Controller::Button::X, player, true);
+    // input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::X, player, false);
     
     input.BindCommand<thomasWasLate::Sprint>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::LShift, player, true);
     input.BindCommand<thomasWasLate::Sprint>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::LShift, player, false);
+    input.BindCommand<thomasWasLate::Sprint>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::X, player, true);
+    input.BindCommand<thomasWasLate::Sprint>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::X, player, false);
     // input.BindCommand<thomasWasLate::TempAddImpulse>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::Space, testBall);
-    
+
 #pragma endregion
 
 #pragma region Events

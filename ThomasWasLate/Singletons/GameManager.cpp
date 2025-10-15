@@ -142,7 +142,8 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
-            if (tile != '0' && tile != 'e' && tile != 'd')
+            // todo: add collection of ignored tiles
+            if (tile != '0' && tile != 'e' && tile != 'd' && tile != 'x' && tile != 'y')
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -168,7 +169,7 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
             }
-            else if (tile == 'e')
+            else if (tile == 'e' || tile == 'x' || tile == 'y')
             {
                 const float left = static_cast<float>(col) * kTileSize;
                 const float bottom = static_cast<float>(row) * kTileSize;
@@ -187,6 +188,8 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
                 collider->SetGenerateHitEvents(true);
                 collider->SetIsMoveable(false);
                 luckyBlock->AddComponents<LuckyBlock>();
+                if (tile == 'x')
+                    luckyBlock->GetComponent<LuckyBlock>()->SetAsPowerUpBlock();
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_luckyBlock", std::move(luckyBlock), center);
 

@@ -26,6 +26,8 @@ void thomasWasLate::BackgroundHandler::Init()
         { 'b', {1, 3} }, // MiddleLeft Side Pipe
         { 'c', {2, 3} }, // BottomLeft Side Pipe
         { 'd', {0, 4} }, // LuckyBlock (invisible tile because it's rendered by LuckyBlock component)
+        { 'x', {0, 4} }, // LuckyBlock with a power up
+        { 'y', {0, 4} }, // LuckyBlock with a star power up
         { 'e', {0, 4} }, // BreakableBlock (invisible tile because it's rendered by BreakableBlock component)
         // ... etc.
     };

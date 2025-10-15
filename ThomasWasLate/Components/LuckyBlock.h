@@ -21,11 +21,14 @@ namespace thomasWasLate
         void OnDestroy() override {}
 
         void OnHitEvent(const diji::Collider* collider, const diji::CollisionInfo& hitInfo) override;
+        void SetAsPowerUpBlock() { m_IsPowerUpBlock = true; }
         
     private:
         bool m_IsHit = false;
+        bool m_IsPowerUpBlock = false;
 
         void PlayAnimation() const;
         void CreateTimeline() const;
+        void SpawnPowerUp() const;
     };
 }
