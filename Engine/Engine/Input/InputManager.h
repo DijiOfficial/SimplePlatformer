@@ -5,6 +5,7 @@
 
 #include <ranges>
 // #include <map>
+#include <map>
 #include <optional>
 #include <variant>
 #include <vector>
@@ -20,7 +21,7 @@ namespace sf
 
 namespace diji
 {
-    enum class KeyState
+    enum class KeyState : uint8_t
     {
         PRESSED,
         RELEASED,
@@ -28,7 +29,7 @@ namespace diji
     };
 
     // todo: make this variable/editable
-    enum class PlayerIdx
+    enum class PlayerIdx : int8_t
     {
         KEYBOARD = -1,
         PLAYER1,
@@ -53,7 +54,7 @@ namespace diji
         Input& operator=(const Input& other) = delete;
         Input& operator=(Input&& other) noexcept = delete;
 
-        InputType GetInput() const { return m_Input; }
+        [[nodiscard]] InputType GetInput() const { return m_Input; }
 
     private:
         InputType m_Input;
@@ -71,10 +72,8 @@ namespace diji
             requires std::derived_from<T, GameActorCommands>
         void BindCommand(const PlayerIdx playerIdx, const KeyState state, const Input::InputType input, GameObject* actor, Args... args)
         {
-            // if (playerIdx != PlayerIdx::KEYBOARD)
-            // {
-            //     BindController(static_cast<int>(playerIdx));
-            // }
+            if (playerIdx != PlayerIdx::KEYBOARD)
+                BindController(static_cast<int>(playerIdx));
 
             const auto key = CommandKey{ .state = state, .input = input};
             m_CommandUMap[key].emplace_back(PlayerCommand{ playerIdx, std::make_unique<T>(actor, std::forward<Args>(args)...) });
@@ -99,7 +98,8 @@ namespace diji
             std::unique_ptr<GameActorCommands> commandUPtr;
         };
 		
-        // std::map<int, std::unique_ptr<Controller>> m_PlayersMap;
+        std::map<int, std::unique_ptr<Controller>> m_PlayersMap;
+
         // std::vector<int> m_ControllersIdxs;
         sf::RenderWindow* m_WindowPtr = nullptr;
         
@@ -138,20 +138,34 @@ namespace diji
             }
         };
         std::unordered_map<CommandKey, std::vector<PlayerCommand>, CommandKeyHash> m_CommandUMap;
-        std::vector<std::unique_ptr<GameActorCommands>> m_MouseMoveCommandsVec; // using separate container for mouse movements as there's no need for O(1) lookup, playerIdx or State/InputType
+        // using separate container for mouse movements as there's no need for O(1) lookup, playerIdx or State/InputType
+        std::vector<std::unique_ptr<GameActorCommands>> m_MouseMoveCommandsVec;
 
-        // Functions
+        struct ControllerButtonHash
+        {
+            std::size_t operator()(const Controller::Button& b) const noexcept
+            {
+                return std::hash<int>()(static_cast<int>(b));
+            }
+        };
+        // Controller state maps (for fast lookups)
+        std::unordered_map<int, std::unordered_map<Controller::Button, bool, ControllerButtonHash>> m_ControllerPressedState;
+        std::unordered_map<int, std::unordered_map<Controller::Button, bool, ControllerButtonHash>> m_ControllerHeldState;
+        
         template <typename InputEnum>
-        void HandleInput(KeyState state, InputEnum input)
+        void HandleInputForPlayer(const PlayerIdx playerIdx, const KeyState state, const InputEnum input)
         {
             const CommandKey key{ state, input };
-            
+
             const auto it = m_CommandUMap.find(key);
             if (it == m_CommandUMap.end())
                 return;
 
-            for (auto& [playerIdx, commandUPtr] : it->second)
+            for (auto& [playerIdxInMap, commandUPtr] : it->second)
             {
+                if (playerIdxInMap != playerIdx) 
+                    continue;
+
                 if (commandUPtr)
                     commandUPtr->Execute();
             }
@@ -186,19 +200,19 @@ namespace diji
         {
             for (const auto& [input, isPressed] : pressedInputMap | std::views::filter([](const auto& pair) { return pair.second; }))
             {
-                HandleInput(KeyState::PRESSED, Input::InputType{input});
+                HandleInputForPlayer(PlayerIdx::KEYBOARD, KeyState::PRESSED, Input::InputType{input});
             }
 
             for (const auto& [input, isHeld] : heldInputMap | std::views::filter([](const auto& pair) { return pair.second; }))
             {
-                HandleInput(KeyState::HELD, Input::InputType{input});
+                HandleInputForPlayer(PlayerIdx::KEYBOARD, KeyState::HELD, Input::InputType{input});
             }
         }
         
         void ResetPressedStates();
         [[nodiscard]] bool PollEvents();
         void ProcessAllInputMaps();
-        // void ProcessControllerInput();
-        // void BindController(int controllerIdx);
+        void ProcessControllerInput();
+        void BindController(int controllerIdx);
     };
 }

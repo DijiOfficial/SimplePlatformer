@@ -4,7 +4,7 @@
 #include "Controller.h"
 
 #include <iostream>
-class diji::Controller::XInput
+class diji::Controller::XInput final
 {
 public:
 	explicit XInput(const int controllerIdx) 
@@ -31,6 +31,7 @@ public:
 			}
 		}
 	}
+	~XInput() = default;
 
 	XInput(const XInput& other) = delete;
 	XInput(XInput&& other) = delete;
