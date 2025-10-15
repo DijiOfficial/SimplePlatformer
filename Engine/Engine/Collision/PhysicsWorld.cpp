@@ -166,7 +166,6 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
         if (!collider || col == collider || collider->IsIgnoringCollider(col))
             continue;
 
-        // I haven't tested this one
         testCollider(col, col->GetAABB());
     }
 

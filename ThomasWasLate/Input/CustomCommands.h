@@ -67,30 +67,4 @@ namespace thomasWasLate
         PlayerCharacter* m_Character = nullptr;
         bool m_IsSprinting = false;
     };
-
-    class SpawnBox final : public diji::GameActorCommands
-    {
-    public:
-        explicit SpawnBox(diji::GameObject* actor);
-        ~SpawnBox() noexcept override = default;
-
-        void Execute() override;
-        // void Execute(const sf::Vector2i& pos) override;
-        
-    private:
-        tempTest* huhBoxThing = nullptr;
-    };
-
-    class TrackMouse final : public diji::GameActorCommands
-    {
-    public:
-        explicit TrackMouse(diji::GameObject* actor);
-        ~TrackMouse() noexcept override = default;
-
-        void Execute() override {}
-        void Execute(const sf::Vector2i& pos) override;
-        
-    private:
-        tempTest* huhBoxThing = nullptr;
-    };
 }

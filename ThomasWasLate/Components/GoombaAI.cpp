@@ -81,3 +81,8 @@ void thomasWasLate::GoombaAI::OnHitEvent(const diji::Collider*, const diji::Coll
     m_Speed = -m_Speed;
 }
 
+void thomasWasLate::GoombaAI::HandleBumpedBehavior(const bool IsBumpingLeft)
+{
+    (void)IsBumpingLeft;
+}
+

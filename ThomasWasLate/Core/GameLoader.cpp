@@ -4,7 +4,6 @@
 #include "../Components/BackgroundHandler.h"
 #include "../Components/CustomBackgroundRenderer.h"
 #include "../Components/GoombaAI.h"
-#include "../Components/MushroomScript.h"
 #include "../Components/PlayerCharacter.h"
 #include "../Components/TimerScript.h"
 #include "../Input/CustomCommands.h"

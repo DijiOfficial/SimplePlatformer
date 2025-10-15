@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Engine/Components/Component.h"
+#include "../Interfaces/IBumpable.h"
 
 namespace diji
 {
@@ -10,10 +10,10 @@ namespace thomasWasLate
 {
     class PlayerStates;
 
-    class MushroomScript final : public diji::Component
+    class MushroomScript final : public IBumpable
     {
     public:
-        explicit MushroomScript(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
+        explicit MushroomScript(diji::GameObject* ownerPtr) : IBumpable{ ownerPtr } {}
         ~MushroomScript() noexcept override = default;
 
         void Init() override;
@@ -30,7 +30,10 @@ namespace thomasWasLate
         void OnTriggerEnter(const diji::Collider* other) override;
         void OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo) override;
 
+        void HandleBumpedBehavior(bool IsBumpingLeft) override;
+
     private:
+        diji::Collider* m_ColliderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         bool m_Paused = true;
 

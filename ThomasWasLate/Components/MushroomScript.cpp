@@ -7,10 +7,12 @@
 #include "../Singletons/GameManager.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Collision/Collider.h"
+#include "Engine/Singleton/TimerManager.h"
 #include "Engine/Singleton/TimeSingleton.h"
 
 void thomasWasLate::MushroomScript::Init()
 {
+    m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
     m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
 
     diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener([this]()
@@ -57,6 +59,13 @@ void thomasWasLate::MushroomScript::OnHitEvent(const diji::Collider* collider, c
         return;
 
     m_Speed = -m_Speed;
+}
+
+void thomasWasLate::MushroomScript::HandleBumpedBehavior(const bool IsBumpingLeft)
+{
+    const sf::Vector2f impulse = IsBumpingLeft ? sf::Vector2f{-200.f, -1000.f} : sf::Vector2f{200.f, -1000.f};
+    m_ColliderCompPtr->ApplyImpulse(impulse);
+    m_Speed = IsBumpingLeft ? -std::abs(m_Speed) : std::abs(m_Speed);
 }
 
 void thomasWasLate::MushroomScript::PlayStartAnimation()

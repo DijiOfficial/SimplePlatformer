@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include <string>
+#include "../Interfaces/IBumpable.h"
 
-#include "Engine/Components/Component.h"
+#include <string>
 
 namespace diji
 {
@@ -12,11 +12,10 @@ namespace thomasWasLate
 {
     class PlayerStates;
 
-    class GoombaAI final : public diji::Component
+    class GoombaAI final : public IBumpable
     {
     public:
-        // using Component::Component;
-        explicit GoombaAI(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
+        explicit GoombaAI(diji::GameObject* ownerPtr) : IBumpable{ ownerPtr } {}
         ~GoombaAI() noexcept override = default;
 
         void Init() override;
@@ -32,6 +31,8 @@ namespace thomasWasLate
 
         void HandleStomp(const diji::Collider* other, const std::string& score);
         void OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo) override;
+
+        void HandleBumpedBehavior(bool IsBumpingLeft) override;
 
     private:
         diji::Transform* m_TransformCompPtr = nullptr;

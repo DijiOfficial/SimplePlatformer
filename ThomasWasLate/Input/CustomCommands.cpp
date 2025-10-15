@@ -1,7 +1,6 @@
 ﻿#include "CustomCommands.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "../Components/PlayerCharacter.h"
-#include "../Components/tempTest.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Singleton/RandNumber.h"
 
@@ -57,26 +56,4 @@ thomasWasLate::Sprint::Sprint(diji::GameObject* actor, bool isSprinting)
 void thomasWasLate::Sprint::Execute()
 {
     m_IsSprinting ? m_Character->Sprint() : m_Character->StopSprint();
-}
-
-thomasWasLate::SpawnBox::SpawnBox(diji::GameObject* actor)
-    : GameActorCommands{ actor }
-{
-    huhBoxThing = actor->GetComponent<tempTest>();
-}
-
-void thomasWasLate::SpawnBox::Execute()
-{
-    huhBoxThing->SpawnRandomCollider();
-}
-
-thomasWasLate::TrackMouse::TrackMouse(diji::GameObject* actor)
-: GameActorCommands{ actor }
-{
-    huhBoxThing = actor->GetComponent<tempTest>();
-}
-
-void thomasWasLate::TrackMouse::Execute(const sf::Vector2i& pos)
-{
-    huhBoxThing->SetMousePos(pos);
 }
