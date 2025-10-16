@@ -173,4 +173,10 @@ namespace thomasWasLate
     public:
         FireAnimationState();
     };
+
+    class ThrowingFireballState final : public PlayerStates
+    {
+    public:
+        ThrowingFireballState();
+    };
 }

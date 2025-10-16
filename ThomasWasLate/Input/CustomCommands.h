@@ -67,4 +67,16 @@ namespace thomasWasLate
         PlayerCharacter* m_Character = nullptr;
         bool m_IsSprinting = false;
     };
+
+    class Attack final : public diji::GameActorCommands
+    {
+    public:
+        explicit Attack(diji::GameObject* actor);
+        ~Attack() noexcept override = default;
+
+        void Execute() override;
+        
+    private:
+        PlayerCharacter* m_Character = nullptr;
+    };
 }

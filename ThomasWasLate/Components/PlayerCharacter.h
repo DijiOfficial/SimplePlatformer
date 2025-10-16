@@ -46,6 +46,7 @@ namespace thomasWasLate
         void ClearJump();
         void Sprint();
         void StopSprint();
+        void Attack();
 
         diji::Event<> OnHitByEnemyEvent;
         diji::Event<> OnFallingInHoleEvent;

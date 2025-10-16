@@ -1,5 +1,6 @@
 ﻿#include "PlayerCharacter.h"
 
+#include "FireBall.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Collision/Collider.h"
 #include "../Singletons/GameManager.h"
@@ -9,7 +10,6 @@
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/RandNumber.h"
 #include "Engine/Singleton/TimerManager.h"
-
 
 const std::vector<int> thomasWasLate::PlayerCharacter::s_StompPointsTable =
 {
@@ -362,6 +362,33 @@ void thomasWasLate::PlayerCharacter::StopSprint()
     m_Acceleration = m_BaseAcceleration;
     m_StoppedSprinting = true;
     m_SprintDecelerationTimer = 1.f;
+}
+
+void thomasWasLate::PlayerCharacter::Attack()
+{
+    if (m_IsDead || m_IsPaused) return;
+    if (m_PowerUpState != PowerUpState::Fire) return;
+
+    // use template instead
+    auto fireBall = std::make_unique<diji::GameObject>();
+    fireBall->AddComponents<diji::Transform>(300, 500);
+    fireBall->AddComponents<diji::SpriteRenderComponent>("graphics/fireBall.png", sf::Vector2i{ 24,24 }, 4, 0.065f);
+    fireBall->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 24, 24 });
+    fireBall->AddComponents<FireBall>(m_ColliderCompPtr, static_cast<bool>(m_MovementDirection));
+
+    diji::SceneManager::GetInstance().SpawnGameObject("Y_fireBall", std::move(fireBall), m_TransformCompPtr->GetPosition() + sf::Vector2f{ m_IsLookingLeft ? -30.f : 30.f, -10.f });
+
+    // play animation
+    std::unique_ptr<PlayerStates> newState = std::make_unique<ThrowingFireballState>();
+    m_CurrentStateUPtr = std::move(newState);
+    m_CurrentStateUPtr->OnEnter(GetOwner());
+
+    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    {
+        std::unique_ptr<PlayerStates> newBigState = std::make_unique<FireIdleState>();
+        m_CurrentStateUPtr = std::move(newBigState);
+        m_CurrentStateUPtr->OnEnter(GetOwner());
+    }, 0.14f, false);
 }
 
 void thomasWasLate::PlayerCharacter::HandleDeathSequence()

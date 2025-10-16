@@ -3,12 +3,14 @@
 #include "GameState.h"
 #include "../Components/BackgroundHandler.h"
 #include "../Components/CustomBackgroundRenderer.h"
+#include "../Components/FireBall.h"
 #include "../Components/GoombaAI.h"
 #include "../Components/PlayerCharacter.h"
 #include "../Components/TimerScript.h"
 #include "../Input/CustomCommands.h"
 #include "../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
+#include "Engine/Components/AutoDestroy.h"
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Input/InputManager.h"
@@ -90,6 +92,11 @@ void SceneLoader::Level()
     // player->AddComponents<ShapeRender>(true);
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
+    
+
+
+
+
     
     const auto goombaTest = scene->CreateGameObject("Y_goombaTest");
     goombaTest->AddComponents<Transform>(2000, 0);
@@ -247,14 +254,16 @@ void SceneLoader::Level()
     input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadUp, player, false);
     input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::PLAYER1, KeyState::HELD, Controller::Button::A, player, true);
     input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::A, player, false);
-    // input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::PLAYER1, KeyState::HELD, Controller::Button::X, player, true);
-    // input.BindCommand<thomasWasLate::CharacterJump>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::X, player, false);
     
     input.BindCommand<thomasWasLate::Sprint>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::LShift, player, true);
     input.BindCommand<thomasWasLate::Sprint>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Key::LShift, player, false);
     input.BindCommand<thomasWasLate::Sprint>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::X, player, true);
     input.BindCommand<thomasWasLate::Sprint>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::X, player, false);
-    // input.BindCommand<thomasWasLate::TempAddImpulse>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::Space, testBall);
+    
+    input.BindCommand<thomasWasLate::Attack>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::LShift, player);
+    input.BindCommand<thomasWasLate::Attack>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::C, player);
+    input.BindCommand<thomasWasLate::Attack>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::X, player);
+    input.BindCommand<thomasWasLate::Attack>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::B, player);
 
 #pragma endregion
 

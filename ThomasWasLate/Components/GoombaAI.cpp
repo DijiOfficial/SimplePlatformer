@@ -70,10 +70,11 @@ void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const std
     GameManager::SpawnPointsText(scorePos, score);
 }
 
-void thomasWasLate::GoombaAI::OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo)
+void thomasWasLate::GoombaAI::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo)
 {
     if (m_Paused) return;
-    // if (other->GetTag() == "ground") return;
+    if (other->GetTag() == "fireBall")
+        return HandleBumpedBehavior(hitInfo.normal.x < 0.f);
 
     if (diji::Helpers::isZero(hitInfo.normal.x))
         return;

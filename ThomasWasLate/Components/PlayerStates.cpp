@@ -332,3 +332,20 @@ thomasWasLate::FireAnimationState::FireAnimationState()
 
     m_CurrentState = PlayerState::Growing;
 }
+
+thomasWasLate::ThrowingFireballState::ThrowingFireballState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 10,
+        .startingFrameY= 3,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+        
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::Growing;
+}

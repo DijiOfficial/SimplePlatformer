@@ -57,3 +57,14 @@ void thomasWasLate::Sprint::Execute()
 {
     m_IsSprinting ? m_Character->Sprint() : m_Character->StopSprint();
 }
+
+thomasWasLate::Attack::Attack(diji::GameObject* actor)
+    : GameActorCommands{ actor }
+{
+    m_Character = actor->GetComponent<PlayerCharacter>();
+}
+
+void thomasWasLate::Attack::Execute()
+{
+    m_Character->Attack();
+}

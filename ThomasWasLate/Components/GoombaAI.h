@@ -30,7 +30,7 @@ namespace thomasWasLate
         void OnDestroy() override {}
 
         void HandleStomp(const diji::Collider* other, const std::string& score);
-        void OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo) override;
+        void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo) override;
 
         void HandleBumpedBehavior(bool IsBumpingLeft) override;
 
