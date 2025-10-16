@@ -50,7 +50,7 @@ namespace thomasWasLate
             BigWalking,
             BigRunning,
             BigJumping,
-            BigDrifting            
+            BigDrifting,            
         };
         [[nodiscard]] PlayerState GetState() const { return m_CurrentState; }
         
@@ -95,7 +95,7 @@ namespace thomasWasLate
     public:
         DriftingState();
     };
-
+    
     class GrowthAnimationState final : public PlayerStates
     {
     public:
@@ -136,5 +136,41 @@ namespace thomasWasLate
     {
     public:
         BigDriftingState();
+    };
+
+    class FireIdleState final : public PlayerStates
+    {
+    public:
+        FireIdleState();
+    };
+
+    class FireWalkingState final : public PlayerStates
+    {
+    public:
+        FireWalkingState();
+    };
+
+    class FireRunningState final : public PlayerStates
+    {
+    public:
+        FireRunningState();
+    };
+
+    class FireJumpingState final : public PlayerStates
+    {
+    public:
+        FireJumpingState();
+    };
+
+    class FireDriftingState final : public PlayerStates
+    {
+    public:
+        FireDriftingState();
+    };
+
+    class FireAnimationState final : public PlayerStates
+    {
+    public:
+        FireAnimationState();
     };
 }

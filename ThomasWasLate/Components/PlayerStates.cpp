@@ -230,3 +230,105 @@ thomasWasLate::BigDriftingState::BigDriftingState()
 
     m_CurrentState = PlayerState::BigDrifting;
 }
+
+thomasWasLate::FireIdleState::FireIdleState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 0,
+        .startingFrameY= 3,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+    
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::BigIdle;
+}
+
+thomasWasLate::FireWalkingState::FireWalkingState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 4,
+        .startingFrameY= 3,
+        .totalAnimationFrames= 3,
+        .frameDuration = 0.12f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+    
+        .m_IsPlaying= true,
+        .m_IsLooping= true
+    };
+
+    m_CurrentState = PlayerState::BigWalking;
+}
+
+thomasWasLate::FireRunningState::FireRunningState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 4,
+        .startingFrameY= 3,
+        .totalAnimationFrames= 3,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+    
+        .m_IsPlaying= true,
+        .m_IsLooping= true
+    };
+
+    m_CurrentState = PlayerState::BigRunning;
+}
+
+thomasWasLate::FireJumpingState::FireJumpingState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 7,
+        .startingFrameY= 3,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+    
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::BigJumping;
+}
+
+thomasWasLate::FireDriftingState::FireDriftingState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 8,
+        .startingFrameY= 3,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+    
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::BigDrifting;
+}
+
+thomasWasLate::FireAnimationState::FireAnimationState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 0,
+        .startingFrameY= 3,
+        .totalAnimationFrames= 4,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+        
+        .m_IsPlaying= true,
+        .m_IsLooping= true
+    };
+
+    m_CurrentState = PlayerState::Growing;
+}

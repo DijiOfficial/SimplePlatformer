@@ -159,44 +159,90 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
     }
     else if (currentState != PlayerStates::PlayerState::Growing)
     {
-        if (m_IsOnGround)
+
+        if (m_PowerUpState == PowerUpState::Fire)
         {
-            if (diji::Helpers::isZero(m_CurrSpeed.x))
+            if (m_IsOnGround)
             {
-                if (currentState != PlayerStates::PlayerState::BigIdle)
-                    newState = std::make_unique<BigIdleState>();
-            }
-            else
-            {
-                if (m_CurrSpeed.x < 0 && m_MovementDirection == MovementDirection::Right)
+                if (diji::Helpers::isZero(m_CurrSpeed.x))
                 {
-                    if (currentState != PlayerStates::PlayerState::BigDrifting)
-                        newState = std::make_unique<BigDriftingState>();
-                }
-                else if (m_CurrSpeed.x > 0 && m_MovementDirection == MovementDirection::Left)
-                {
-                    if (currentState != PlayerStates::PlayerState::BigDrifting)
-                        newState = std::make_unique<BigDriftingState>();
+                    if (currentState != PlayerStates::PlayerState::BigIdle)
+                        newState = std::make_unique<FireIdleState>();
                 }
                 else
                 {
-                    if (std::abs(m_CurrSpeed.x) > m_BaseMaxVelocity.x)
-                    {                               
-                        if (currentState != PlayerStates::PlayerState::BigRunning)
-                            newState = std::make_unique<BigRunningState>();
+                    if (m_CurrSpeed.x < 0 && m_MovementDirection == MovementDirection::Right)
+                    {
+                        if (currentState != PlayerStates::PlayerState::BigDrifting)
+                            newState = std::make_unique<FireDriftingState>();
+                    }
+                    else if (m_CurrSpeed.x > 0 && m_MovementDirection == MovementDirection::Left)
+                    {
+                        if (currentState != PlayerStates::PlayerState::BigDrifting)
+                            newState = std::make_unique<FireDriftingState>();
                     }
                     else
                     {
-                        if (currentState != PlayerStates::PlayerState::BigWalking)
-                            newState = std::make_unique<BigWalkingState>();
+                        if (std::abs(m_CurrSpeed.x) > m_BaseMaxVelocity.x)
+                        {                               
+                            if (currentState != PlayerStates::PlayerState::BigRunning)
+                                newState = std::make_unique<FireRunningState>();
+                        }
+                        else
+                        {
+                            if (currentState != PlayerStates::PlayerState::BigWalking)
+                                newState = std::make_unique<FireWalkingState>();
+                        }
                     }
                 }
+            }
+            else
+            {
+                if (currentState != PlayerStates::PlayerState::BigJumping)
+                    newState = std::make_unique<FireJumpingState>();
             }
         }
         else
         {
-            if (currentState != PlayerStates::PlayerState::BigJumping)
-                newState = std::make_unique<BigJumpingState>();
+            if (m_IsOnGround)
+            {
+                if (diji::Helpers::isZero(m_CurrSpeed.x))
+                {
+                    if (currentState != PlayerStates::PlayerState::BigIdle)
+                        newState = std::make_unique<BigIdleState>();
+                }
+                else
+                {
+                    if (m_CurrSpeed.x < 0 && m_MovementDirection == MovementDirection::Right)
+                    {
+                        if (currentState != PlayerStates::PlayerState::BigDrifting)
+                            newState = std::make_unique<BigDriftingState>();
+                    }
+                    else if (m_CurrSpeed.x > 0 && m_MovementDirection == MovementDirection::Left)
+                    {
+                        if (currentState != PlayerStates::PlayerState::BigDrifting)
+                            newState = std::make_unique<BigDriftingState>();
+                    }
+                    else
+                    {
+                        if (std::abs(m_CurrSpeed.x) > m_BaseMaxVelocity.x)
+                        {                               
+                            if (currentState != PlayerStates::PlayerState::BigRunning)
+                                newState = std::make_unique<BigRunningState>();
+                        }
+                        else
+                        {
+                            if (currentState != PlayerStates::PlayerState::BigWalking)
+                                newState = std::make_unique<BigWalkingState>();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (currentState != PlayerStates::PlayerState::BigJumping)
+                    newState = std::make_unique<BigJumpingState>();
+            }
         }
     }
 
@@ -255,13 +301,15 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
     else
     {
         OnHitByEnemyEvent.Broadcast();
-        if (m_PowerUpState == PowerUpState::Big)
+        if (m_PowerUpState == PowerUpState::Big || m_PowerUpState == PowerUpState::Fire)
         {
             m_PowerUpState = PowerUpState::Small;
             PlayShrinkAnimation();
         }
-        else if (m_PowerUpState == PowerUpState::Small)
+        else
+        {
             HandleDeathSequence();
+        }
     }
 }
 
@@ -442,6 +490,7 @@ void thomasWasLate::PlayerCharacter::PlayGrowthAnimation()
     
         m_IsPaused = false;
         OnPoweringUpEvent.Broadcast(false);
+        m_ColliderCompPtr->SetAffectedByGravity(true);
     }, 0.78f, false);
 }
 
@@ -481,11 +530,23 @@ void thomasWasLate::PlayerCharacter::PlayShrinkAnimation()
 
 void thomasWasLate::PlayerCharacter::HandlePowerUpCollision()
 {
+    m_ColliderCompPtr->SetAffectedByGravity(false);
     if (m_PowerUpState == PowerUpState::Small)
     {
+        m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.f, 0.f });
         GameManager::GetInstance().SwitchCurrentPlayerState();
         m_PowerUpState = PowerUpState::Big;
         PlayGrowthAnimation();
+    }
+    else if (m_PowerUpState == PowerUpState::Big)
+    {
+        m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.f, 0.f });
+        m_PowerUpState = PowerUpState::Fire;
+        PlayFireTransitionAnimation();
+    }
+    else
+    {
+        m_ColliderCompPtr->SetAffectedByGravity(true);
     }
 
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(1000);
@@ -552,4 +613,25 @@ void thomasWasLate::PlayerCharacter::StompEnemy(const diji::Collider* other)
     const std::string& pointsString = GetStompPointsAsString(m_BounceScoreMultiplier);
     OnEnemyStompedEvent.Broadcast(other, pointsString);
     m_ColliderCompPtr->IgnoreCollider(other);
+}
+
+void thomasWasLate::PlayerCharacter::PlayFireTransitionAnimation()
+{
+    m_IsPaused = true;
+    
+    // play animation
+    std::unique_ptr<PlayerStates> newState = std::make_unique<FireAnimationState>();
+    m_CurrentStateUPtr = std::move(newState);
+    m_CurrentStateUPtr->OnEnter(GetOwner());
+
+    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    {
+        std::unique_ptr<PlayerStates> newBigState = std::make_unique<FireIdleState>();
+        m_CurrentStateUPtr = std::move(newBigState);
+        m_CurrentStateUPtr->OnEnter(GetOwner());
+    
+        m_IsPaused = false;
+        OnPoweringUpEvent.Broadcast(false);
+        m_ColliderCompPtr->SetAffectedByGravity(true);
+    }, 0.78f, false);
 }

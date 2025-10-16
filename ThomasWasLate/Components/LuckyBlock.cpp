@@ -1,5 +1,6 @@
 ﻿#include "LuckyBlock.h"
 
+#include "FireFlower.h"
 #include "MushroomScript.h"
 #include "SmallCoinScript.h"
 #include "../Singletons/GameManager.h"
@@ -69,39 +70,39 @@ void thomasWasLate::LuckyBlock::CreateTimeline() const
         transformPtr->SetPosition(originalPos.x, originalPos.y + y);
     };
 
-    if (m_IsPowerUpBlock)
+    if (!m_IsPowerUpBlock) return;
+    
+    auto& [eventName, eventKeysVec] = timelinePtr->AddEventTrack("OnAnimationEnd");
+    eventKeysVec =
     {
-        auto& [eventName, eventKeysVec] = timelinePtr->AddEventTrack("OnAnimationEnd");
-        eventKeysVec =
-        {
-            { .time= 0.2f, .callback= [&]()
-                {
-                    SpawnPowerUp();
-                }
+        { .time= 0.2f, .callback= [&]()
+            {
+                SpawnPowerUp();
             }
-        };
-    }
+        }
+    };
 }
 
 void thomasWasLate::LuckyBlock::SpawnPowerUp() const
 {
     auto powerUp = std::make_unique<diji::GameObject>();
+    powerUp->AddComponents<diji::Transform>(1000, 300);
+    powerUp->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    powerUp->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+    powerUp->GetComponent<diji::Collider>()->SetAffectedByGravity(false);
+    powerUp->GetComponent<diji::Collider>()->SetTag("powerUp");
+    
     if (GameManager::GetInstance().GetCurrentPlayerState() == PlayerHealthState::Small)
     {
-        powerUp->AddComponents<diji::Transform>(1000, 300);
         powerUp->AddComponents<diji::TextureComp>("graphics/mushroom.png");
         powerUp->AddComponents<diji::Render>();
-        powerUp->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-        powerUp->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
-        powerUp->GetComponent<diji::Collider>()->SetAffectedByGravity(false);
         powerUp->AddComponents<MushroomScript>();
     }
     else
     {
-        // Handle other power-ups here 
+        powerUp->AddComponents<diji::SpriteRenderComponent>("graphics/fireFlower.png", sf::Vector2i{ 50, 50 }, 4, 0.065f);
+        powerUp->AddComponents<FireFlower>();
     }
-
-    powerUp->GetComponent<diji::Collider>()->SetTag("powerUp");
 
 
     diji::SceneManager::GetInstance().SpawnGameObject("C_PowerUp", std::move(powerUp), GetOwner()->GetComponent<diji::Transform>()->GetPosition());

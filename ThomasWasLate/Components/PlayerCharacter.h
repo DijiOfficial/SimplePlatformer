@@ -120,5 +120,6 @@ namespace thomasWasLate
         void InvisibilityFlash();
         void CheckEnemyStomp();
         void StompEnemy(const diji::Collider* other);
+        void PlayFireTransitionAnimation();
     };
 }

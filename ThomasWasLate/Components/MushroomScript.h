@@ -8,8 +8,6 @@ namespace diji
 
 namespace thomasWasLate
 {
-    class PlayerStates;
-
     class MushroomScript final : public IBumpable
     {
     public:
