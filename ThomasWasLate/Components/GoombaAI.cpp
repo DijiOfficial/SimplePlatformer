@@ -14,6 +14,7 @@
 void thomasWasLate::GoombaAI::Init()
 {
     m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
+    m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
 
     diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener([this]()
     {
@@ -34,13 +35,12 @@ void thomasWasLate::GoombaAI::FixedUpdate()
 {
     if (m_Paused) return;
     
-    m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
+    // m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
 }
 
 void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const std::string& score)
 {
-    const auto& collider = GetOwner()->GetComponent<diji::Collider>();
-    if (other != collider) return;
+    if (other != m_ColliderCompPtr) return;
 
     m_Paused = true;
 
@@ -65,7 +65,7 @@ void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const std
     
     // Spawn points text
     const auto& pos = m_TransformCompPtr->GetPosition();
-    const auto& yOffset = collider->GetShape()->GetAABB().getSize().y * 3.f;
+    const auto& yOffset = m_ColliderCompPtr->GetShape()->GetAABB().getSize().y * 3.f;
     const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
     GameManager::SpawnPointsText(scorePos, score);
 }
@@ -83,6 +83,15 @@ void thomasWasLate::GoombaAI::OnHitEvent(const diji::Collider*, const diji::Coll
 
 void thomasWasLate::GoombaAI::HandleBumpedBehavior(const bool IsBumpingLeft)
 {
-    (void)IsBumpingLeft;
+    m_TransformCompPtr->SetRotation(180.f);
+    GetOwner()->GetComponent<diji::SpriteRenderComponent>()->Pause();
+    
+    const sf::Vector2f impulse = IsBumpingLeft ? sf::Vector2f{-300.f, -1200.f} : sf::Vector2f{300.f, -1200.f};
+    m_ColliderCompPtr->ApplyImpulse(impulse);
+    m_ColliderCompPtr->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+    m_Paused = true;
+    
+    GameManager::SpawnPointsText(m_TransformCompPtr->GetPosition(), "100");
+    GameManager::GetInstance().OnScoreAddedEvent.Broadcast(100);
 }
 

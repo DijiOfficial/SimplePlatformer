@@ -35,6 +35,7 @@ namespace thomasWasLate
         void HandleBumpedBehavior(bool IsBumpingLeft) override;
 
     private:
+        diji::Collider* m_ColliderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         bool m_Paused = false;
 

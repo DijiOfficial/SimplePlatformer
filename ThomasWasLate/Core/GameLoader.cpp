@@ -92,7 +92,7 @@ void SceneLoader::Level()
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
     
     const auto goombaTest = scene->CreateGameObject("Y_goombaTest");
-    goombaTest->AddComponents<Transform>(2000, 0);
+    goombaTest->AddComponents<Transform>(1000, 0);
     goombaTest->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
     goombaTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
     goombaTest->GetComponent<Collider>()->SetRestitution(0.f);
