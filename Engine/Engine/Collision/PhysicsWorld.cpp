@@ -474,6 +474,9 @@ void diji::PhysicsWorld::ApplyFrictionOnceWithStaticKinetic(Prediction& predicti
 
 void diji::PhysicsWorld::ApplyFrictionOnce(Prediction& prediction) const
 {
+    const float mu = prediction.collider->GetStaticFriction();
+    if (mu <= 0.0f) return;
+
     const float dt = m_TimeSingletonInstance.GetFixedUpdateDeltaTime();
     const float mass = prediction.collider->GetMass();
     if (mass <= 0.0f) return;
@@ -499,7 +502,6 @@ void diji::PhysicsWorld::ApplyFrictionOnce(Prediction& prediction) const
     const float gravityMagnitude = std::abs(m_Gravity.y);
     const float normalForce = mass * gravityMagnitude;
 
-    const float mu = prediction.collider->GetStaticFriction(); // friction coefficient
     const float frictionForce = mu * normalForce;
 
     // Convert friction force to impulse over this frame: impulse = F * dt
