@@ -25,6 +25,7 @@
     <ClInclude Include="Engine\Collision\CollisionsHelper.h" />
     <ClInclude Include="Engine\Collision\CollisionStructs.h" />
     <ClInclude Include="Engine\Collision\PhysicsWorld.h" />
+    <ClInclude Include="Engine\Components\AutoDestroy.h" />
     <ClInclude Include="Engine\Components\Camera.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\FPSCounter.h" />
@@ -66,6 +67,7 @@
     <ClCompile Include="Engine\Collision\CollisionShape.cpp" />
     <ClCompile Include="Engine\Collision\CollisionsHelper.cpp" />
     <ClCompile Include="Engine\Collision\PhysicsWorld.cpp" />
+    <ClCompile Include="Engine\Components\AutoDestroy.cpp" />
     <ClCompile Include="Engine\Components\Camera.cpp" />
     <ClCompile Include="Engine\Components\FPSCounter.cpp" />
     <ClCompile Include="Engine\Components\Render.cpp" />
