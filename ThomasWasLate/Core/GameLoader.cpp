@@ -86,13 +86,13 @@ void SceneLoader::Level()
     player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.f, 1000.f });
     player->GetComponent<Collider>()->SetTag("player");
     // player->GetComponent<Collider>()->SetAffectedByGravity(false);
-    player->AddComponents<thomasWasLate::PlayerCharacter>(0.45f);
+    player->AddComponents<thomasWasLate::PlayerCharacter>(0.5f);
     // player->AddComponents<ShapeRender>(true);
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
     
     const auto goombaTest = scene->CreateGameObject("Y_goombaTest");
-    goombaTest->AddComponents<Transform>(1000, 0);
+    goombaTest->AddComponents<Transform>(2000, 0);
     goombaTest->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
     goombaTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
     goombaTest->GetComponent<Collider>()->SetRestitution(0.f);

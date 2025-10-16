@@ -28,12 +28,11 @@ void thomasWasLate::BreakableBlock::OnHitEvent(const diji::Collider* collider, c
     if (mario::MarioHelpers::DoesPlayerHitBottomOfBlock(playerCenter, blockAABB, hitInfo.normal)) return;
 
     m_IsHit = true;
+    mario::MarioHelpers::CheckForCollisionAboveBlock(selfCollider);
 
     if (GameManager::GetInstance().GetCurrentPlayerState() == PlayerHealthState::Small)
     {
         m_TimelinePtr->PlayFromStart();
-        mario::MarioHelpers::CheckForCollisionAboveBlock(selfCollider);
-
         return;
     }
 

@@ -35,7 +35,7 @@ void thomasWasLate::GoombaAI::FixedUpdate()
 {
     if (m_Paused) return;
     
-    // m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
+    m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
 }
 
 void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const std::string& score)

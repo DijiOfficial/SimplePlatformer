@@ -51,7 +51,10 @@ void thomasWasLate::PlayerCharacter::Update()
     if (m_IsDead || m_IsPaused) return;
 
     if (m_IsInvincible)
+    {
         InvisibilityFlash();
+        CheckEnemyStomp();
+    }
     
     if (m_TransformCompPtr->GetPosition().y > 600.f)
     {
@@ -86,7 +89,8 @@ void thomasWasLate::PlayerCharacter::FixedUpdate()
     }
 
     // speed is currently way to strong of an influence
-    const float multiplier = std::abs(m_CurrSpeed.x) * 0.005f <= 1 ? 1.f : std::abs(m_CurrSpeed.x) * 0.005f;
+    // const float multiplier = std::abs(m_CurrSpeed.x) * 0.005f <= 1 ? 1.f : 1 + (std::abs(m_CurrSpeed.x) / m_SprintMaxVelocity.x);
+    const float multiplier = 1 + (std::abs(m_CurrSpeed.x) / m_SprintMaxVelocity.x) * 0.75f;
     if (m_IsJumping)
     {
         m_JumpTime += diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime();
@@ -246,14 +250,7 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
     const float dotProduct =  diji::Helpers::DotProduct(enemyToPlayer, UP_VECTOR);
     if (dotProduct > STOMP_THRESHOLD)
     {
-        // I'm capping vertical velocity so max it out to ensure the bounce is same height as normal jump
-        m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -m_JumpForce * 2.f));
-
-        // Increment multiplier and get points string
-        ++m_BounceScoreMultiplier;
-        const std::string& pointsString = GetStompPointsAsString(m_BounceScoreMultiplier);
-        OnEnemyStompedEvent.Broadcast(other, pointsString);
-        m_ColliderCompPtr->IgnoreCollider(other);
+        StompEnemy(other);
     }
     else
     {
@@ -513,4 +510,46 @@ void thomasWasLate::PlayerCharacter::InvisibilityFlash()
         m_SpriteRenderCompPtr->EnableRender();
         m_IsInvincible = false;
     }
+}
+
+void thomasWasLate::PlayerCharacter::CheckEnemyStomp()
+{
+    if (m_CurrSpeed.y <= 0.f) return;
+    
+    const sf::Vector2f origin = m_ColliderCompPtr->GetPosition();
+    const sf::Vector2f dir = { 0, 1 };
+    constexpr float offset = 23.f;
+    const sf::Vector2f TopLeft = { origin.x - offset, origin.y + offset };
+    const sf::Vector2f TopRight = { origin.x + offset, origin.y + offset };
+    
+    auto ValidateEnemyStomp = [&](const diji::Collider* other) -> void
+    {
+        if (other->GetPosition().y <= m_ColliderCompPtr->GetPosition().y) return;
+        
+        StompEnemy(other);
+    };
+    
+    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopLeft, dir, 10.f, m_ColliderCompPtr))
+    {
+        if (hit->info.hasCollision && hit->collider->GetTag() == "enemy")
+            ValidateEnemyStomp(hit->collider);
+    }
+
+    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopRight, dir, 10.f, m_ColliderCompPtr))
+    {
+        if (hit->info.hasCollision && hit->collider->GetTag() == "enemy")
+            ValidateEnemyStomp(hit->collider);
+    }
+}
+
+void thomasWasLate::PlayerCharacter::StompEnemy(const diji::Collider* other)
+{
+    // I'm capping vertical velocity so max it out to ensure the bounce is same height as normal jump
+    m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -m_JumpForce * 2.f));
+
+    // Increment multiplier and get points string
+    ++m_BounceScoreMultiplier;
+    const std::string& pointsString = GetStompPointsAsString(m_BounceScoreMultiplier);
+    OnEnemyStompedEvent.Broadcast(other, pointsString);
+    m_ColliderCompPtr->IgnoreCollider(other);
 }

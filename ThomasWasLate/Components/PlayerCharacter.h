@@ -89,7 +89,7 @@ namespace thomasWasLate
         
         int m_BounceScoreMultiplier = 1;
         const float STOMP_THRESHOLD = 0.5f;
-        float m_JumpForce = 2000.f;
+        float m_JumpForce = 2350.f;
         float m_BaseAcceleration = 1000.f;
         float m_Acceleration = m_BaseAcceleration;
         float m_SprintAcceleration = 1500.f;
@@ -118,5 +118,7 @@ namespace thomasWasLate
         void PlayShrinkAnimation();
         void HandlePowerUpCollision();
         void InvisibilityFlash();
+        void CheckEnemyStomp();
+        void StompEnemy(const diji::Collider* other);
     };
 }
