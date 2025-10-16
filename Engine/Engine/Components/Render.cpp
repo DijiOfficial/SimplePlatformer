@@ -60,6 +60,9 @@ void diji::Render::RenderFrame() const
         
         return sf::Vector2f{ 0, 0 };
     }();
+    
+    if (m_TextureCompPtr)
+        m_TextureCompPtr->SetRotationAngle(m_TransformCompPtr->GetRotation());
 
     // todo: for future reference it would be better to pass the textureComp as a parameter at this point.
     // todo: it would be better if every object had a render component and that render comp was different than a component. You could then regardless of the component call a virtual Render function on it, making the use of custom renderer much rarer

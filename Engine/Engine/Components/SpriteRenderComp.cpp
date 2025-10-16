@@ -52,6 +52,7 @@ void diji::SpriteRenderComponent::LateUpdate()
         return sf::Vector2f{ 0, 0 };
     }();
     m_Sprite.setPosition(pos);
+    m_Sprite.setRotation(m_TransformCompPtr->GetRotation());
     
     if (!m_IsPlaying) return;
     
