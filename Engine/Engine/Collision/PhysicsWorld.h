@@ -1,11 +1,11 @@
 ﻿#pragma once
+#include "../Singleton/TimeSingleton.h"
+#include "CollisionStructs.h"
+
 #include <optional>
 #include <vector>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
-
-#include "../Singleton/TimeSingleton.h"
-#include "CollisionStructs.h"
 
 namespace diji
 {

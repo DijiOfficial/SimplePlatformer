@@ -1,17 +1,16 @@
 ﻿#pragma once
+#include "PhysicsWorld.h"
+
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/ConvexShape.hpp>
-#include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/Shape.hpp>
-
-#include "PhysicsWorld.h"
 
 namespace diji
 {
     class PhysicsWorld;
     struct PhysicsWorld::StaticColliderInfo;
-    
+
+    // todo: fix theses classes and remove old collision system implementation
     class CollisionShape
     {
     public:

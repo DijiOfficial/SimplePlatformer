@@ -31,6 +31,9 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionDispatcher::HandleCi
 
 diji::PhysicsWorld::CollisionDetectionResult diji::CollisionDispatcher::HandleCircleRect(PhysicsWorld::Prediction& predA, PhysicsWorld::Prediction& predB, const Collider* colliderA, const Collider* colliderB)
 {
+    if (colliderA->GetShapeType() == CollisionShape::ShapeType::RECT) // swap to maintain circle first
+        return DispatchCollision<sf::CircleShape, sf::RectangleShape>(predB, predA, colliderB, colliderA, CollisionsHelper::ProcessCircleToBoxCollision);
+    
     return DispatchCollision<sf::CircleShape, sf::RectangleShape>(predA, predB, colliderA, colliderB, CollisionsHelper::ProcessCircleToBoxCollision);
 }
 

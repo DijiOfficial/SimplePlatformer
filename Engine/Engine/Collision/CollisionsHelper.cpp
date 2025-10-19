@@ -1,11 +1,10 @@
 ﻿#include "CollisionsHelper.h"
 #include "../Singleton/Helpers.h"
+#include "PhysicsWorld.h"
 
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <algorithm>
-
-#include "PhysicsWorld.h"
 
 diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCircleToCircleCollision(
     const sf::CircleShape& circleA,

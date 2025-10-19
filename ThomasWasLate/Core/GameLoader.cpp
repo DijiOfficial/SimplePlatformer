@@ -94,8 +94,17 @@ void SceneLoader::Level()
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
     
 
-
-
+    const auto balltest = scene->CreateGameObject("Y_balltestttt");
+    balltest->AddComponents<Transform>(1100, 0);
+    // balltest->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
+    balltest->AddComponents<Collider>(CollisionShape::ShapeType::CIRCLE, 15.f);
+    balltest->GetComponent<Collider>()->SetRestitution(1.f);
+    balltest->GetComponent<Collider>()->SetMass(0.89f);
+    balltest->GetComponent<Collider>()->SetStaticFriction(0.25f);
+    balltest->GetComponent<Collider>()->SetKineticFriction(0.15f);
+    balltest->GetComponent<Collider>()->SetGenerateHitEvents(true);
+    balltest->GetComponent<Collider>()->SetTag("enemy");
+    balltest->AddComponents<ShapeRender>();
 
     
     const auto goombaTest = scene->CreateGameObject("Y_goombaTest");

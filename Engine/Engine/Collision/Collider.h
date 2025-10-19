@@ -128,6 +128,7 @@ namespace diji
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const;
         
     private:
+        // todo: if velocity is zero for a certain amount of time, set similar to static to save calculations
         Transform* m_TransformCompPtr = nullptr;
         std::vector<const Collider*> m_IgnoredColliders;
         CollisionShape::ShapeType m_Type;
