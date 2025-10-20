@@ -123,6 +123,17 @@ diji::EventTrack& diji::Timeline::AddEventTrack(const std::string& name)
     return m_EventTracks.back();
 }
 
+diji::EventTrack& diji::Timeline::GetEventTrack(const std::string& name)
+{
+    for (auto& track : m_EventTracks)
+    {
+        if (track.name == name)
+            return track;
+    }
+
+    return AddEventTrack(name);
+}
+
 void diji::Timeline::Update(const float dt)
 {
     // todo: not good, figure out a better way to handle this

@@ -64,6 +64,7 @@ namespace diji
 
         FloatTrack& AddFloatTrack(const std::string& name);
         EventTrack& AddEventTrack(const std::string& name);
+        EventTrack& GetEventTrack(const std::string& name);
 
         void Update(float dt);
 
