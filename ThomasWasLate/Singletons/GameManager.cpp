@@ -4,17 +4,15 @@
 #include "Engine/Components/Transform.h"
 #include "Engine/Components/TextComp.h"
 #include "Engine/Components/Render.h"
-#include "Engine/Components/TextureComp.h"
 #include "Engine/Core/GameObject.h"
-#include "../Components/PointsBehaviour.h"
-#include "../Components/LuckyBlock.h"
+#include "../Components/Other/PointsBehaviour.h"
+#include "../Components/Blocks/LuckyBlock.h"
 #include "Engine/Components/SpriteRenderComp.h"
-#include "../Components/BreakableBlock.h"
+#include "../Components/Blocks/BreakableBlock.h"
+#include "../Components/Blocks/MultiCoinBlock.h"
 
 #include <format>
 #include <fstream>
-
-#include "../Components/MultiCoinBlock.h"
 
 namespace thomasWasLate
 {

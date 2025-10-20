@@ -3,8 +3,8 @@
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Singleton/SceneManager.h"
-#include "PlayerCharacter.h"
-#include "../Singletons/GameManager.h"
+#include "../Player/PlayerCharacter.h"
+#include "../../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
 
 void thomasWasLate::FireFlower::Init()

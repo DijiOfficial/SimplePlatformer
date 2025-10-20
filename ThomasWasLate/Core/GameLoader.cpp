@@ -1,12 +1,11 @@
 ﻿#include "GameLoader.h"
 
 #include "GameState.h"
-#include "../Components/BackgroundHandler.h"
-#include "../Components/CustomBackgroundRenderer.h"
-#include "../Components/GoombaAI.h"
-#include "../Components/MultiCoinBlock.h"
-#include "../Components/PlayerCharacter.h"
-#include "../Components/TimerScript.h"
+#include "../Components/Backgrounds/BackgroundHandler.h"
+#include "../Components/Backgrounds/CustomBackgroundRenderer.h"
+#include "../Components/Enemies/GoombaAI.h"
+#include "../Components/Player/PlayerCharacter.h"
+#include "../Components/Other/TimerScript.h"
 #include "../Input/CustomCommands.h"
 #include "../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
@@ -91,18 +90,7 @@ void SceneLoader::Level()
     // player->AddComponents<ShapeRender>(true);
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
-
-
-    // const auto multiCoinBlockTest = scene->CreateGameObject("Y_multiCoinBlockTest");
-    // multiCoinBlockTest->AddComponents<Transform>(600, 300);
-    // multiCoinBlockTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    // multiCoinBlockTest->AddComponents<SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50, 50 }, 1, 0.0f);
-    // multiCoinBlockTest->GetComponent<SpriteRenderComponent>()->SetLooping(false);
-    // multiCoinBlockTest->GetComponent<Collider>()->SetTag("breakBlock");
-    // multiCoinBlockTest->GetComponent<Collider>()->SetAffectedByGravity(false);
-    // multiCoinBlockTest->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    // multiCoinBlockTest->GetComponent<Collider>()->SetIsMoveable(false);
-    // multiCoinBlockTest->AddComponents<thomasWasLate::MultiCoinBlock>();
+    
     
     const auto goombaTest = scene->CreateGameObject("Y_goombaTest");
     goombaTest->AddComponents<Transform>(2000, 0);

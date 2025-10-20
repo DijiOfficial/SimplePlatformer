@@ -3,11 +3,10 @@
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Singleton/SceneManager.h"
-#include "PlayerCharacter.h"
-#include "../Singletons/GameManager.h"
+#include "../Player/PlayerCharacter.h"
+#include "../../Singletons/GameManager.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Collision/Collider.h"
-#include "Engine/Singleton/TimerManager.h"
 #include "Engine/Singleton/TimeSingleton.h"
 
 void thomasWasLate::MushroomScript::Init()

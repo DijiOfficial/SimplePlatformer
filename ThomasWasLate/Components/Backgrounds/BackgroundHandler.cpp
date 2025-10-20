@@ -1,6 +1,6 @@
 ﻿#include "BackgroundHandler.h"
 
-#include "../Singletons/GameManager.h"
+#include "../../Singletons/GameManager.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Sprite.h"
 

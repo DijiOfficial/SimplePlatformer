@@ -1,6 +1,6 @@
 ﻿#include "CustomCommands.h"
 #include "Engine/Singleton/SceneManager.h"
-#include "../Components/PlayerCharacter.h"
+#include "../Components/Player/PlayerCharacter.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Singleton/RandNumber.h"
 

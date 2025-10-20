@@ -1,6 +1,6 @@
 ﻿#include "TimerScript.h"
 
-#include "PlayerCharacter.h"
+#include "../Player/PlayerCharacter.h"
 #include "Engine/Components/ScoreCounter.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Singleton/SceneManager.h"

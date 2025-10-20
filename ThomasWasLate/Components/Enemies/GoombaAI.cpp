@@ -1,7 +1,7 @@
 ﻿#include "GoombaAI.h"
 
-#include "PlayerCharacter.h"
-#include "../Singletons/GameManager.h"
+#include "../Player/PlayerCharacter.h"
+#include "../../Singletons/GameManager.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Collision/Collider.h"

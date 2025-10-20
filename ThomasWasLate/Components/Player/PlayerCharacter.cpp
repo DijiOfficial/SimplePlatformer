@@ -1,9 +1,9 @@
 ﻿#include "PlayerCharacter.h"
 
-#include "FireBall.h"
+#include "../PowerUps/FireBall.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Collision/Collider.h"
-#include "../Singletons/GameManager.h"
+#include "../../Singletons/GameManager.h"
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Components/Transform.h"

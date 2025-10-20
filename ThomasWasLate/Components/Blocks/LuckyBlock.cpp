@@ -1,8 +1,8 @@
 ﻿#include "LuckyBlock.h"
 
-#include "FireFlower.h"
-#include "MushroomScript.h"
-#include "../Singletons/GameManager.h"
+#include "../PowerUps/FireFlower.h"
+#include "../PowerUps/MushroomScript.h"
+#include "../../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Components/Render.h"
@@ -11,7 +11,7 @@
 #include "Engine/Components/Transform.h"
 #include "Engine/Interfaces/Timeline.h"
 #include "Engine/Singleton/SceneManager.h"
-#include "../Helpers/MarioHelpers.h"
+#include "../../Helpers/MarioHelpers.h"
 
 void thomasWasLate::LuckyBlock::OnHitEvent(const diji::Collider* collider, const diji::CollisionInfo& hitInfo)
 {
