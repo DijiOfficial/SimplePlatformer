@@ -366,15 +366,17 @@ void thomasWasLate::PlayerCharacter::StopSprint()
 
 void thomasWasLate::PlayerCharacter::Attack()
 {
+    if (!m_CanAttack) return;
     if (m_IsDead || m_IsPaused) return;
     if (m_PowerUpState != PowerUpState::Fire) return;
+    if (!GameManager::GetInstance().CanSpawnFireball()) return;
 
-    // use template instead
+    // todo: use template instead
     auto fireBall = std::make_unique<diji::GameObject>();
     fireBall->AddComponents<diji::Transform>(300, 500);
     fireBall->AddComponents<diji::SpriteRenderComponent>("graphics/fireBall.png", sf::Vector2i{ 24,24 }, 4, 0.065f);
     fireBall->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 24, 24 });
-    fireBall->AddComponents<FireBall>(m_ColliderCompPtr, static_cast<bool>(m_MovementDirection));
+    fireBall->AddComponents<FireBall>(m_ColliderCompPtr, !m_IsLookingLeft);
 
     diji::SceneManager::GetInstance().SpawnGameObject("Y_fireBall", std::move(fireBall), m_TransformCompPtr->GetPosition() + sf::Vector2f{ m_IsLookingLeft ? -30.f : 30.f, -10.f });
 
@@ -389,6 +391,14 @@ void thomasWasLate::PlayerCharacter::Attack()
         m_CurrentStateUPtr = std::move(newBigState);
         m_CurrentStateUPtr->OnEnter(GetOwner());
     }, 0.14f, false);
+
+    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    {
+        m_CanAttack = true;
+    }, m_AttackFireballCooldownTimer, false);
+
+    GameManager::GetInstance().FireballAdded();
+    m_CanAttack = false;
 }
 
 void thomasWasLate::PlayerCharacter::HandleDeathSequence()

@@ -36,6 +36,9 @@ namespace thomasWasLate
         void ResetLevel();
         void SwitchCurrentPlayerState();
         void SetPlayerState(const PlayerHealthState newState) { m_CurrentPlayerState = newState; }
+        void FireballAdded() { ++m_TotalFireballsInLevel; }
+        void FireballRemoved() { --m_TotalFireballsInLevel; }
+        [[nodiscard]] bool CanSpawnFireball() const { return m_TotalFireballsInLevel < 2; }
 
         static void SpawnPointsText(const sf::Vector2f& position, const std::string& score);
     private:
@@ -46,6 +49,7 @@ namespace thomasWasLate
         int m_CurrentLevel = 1;
         int m_Rows = 0;
         int m_Cols = 0;
+        int m_TotalFireballsInLevel = 0;
 
         std::string LoadInformation();
         void ReadLevelInfo(const std::string& filepath);

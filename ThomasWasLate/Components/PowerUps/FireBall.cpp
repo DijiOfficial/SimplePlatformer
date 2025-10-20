@@ -1,6 +1,9 @@
 ﻿#include "FireBall.h"
+
+#include "../../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Components/AutoDestroy.h"
+#include "Engine/Components/Camera.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/SceneManager.h"
@@ -21,6 +24,9 @@ thomasWasLate::FireBall::FireBall(diji::GameObject* ownerPtr, diji::Collider* ow
 
 void thomasWasLate::FireBall::Init()
 {
+    m_CameraPtr = diji::SceneManager::GetInstance().GetMainCamera()->GetComponent<diji::Camera>();
+    m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
+    
     const auto collider = GetOwner()->GetComponent<diji::Collider>();
     collider->ApplyImpulse(sf::Vector2f{ m_IsGoingRight ? 1000.f : -1000.f , 1000.f });
     collider->SetRestitution(1.2f);
@@ -33,6 +39,18 @@ void thomasWasLate::FireBall::Init()
 
     collider->IgnoreCollider(m_PlayerCollider);
     m_PlayerCollider = nullptr;
+}
+
+void thomasWasLate::FireBall::LateUpdate()
+{
+    if (m_CameraPtr->GetViewBounds().intersects(m_ColliderCompPtr->GetAABB())) return;
+
+    diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+}
+
+void thomasWasLate::FireBall::OnDestroy()
+{
+    GameManager::GetInstance().FireballRemoved();
 }
 
 void thomasWasLate::FireBall::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo)

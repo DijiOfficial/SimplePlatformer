@@ -45,6 +45,7 @@ void thomasWasLate::GameManager::ResetLevel()
     OnCoinCollectedEvent.ClearAllListeners();
     
     diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::Level));
+    m_TotalFireballsInLevel = 0;
 }
 
 void thomasWasLate::GameManager::SwitchCurrentPlayerState()

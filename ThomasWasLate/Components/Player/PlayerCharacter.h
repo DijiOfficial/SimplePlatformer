@@ -100,6 +100,7 @@ namespace thomasWasLate
         float m_SprintDecelerationTimer = 0.f;
         float m_InvincibilityTimer = 0.f;
         float m_InvincibilityRenderTimer = 0.f;
+        float m_AttackFireballCooldownTimer = 0.1f;
         bool m_IsOnGround = false;
         bool m_IsJumping = false;
         bool m_StoppedSprinting = false;
@@ -108,6 +109,7 @@ namespace thomasWasLate
         bool m_CanJump = true;
         bool m_IsPaused = false;
         bool m_IsInvincible = true;
+        bool m_CanAttack = true;
 
         void HandleDeathSequence();
         void PlayDeathSequence() const;
