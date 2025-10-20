@@ -27,14 +27,8 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
     if (distanceSquared >= radiiSumSquared)
         return result;
     
-    if (isCheckingOverlap)
-    {
-        result.Overlap = true;
-        return result;
-    }
-
     CollisionInfo collision;
-    collision.hasCollision = true;
+    collision.hasCollision = !isCheckingOverlap;
 
     // Calculate actual distance and penetration depth
     const float distance = std::sqrt(distanceSquared);
@@ -45,7 +39,9 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
     collision.normal *= -1.f;
     collisionInfoVecB.push_back(collision);
 
-    result.Hit = true;
+    result.Overlap = isCheckingOverlap;
+    result.Hit = !isCheckingOverlap;
+    
     return result;
 }
 
@@ -87,12 +83,6 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
             smallestAxis = axis;
         }
     }
-
-    if (isCheckingOverlap)
-    {
-        collisionResult.Overlap = true;
-        return collisionResult;
-    }
     
     // Determine direction to push (centerB - centerA along the axis)
     const sf::Vector2f centerDelta = rect.getPosition() - circleA.getPosition();
@@ -100,7 +90,7 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
         smallestAxis = -smallestAxis;
 
     CollisionInfo collision;
-    collision.hasCollision = true;
+    collision.hasCollision = !isCheckingOverlap;
     collision.normal = smallestAxis;
     collision.penetration = minOverlap;
     collision.tangent = sf::Vector2f(-smallestAxis.y, smallestAxis.x);
@@ -112,7 +102,9 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
     collision.tangent *= -1.0f;
     collisionInfoVecB.push_back(collision);
 
-    collisionResult.Hit = true;
+    collisionResult.Overlap = isCheckingOverlap;
+    collisionResult.Hit = !isCheckingOverlap;
+    
     return collisionResult;
 }
 
@@ -162,19 +154,13 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessBoxT
     if (!testAxes(axesB))
         return collisionResult;
 
-    if (isCheckingOverlap)
-    {
-        collisionResult.Overlap = true;
-        return collisionResult;
-    }
-    
     // Determine direction to push (centerB - centerA along the axis)
     const sf::Vector2f centerDelta = centerB - centerA;
     if (Helpers::DotProduct(centerDelta, smallestAxis) >= 0.f)
         smallestAxis = -smallestAxis;
-
+    
     CollisionInfo collision;
-    collision.hasCollision = true;
+    collision.hasCollision = !isCheckingOverlap;
     collision.normal = smallestAxis;
     collision.penetration = minOverlap;
     collision.tangent = sf::Vector2f(-smallestAxis.y, smallestAxis.x);
@@ -185,8 +171,9 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessBoxT
     collision.normal *= -1.0f;
     collision.tangent *= -1.0f;
     collisionInfoVecB.push_back(collision);
-
-    collisionResult.Hit = true;
+    
+    collisionResult.Overlap = isCheckingOverlap;
+    collisionResult.Hit = !isCheckingOverlap;
     return collisionResult;
 }
 

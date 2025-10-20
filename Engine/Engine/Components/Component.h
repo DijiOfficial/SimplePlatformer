@@ -31,9 +31,9 @@ namespace diji
 
         // these can easily be expanded to include CollisionInfo if needed.
         // todo: rename to OnOverlapEnter/Stay/Exit
-        virtual void OnTriggerEnter(const Collider*) {}
-        virtual void OnTriggerStay(const Collider*) {}
-        virtual void OnTriggerExit(const Collider*) {}
+        virtual void OnTriggerEnter(const Collider*, const CollisionInfo&) {}
+        virtual void OnTriggerStay(const Collider*, const CollisionInfo&) {}
+        virtual void OnTriggerExit(const Collider*, const CollisionInfo&) {}
 
         virtual void OnHitEvent(const Collider*, const CollisionInfo&) {}
 

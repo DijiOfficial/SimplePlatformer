@@ -135,13 +135,13 @@ void diji::GameObject::NotifyTriggerEvent(const Collider* other, const EventType
         switch (eventType)
         {
         case EventType::Enter:
-            component->OnTriggerEnter(other);
+            component->OnTriggerEnter(other, hitInfo);
             break;
         case EventType::Stay:
-            component->OnTriggerStay(other);
+            component->OnTriggerStay(other, hitInfo);
             break;
         case EventType::Exit:
-            component->OnTriggerExit(other);
+            component->OnTriggerExit(other, hitInfo);
             break;
         case EventType::Hit:
             component->OnHitEvent(other, hitInfo);
