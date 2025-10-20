@@ -41,6 +41,7 @@ namespace diji
         void Remove(const GameObject* object);
         void Remove(const std::string& name);
         void RemoveAll();
+        [[nodiscard]] GameObject* GetMainCamera() const { return m_MainCameraObjPtr; }
         [[nodiscard]] GameObject* GetGameObject(const std::string& name) const;
         [[nodiscard]] std::string GetGameObjectName(const GameObject* object) const;
         void ChangeViewCenter(int idx, const sf::Vector2f& newCenter);

@@ -9,6 +9,7 @@ namespace diji
     class Transform;
     class GameObject;
 
+    // todo: when adding a camera, regardless of where it's added, set it as main view in scene
     class Camera final : public Component
     {
     public:
@@ -27,7 +28,7 @@ namespace diji
 
         void OnDisable() override {}
         void OnDestroy() override {}
-        
+
         void SetLevelBoundaries(const sf::FloatRect& levelBoundaries) { m_LevelBoundaries = levelBoundaries; }
         void UnlockCamera() { m_IsLocked = false; }
         void LockCamera() { m_IsLocked = true; }
@@ -44,6 +45,7 @@ namespace diji
         bool GetIsCameraLocked() const { return m_IsLocked; }
         sf::Vector2i GetMouseWorldPosition(const sf::Vector2i& pos) const;
         const sf::View& GetCameraView() const { return m_CameraView; }
+        [[nodiscard]] const sf::FloatRect& GetLevelBoundaries() const { return m_LevelBoundaries; }
         
     private:
         Transform* m_TransformCompPtr = nullptr;

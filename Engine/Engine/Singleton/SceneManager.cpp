@@ -135,6 +135,11 @@ void diji::SceneManager::SetPendingDestroy(const GameObject* gameObject)
     m_PendingDestroyVec.push_back(gameObject);
 }
 
+diji::GameObject* diji::SceneManager::GetMainCamera() const
+{
+    return m_ScenesUPtrMap.at(m_ActiveSceneId)->GetMainCamera();
+}
+
 diji::GameObject* diji::SceneManager::GetGameObject(const std::string& name) const
 {
     return m_ScenesUPtrMap.at(m_ActiveSceneId)->GetGameObject(name);

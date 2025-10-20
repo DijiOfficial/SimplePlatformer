@@ -36,6 +36,7 @@ namespace diji
         [[nodiscard]] int GetActiveSceneId() const { return m_ActiveSceneId; }
         void SetPendingDestroy(const GameObject* gameObject);
 
+        [[nodiscard]] GameObject* GetMainCamera() const;
         [[nodiscard]] GameObject* GetGameObject(const std::string& name) const;
         [[nodiscard]] std::string GetGameObjectName(const GameObject* object) const;
         GameObject* SpawnGameObject(const std::string& name, const GameObject* original, const sf::Vector2f& spawnLocation) const;
