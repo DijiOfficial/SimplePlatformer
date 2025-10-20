@@ -33,13 +33,16 @@ namespace thomasWasLate
         void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo) override;
 
         void HandleBumpedBehavior(bool IsBumpingLeft) override;
+        void SetActivationMilestone(const int milestone) { m_ActivationMilestone = milestone; }
 
     private:
         diji::Collider* m_ColliderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         bool m_Paused = false;
+        int m_ActivationMilestone = -1;
 
         float m_Speed = -400.f;
         void SetPauseState(const bool isPause) { m_Paused = isPause; }
+        void CheckActivation(int milestone) const;
     };
 }

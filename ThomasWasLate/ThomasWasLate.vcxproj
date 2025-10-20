@@ -932,6 +932,7 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Components\Player\BroadcastPlayerPosition.cpp" />
     <ClCompile Include="Components\Player\PlayerCharacter.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -1330,6 +1331,7 @@
     <ClInclude Include="Components\Other\PointsBehaviour.h" />
     <ClInclude Include="Components\Other\SmallCoinScript.h" />
     <ClInclude Include="Components\Other\TimerScript.h" />
+    <ClInclude Include="Components\Player\BroadcastPlayerPosition.h" />
     <ClInclude Include="Components\Player\PlayerCharacter.h" />
     <ClInclude Include="Components\Player\PlayerStates.h" />
     <ClInclude Include="Components\PowerUps\FireBall.h" />

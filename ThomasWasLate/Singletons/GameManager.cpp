@@ -10,12 +10,14 @@
 #include "Engine/Components/SpriteRenderComp.h"
 #include "../Components/Blocks/BreakableBlock.h"
 #include "../Components/Blocks/MultiCoinBlock.h"
+#include "../Components/Enemies/GoombaAI.h"
 
 #include <format>
 #include <fstream>
 
 namespace thomasWasLate
 {
+    class GoombaAI;
     class PointsBehaviour;
 }
 
@@ -128,6 +130,7 @@ void thomasWasLate::GameManager::ReadLevelInfo(const std::string& filepath)
     file.close();
 }
 
+// todo: rename, it also creates enemeis
 void thomasWasLate::GameManager::CreateWorldCollision() const
 {
     constexpr float kTileSize = 50.0f;
@@ -143,8 +146,7 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
-            // todo: add collection of ignored tiles
-            if (tile != '0' && tile != 'e' && tile != 'd' && tile != 'x' && tile != 'y' && tile != 'f')
+            if (std::string("0edxyfgh").find(tile) == std::string::npos)
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -294,6 +296,38 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
                 multiCoinBlock->AddComponents<MultiCoinBlock>();
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_MultiCoinBlock", std::move(multiCoinBlock), center);
+                ++col;
+            }
+            else if (tile == 'g' || tile == 'h')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + + 25.f };
+
+                auto goomba = std::make_unique<diji::GameObject>();
+                goomba->AddComponents<diji::Transform>(2000, 0);
+                goomba->AddComponents<diji::SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
+                goomba->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                const auto collider = goomba->GetComponent<diji::Collider>();
+                collider->SetRestitution(0.f);
+                collider->SetMass(0.89f);
+                collider->SetStaticFriction(0.25f);
+                collider->SetKineticFriction(0.15f);
+                collider->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
+                collider->SetGenerateHitEvents(true);
+                collider->SetTag("enemy");
+                goomba->AddComponents<GoombaAI>();
+                goomba->GetComponent<GoombaAI>()->SetActivationMilestone(col - 20);
+                goomba->SetActive(false);
+
+                if (tile == 'h')
+                {
+                    center.x += 25.f;
+                    goomba->GetComponent<GoombaAI>()->SetActivationMilestone(col - 21);
+                }
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_MultiCoinBlock", std::move(goomba), center);
+
                 ++col;
             }
             else

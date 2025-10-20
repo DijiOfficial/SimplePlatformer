@@ -7,6 +7,7 @@
 #include "../Components/Other/CameraClamping.h"
 #include "../Components/Player/PlayerCharacter.h"
 #include "../Components/Other/TimerScript.h"
+#include "../Components/Player/BroadcastPlayerPosition.h"
 #include "../Input/CustomCommands.h"
 #include "../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
@@ -87,6 +88,7 @@ void SceneLoader::Level()
     // player->GetComponent<Collider>()->SetAffectedByGravity(false);
     player->AddComponents<thomasWasLate::PlayerCharacter>(0.5f);
     player->AddComponents<thomasWasLate::CameraClamping>();
+    player->AddComponents<thomasWasLate::BroadcastPlayerPosition>();
     // player->AddComponents<ShapeRender>(true);
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });

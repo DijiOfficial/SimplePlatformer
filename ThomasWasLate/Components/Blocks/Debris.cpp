@@ -3,7 +3,6 @@
 #include "Engine/Collision/Collider.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Transform.h"
-#include "Engine/Singleton/SceneManager.h"
 
 void thomasWasLate::Debris::Init()
 {
@@ -34,5 +33,5 @@ void thomasWasLate::Debris::Init()
 void thomasWasLate::Debris::Update()
 {
     if (m_TransformCompPtr->GetPosition().y > 600.f)
-        diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+        Destroy();
 }

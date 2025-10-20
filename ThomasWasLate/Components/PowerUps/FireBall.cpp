@@ -45,7 +45,7 @@ void thomasWasLate::FireBall::LateUpdate()
 {
     if (m_CameraPtr->GetViewBounds().intersects(m_ColliderCompPtr->GetAABB())) return;
 
-    diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+    Destroy();
 }
 
 void thomasWasLate::FireBall::OnDestroy()
@@ -58,7 +58,7 @@ void thomasWasLate::FireBall::OnHitEvent(const diji::Collider* other, const diji
     if (diji::Helpers::isZero(hitInfo.normal.x) && other->GetTag() != "enemy")
         return;
 
-    diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+    Destroy();
 
     auto explosion = std::make_unique<diji::GameObject>();
     explosion->AddComponents<diji::Transform>(300, 200);

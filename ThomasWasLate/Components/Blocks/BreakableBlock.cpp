@@ -72,7 +72,7 @@ void thomasWasLate::BreakableBlock::PlayAnimation() const
         diji::SceneManager::GetInstance().SpawnGameObject("debris", std::move(particle), center + offsets[i]);
     }
     
-    diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+    Destroy();
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(50);
 }
 

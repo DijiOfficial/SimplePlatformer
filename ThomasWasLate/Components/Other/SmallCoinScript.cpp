@@ -25,7 +25,8 @@ void thomasWasLate::SmallCoinScript::Init()
     {
         { .time= 0.6f, .callback= [&]()
             {
-                diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+                Destroy();
+            
                 const auto& pos = GetOwner()->GetComponent<diji::Transform>()->GetPosition();
                 GameManager::SpawnPointsText(pos, "200");
                 GameManager::GetInstance().OnScoreAddedEvent.Broadcast(200);

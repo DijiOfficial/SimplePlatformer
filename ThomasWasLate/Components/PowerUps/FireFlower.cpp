@@ -19,7 +19,8 @@ void thomasWasLate::FireFlower::OnTriggerEnter(const diji::Collider* other)
     if (other->GetTag() != "player")
         return;
     
-    diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+    Destroy();
+
     const auto& pos = m_TransformCompPtr->GetPosition();
     constexpr float yOffset = 50.f;
     const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };

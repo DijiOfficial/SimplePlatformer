@@ -1,15 +1,15 @@
 ﻿#include "PointsBehaviour.h"
 
 #include "Engine/Components/TextComp.h"
-#include "Engine/Singleton/SceneManager.h"
 #include "Engine/Singleton/TimerManager.h"
 #include "Engine/Components/Transform.h"
+#include "Engine/Core/GameObject.h"
 
 void thomasWasLate::PointsBehaviour::Init()
 {
     (void)diji::TimerManager::GetInstance().SetTimer([&]()
     {
-        diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+        Destroy();
     }, 1.7f, false);
 
     m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();

@@ -2,13 +2,13 @@
 
 #include "../Player/PlayerCharacter.h"
 #include "../../Singletons/GameManager.h"
+#include "../Player/BroadcastPlayerPosition.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/SceneManager.h"
-#include "Engine/Singleton/TimerManager.h"
 #include "Engine/Singleton/TimeSingleton.h"
 
 void thomasWasLate::GoombaAI::Init()
@@ -21,14 +21,16 @@ void thomasWasLate::GoombaAI::Init()
         m_Paused = true;
     });
 
-    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnEnemyStompedEvent.AddListener(this, &GoombaAI::HandleStomp);
-    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener(this, &GoombaAI::SetPauseState);
+    const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar");
+    player->GetComponent<PlayerCharacter>()->OnEnemyStompedEvent.AddListener(this, &GoombaAI::HandleStomp);
+    player->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener(this, &GoombaAI::SetPauseState);
+    player->GetComponent<BroadcastPlayerPosition>()->OnPositionMileStoneReachedEvent.AddListener(this, &GoombaAI::CheckActivation);
 }
 
 void thomasWasLate::GoombaAI::Update()
 {
     if (m_TransformCompPtr->GetPosition().y > 600.f)
-        diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+        Destroy();
 }
 
 void thomasWasLate::GoombaAI::FixedUpdate()
@@ -54,11 +56,7 @@ void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const std
     m_SpriteRenderComponent->SetCurrentAnimationFrame(0);
     m_SpriteRenderComponent->UpdateFrame();
 
-    // Set timer to destroy after 0.65 seconds
-    (void)diji::TimerManager::GetInstance().SetTimer([&]()
-    {
-        diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
-    }, 0.65f, false);
+    Destroy(0.65f);
 
     // Stop moving
     m_Speed = 0.f;
@@ -96,3 +94,9 @@ void thomasWasLate::GoombaAI::HandleBumpedBehavior(const bool IsBumpingLeft)
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(100);
 }
 
+void thomasWasLate::GoombaAI::CheckActivation(const int milestone) const
+{
+    if (m_ActivationMilestone != milestone) return;
+
+    SetActive(true);
+}

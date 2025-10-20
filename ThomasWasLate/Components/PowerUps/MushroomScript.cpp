@@ -25,7 +25,7 @@ void thomasWasLate::MushroomScript::Init()
 void thomasWasLate::MushroomScript::Update()
 {
     if (m_TransformCompPtr->GetPosition().y > 600.f)
-        diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+        Destroy();
 }
 
 void thomasWasLate::MushroomScript::FixedUpdate()
@@ -38,7 +38,7 @@ void thomasWasLate::MushroomScript::FixedUpdate()
 void thomasWasLate::MushroomScript::OnTriggerEnter(const diji::Collider* other)
 {
     if (other->GetTag() == "player")
-        diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+        Destroy();
 }
 
 void thomasWasLate::MushroomScript::OnHitEvent(const diji::Collider* collider, const diji::CollisionInfo& hitInfo)
@@ -46,7 +46,8 @@ void thomasWasLate::MushroomScript::OnHitEvent(const diji::Collider* collider, c
     if (m_Paused) return;
     if (collider->GetTag() == "player")
     {
-        diji::SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+        Destroy();
+        
         const auto& pos = m_TransformCompPtr->GetPosition();
         const auto& yOffset = collider->GetShape()->GetAABB().getSize().y;
         const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
