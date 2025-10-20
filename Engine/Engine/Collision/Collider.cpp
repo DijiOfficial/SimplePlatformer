@@ -20,6 +20,9 @@ void diji::Collider::Start()
 
     if (m_IsStatic)
         m_Shape->SetPosition(m_TransformCompPtr->GetPosition());
+
+    if (m_IsActive && !GetOwner()->IsActive())
+        SetActive(false);
 }
 
 void diji::Collider::FixedUpdate()
