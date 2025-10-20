@@ -265,7 +265,6 @@ void diji::PhysicsWorld::PredictMovement(std::vector<Prediction>& predictionsVec
     {
         if (!collider) continue;
         if (!collider->IsActive()) continue;
-        if (collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
 
         sf::Vector2f forcesApplied = collider->GetNetForce() / collider->GetMass();
         sf::Vector2f vel = collider->GetVelocity();
