@@ -10,7 +10,7 @@ namespace thomasWasLate
 {
     class PlayerStates;
 
-    class BreakableBlock final : public diji::Component
+    class BreakableBlock : public diji::Component
     {
     public:
         explicit BreakableBlock(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
@@ -29,11 +29,13 @@ namespace thomasWasLate
 
         void OnHitEvent(const diji::Collider* collider, const diji::CollisionInfo& hitInfo) override;
         
-    private:
+    protected:
         diji::Timeline* m_TimelinePtr = nullptr;
         bool m_IsHit = false;
 
+        virtual void CreateTimeline();
+        
+    private:
         void PlayAnimation() const;
-        void CreateTimeline();
     };
 }

@@ -179,6 +179,7 @@
     <ClCompile Include="Components\FireFlower.cpp" />
     <ClCompile Include="Components\GoombaAI.cpp" />
     <ClCompile Include="Components\LuckyBlock.cpp" />
+    <ClCompile Include="Components\MultiCoinBlock.cpp" />
     <ClCompile Include="Components\MushroomScript.cpp" />
     <ClCompile Include="Components\PlayerCharacter.cpp" />
     <ClCompile Include="Components\PlayerStates.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="Components\FireFlower.h" />
     <ClInclude Include="Components\GoombaAI.h" />
     <ClInclude Include="Components\LuckyBlock.h" />
+    <ClInclude Include="Components\MultiCoinBlock.h" />
     <ClInclude Include="Components\MushroomScript.h" />
     <ClInclude Include="Components\PlayerCharacter.h" />
     <ClInclude Include="Components\PlayerStates.h" />

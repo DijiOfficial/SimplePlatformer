@@ -1,8 +1,10 @@
 ﻿#include "MarioHelpers.h"
 
+#include "../Components/SmallCoinScript.h"
 #include "../Interfaces/IBumpable.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Collision/Collider.h"
+#include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Singleton/SceneManager.h"
 
@@ -41,4 +43,13 @@ void mario::MarioHelpers::CheckForCollisionAboveBlock(const diji::Collider* coll
         if (hit->info.hasCollision && (hit->collider->GetTag() == "enemy" || hit->collider->GetTag() == "powerUp"))
             hit->collider->GetParent()->GetComponent<thomasWasLate::IBumpable>()->HandleBumpedBehavior(false);
     }
+}
+
+void mario::MarioHelpers::SpawnCoinAboveBlock(const sf::Vector2f& colliderCenterPos)
+{
+    auto coinTest = std::make_unique<diji::GameObject>();
+    coinTest->AddComponents<diji::Transform>(600, 0);
+    coinTest->AddComponents<diji::SpriteRenderComponent>("graphics/smallCoins.png", sf::Vector2i{ 25,50 }, 4, 0.03f);
+    coinTest->AddComponents<thomasWasLate::SmallCoinScript>();
+    diji::SceneManager::GetInstance().SpawnGameObject("G_SmallCoin", std::move(coinTest), { colliderCenterPos.x, colliderCenterPos.y - 50.f });
 }

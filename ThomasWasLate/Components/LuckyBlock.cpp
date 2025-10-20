@@ -2,7 +2,6 @@
 
 #include "FireFlower.h"
 #include "MushroomScript.h"
-#include "SmallCoinScript.h"
 #include "../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Components/SpriteRenderComp.h"
@@ -48,11 +47,7 @@ void thomasWasLate::LuckyBlock::PlayAnimation() const
 
     if (m_IsPowerUpBlock) return;
     
-    auto coinTest = std::make_unique<diji::GameObject>();
-    coinTest->AddComponents<diji::Transform>(600, 0);
-    coinTest->AddComponents<diji::SpriteRenderComponent>("graphics/smallCoins.png", sf::Vector2i{ 25,50 }, 4, 0.03f);
-    coinTest->AddComponents<SmallCoinScript>();
-    diji::SceneManager::GetInstance().SpawnGameObject("G_SmallCoin", std::move(coinTest), { GetOwner()->GetComponent<diji::Transform>()->GetPosition().x, GetOwner()->GetComponent<diji::Transform>()->GetPosition().y - 50.f });
+    mario::MarioHelpers::SpawnCoinAboveBlock(GetOwner()->GetComponent<diji::Transform>()->GetPosition());
 }
 
 void thomasWasLate::LuckyBlock::CreateTimeline() const

@@ -29,6 +29,7 @@ void thomasWasLate::BackgroundHandler::Init()
         { 'x', {0, 4} }, // LuckyBlock with a power up
         { 'y', {0, 4} }, // LuckyBlock with a star power up
         { 'e', {0, 4} }, // BreakableBlock (invisible tile because it's rendered by BreakableBlock component)
+        { 'f', {0, 4} }, // MultiCoinBlock (invisible tile because it's rendered by BreakableBlock component)
         // ... etc.
     };
 }

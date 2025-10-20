@@ -15,5 +15,6 @@ namespace mario
     public:
         static bool DoesPlayerHitBottomOfBlock(const sf::Vector2f& playerCenter, const sf::FloatRect& blockAABB, const sf::Vector2f& normal);
         static void CheckForCollisionAboveBlock(const diji::Collider* collider);
+        static void SpawnCoinAboveBlock(const sf::Vector2f& colliderCenterPos);
     };
 }

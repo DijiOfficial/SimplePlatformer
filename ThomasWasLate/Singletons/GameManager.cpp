@@ -14,6 +14,8 @@
 #include <format>
 #include <fstream>
 
+#include "../Components/MultiCoinBlock.h"
+
 namespace thomasWasLate
 {
     class PointsBehaviour;
@@ -143,7 +145,7 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             const char tile = m_LevelInfo[idx];
 
             // todo: add collection of ignored tiles
-            if (tile != '0' && tile != 'e' && tile != 'd' && tile != 'x' && tile != 'y')
+            if (tile != '0' && tile != 'e' && tile != 'd' && tile != 'x' && tile != 'y' && tile != 'f')
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -260,8 +262,8 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             
                 auto breakableBlock = std::make_unique<diji::GameObject>();
                 breakableBlock->AddComponents<diji::Transform>(600, 300);
-                breakableBlock->AddComponents<diji::TextureComp>("graphics/breakableBlock.png");
-                breakableBlock->AddComponents<diji::Render>();
+                breakableBlock->AddComponents<diji::SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50, 50 }, 1, 0.0f);
+                breakableBlock->GetComponent<diji::SpriteRenderComponent>()->SetLooping(false);
                 breakableBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
                 const auto collider = breakableBlock->GetComponent<diji::Collider>();
                 collider->SetTag("breakBlock");
@@ -272,6 +274,27 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_breakableBlock", std::move(breakableBlock), center);
                 
+                ++col;
+            }
+            else if (tile == 'f')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + + 25.f };
+                
+                auto multiCoinBlock = std::make_unique<diji::GameObject>();
+                multiCoinBlock->AddComponents<diji::Transform>(600, 300);
+                multiCoinBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                multiCoinBlock->AddComponents<diji::SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50, 50 }, 1, 0.0f);
+                multiCoinBlock->GetComponent<diji::SpriteRenderComponent>()->SetLooping(false);
+                const auto collider = multiCoinBlock->GetComponent<diji::Collider>();
+                collider->SetTag("breakBlock");
+                collider->SetAffectedByGravity(false);
+                collider->SetGenerateHitEvents(true);
+                collider->SetIsMoveable(false);
+                multiCoinBlock->AddComponents<MultiCoinBlock>();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_MultiCoinBlock", std::move(multiCoinBlock), center);
                 ++col;
             }
             else
