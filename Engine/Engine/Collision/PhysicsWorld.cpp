@@ -264,7 +264,9 @@ void diji::PhysicsWorld::PredictMovement(std::vector<Prediction>& predictionsVec
     for (auto* collider : m_DynamicColliders)
     {
         if (!collider) continue;
-        
+        if (!collider->IsActive()) continue;
+        if (collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
+
         sf::Vector2f forcesApplied = collider->GetNetForce() / collider->GetMass();
         sf::Vector2f vel = collider->GetVelocity();
         if (collider->IsAffectedByGravity())
@@ -290,12 +292,9 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         // STATIC COLLISIONS: Check against all static colliders
         for (const auto& [aabb, staticCollider] : m_StaticInfos)
         {
-            // todo: Do I need to check for ignored static colliders?
-            if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore)
-                continue;
-            
-            if (!AABBOverlap(predictedAABB, aabb))
-                continue;
+            if (!colliderPtr->IsActive()) continue;
+            if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
+            if (!AABBOverlap(predictedAABB, aabb)) continue;
             
             const auto [Overlap, Hit] = HandleStaticCollisions(predictionsVec[i], staticCollider);
             
@@ -309,18 +308,13 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         // DYNAMIC COLLISIONS: Check against remaining dynamic colliders (avoid duplicates)
         for (size_t j = i + 1; j < size; ++j)
         {
+            if (!colliderPtr->IsActive()) continue;
+
             Prediction& otherPrediction = predictionsVec[j];
-            if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore || otherPrediction.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore)
-                continue;
-
-            if (colliderPtr->IsIgnoringAllDynamicColliders() || otherPrediction.collider->IsIgnoringAllDynamicColliders())
-                continue;
-
-            if (colliderPtr->IsIgnoringCollider(otherPrediction.collider) || otherPrediction.collider->IsIgnoringCollider(colliderPtr))
-                continue;
-            
-            if (!AABBOverlap(predictedAABB, otherPrediction.AABB))
-                continue;
+            if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore || otherPrediction.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
+            if (colliderPtr->IsIgnoringAllDynamicColliders() || otherPrediction.collider->IsIgnoringAllDynamicColliders()) continue;
+            if (colliderPtr->IsIgnoringCollider(otherPrediction.collider) || otherPrediction.collider->IsIgnoringCollider(colliderPtr)) continue;
+            if (!AABBOverlap(predictedAABB, otherPrediction.AABB)) continue;
             
             const auto [Overlap, Hit] = HandleDynamicCollisions(predictionsVec[i], otherPrediction);
             

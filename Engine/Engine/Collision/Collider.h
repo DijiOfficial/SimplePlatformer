@@ -102,6 +102,9 @@ namespace diji
         void IgnoreCollider(const Collider* collider);
         [[nodiscard]] bool IsIgnoringCollider(const Collider* collider) const;
 
+        void SetActive(const bool isActive) { m_IsActive = isActive; }
+        [[nodiscard]] bool IsActive() const { return m_IsActive; }
+
         [[nodiscard]] CollisionShape::ShapeType GetShapeType() const { return m_Type; }
         [[nodiscard]] const GameObject* GetParent() const { return GetOwner(); }
 
@@ -154,6 +157,7 @@ namespace diji
         bool m_IsMoveable = true;
         bool m_PositionIsChanged = false;
         bool m_IsIgnoringDynamicColliders = false; // todo: this should be like Unreal collision settings instead
+        bool m_IsActive = true;
   
         std::string m_Tag = "Untagged";
     };

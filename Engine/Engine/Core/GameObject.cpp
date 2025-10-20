@@ -2,6 +2,7 @@
 
 #include "../Components/Render.h"
 #include "../Components/Transform.h"
+#include "../Collision/Collider.h"
 #include "../Singleton/SceneManager.h"
 #include <variant>
 
@@ -21,16 +22,22 @@ void diji::GameObject::OnEnable() const
     }
 }
 
-void diji::GameObject::Start() const
+void diji::GameObject::Start()
 {
+    if (!m_IsActive) return;
+    
     for (const auto& component : m_ComponentsPtrVec)
     {
         component->Start();
     }
+
+    m_IsInitialized = true;
 }
 
 void diji::GameObject::FixedUpdate() const
 {
+    if (!m_IsActive) return;
+
     for (const auto& component : m_ComponentsPtrVec)
     {
         component->FixedUpdate();
@@ -39,6 +46,8 @@ void diji::GameObject::FixedUpdate() const
 
 void diji::GameObject::Update() const
 {
+    if (!m_IsActive) return;
+
     for (const auto& component : m_ComponentsPtrVec)
     {
         component->Update();
@@ -47,6 +56,8 @@ void diji::GameObject::Update() const
 
 void diji::GameObject::LateUpdate() const
 {
+    if (!m_IsActive) return;
+
     for (const auto& component : m_ComponentsPtrVec)
     {
         component->LateUpdate();
@@ -55,6 +66,8 @@ void diji::GameObject::LateUpdate() const
 
 void diji::GameObject::Render() const
 {
+    if (!m_IsActive) return;
+
     if (m_RenderCompPtr)
         m_RenderCompPtr->RenderFrame();
 }
@@ -80,6 +93,24 @@ void diji::GameObject::OnDestroy() const
     {
         EventRegistry::GetInstance().RemoveAllListenersForObject(component.get());
     }
+}
+
+void diji::GameObject::SetActive(const bool isActive)
+{
+    m_IsActive = isActive;
+
+    if (isActive)
+    {
+        OnEnable();
+        
+        if (!m_IsInitialized)
+            Start();
+    }
+    else
+        OnDisable();
+
+    if (m_ColliderCompPtr)
+        m_ColliderCompPtr->SetActive(isActive);
 }
 
 void diji::GameObject::Destroy() const

@@ -29,7 +29,7 @@ namespace diji
 
 		void Init() const;
 		void OnEnable() const;
-		void Start() const;
+		void Start();
 		
 		void FixedUpdate() const;
 		void Update() const;
@@ -38,6 +38,8 @@ namespace diji
 
 		void OnDisable() const;
 		void OnDestroy() const;
+		void SetActive(const bool isActive);
+		[[nodiscard]] bool IsActive() const { return m_IsActive; }
 
 		void Destroy() const;
 		void CreateDuplicate(GameObject* duplicate) const;
@@ -71,6 +73,10 @@ namespace diji
 			else if constexpr (std::is_base_of_v<diji::Render, T>)
 			{
 				m_RenderCompPtr = dynamic_cast<diji::Render*>(m_ComponentsPtrVec.back().get());
+			}
+			else if constexpr (std::is_same_v<T, Collider>)
+			{
+				m_ColliderCompPtr = dynamic_cast<Collider*>(m_ComponentsPtrVec.back().get());
 			}
 		}
 
@@ -137,10 +143,13 @@ namespace diji
 		
 	private:
 		bool m_PositionIsDirty = false;
+		bool m_IsActive = true;
+		bool m_IsInitialized = false;
 		
 		diji::Render* m_RenderCompPtr = nullptr;
 		GameObject* m_ParentPtr = nullptr;
 		Transform* m_TransformCompPtr = nullptr;
+		Collider* m_ColliderCompPtr = nullptr;
 		
 		sf::Vector2f m_LocalPosition = { 0 ,0 };
 		

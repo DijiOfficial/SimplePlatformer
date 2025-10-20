@@ -69,6 +69,7 @@
     <ClCompile Include="Engine\Collision\PhysicsWorld.cpp" />
     <ClCompile Include="Engine\Components\AutoDestroy.cpp" />
     <ClCompile Include="Engine\Components\Camera.cpp" />
+    <ClCompile Include="Engine\Components\Component.cpp" />
     <ClCompile Include="Engine\Components\FPSCounter.cpp" />
     <ClCompile Include="Engine\Components\Render.cpp" />
     <ClCompile Include="Engine\Components\ScoreCounter.cpp" />

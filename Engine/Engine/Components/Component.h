@@ -41,6 +41,10 @@ namespace diji
         explicit Component(GameObject* ownerPtr) : m_OwnerPtr{ ownerPtr } {}
         [[nodiscard]] const GameObject* GetOwner() const { return m_OwnerPtr; }
 
+        void SetActive(bool isActive) const;
+        void Destroy() const;
+        void Destroy(float lifeTime) const;
+
     private:
         GameObject* m_OwnerPtr = {};
     };
