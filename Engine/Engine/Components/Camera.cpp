@@ -75,6 +75,21 @@ sf::Vector2i diji::Camera::GetMouseWorldPosition(const sf::Vector2i& pos) const
     return static_cast<sf::Vector2i>(window::g_window_ptr->mapPixelToCoords(pos, m_CameraView));
 }
 
+sf::FloatRect diji::Camera::GetViewBounds() const
+{
+    const sf::Vector2f& center = m_CameraView.getCenter();
+    const sf::Vector2f& size = m_CameraView.getSize();
+
+    return sf::FloatRect
+    {
+        center.x - size.x * 0.5f,
+        center.y - size.y * 0.5f,
+        size.x,
+        size.y
+    };
+}
+
+
 void diji::Camera::Clamp(sf::Vector2f& pos) const
 {
     const float halfWidth = m_Width * 0.5f;

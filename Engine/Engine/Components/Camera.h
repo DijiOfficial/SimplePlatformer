@@ -46,6 +46,7 @@ namespace diji
         sf::Vector2i GetMouseWorldPosition(const sf::Vector2i& pos) const;
         const sf::View& GetCameraView() const { return m_CameraView; }
         [[nodiscard]] const sf::FloatRect& GetLevelBoundaries() const { return m_LevelBoundaries; }
+        [[nodiscard]] sf::FloatRect GetViewBounds() const;
         
     private:
         Transform* m_TransformCompPtr = nullptr;
