@@ -43,7 +43,7 @@ void thomasWasLate::PlayerCharacter::Init()
 
     GameManager::GetInstance().OnNewLevelLoadedEvent.AddListener(this, &PlayerCharacter::OnNewLevelLoaded);
 
-    diji::SceneManager::GetInstance().GetGameObject("A_Camera")->GetComponent<diji::Camera>()->SetFollow(GetOwner());
+    diji::SceneManager::GetInstance().GetMainCamera()->GetComponent<diji::Camera>()->SetFollow(GetOwner());
 }
 
 void thomasWasLate::PlayerCharacter::Update()

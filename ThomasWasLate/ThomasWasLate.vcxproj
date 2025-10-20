@@ -703,6 +703,7 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Components\Other\CameraClamping.cpp" />
     <ClCompile Include="Components\Other\PointsBehaviour.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -1325,6 +1326,7 @@
     <ClInclude Include="Components\Blocks\LuckyBlock.h" />
     <ClInclude Include="Components\Blocks\MultiCoinBlock.h" />
     <ClInclude Include="Components\Enemies\GoombaAI.h" />
+    <ClInclude Include="Components\Other\CameraClamping.h" />
     <ClInclude Include="Components\Other\PointsBehaviour.h" />
     <ClInclude Include="Components\Other\SmallCoinScript.h" />
     <ClInclude Include="Components\Other\TimerScript.h" />

@@ -9,8 +9,6 @@ namespace diji
 
 namespace thomasWasLate
 {
-    class PlayerStates;
-
     class MultiCoinBlock final : public BreakableBlock
     {
     public:

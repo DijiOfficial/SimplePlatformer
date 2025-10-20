@@ -4,6 +4,7 @@
 #include "../Components/Backgrounds/BackgroundHandler.h"
 #include "../Components/Backgrounds/CustomBackgroundRenderer.h"
 #include "../Components/Enemies/GoombaAI.h"
+#include "../Components/Other/CameraClamping.h"
 #include "../Components/Player/PlayerCharacter.h"
 #include "../Components/Other/TimerScript.h"
 #include "../Input/CustomCommands.h"
@@ -65,10 +66,8 @@ void SceneLoader::Level()
     const sf::FloatRect arena{ 0,-(115 * 4.5),12000.f, 1080.f };
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->AddComponents<Transform>(0, 0);
-    camera->AddComponents<Camera>(window::VIEWPORT);
-    // camera->AddComponents<Camera>(window::VIEWPORT);
+    camera->AddComponents<Camera>(window::VIEWPORT); // todo: probably clamp it to 1920x1080 instead
     camera->GetComponent<Camera>()->SetLevelBoundaries(arena);
-    // camera->GetComponent<Camera>()->SetClampingMode(false);
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     player->AddComponents<Transform>(200, 0);
@@ -87,6 +86,7 @@ void SceneLoader::Level()
     player->GetComponent<Collider>()->SetTag("player");
     // player->GetComponent<Collider>()->SetAffectedByGravity(false);
     player->AddComponents<thomasWasLate::PlayerCharacter>(0.5f);
+    player->AddComponents<thomasWasLate::CameraClamping>();
     // player->AddComponents<ShapeRender>(true);
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
