@@ -6,6 +6,11 @@
 
 namespace sf
 {
+	class Shader;
+}
+
+namespace sf
+{
 	class Sprite;
 	class VertexArray;
 	class RectangleShape;
@@ -47,6 +52,7 @@ namespace diji
 		
 		void DrawShape(const sf::Shape& shape) const;
 		void RenderSprite(const sf::Sprite& sprite) const;
+		void RenderSpriteWithShader(const sf::Sprite& sprite, const sf::Shader* shader) const;
 
 		[[nodiscard]] const sf::Color& GetBackgroundColor() const { return m_ClearColor; }
 		void SetBackgroundColor(const sf::Color& color);

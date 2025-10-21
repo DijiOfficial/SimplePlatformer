@@ -30,7 +30,9 @@ namespace diji
         void SetFrameSize(const sf::Vector2i& size);
         void SetFrameSizeX(int x);
         void SetFrameSizeY(int y);
-
+        [[nodiscard]] sf::Vector2i GetFrameSize() const { return m_FrameSize; }
+        [[nodiscard]] sf::Vector2f GetScaledSize() const override;
+        
         void SetStartingFrameX(const int frame) { m_StartingFrameX = frame; }
         void SetStartingFrameY(const int frame) { m_StartingFrameY = frame; }
         void SetStartingFrame(const int x, const int y) { m_StartingFrameX = x; m_StartingFrameY = y; }

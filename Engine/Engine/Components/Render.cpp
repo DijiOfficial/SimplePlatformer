@@ -6,6 +6,7 @@
 #include "TextureComp.h"
 #include "TextComp.h"
 #include "Sprite.h"
+#include "../Singleton/ResourceManager.h"
 
 diji::Render::Render(GameObject* ownerPtr, const float scale) 
     : Render(ownerPtr)
@@ -77,6 +78,19 @@ void diji::Render::RenderFrame() const
 void diji::Render::UpdateTexture(sf::Texture& texture)
 {
     m_SFMLTexture = texture;
+}
+
+void diji::Render::LoadShaderFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
+{
+    m_ShaderPtr = &ResourceManager::GetInstance().LoadShader(vertexShaderPath, fragmentShaderPath);
+}
+
+sf::Vector2f diji::Render::GetScaledSize() const
+{
+    if (m_TextureCompPtr) return {};
+
+    const auto size = m_TextureCompPtr->GetSize();
+    return { static_cast<float>(size.x) * m_TextureCompPtr->GetScaleX(), static_cast<float>(size.y) * m_TextureCompPtr->GetScaleY()};
 }
 
 void diji::Render::SetScale(const float scale)

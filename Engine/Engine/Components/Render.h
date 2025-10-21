@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <SFML/Graphics/Shader.hpp>
+
 #include "Component.h"
 
 #include <SFML/Graphics/Texture.hpp>
@@ -39,12 +41,19 @@ namespace diji
         void DisableRender() { m_Render = false; }
         void EnableRender() { m_Render = true; }
         void ToggleRendering() { m_Render = !m_Render; }
+        void SetRenderWithShader(const bool renderWithShader) { m_RenderWithShader = renderWithShader; }
+        void LoadShaderFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+        void SetShader(sf::Shader* shader) { m_ShaderPtr = shader; }
+        [[nodiscard]] sf::Shader* GetShader() const { return m_ShaderPtr; }
+        [[nodiscard]] virtual sf::Vector2f GetScaledSize() const;
 
         virtual void SetScale(float scale);
         
     protected:
         float m_Scale = 1;
         bool m_Render = true;
+        bool m_RenderWithShader = false;
+        sf::Shader* m_ShaderPtr = nullptr;
         
     private:
         Transform* m_TransformCompPtr;

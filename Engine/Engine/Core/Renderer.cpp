@@ -147,6 +147,11 @@ void diji::Renderer::RenderSprite(const sf::Sprite& sprite) const
 	m_WindowPtr->draw(sprite);
 }
 
+void diji::Renderer::RenderSpriteWithShader(const sf::Sprite& sprite, const sf::Shader* shader) const
+{
+	m_WindowPtr->draw(sprite, shader);
+}
+
 
 void diji::Renderer::SetBackgroundColor(const sf::Color& color)
 {

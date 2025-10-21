@@ -8,7 +8,6 @@ diji::SpriteRenderComponent::SpriteRenderComponent(GameObject* ownerPtr, const s
     : Render{ ownerPtr }
 {
     m_Texture = ResourceManager::GetInstance().LoadTexture(texturePath);
-
     m_Sprite.setTexture(m_Texture);
 
     const auto& size = m_Texture.getSize();
@@ -83,7 +82,13 @@ void diji::SpriteRenderComponent::RenderFrame() const
     if (not m_Render)
         return;
 
-    Renderer::GetInstance().RenderSprite(m_Sprite);
+    if (m_RenderWithShader)
+    {
+        m_ShaderPtr->setUniform("time", TimeSingleton::GetInstance().GetDeltaTime());
+        Renderer::GetInstance().RenderSpriteWithShader(m_Sprite, m_ShaderPtr);
+    }
+    else
+        Renderer::GetInstance().RenderSprite(m_Sprite);
 }
 
 void diji::SpriteRenderComponent::SetFrameSize(const sf::Vector2i& size)
@@ -105,6 +110,11 @@ void diji::SpriteRenderComponent::SetFrameSizeY(const int y)
     m_FrameSize.y = y;
 
     m_Sprite.setOrigin(static_cast<float>(m_FrameSize.x) * 0.5f, static_cast<float>(m_FrameSize.y) * 0.5f);
+}
+
+sf::Vector2f diji::SpriteRenderComponent::GetScaledSize() const
+{
+    return sf::Vector2f{ std::abs(static_cast<float>(m_FrameSize.x) * m_Scale), std::abs(static_cast<float>(m_FrameSize.y) * m_Scale) };
 }
 
 void diji::SpriteRenderComponent::SetTotalAnimationFrames(const int count)
