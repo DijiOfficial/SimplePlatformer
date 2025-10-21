@@ -49,31 +49,8 @@ void thomasWasLate::PlayerCharacter::Init()
 
 void thomasWasLate::PlayerCharacter::Start()
 {
-    sf::Shader& starShader = diji::ResourceManager::GetInstance().LoadShader("", "shaders/star.frag"); // fragment-only
-
-    starShader.setUniform("starColor", sf::Glsl::Vec3(1.f, 1.f, 0.8f));
-    starShader.setUniform("intensity", 1.2f);
-    starShader.setUniform("spikes", 6.f);
-    starShader.setUniform("sharpness", 18.f);
-    
-    // auto frameSize = m_SpriteRenderCompPtr->GetFrameSize(); // width/height of current frame
-    // starShader.setUniform("spriteFrameSize", sf::Glsl::Vec2(static_cast<float>(frameSize.x),
-                                                             // static_cast<float>(frameSize.y)));
-
-    // assign to render (non-owning)
+    sf::Shader& starShader = diji::ResourceManager::GetInstance().LoadShader("", "shaders/star.frag");
     m_SpriteRenderCompPtr->SetShader(&starShader);
-
-    // sf::Shader& starShader = diji::ResourceManager::GetInstance().LoadShader("shaders/star.vert", "shaders/star.frag");
-    //
-    // starShader.setUniform("starColor", sf::Glsl::Vec3(1.f, 1.f, 0.8f));
-    // starShader.setUniform("intensity", 1.2f);
-    // starShader.setUniform("spikes", 6.f);
-    // starShader.setUniform("sharpness", 18.f);
-    //
-    // const auto size = m_SpriteRenderCompPtr->GetFrameSize();
-    // starShader.setUniform("spriteSize", sf::Glsl::Vec2(static_cast<float>(size.x), static_cast<float>(size.y)));
-    //
-    // m_SpriteRenderCompPtr->SetShader(&starShader);
 }
 
 void thomasWasLate::PlayerCharacter::Update()
@@ -288,6 +265,9 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
 
     if (m_IsLookingLeft != currLookDirection)
         m_SpriteRenderCompPtr->InvertSprite();
+    
+    if (!m_IsStartPoweredUp) return;
+    UpdateStarPowerShader();
 }
 
 void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&)
@@ -712,15 +692,24 @@ void thomasWasLate::PlayerCharacter::PlayFireTransitionAnimation()
 void thomasWasLate::PlayerCharacter::HandleStarPickup()
 {
     m_IsStartPoweredUp = true;
-    m_StarPowerTimer = 12.f; // duration of star power in seconds
-    // load the glsl shader effect
+    m_StarPowerTimer = 0;
     m_SpriteRenderCompPtr->SetRenderWithShader(true);
+}
 
+void thomasWasLate::PlayerCharacter::UpdateStarPowerShader()
+{
+    m_StarPowerTimer += m_TimeSingletonInstance.GetDeltaTime();
     const auto starShader = m_SpriteRenderCompPtr->GetShader();
-    const sf::Vector2f scaledSize = static_cast<sf::Vector2f>(m_SpriteRenderCompPtr->GetFrameSize());
-    starShader->setUniform("spriteSize", sf::Glsl::Vec2(scaledSize.x, scaledSize.y));
+    
+    starShader->setUniform("texture", sf::Shader::CurrentTexture);
+    starShader->setUniform("time", m_StarPowerTimer);
+    constexpr float flashSpeed = 16.0f;  // 8 cycles per second
+    const int paletteIndex = static_cast<int>(m_StarPowerTimer * flashSpeed) % 4;
+    starShader->setUniform("paletteIndex", paletteIndex);
 
-    // const auto size = m_SpriteRenderCompPtr->GetFrameSize();
-    // const auto starShader = m_SpriteRenderCompPtr->GetShader();
-    // starShader->setUniform("spriteSize", sf::Glsl::Vec2(static_cast<float>(size.x), static_cast<float>(size.y)));
+    if (m_StarPowerTimer >= 11.f)
+    {
+        m_IsStartPoweredUp = false;
+        m_SpriteRenderCompPtr->SetRenderWithShader(false);
+    }
 }

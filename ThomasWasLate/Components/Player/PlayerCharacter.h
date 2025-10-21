@@ -54,7 +54,6 @@ namespace thomasWasLate
         diji::Event<int> OnPointsScoredEvent;
         diji::Event<const diji::Collider*, const std::string&> OnEnemyStompedEvent;
         diji::Event<bool> OnPoweringUpEvent;
-        
 
     private:
         static const std::vector<int> s_StompPointsTable;
@@ -127,5 +126,6 @@ namespace thomasWasLate
         void StompEnemy(const diji::Collider* other);
         void PlayFireTransitionAnimation();
         void HandleStarPickup();
+        void UpdateStarPowerShader();
     };
 }
