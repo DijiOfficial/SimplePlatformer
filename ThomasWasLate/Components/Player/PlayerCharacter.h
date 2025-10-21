@@ -28,7 +28,7 @@ namespace thomasWasLate
 
         void Init() override;
         void OnEnable() override {}
-        void Start() override {}
+        void Start() override;
         
         void Update() override;
         void FixedUpdate() override;
@@ -37,7 +37,7 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
-        void OnTriggerEnter(const diji::Collider* other) override;
+        void OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&) override;
         void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&) override;
 
         void Move(const sf::Vector2f& direction);
@@ -84,7 +84,7 @@ namespace thomasWasLate
         {
             Small,
             Big,
-            Fire
+            Fire,
         };
         PowerUpState m_PowerUpState = PowerUpState::Small;
         
@@ -101,6 +101,7 @@ namespace thomasWasLate
         float m_InvincibilityTimer = 0.f;
         float m_InvincibilityRenderTimer = 0.f;
         float m_AttackFireballCooldownTimer = 0.1f;
+        float m_StarPowerTimer = 0.0f;
         bool m_IsOnGround = false;
         bool m_IsJumping = false;
         bool m_StoppedSprinting = false;
@@ -110,6 +111,7 @@ namespace thomasWasLate
         bool m_IsPaused = false;
         bool m_IsInvincible = true;
         bool m_CanAttack = true;
+        bool m_IsStartPoweredUp = false;
 
         void HandleDeathSequence();
         void PlayDeathSequence() const;
@@ -124,5 +126,6 @@ namespace thomasWasLate
         void CheckEnemyStomp();
         void StompEnemy(const diji::Collider* other);
         void PlayFireTransitionAnimation();
+        void HandleStarPickup();
     };
 }

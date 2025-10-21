@@ -25,7 +25,7 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
-        void OnTriggerEnter(const diji::Collider* other) override;
+        void OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&) override;
         void OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo) override;
 
         void HandleBumpedBehavior(bool IsBumpingLeft) override;

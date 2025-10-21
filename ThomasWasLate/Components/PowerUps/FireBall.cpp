@@ -28,12 +28,12 @@ void thomasWasLate::FireBall::Init()
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
     
     const auto collider = GetOwner()->GetComponent<diji::Collider>();
-    collider->ApplyImpulse(sf::Vector2f{ m_IsGoingRight ? 1000.f : -1000.f , 1000.f });
+    collider->ApplyImpulse(sf::Vector2f{ m_IsGoingRight ? 1500.f : -1500.f , 1500.f });
     collider->SetRestitution(1.2f);
     collider->SetMass(0.5f);
     collider->SetStaticFriction(0.0f);
     collider->SetKineticFriction(0.0f);
-    collider->SetMaxVelocity(sf::Vector2f{ 1000.f, 750.f });
+    collider->SetMaxVelocity(sf::Vector2f{ 1500.f, 750.f });
     collider->SetGenerateHitEvents(true);
     collider->SetTag("fireBall");
 

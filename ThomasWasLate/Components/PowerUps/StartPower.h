@@ -8,11 +8,11 @@ namespace diji
 
 namespace thomasWasLate
 {
-    class FireFlower final : public diji::Component
+    class StartPower final : public diji::Component
     {
     public:
-        explicit FireFlower(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
-        ~FireFlower() noexcept override = default;
+        explicit StartPower(diji::GameObject* ownerPtr) : Component(ownerPtr) {}
+        ~StartPower() noexcept override = default;
 
         void Init() override;
         void OnEnable() override {}
@@ -25,10 +25,11 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
-        void OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&) override;
-
+        void OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo& hitInfo) override;
+        
     private:
         diji::Transform* m_TransformCompPtr = nullptr;
+        diji::Collider* m_ColliderCompPtr = nullptr;
 
         void PlayStartAnimation() const;
     };

@@ -1,21 +1,33 @@
-﻿#include "FireFlower.h"
-
+﻿#include "StartPower.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "../Player/PlayerCharacter.h"
 #include "../../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
+#include "Engine/Singleton/Helpers.h"
 
-void thomasWasLate::FireFlower::Init()
+void thomasWasLate::StartPower::Init()
 {
     m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
+    m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
 
     PlayStartAnimation();
 }
 
-void thomasWasLate::FireFlower::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&)
+void thomasWasLate::StartPower::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo& hitInfo)
 {
+    if (other->GetTag() == "ground")
+    {
+        const auto& velocity = m_ColliderCompPtr->GetVelocity() * 1.2f;
+        if (diji::Helpers::isZero(hitInfo.normal.y))
+            m_ColliderCompPtr->SetVelocity(sf::Vector2f{ velocity.x * hitInfo.normal.x, velocity.y });
+        else
+            m_ColliderCompPtr->SetVelocity(sf::Vector2f{ velocity.x, velocity.y * hitInfo.normal.y });
+
+        return;
+    }
+    
     if (other->GetTag() != "player")
         return;
     
@@ -27,7 +39,7 @@ void thomasWasLate::FireFlower::OnTriggerEnter(const diji::Collider* other, cons
     GameManager::SpawnPointsText(scorePos, "1000");
 }
 
-void thomasWasLate::FireFlower::PlayStartAnimation() const
+void thomasWasLate::StartPower::PlayStartAnimation() const
 {
     const auto& timelinePtr = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
 
@@ -40,5 +52,16 @@ void thomasWasLate::FireFlower::PlayStartAnimation() const
     track.onValue = [transformPtr, originalPos](const float y)
     {
         transformPtr->SetPosition(originalPos.x, originalPos.y + y);
+    };
+
+    auto& [eventName, eventKeysVec] = timelinePtr->AddEventTrack("OnAnimationEnd");
+    eventKeysVec =
+    {
+        { .time= 0.8f, .callback= [&]()
+            {
+                m_ColliderCompPtr->SetAffectedByGravity(true);
+                m_ColliderCompPtr->ApplyImpulse(sf::Vector2f{ 400.f, -600.f });
+            }
+        }
     };
 }

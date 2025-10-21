@@ -35,7 +35,7 @@ void thomasWasLate::MushroomScript::FixedUpdate()
     m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
 }
 
-void thomasWasLate::MushroomScript::OnTriggerEnter(const diji::Collider* other)
+void thomasWasLate::MushroomScript::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&)
 {
     if (other->GetTag() == "player")
         Destroy();

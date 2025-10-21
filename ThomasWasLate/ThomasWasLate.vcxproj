@@ -1313,6 +1313,7 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Components\PowerUps\StartPower.cpp" />
     <ClCompile Include="Core\GameLoader.cpp" />
     <ClCompile Include="Helpers\MarioHelpers.cpp" />
     <ClCompile Include="Input\CustomCommands.cpp" />
@@ -1337,6 +1338,7 @@
     <ClInclude Include="Components\PowerUps\FireBall.h" />
     <ClInclude Include="Components\PowerUps\FireFlower.h" />
     <ClInclude Include="Components\PowerUps\MushroomScript.h" />
+    <ClInclude Include="Components\PowerUps\StartPower.h" />
     <ClInclude Include="Core\GameLoader.h" />
     <ClInclude Include="Core\GameState.h" />
     <ClInclude Include="Helpers\MarioHelpers.h" />

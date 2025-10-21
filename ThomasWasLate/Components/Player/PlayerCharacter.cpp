@@ -9,6 +9,7 @@
 #include "Engine/Components/Transform.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/RandNumber.h"
+#include "Engine/Singleton/ResourceManager.h"
 #include "Engine/Singleton/TimerManager.h"
 
 const std::vector<int> thomasWasLate::PlayerCharacter::s_StompPointsTable =
@@ -44,6 +45,35 @@ void thomasWasLate::PlayerCharacter::Init()
     GameManager::GetInstance().OnNewLevelLoadedEvent.AddListener(this, &PlayerCharacter::OnNewLevelLoaded);
 
     diji::SceneManager::GetInstance().GetMainCamera()->GetComponent<diji::Camera>()->SetFollow(GetOwner());
+}
+
+void thomasWasLate::PlayerCharacter::Start()
+{
+    sf::Shader& starShader = diji::ResourceManager::GetInstance().LoadShader("", "shaders/star.frag"); // fragment-only
+
+    starShader.setUniform("starColor", sf::Glsl::Vec3(1.f, 1.f, 0.8f));
+    starShader.setUniform("intensity", 1.2f);
+    starShader.setUniform("spikes", 6.f);
+    starShader.setUniform("sharpness", 18.f);
+    
+    // auto frameSize = m_SpriteRenderCompPtr->GetFrameSize(); // width/height of current frame
+    // starShader.setUniform("spriteFrameSize", sf::Glsl::Vec2(static_cast<float>(frameSize.x),
+                                                             // static_cast<float>(frameSize.y)));
+
+    // assign to render (non-owning)
+    m_SpriteRenderCompPtr->SetShader(&starShader);
+
+    // sf::Shader& starShader = diji::ResourceManager::GetInstance().LoadShader("shaders/star.vert", "shaders/star.frag");
+    //
+    // starShader.setUniform("starColor", sf::Glsl::Vec3(1.f, 1.f, 0.8f));
+    // starShader.setUniform("intensity", 1.2f);
+    // starShader.setUniform("spikes", 6.f);
+    // starShader.setUniform("sharpness", 18.f);
+    //
+    // const auto size = m_SpriteRenderCompPtr->GetFrameSize();
+    // starShader.setUniform("spriteSize", sf::Glsl::Vec2(static_cast<float>(size.x), static_cast<float>(size.y)));
+    //
+    // m_SpriteRenderCompPtr->SetShader(&starShader);
 }
 
 void thomasWasLate::PlayerCharacter::Update()
@@ -260,12 +290,15 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
         m_SpriteRenderCompPtr->InvertSprite();
 }
 
-void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other)
+void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&)
 {
     if (m_IsDead || m_IsPaused) return;
 
     if (other->GetTag() == "powerUp")
         HandlePowerUpCollision();
+
+    if (other->GetTag() == "star")
+        HandleStarPickup();
 }
 
 void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)
@@ -567,6 +600,7 @@ void thomasWasLate::PlayerCharacter::PlayShrinkAnimation()
 
 void thomasWasLate::PlayerCharacter::HandlePowerUpCollision()
 {
+    bool skip = false;
     m_ColliderCompPtr->SetAffectedByGravity(false);
     if (m_PowerUpState == PowerUpState::Small)
     {
@@ -583,10 +617,12 @@ void thomasWasLate::PlayerCharacter::HandlePowerUpCollision()
     }
     else
     {
+        skip = true;
         m_ColliderCompPtr->SetAffectedByGravity(true);
     }
 
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(1000);
+    if (skip) return;
     OnPoweringUpEvent.Broadcast(true);
 }
 
@@ -671,4 +707,20 @@ void thomasWasLate::PlayerCharacter::PlayFireTransitionAnimation()
         OnPoweringUpEvent.Broadcast(false);
         m_ColliderCompPtr->SetAffectedByGravity(true);
     }, 0.78f, false);
+}
+
+void thomasWasLate::PlayerCharacter::HandleStarPickup()
+{
+    m_IsStartPoweredUp = true;
+    m_StarPowerTimer = 12.f; // duration of star power in seconds
+    // load the glsl shader effect
+    m_SpriteRenderCompPtr->SetRenderWithShader(true);
+
+    const auto starShader = m_SpriteRenderCompPtr->GetShader();
+    const sf::Vector2f scaledSize = static_cast<sf::Vector2f>(m_SpriteRenderCompPtr->GetFrameSize());
+    starShader->setUniform("spriteSize", sf::Glsl::Vec2(scaledSize.x, scaledSize.y));
+
+    // const auto size = m_SpriteRenderCompPtr->GetFrameSize();
+    // const auto starShader = m_SpriteRenderCompPtr->GetShader();
+    // starShader->setUniform("spriteSize", sf::Glsl::Vec2(static_cast<float>(size.x), static_cast<float>(size.y)));
 }
