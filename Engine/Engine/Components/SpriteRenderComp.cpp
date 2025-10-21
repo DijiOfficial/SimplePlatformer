@@ -83,10 +83,7 @@ void diji::SpriteRenderComponent::RenderFrame() const
         return;
 
     if (m_RenderWithShader)
-    {
-        m_ShaderPtr->setUniform("time", TimeSingleton::GetInstance().GetDeltaTime());
         Renderer::GetInstance().RenderSpriteWithShader(m_Sprite, m_ShaderPtr);
-    }
     else
         Renderer::GetInstance().RenderSprite(m_Sprite);
 }
