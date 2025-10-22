@@ -35,6 +35,8 @@ void thomasWasLate::BackgroundHandler::Init()
         { 'i', {0, 4} }, // Star block
         { 'k', {3, 0} }, // pole top
         { 'j', {3, 1} }, // pole body
+        { 'l', {0, 4} }, // small castle base
+        { 'm', {0, 4} }, // big castle base
         // ... etc.
     };
 

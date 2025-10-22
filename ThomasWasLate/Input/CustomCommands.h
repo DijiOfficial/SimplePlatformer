@@ -79,4 +79,13 @@ namespace thomasWasLate
     private:
         PlayerCharacter* m_Character = nullptr;
     };
+
+    class StartGame final : public diji::GameActorCommands
+    {
+    public:
+        explicit StartGame(diji::GameObject* actor) : GameActorCommands{ actor } {};
+        ~StartGame() noexcept override = default;
+
+        void Execute() override;
+    };
 }

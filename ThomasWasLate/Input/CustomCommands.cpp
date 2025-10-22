@@ -1,7 +1,9 @@
 ﻿#include "CustomCommands.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "../Components/Player/PlayerCharacter.h"
+#include "../Core/GameState.h"
 #include "Engine/Collision/Collider.h"
+#include "Engine/Singleton/GameStateManager.h"
 #include "Engine/Singleton/RandNumber.h"
 
 thomasWasLate::MoveCharacter::MoveCharacter(diji::GameObject* actor, const sf::Vector2f& direction, const bool isMoving)
@@ -67,4 +69,9 @@ thomasWasLate::Attack::Attack(diji::GameObject* actor)
 void thomasWasLate::Attack::Execute()
 {
     m_Character->Attack();
+}
+
+void thomasWasLate::StartGame::Execute()
+{
+    diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::Level));
 }

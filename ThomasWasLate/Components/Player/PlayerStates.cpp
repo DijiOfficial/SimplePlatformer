@@ -383,3 +383,20 @@ thomasWasLate::BigFlagPoleSlideState::BigFlagPoleSlideState()
 
     m_CurrentState = PlayerState::FlagPoleSlide;
 }
+
+thomasWasLate::FireFlagPoleSlideState::FireFlagPoleSlideState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 11,
+        .startingFrameY= 3,
+        .totalAnimationFrames= 2,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+        
+        .m_IsPlaying= true,
+        .m_IsLooping= true
+    };
+
+    m_CurrentState = PlayerState::FlagPoleSlide;
+}

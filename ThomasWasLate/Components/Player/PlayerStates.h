@@ -192,4 +192,10 @@ namespace thomasWasLate
     public:
         BigFlagPoleSlideState();
     };
+
+    class FireFlagPoleSlideState final : public PlayerStates
+    {
+    public:
+        FireFlagPoleSlideState();
+    };
 }

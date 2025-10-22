@@ -747,6 +747,8 @@ void thomasWasLate::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& c
     std::unique_ptr<PlayerStates> newState;
     if (m_PowerUpState == PowerUpState::Small)
         newState = std::make_unique<FlagPoleSlideState>();
+    else if (m_PowerUpState == PowerUpState::Fire)
+        newState = std::make_unique<FireFlagPoleSlideState>();
     else
         newState = std::make_unique<BigFlagPoleSlideState>();
     
@@ -757,7 +759,8 @@ void thomasWasLate::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& c
     m_FlagPoleTimelinePtr = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
     sf::Vector2f originalPos = m_TransformCompPtr->GetPosition();
 
-    const float distanceToMove = 450 - originalPos.y;
+    const float groundDistance = m_PowerUpState == PowerUpState::Small ? 450.f : 400.f;
+    const float distanceToMove = groundDistance - originalPos.y;
     constexpr float moveDuration = 2.f/15.f / 50.f; // 8frames to move 50 units
     auto &track = m_FlagPoleTimelinePtr->AddFloatTrack("MoveVertically");
     track.keys = { { .time= 0.f, .value= 0.f }, { .time= distanceToMove * moveDuration, .value= distanceToMove } };
@@ -772,6 +775,9 @@ void thomasWasLate::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& c
 
 void thomasWasLate::PlayerCharacter::StopFlagAnimAndMoveToCastle()
 {
+    if (m_IsFlagTriggered) return;
+
+    m_IsFlagTriggered = true;
     m_FlagPoleTimelinePtr->Stop();
     m_SpriteRenderCompPtr->InvertSprite();
     m_SpriteRenderCompPtr->Pause();
@@ -784,6 +790,8 @@ void thomasWasLate::PlayerCharacter::StopFlagAnimAndMoveToCastle()
         std::unique_ptr<PlayerStates> newState;
         if (m_PowerUpState == PowerUpState::Small)
             newState = std::make_unique<WalkingState>();
+        else if (m_PowerUpState == PowerUpState::Fire)
+            newState = std::make_unique<FireWalkingState>();
         else
             newState = std::make_unique<BigWalkingState>();
         m_CurrentStateUPtr = std::move(newState);
@@ -794,7 +802,7 @@ void thomasWasLate::PlayerCharacter::StopFlagAnimAndMoveToCastle()
         sf::Vector2f originalPos = m_TransformCompPtr->GetPosition();
 
         auto &track = m_FlagPoleTimelinePtr->AddFloatTrack("MoveVertically");
-        track.keys = { { .time= 0.f, .value= 0.f }, { .time= 1.25f, .value= 350 } };
+        track.keys = { { .time= 0.f, .value= 0.f }, { .time= 1.25f, .value= 700 } };
             
         track.onValue = [&, originalPos](const float x)
         {

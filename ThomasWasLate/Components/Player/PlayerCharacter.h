@@ -116,6 +116,7 @@ namespace thomasWasLate
         bool m_IsInvincible = true;
         bool m_CanAttack = true;
         bool m_IsStartPoweredUp = false;
+        bool m_IsFlagTriggered = false;
 
         void HandleDeathSequence();
         void PlayDeathSequence() const;

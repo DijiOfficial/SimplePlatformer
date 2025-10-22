@@ -150,7 +150,7 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
-            if (std::string("0edxyfghijk").find(tile) == std::string::npos)
+            if (std::string("0edxyfghijklm").find(tile) == std::string::npos)
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -292,7 +292,7 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             
                 auto pole = std::make_unique<diji::GameObject>();
                 pole->AddComponents<diji::Transform>(600, 300);
-                pole->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50,  16 * 50 });
+                pole->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 24,  16 * 50 });
                 const auto collider = pole->GetComponent<diji::Collider>();
                 collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
                 collider->SetTag("flagPole");
@@ -310,6 +310,21 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_flag", std::move(flag), center - sf::Vector2f{ 25, -50 });
 
+                ++col;
+            }
+            else if (tile == 'l' || tile == 'm')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f - 100.f };
+            
+                auto castle = std::make_unique<diji::GameObject>();
+                castle->AddComponents<diji::Transform>(600, 300);
+                castle->AddComponents<diji::TextureComp>("graphics/smallCastle.png");
+                castle->AddComponents<diji::Render>();
+            
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_castle", std::move(castle), center);
+                
                 ++col;
             }
             else
