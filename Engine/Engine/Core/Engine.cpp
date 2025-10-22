@@ -10,7 +10,6 @@
 #include "../Singleton/TimeSingleton.h"
 #include "../Singleton/PauseSingleton.h"
 
-//#include <thread>
 #include <chrono>
 #include <SFML/Graphics.hpp>
 #include <stdexcept>
