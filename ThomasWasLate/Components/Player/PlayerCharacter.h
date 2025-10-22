@@ -68,8 +68,8 @@ namespace thomasWasLate
 
         sf::Vector2f m_CurrSpeed = { 0.f, 0.f };
 
-        sf::Vector2f m_BaseMaxVelocity = { 800.f, 1000.f };
-        sf::Vector2f m_SprintMaxVelocity = { 1000.f, 1000.f };
+        sf::Vector2f m_BaseMaxVelocity = { 350.f, 1000.f };
+        sf::Vector2f m_SprintMaxVelocity = { 500.f, 1000.f };
 
         enum class MovementDirection : uint8_t
         {
@@ -89,7 +89,7 @@ namespace thomasWasLate
         
         int m_BounceScoreMultiplier = 1;
         const float STOMP_THRESHOLD = 0.5f;
-        float m_JumpForce = 2350.f;
+        float m_JumpForce = 900.f;
         float m_BaseAcceleration = 1000.f;
         float m_Acceleration = m_BaseAcceleration;
         float m_SprintAcceleration = 1500.f;

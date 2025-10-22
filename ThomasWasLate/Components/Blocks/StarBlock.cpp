@@ -64,7 +64,7 @@ void thomasWasLate::StarBlock::SpawnStarPowerUp() const
     star->GetComponent<diji::Collider>()->SetRestitution(1.5f);
     star->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
     star->GetComponent<diji::Collider>()->SetStaticFriction(0.f);
-    star->GetComponent<diji::Collider>()->SetMaxVelocity(sf::Vector2f{ 600.f, 1500.f });
+    star->GetComponent<diji::Collider>()->SetMaxVelocity(sf::Vector2f{ 600.f, 1000.f });
     star->GetComponent<diji::Collider>()->SetTag("star");
     star->GetComponent<diji::Collider>()->SetAffectedByGravity(false);
     star->AddComponents<StartPower>();

@@ -44,6 +44,8 @@ void thomasWasLate::PlayerCharacter::Init()
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
     m_SpriteRenderCompPtr = GetOwner()->GetComponent<diji::SpriteRenderComponent>();
 
+    m_ColliderCompPtr->SetMaxVelocity(m_BaseMaxVelocity);
+
     GameManager::GetInstance().OnNewLevelLoadedEvent.AddListener(this, &PlayerCharacter::OnNewLevelLoaded);
 
     diji::SceneManager::GetInstance().GetMainCamera()->GetComponent<diji::Camera>()->SetFollow(GetOwner());
@@ -99,21 +101,21 @@ void thomasWasLate::PlayerCharacter::FixedUpdate()
 
     // speed is currently way to strong of an influence
     // const float multiplier = std::abs(m_CurrSpeed.x) * 0.005f <= 1 ? 1.f : 1 + (std::abs(m_CurrSpeed.x) / m_SprintMaxVelocity.x);
-    const float multiplier = 1 + (std::abs(m_CurrSpeed.x) / m_SprintMaxVelocity.x) * 0.75f;
+    const float multiplier = 1 + (std::abs(m_CurrSpeed.x) / m_SprintMaxVelocity.x) * 0.25f;
     if (m_IsJumping)
     {
         m_JumpTime += diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime();
 
         if (m_JumpTime < m_MaxJumpTime)
-            m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 0.5f * multiplier });
+            m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 1.5f * multiplier });
     }
 
     // If player jumped for one frame, ensure they get a consistent minimum jump
-    if (m_MinJumpTime > 0.f)
-    {
-        m_MinJumpTime -= m_TimeSingletonInstance.GetFixedUpdateDeltaTime();
-        m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 0.5f * multiplier });
-    }
+    // if (m_MinJumpTime > 0.f)
+    // {
+    //     m_MinJumpTime -= m_TimeSingletonInstance.GetFixedUpdateDeltaTime();
+    //     m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * multiplier });
+    // }
 }
 
 void thomasWasLate::PlayerCharacter::LateUpdate()
@@ -353,19 +355,18 @@ void thomasWasLate::PlayerCharacter::Jump()
     if (!m_IsOnGround || m_IsJumping) return;
     if (!m_CanJump) return;
 
-    m_ColliderCompPtr->ApplyImpulse({ 0.f, -m_JumpForce });
+    m_ColliderCompPtr->ApplyImpulse({ 0.f, -m_JumpForce * 0.9f});
     m_IsOnGround = false;
     m_IsJumping = true;
     m_CanJump = false;
-    m_MinJumpTime = m_MaxJumpTime * 0.25f;
+    m_MinJumpTime = m_MaxJumpTime * 0.15f;
 }
 
 void thomasWasLate::PlayerCharacter::ClearJump()
 {
-    m_JumpTime = m_MaxJumpTime;
+    m_JumpTime = 0;
     m_CanJump = true;
     m_IsJumping = false;
-    m_JumpTime = 0.0f;
 }
 
 void thomasWasLate::PlayerCharacter::Sprint()
@@ -668,7 +669,7 @@ void thomasWasLate::PlayerCharacter::CheckEnemyStomp()
 void thomasWasLate::PlayerCharacter::StompEnemy(const diji::Collider* other)
 {
     // I'm capping vertical velocity so max it out to ensure the bounce is same height as normal jump
-    m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -m_JumpForce * 2.f));
+    m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -m_JumpForce));
 
     // Increment multiplier and get points string
     ++m_BounceScoreMultiplier;
