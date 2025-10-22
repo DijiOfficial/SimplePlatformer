@@ -29,11 +29,7 @@ void diji::Collider::FixedUpdate()
 {
     if (m_IsStatic) return;
 
-    if (!m_PositionIsChanged)
-    {
-        m_LastPosition = m_NewPosition;
-        m_PositionIsChanged = false;
-    }
+    m_LastPosition = m_NewPosition;
 }
 
 void diji::Collider::Update()
@@ -52,11 +48,6 @@ void diji::Collider::SetVelocity(const sf::Vector2f& vel)
 {
     m_Velocity.x = std::clamp(vel.x, -m_MaxVelocity.x, m_MaxVelocity.x);
     m_Velocity.y = std::clamp(vel.y, -m_MaxVelocity.y, m_MaxVelocity.y);
-}
-
-void diji::Collider::SetPosition(const sf::Vector2f& pos) const
-{
-    m_TransformCompPtr->SetPosition(pos);
 }
 
 sf::Vector2f diji::Collider::GetPosition() const

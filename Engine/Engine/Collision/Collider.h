@@ -69,7 +69,7 @@ namespace diji
         void SetAffectedByGravity(const bool isAffected) { m_AffectedByGravity = isAffected; }
         [[nodiscard]] bool IsAffectedByGravity() const { return m_AffectedByGravity; }
         
-        void SetPosition(const sf::Vector2f& pos) const;
+        // void SetColliderPosition(const sf::Vector2f& pos);
         [[nodiscard]] sf::Vector2f GetPosition() const;
 
         void SetKineticFriction(const float friction) { m_KineticFriction = std::clamp(friction, 0.f, 1.f); }
@@ -81,7 +81,7 @@ namespace diji
         [[nodiscard]] sf::FloatRect GetAABB() const;
         [[nodiscard]] sf::FloatRect GetAABBAt(const sf::Vector2f& pos) const;
 
-        void SetNewPosition(const sf::Vector2f& pos) { m_LastPosition = m_NewPosition; m_NewPosition = pos; m_PositionIsChanged = true; }
+        void SetNewPosition(const sf::Vector2f& pos) { m_LastPosition = m_NewPosition; m_NewPosition = pos; }
         [[nodiscard]] sf::Vector2f GetNewPosition() const { return m_NewPosition; }
 
         void ClearNetForce() { m_NetForce = sf::Vector2f{ 0, 0 }; }
@@ -155,7 +155,6 @@ namespace diji
         bool m_AffectedByGravity = true;
         bool m_IsGenerateHitEvents = false;
         bool m_IsMoveable = true;
-        bool m_PositionIsChanged = false;
         bool m_IsIgnoringDynamicColliders = false; // todo: this should be like Unreal collision settings instead
         bool m_IsActive = true;
   
