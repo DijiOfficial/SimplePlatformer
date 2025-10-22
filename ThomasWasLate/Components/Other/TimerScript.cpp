@@ -21,6 +21,11 @@ void thomasWasLate::TimerScript::Init()
     {
         m_Paused = true;
     });
+
+    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnLevelFinishedEvent.AddListener([this]()
+    {
+        m_Paused = true;
+    });
 }
 
 void thomasWasLate::TimerScript::Update()

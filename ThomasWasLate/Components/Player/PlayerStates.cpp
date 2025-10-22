@@ -349,3 +349,37 @@ thomasWasLate::ThrowingFireballState::ThrowingFireballState()
 
     m_CurrentState = PlayerState::Growing;
 }
+
+thomasWasLate::FlagPoleSlideState::FlagPoleSlideState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 11,
+        .startingFrameY= 5,
+        .totalAnimationFrames= 2,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 16 },
+        
+        .m_IsPlaying= true,
+        .m_IsLooping= true
+    };
+
+    m_CurrentState = PlayerState::FlagPoleSlide;
+}
+
+thomasWasLate::BigFlagPoleSlideState::BigFlagPoleSlideState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 10,
+        .startingFrameY= 0,
+        .totalAnimationFrames= 2,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+        
+        .m_IsPlaying= true,
+        .m_IsLooping= true
+    };
+
+    m_CurrentState = PlayerState::FlagPoleSlide;
+}

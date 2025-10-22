@@ -5,6 +5,7 @@
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Collision/Collider.h"
 #include "../../Singletons/GameManager.h"
+#include "../Other/Flag.h"
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Components/Transform.h"
@@ -55,10 +56,18 @@ void thomasWasLate::PlayerCharacter::Start()
 {
     sf::Shader& starShader = diji::ResourceManager::GetInstance().LoadShader("", "shaders/star.frag");
     m_SpriteRenderCompPtr->SetShader(&starShader);
+
+    diji::SceneManager::GetInstance().GetGameObject("E_flag")->GetComponent<Flag>()->OnFlagAnimationFinishedEvent.AddListener(this, &PlayerCharacter::StopFlagAnimAndMoveToCastle);
 }
 
+#include <SFML/Window/Keyboard.hpp>
 void thomasWasLate::PlayerCharacter::Update()
 {
+    // temp
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::T))
+        m_TransformCompPtr->SetPosition(9000, 200);
+    
+    
     if (m_IsDead || m_IsPaused) return;
 
     if (m_IsInvincible)
@@ -283,6 +292,9 @@ void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other,
 
     if (other->GetTag() == "star")
         HandleStarPickup();
+
+    if (other->GetTag() == "flagPole")
+        HandleLevelCompletion(other->GetPosition());
 }
 
 void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)
@@ -722,4 +734,82 @@ void thomasWasLate::PlayerCharacter::UpdateStarPowerShader()
         m_IsStartPoweredUp = false;
         m_SpriteRenderCompPtr->SetRenderWithShader(false);
     }
+}
+
+void thomasWasLate::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& center)
+{
+    m_IsPaused = true;
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0, 0});
+    m_ColliderCompPtr->SetAffectedByGravity(false);
+
+    m_FlagCenter = center;
+    m_TransformCompPtr->SetPosition(center.x - 20.f, m_TransformCompPtr->GetPosition().y);
+    std::unique_ptr<PlayerStates> newState;
+    if (m_PowerUpState == PowerUpState::Small)
+        newState = std::make_unique<FlagPoleSlideState>();
+    else
+        newState = std::make_unique<BigFlagPoleSlideState>();
+    
+    m_CurrentStateUPtr = std::move(newState);
+    m_CurrentStateUPtr->OnEnter(GetOwner());
+
+    // create timeline for moving down the pole
+    m_FlagPoleTimelinePtr = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
+    sf::Vector2f originalPos = m_TransformCompPtr->GetPosition();
+
+    const float distanceToMove = 450 - originalPos.y;
+    constexpr float moveDuration = 2.f/15.f / 50.f; // 8frames to move 50 units
+    auto &track = m_FlagPoleTimelinePtr->AddFloatTrack("MoveVertically");
+    track.keys = { { .time= 0.f, .value= 0.f }, { .time= distanceToMove * moveDuration, .value= distanceToMove } };
+    
+    track.onValue = [&, originalPos](const float y)
+    {
+        m_TransformCompPtr->SetPosition(originalPos.x, originalPos.y + y);
+    };
+
+    OnLevelFinishedEvent.Broadcast();
+}
+
+void thomasWasLate::PlayerCharacter::StopFlagAnimAndMoveToCastle()
+{
+    m_FlagPoleTimelinePtr->Stop();
+    m_SpriteRenderCompPtr->InvertSprite();
+    m_SpriteRenderCompPtr->Pause();
+    m_TransformCompPtr->SetPosition(m_FlagCenter.x + 40, m_TransformCompPtr->GetPosition().y);
+    
+    (void)diji::TimerManager::GetInstance().SetTimer([&]
+    {
+        m_SpriteRenderCompPtr->InvertSprite();
+        m_ColliderCompPtr->SetAffectedByGravity(true);
+        std::unique_ptr<PlayerStates> newState;
+        if (m_PowerUpState == PowerUpState::Small)
+            newState = std::make_unique<WalkingState>();
+        else
+            newState = std::make_unique<BigWalkingState>();
+        m_CurrentStateUPtr = std::move(newState);
+        m_CurrentStateUPtr->OnEnter(GetOwner());
+
+        // create timeline for moving down the pole
+        m_FlagPoleTimelinePtr = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
+        sf::Vector2f originalPos = m_TransformCompPtr->GetPosition();
+
+        auto &track = m_FlagPoleTimelinePtr->AddFloatTrack("MoveVertically");
+        track.keys = { { .time= 0.f, .value= 0.f }, { .time= 1.25f, .value= 350 } };
+            
+        track.onValue = [&, originalPos](const float x)
+        {
+            m_TransformCompPtr->SetPosition(originalPos.x + x, m_TransformCompPtr->GetPosition().y);
+        };
+
+        auto& [eventName, eventKeysVec] = m_FlagPoleTimelinePtr->GetEventTrack("OnAnimationEnd");
+        eventKeysVec =
+        {
+            { .time= 1.25f, .callback= [&]()
+                {
+                    OnCastleReachedEvent.Broadcast();
+                    SetActive(false);
+                }
+            }
+        };
+    }, 0.4f, false);
 }

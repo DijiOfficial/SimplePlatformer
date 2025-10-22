@@ -12,16 +12,16 @@ void thomasWasLate::BackgroundHandler::Init()
 
     m_TileIDToAtlasPos =
     {
-        { '0',  {0, 4} }, // Empty tile
-        { '1',  {0, 0} }, // Ground tile
-        { '2',  {0, 1} }, // Stair tile
-        { '3',  {1, 0} }, // TopLeft Up Pipe
-        { '4',  {2, 0} }, // TopRight Up Pipe
-        { '5',  {1, 1} }, // MiddleLeft Up Pipe
-        { '6',  {2, 1} }, // MiddleRight Up Pipe
-        { '7',  {0, 2} }, // TopRight Side Pipe
-        { '8',  {1, 2} }, // MiddleRight Side Pipe
-        { '9',  {2, 2} }, // BottomRight Side Pipe
+        { '0', {0, 4} }, // Empty tile
+        { '1', {0, 0} }, // Ground tile
+        { '2', {0, 1} }, // Stair tile
+        { '3', {1, 0} }, // TopLeft Up Pipe
+        { '4', {2, 0} }, // TopRight Up Pipe
+        { '5', {1, 1} }, // MiddleLeft Up Pipe
+        { '6', {2, 1} }, // MiddleRight Up Pipe
+        { '7', {0, 2} }, // TopRight Side Pipe
+        { '8', {1, 2} }, // MiddleRight Side Pipe
+        { '9', {2, 2} }, // BottomRight Side Pipe
         { 'a', {0, 3} }, // TopLeft Side Pipe
         { 'b', {1, 3} }, // MiddleLeft Side Pipe
         { 'c', {2, 3} }, // BottomLeft Side Pipe
@@ -33,12 +33,11 @@ void thomasWasLate::BackgroundHandler::Init()
         { 'g', {0, 4} }, // Goomba (fitting isn't it?) (invisible tile because it's not a background tile)
         { 'h', {0, 4} }, // Goomba but offset by 25 (invisible tile because it's not a background tile)
         { 'i', {0, 4} }, // Star block
+        { 'k', {3, 0} }, // pole top
+        { 'j', {3, 1} }, // pole body
         // ... etc.
     };
-}
 
-void thomasWasLate::BackgroundHandler::Start()
-{
     GameManager::GetInstance().LoadLevel();
 }
 

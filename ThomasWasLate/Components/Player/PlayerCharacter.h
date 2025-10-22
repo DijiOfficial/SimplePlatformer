@@ -10,6 +10,7 @@
 
 namespace diji
 {
+    class Timeline;
     class SpriteRenderComponent;
     class Transform;
     class Camera;
@@ -54,15 +55,19 @@ namespace thomasWasLate
         diji::Event<int> OnPointsScoredEvent;
         diji::Event<const diji::Collider*, const std::string&> OnEnemyStompedEvent;
         diji::Event<bool> OnPoweringUpEvent;
+        diji::Event<> OnLevelFinishedEvent;
+        diji::Event<> OnCastleReachedEvent;
 
     private:
-        static const std::vector<int> s_StompPointsTable;
-        std::unique_ptr<PlayerStates> m_CurrentStateUPtr = nullptr;
         const std::set<std::string> GROUND_TAGS = { "ground", "luckyBlock", "breakBlock" };
+        static const std::vector<int> s_StompPointsTable;
+        diji::Timeline* m_FlagPoleTimelinePtr = nullptr;
+        std::unique_ptr<PlayerStates> m_CurrentStateUPtr = nullptr;
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
         sf::Vector2f m_SpawnPoint = { 0.f, 0.f };
+        sf::Vector2f m_FlagCenter = { 0.f, 0.f };
         const diji::TimeSingleton& m_TimeSingletonInstance = diji::TimeSingleton::GetInstance();
         const sf::Vector2f UP_VECTOR = { 0.f, -1.f };
 
@@ -127,5 +132,7 @@ namespace thomasWasLate
         void PlayFireTransitionAnimation();
         void HandleStarPickup();
         void UpdateStarPowerShader();
+        void HandleLevelCompletion(const sf::Vector2f& center);
+        void StopFlagAnimAndMoveToCastle();
     };
 }

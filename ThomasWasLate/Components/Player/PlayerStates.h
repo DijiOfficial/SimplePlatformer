@@ -50,7 +50,8 @@ namespace thomasWasLate
             BigWalking,
             BigRunning,
             BigJumping,
-            BigDrifting,            
+            BigDrifting,
+            FlagPoleSlide,
         };
         [[nodiscard]] PlayerState GetState() const { return m_CurrentState; }
         
@@ -178,5 +179,17 @@ namespace thomasWasLate
     {
     public:
         ThrowingFireballState();
+    };
+
+    class FlagPoleSlideState final : public PlayerStates
+    {
+    public:
+        FlagPoleSlideState();
+    };
+
+    class BigFlagPoleSlideState final : public PlayerStates
+    {
+    public:
+        BigFlagPoleSlideState();
     };
 }

@@ -1,13 +1,18 @@
 ﻿#pragma once
 #include "Engine/Components/Component.h"
 
+namespace diji
+{
+    class Timeline;
+}
+
 namespace thomasWasLate
 {
-    class SmallCoinScript final : public diji::Component
+    class Flag final : public diji::Component
     {
     public:
-        explicit SmallCoinScript(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
-        ~SmallCoinScript() noexcept override = default;
+        explicit Flag(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
+        ~Flag() noexcept override = default;
 
         void Init() override;
         void OnEnable() override {}
@@ -19,5 +24,11 @@ namespace thomasWasLate
 
         void OnDisable() override {}
         void OnDestroy() override {}
+
+        diji::Event<> OnFlagAnimationFinishedEvent;
+
+    private:
+        diji::Timeline* m_TimelinePtr = nullptr;
+        void StartAnimation();
     };
 }
