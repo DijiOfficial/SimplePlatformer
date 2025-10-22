@@ -3,6 +3,7 @@
 #include "GameState.h"
 #include "../Components/Backgrounds/BackgroundHandler.h"
 #include "../Components/Backgrounds/CustomBackgroundRenderer.h"
+#include "../Components/Blocks/BreakableBlock.h"
 #include "../Components/Enemies/GoombaAI.h"
 #include "../Components/Other/CameraClamping.h"
 #include "../Components/Player/PlayerCharacter.h"
@@ -94,57 +95,30 @@ void SceneLoader::Level()
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
     
-    const auto testObject = scene->CreateGameObject("Y_testObject");
-    testObject->AddComponents<Transform>(600, 200);
-    testObject->AddComponents<SpriteRenderComponent>("graphics/star.png", sf::Vector2i{ 50,50 }, 4, 0.035f);
-    testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    testObject->GetComponent<Collider>()->SetRestitution(1.5f);
-    testObject->GetComponent<Collider>()->SetCollisionResponse(Collider::CollisionResponse::Overlap);
-    testObject->GetComponent<Collider>()->SetStaticFriction(0.f);
-    testObject->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 600.f, 1500.f });
-    testObject->GetComponent<Collider>()->SetTag("star");
-    testObject->GetComponent<Collider>()->SetAffectedByGravity(false);
-    testObject->AddComponents<thomasWasLate::StartPower>();
+    // const auto testObject = scene->CreateGameObject("Y_testObject");
+    // testObject->AddComponents<Transform>(600, 200);
+    // testObject->AddComponents<SpriteRenderComponent>("graphics/star.png", sf::Vector2i{ 50,50 }, 4, 0.035f);
+    // testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    // testObject->GetComponent<Collider>()->SetRestitution(1.5f);
+    // testObject->GetComponent<Collider>()->SetCollisionResponse(Collider::CollisionResponse::Overlap);
+    // testObject->GetComponent<Collider>()->SetStaticFriction(0.f);
+    // testObject->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 600.f, 1500.f });
+    // testObject->GetComponent<Collider>()->SetTag("star");
+    // testObject->GetComponent<Collider>()->SetAffectedByGravity(false);
+    // testObject->AddComponents<thomasWasLate::StartPower>();
 
-    
-    // const auto goombaTest = scene->CreateGameObject("Y_goombaTest");
-    // goombaTest->AddComponents<Transform>(2000, 0);
-    // goombaTest->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
-    // goombaTest->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    // goombaTest->GetComponent<Collider>()->SetRestitution(0.f);
-    // goombaTest->GetComponent<Collider>()->SetMass(0.89f);
-    // goombaTest->GetComponent<Collider>()->SetStaticFriction(0.25f);
-    // goombaTest->GetComponent<Collider>()->SetKineticFriction(0.15f);
-    // goombaTest->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
-    // goombaTest->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    // goombaTest->GetComponent<Collider>()->SetTag("enemy");
-    // goombaTest->AddComponents<thomasWasLate::GoombaAI>();
-    //
-    // const auto goombaTest2 = scene->CreateGameObject("Y_Goomba2Test");
-    // goombaTest2->AddComponents<Transform>(1800, 0);
-    // goombaTest2->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
-    // goombaTest2->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    // goombaTest2->GetComponent<Collider>()->SetRestitution(0.f);
-    // goombaTest2->GetComponent<Collider>()->SetMass(0.89f);
-    // goombaTest2->GetComponent<Collider>()->SetStaticFriction(0.25f);
-    // goombaTest2->GetComponent<Collider>()->SetKineticFriction(0.15f);
-    // goombaTest2->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
-    // goombaTest2->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    // goombaTest2->GetComponent<Collider>()->SetTag("enemy");
-    // goombaTest2->AddComponents<thomasWasLate::GoombaAI>();
-    //
-    // const auto goombaTest3 = scene->CreateGameObject("Y_Goomba32Test");
-    // goombaTest3->AddComponents<Transform>(2300, 0);
-    // goombaTest3->AddComponents<SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
-    // goombaTest3->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    // goombaTest3->GetComponent<Collider>()->SetRestitution(0.f);
-    // goombaTest3->GetComponent<Collider>()->SetMass(0.89f);
-    // goombaTest3->GetComponent<Collider>()->SetStaticFriction(0.25f);
-    // goombaTest3->GetComponent<Collider>()->SetKineticFriction(0.15f);
-    // goombaTest3->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
-    // goombaTest3->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    // goombaTest3->GetComponent<Collider>()->SetTag("enemy");
-    // goombaTest3->AddComponents<thomasWasLate::GoombaAI>();
+    // auto breakableBlock = scene->CreateGameObject("Y_testObject");
+    // // auto breakableBlock = std::make_unique<diji::GameObject>();
+    // breakableBlock->AddComponents<diji::Transform>(600, 300);
+    // breakableBlock->AddComponents<diji::SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50, 50 }, 1, 0.0f);
+    // breakableBlock->GetComponent<diji::SpriteRenderComponent>()->SetLooping(false);
+    // breakableBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    // const auto collider = breakableBlock->GetComponent<diji::Collider>();
+    // collider->SetTag("breakBlock");
+    // collider->SetAffectedByGravity(false);
+    // collider->SetGenerateHitEvents(true);
+    // collider->SetIsMoveable(false);
+    // breakableBlock->AddComponents<thomasWasLate::BreakableBlock>();
 
     // Create the HUD
     const auto marioName = scene->CreateGameObject("Z_MarioName");

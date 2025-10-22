@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../..//Interfaces/IBumpable.h"
+#include "../..//Interfaces/IKillable.h"
 
 #include <string>
 
@@ -12,7 +13,7 @@ namespace thomasWasLate
 {
     class PlayerStates;
 
-    class GoombaAI final : public IBumpable
+    class GoombaAI final : public IBumpable, public diji::IKillable
     {
     public:
         explicit GoombaAI(diji::GameObject* ownerPtr) : IBumpable{ ownerPtr } {}
@@ -32,8 +33,10 @@ namespace thomasWasLate
         void HandleStomp(const diji::Collider* other, const std::string& score);
         void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo) override;
 
-        void HandleBumpedBehavior(bool IsBumpingLeft) override;
+        void HandleBumpedBehavior(bool isBumpingLeft) override;
         void SetActivationMilestone(const int milestone) { m_ActivationMilestone = milestone; }
+
+        void Kill(bool isBumpingLeft) override;
 
     private:
         diji::Collider* m_ColliderCompPtr = nullptr;

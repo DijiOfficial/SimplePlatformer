@@ -1,5 +1,6 @@
 ﻿#include "PlayerCharacter.h"
 
+#include "../../Interfaces/IKillable.h"
 #include "../PowerUps/FireBall.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Collision/Collider.h"
@@ -7,6 +8,7 @@
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Components/Transform.h"
+#include "Engine/Interfaces/IInterface.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/RandNumber.h"
 #include "Engine/Singleton/ResourceManager.h"
@@ -300,6 +302,13 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
     
     if (otherTag != "enemy") return;
 
+    if (m_IsStartPoweredUp)
+    {
+        const auto enemyInterface = diji::InterfaceRegistry::GetInterface<diji::IKillable>(other->GetParent());
+        // auto enemyInterface = other->GetInterface<diji::IKillable>();
+        enemyInterface->Kill(m_TransformCompPtr->GetPosition().x > other->GetPosition().x);
+        return;
+    }
     const sf::Vector2f playerCenter = m_TransformCompPtr->GetPosition();
     const sf::Vector2f enemyCenter = other->GetPosition();
     

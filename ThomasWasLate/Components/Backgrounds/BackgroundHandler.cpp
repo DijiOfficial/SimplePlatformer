@@ -32,6 +32,7 @@ void thomasWasLate::BackgroundHandler::Init()
         { 'f', {0, 4} }, // MultiCoinBlock (invisible tile because it's rendered by BreakableBlock component)
         { 'g', {0, 4} }, // Goomba (fitting isn't it?) (invisible tile because it's not a background tile)
         { 'h', {0, 4} }, // Goomba but offset by 25 (invisible tile because it's not a background tile)
+        { 'i', {0, 4} }, // Star block
         // ... etc.
     };
 }

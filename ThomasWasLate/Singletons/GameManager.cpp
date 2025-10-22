@@ -15,6 +15,9 @@
 #include <format>
 #include <fstream>
 
+#include "../Components/Blocks/StarBlock.h"
+#include "../Components/PowerUps/StartPower.h"
+
 namespace thomasWasLate
 {
     class GoombaAI;
@@ -146,7 +149,7 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
-            if (std::string("0edxyfgh").find(tile) == std::string::npos)
+            if (std::string("0edxyfghi").find(tile) == std::string::npos)
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -277,11 +280,11 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
                 
                 ++col;
             }
-            else if (tile == 'f')
+            else if (tile == 'f' || tile == 'i')
             {
                 const float left = static_cast<float>(col) * kTileSize;
                 const float bottom = static_cast<float>(row) * kTileSize;
-                sf::Vector2f center{ left + 25.f, bottom + + 25.f };
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
                 
                 auto multiCoinBlock = std::make_unique<diji::GameObject>();
                 multiCoinBlock->AddComponents<diji::Transform>(600, 300);
@@ -293,7 +296,11 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
                 collider->SetAffectedByGravity(false);
                 collider->SetGenerateHitEvents(true);
                 collider->SetIsMoveable(false);
-                multiCoinBlock->AddComponents<MultiCoinBlock>();
+
+                if (tile == 'i')
+                    multiCoinBlock->AddComponents<StarBlock>();
+                else
+                    multiCoinBlock->AddComponents<MultiCoinBlock>();
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_MultiCoinBlock", std::move(multiCoinBlock), center);
                 ++col;
