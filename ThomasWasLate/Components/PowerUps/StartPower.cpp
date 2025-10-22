@@ -11,7 +11,12 @@ void thomasWasLate::StartPower::Init()
 {
     m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
-
+    m_ColliderCompPtr->SetRestitution(1.5f);
+    m_ColliderCompPtr->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+    m_ColliderCompPtr->SetStaticFriction(0.f);
+    m_ColliderCompPtr->SetMaxVelocity(sf::Vector2f{ 600.f, 800.f });
+    m_ColliderCompPtr->SetTag("star");
+    m_ColliderCompPtr->SetAffectedByGravity(false);
     PlayStartAnimation();
 }
 
@@ -60,7 +65,7 @@ void thomasWasLate::StartPower::PlayStartAnimation() const
         { .time= 0.8f, .callback= [&]()
             {
                 m_ColliderCompPtr->SetAffectedByGravity(true);
-                m_ColliderCompPtr->ApplyImpulse(sf::Vector2f{ 500.f, -800.f });
+                m_ColliderCompPtr->ApplyImpulse(sf::Vector2f{ 300.f, -800.f });
             }
         }
     };
