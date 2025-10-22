@@ -51,7 +51,8 @@ void diji::Timeline::Stop()
 {
     m_Playing = false;
     m_Time = m_Reverse ? m_Length : 0.f;
-    
+
+    // todo: check if stop is called within the timeline event track callback to avoid issues
     // reset event flags
     for (auto& [name, keys] : m_EventTracks)
         for (auto& key : keys)
