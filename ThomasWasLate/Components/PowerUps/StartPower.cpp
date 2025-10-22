@@ -60,7 +60,7 @@ void thomasWasLate::StartPower::PlayStartAnimation() const
         { .time= 0.8f, .callback= [&]()
             {
                 m_ColliderCompPtr->SetAffectedByGravity(true);
-                m_ColliderCompPtr->ApplyImpulse(sf::Vector2f{ 400.f, -600.f });
+                m_ColliderCompPtr->ApplyImpulse(sf::Vector2f{ 500.f, -800.f });
             }
         }
     };

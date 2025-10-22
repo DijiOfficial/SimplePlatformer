@@ -12,6 +12,16 @@
 void thomasWasLate::StarBlock::Init()
 {
     BreakableBlock::Init();
+
+    auto& [eventName, eventKeysVec] = m_TimelinePtr->GetEventTrack("OnAnimationEnd");
+    eventKeysVec =
+    {
+        { .time= 0.2f, .callback= [&]()
+            {
+                SpawnStarPowerUp();
+            }
+        }
+    };
 }
 
 void thomasWasLate::StarBlock::OnHitEvent(const diji::Collider* collider, const diji::CollisionInfo& hitInfo)
@@ -26,7 +36,6 @@ void thomasWasLate::StarBlock::OnHitEvent(const diji::Collider* collider, const 
 
     mario::MarioHelpers::CheckForCollisionAboveBlock(selfCollider);
     SwitchToEmptyBlockState();
-    SpawnStarPowerUp();
     m_IsHit = true;
 }
 
@@ -60,6 +69,5 @@ void thomasWasLate::StarBlock::SpawnStarPowerUp() const
     star->GetComponent<diji::Collider>()->SetAffectedByGravity(false);
     star->AddComponents<StartPower>();
 
-
-    diji::SceneManager::GetInstance().SpawnGameObject("C_PowerUp", std::move(star), GetOwner()->GetComponent<diji::Transform>()->GetPosition());
+    diji::SceneManager::GetInstance().SpawnGameObject("C_PowerUp", std::move(star),  GetOwner()->GetComponent<diji::Transform>()->GetPosition());
 }
