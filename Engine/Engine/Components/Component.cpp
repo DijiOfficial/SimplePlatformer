@@ -2,6 +2,7 @@
 
 #include "../Singleton/SceneManager.h"
 #include "../Singleton/TimerManager.h"
+#include "../Core/GameObject.h"
 
 void diji::Component::SetActive(const bool isActive) const
 {

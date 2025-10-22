@@ -47,6 +47,7 @@
     <ClInclude Include="Engine\Input\InputManager.h" />
     <ClInclude Include="Engine\Interfaces\EventRegistry.h" />
     <ClInclude Include="Engine\Interfaces\EventSystem.h" />
+    <ClInclude Include="Engine\Interfaces\IInterface.h" />
     <ClInclude Include="Engine\Interfaces\ISoundSystem.h" />
     <ClInclude Include="Engine\Interfaces\Timeline.h" />
     <ClInclude Include="Engine\Interfaces\TimelineManager.h" />
@@ -86,6 +87,7 @@
     <ClCompile Include="Engine\Input\Controller.cpp" />
     <ClCompile Include="Engine\Input\InputManager.cpp" />
     <ClCompile Include="Engine\Interfaces\EventRegistry.cpp" />
+    <ClCompile Include="Engine\Interfaces\IInterface.cpp" />
     <ClCompile Include="Engine\Interfaces\ISoundSystem.cpp" />
     <ClCompile Include="Engine\Interfaces\Timeline.cpp" />
     <ClCompile Include="Engine\Interfaces\TimelineManager.cpp" />

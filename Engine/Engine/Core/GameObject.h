@@ -130,6 +130,17 @@ namespace diji
 					return dynamic_cast<T*>(comp.get()) != nullptr;
 				});
 		}
+
+		template<typename IInterfaceType>
+		IInterfaceType* GetInterface()
+		{
+			for (auto& comp : m_ComponentsPtrVec)
+			{
+				if (auto interface = dynamic_cast<IInterfaceType*>(comp.get()))
+					return interface;
+			}
+			return nullptr;
+		}
 #pragma endregion Components
 		
 		//SceneGraph
