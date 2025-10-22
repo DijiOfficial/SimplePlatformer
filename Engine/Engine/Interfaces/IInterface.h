@@ -59,8 +59,7 @@ namespace diji
         template<typename IInterfaceType>
         [[nodiscard]] static IInterfaceType* GetInterface(const GameObject* gameObject)
         {
-            const auto nonConstGameObject = const_cast<GameObject*>(gameObject);
-            return nonConstGameObject->GetInterface<IInterfaceType>();
+            return gameObject->GetInterface<IInterfaceType>();
         }
 
         // Execute a function on all implementers

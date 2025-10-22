@@ -132,7 +132,7 @@ namespace diji
 		}
 
 		template<typename IInterfaceType>
-		IInterfaceType* GetInterface()
+		IInterfaceType* GetInterface() const
 		{
 			for (auto& comp : m_ComponentsPtrVec)
 			{
