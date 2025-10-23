@@ -82,6 +82,16 @@ bool diji::Collider::IsIgnoringCollider(const Collider* collider) const
     return std::ranges::find(m_IgnoredColliders, collider) != m_IgnoredColliders.end();
 }
 
+void diji::Collider::OverlapCollider(const Collider* collider)
+{
+     m_CollidersToOverlap.push_back(collider);
+}
+
+bool diji::Collider::IsOverlappingCollider(const Collider* collider) const
+{
+    return std::ranges::find(m_CollidersToOverlap, collider) != m_CollidersToOverlap.end();
+}
+
 void diji::Collider::ResizeCollider(const sf::Vector2f& size) const
 {
     if (m_Type == CollisionShape::ShapeType::RECT)
@@ -105,4 +115,17 @@ void diji::Collider::ResizeCollider(const float radius) const
 sf::Vector2f diji::Collider::GetSurfaceNormalAt(const sf::Vector2f& point) const
 {
     return m_Shape->GetSurfaceNormalAt(point);
+}
+
+void diji::Collider::ValidateColliderLists()
+{
+    std::erase_if(m_IgnoredColliders, [](const Collider* collider)
+    {
+        return collider == nullptr;
+    });
+
+    std::erase_if(m_CollidersToOverlap, [](const Collider* collider)
+    {
+        return collider == nullptr;
+    });
 }

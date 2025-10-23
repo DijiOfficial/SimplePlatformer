@@ -93,6 +93,8 @@ void diji::SceneManager::EndFrameUpdate()
 
         m_PendingDestroyVec = std::vector<const GameObject*>();
         m_HasPendingDestroy = false;
+
+        m_ScenesUPtrMap.at(m_ActiveSceneId)->ValidateCollidersAfterDestroy();
     }
     
     //  We can load the new scene

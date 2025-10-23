@@ -293,6 +293,7 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         {
             if (!colliderPtr->IsActive()) continue;
             if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
+            if (colliderPtr->IsIgnoringCollider(staticCollider) || staticCollider->IsIgnoringCollider(colliderPtr)) continue;
             if (!AABBOverlap(predictedAABB, aabb)) continue;
             
             const auto [Overlap, Hit] = HandleStaticCollisions(predictionsVec[i], staticCollider);

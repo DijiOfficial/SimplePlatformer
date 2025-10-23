@@ -1,10 +1,10 @@
 ﻿#include "Scene.h"
+#include "Engine.h"
+#include "../Collision/Collider.h"
+#include "../Components/Camera.h"
 
 #include <ranges>
 #include <stdexcept>
-
-#include "Engine.h"
-#include "../Components/Camera.h"
 
 diji::Scene::~Scene() noexcept
 {
@@ -385,6 +385,17 @@ void diji::Scene::SetGameObjectAsStaticBackground(const GameObject* object)
     }
 
     throw std::runtime_error("GameObject does not exist in the scene.");
+}
+
+void diji::Scene::ValidateCollidersAfterDestroy()
+{
+    // todo: multi-thread?
+    for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
+    {
+        if (!gameObject->HasComponent<Collider>()) continue;
+
+        gameObject->GetComponent<Collider>()->ValidateColliderLists();
+    }
 }
 
 void diji::Scene::DrawGameObjects() const

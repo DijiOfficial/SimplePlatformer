@@ -47,7 +47,8 @@ namespace diji
         )
         {
             const bool isOverlap = colliderA->GetCollisionResponse() == Collider::CollisionResponse::Overlap ||
-                                   colliderB->GetCollisionResponse() == Collider::CollisionResponse::Overlap;
+                                   colliderB->GetCollisionResponse() == Collider::CollisionResponse::Overlap ||
+                                   colliderA->IsOverlappingCollider(colliderB) || colliderB->IsOverlappingCollider(colliderA);
 
             auto shapeA = *dynamic_cast<const ShapeA*>(&colliderA->GetShape()->GetShape());
             shapeA.setPosition(predA.pos);

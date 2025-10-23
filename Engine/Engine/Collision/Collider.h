@@ -102,6 +102,9 @@ namespace diji
         void IgnoreCollider(const Collider* collider);
         [[nodiscard]] bool IsIgnoringCollider(const Collider* collider) const;
 
+        void OverlapCollider(const Collider* collider);
+        [[nodiscard]] bool IsOverlappingCollider(const Collider* collider) const;
+
         void SetActive(const bool isActive) { m_IsActive = isActive; }
         [[nodiscard]] bool IsActive() const { return m_IsActive; }
 
@@ -129,11 +132,14 @@ namespace diji
         [[nodiscard]] bool IsIgnoringAllDynamicColliders() const { return m_IsIgnoringDynamicColliders; }
         
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const;
+
+        void ValidateColliderLists();
         
     private:
         // todo: if velocity is zero for a certain amount of time, set similar to static to save calculations
         Transform* m_TransformCompPtr = nullptr;
         std::vector<const Collider*> m_IgnoredColliders;
+        std::vector<const Collider*> m_CollidersToOverlap;
         CollisionShape::ShapeType m_Type;
         std::unique_ptr<CollisionShape> m_Shape;
         const TimeSingleton& m_TimeSingletonInstance = TimeSingleton::GetInstance();

@@ -55,6 +55,7 @@ namespace diji
         void SetMultiplayerSplitScreen(int numPlayers);
         void SetGameObjectAsStaticBackground(const std::string& name);
         void SetGameObjectAsStaticBackground(const GameObject* object);
+        void ValidateCollidersAfterDestroy();
     
     private:
         std::map<std::string, std::unique_ptr<GameObject>> m_ObjectsUPtrMap;
