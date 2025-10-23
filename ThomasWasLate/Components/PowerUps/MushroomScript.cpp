@@ -40,7 +40,10 @@ void thomasWasLate::MushroomScript::FixedUpdate()
 void thomasWasLate::MushroomScript::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo& hitInfo)
 {
     if (other->GetTag() == "player")
+    {
+        m_Paused = false;
         OnHitEvent(other, hitInfo);
+    }
 }
 
 void thomasWasLate::MushroomScript::OnHitEvent(const diji::Collider* collider, const diji::CollisionInfo& hitInfo)
