@@ -15,6 +15,7 @@ thomasWasLate::HudManager::HudManager(diji::GameObject* ownerPtr, diji::ScoreCou
 void thomasWasLate::HudManager::Init()
 {
     diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener(this, &HudManager::SaveScoreAndCoins);
+    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnFallingInHoleEvent.AddListener(this, &HudManager::SaveScoreAndCoins);
     diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnCastleReachedEvent.AddListener(this, &HudManager::SaveScoreAndCoins);
     m_CoinsCounterCompPtr->OnGivenScoreReachedEvent.AddListener(this, &HudManager::Handle100CoinsCollected);
 }
