@@ -37,6 +37,7 @@ void thomasWasLate::BackgroundHandler::Init()
         { 'j', {3, 1} }, // pole body
         { 'l', {0, 4} }, // small castle base
         { 'm', {0, 4} }, // big castle base
+        { 'n', {0, 4} }, // 1up mushroom
         // ... etc.
     };
 

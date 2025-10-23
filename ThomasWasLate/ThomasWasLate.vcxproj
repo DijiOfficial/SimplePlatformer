@@ -175,6 +175,7 @@
     <ClCompile Include="Components\Backgrounds\CustomBackgroundRenderer.cpp" />
     <ClCompile Include="Components\Blocks\BreakableBlock.cpp" />
     <ClCompile Include="Components\Blocks\Debris.cpp" />
+    <ClCompile Include="Components\Blocks\HiddenBlocks.cpp" />
     <ClCompile Include="Components\Blocks\LuckyBlock.cpp" />
     <ClCompile Include="Components\Blocks\MultiCoinBlock.cpp" />
     <ClCompile Include="Components\Blocks\StarBlock.cpp" />
@@ -191,6 +192,7 @@
     <ClCompile Include="Components\PowerUps\FireBall.cpp" />
     <ClCompile Include="Components\PowerUps\FireFlower.cpp" />
     <ClCompile Include="Components\PowerUps\MushroomScript.cpp"/>
+    <ClCompile Include="Components\PowerUps\OneUpMushroom.cpp" />
     <ClCompile Include="Components\PowerUps\StartPower.cpp" />
     <ClCompile Include="Core\GameLoader.cpp" />
     <ClCompile Include="Helpers\MarioHelpers.cpp" />
@@ -203,6 +205,7 @@
     <ClInclude Include="Components\Backgrounds\CustomBackgroundRenderer.h" />
     <ClInclude Include="Components\Blocks\BreakableBlock.h" />
     <ClInclude Include="Components\Blocks\Debris.h" />
+    <ClInclude Include="Components\Blocks\HiddenBlocks.h" />
     <ClInclude Include="Components\Blocks\LuckyBlock.h" />
     <ClInclude Include="Components\Blocks\MultiCoinBlock.h" />
     <ClInclude Include="Components\Blocks\StarBlock.h" />
@@ -219,6 +222,7 @@
     <ClInclude Include="Components\PowerUps\FireBall.h" />
     <ClInclude Include="Components\PowerUps\FireFlower.h" />
     <ClInclude Include="Components\PowerUps\MushroomScript.h" />
+    <ClInclude Include="Components\PowerUps\OneUpMushroom.h" />
     <ClInclude Include="Components\PowerUps\StartPower.h" />
     <ClInclude Include="Core\GameLoader.h" />
     <ClInclude Include="Core\GameState.h" />

@@ -18,6 +18,8 @@
 #include <format>
 #include <fstream>
 
+#include "../Components/Blocks/HiddenBlocks.h"
+
 
 namespace thomasWasLate
 {
@@ -161,7 +163,7 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
-            if (std::string("0edxyfghijklm").find(tile) == std::string::npos)
+            if (std::string("0edxyfghijklmn").find(tile) == std::string::npos)
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -335,6 +337,26 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
                 castle->AddComponents<diji::Render>();
             
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_castle", std::move(castle), center);
+                
+                ++col;
+            }
+            else if (tile == 'n')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
+            
+                auto oneUpBlock = std::make_unique<diji::GameObject>();
+                oneUpBlock->AddComponents<diji::Transform>(600, 300);
+                oneUpBlock->AddComponents<diji::SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50,50 }, 1, 0.035f);
+                oneUpBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                oneUpBlock->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+                oneUpBlock->GetComponent<diji::Collider>()->SetTag("HiddenBlock");
+                oneUpBlock->GetComponent<diji::Collider>()->SetAffectedByGravity(false);
+                oneUpBlock->GetComponent<diji::Collider>()->SetIsMoveable(false);
+                oneUpBlock->AddComponents<HiddenBlocks>();
+            
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_oneUpBlock", std::move(oneUpBlock), center);
                 
                 ++col;
             }

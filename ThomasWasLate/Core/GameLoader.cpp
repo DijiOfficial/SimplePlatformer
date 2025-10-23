@@ -45,9 +45,11 @@ void SceneLoader::GameStartUp()
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::StartMenu), StartMenu);
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::LivesDisplayMenu), LivesDisplayMenu);
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::GameOver), GameOverMenu);
-    StartMenu();
+    // StartMenu();
+    Level();
 }
 
+#pragma region Menus
 void SceneLoader::StartMenu()
 {
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(thomasWasLate::thomasWasLateState::StartMenu));
@@ -395,6 +397,7 @@ void SceneLoader::GameOverMenu()
     fpsCounter->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(fpsCounter);
 }
+#pragma endregion
 
 void SceneLoader::Level()
 {
@@ -424,11 +427,8 @@ void SceneLoader::Level()
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     player->AddComponents<Transform>(200, 0);
-    // player->AddComponents<TextureComp>("graphics/player.png");
-    // player->AddComponents<Render>(3);
     player->AddComponents<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
     player->GetComponent<SpriteRenderComponent>()->SetScale(3);
-    // player->GetComponent<SpriteRenderComponent>()->SetFrameSize(sf::Vector2i{ 16, 16 });
     player->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
     player->GetComponent<Collider>()->SetRestitution(0.f);
     player->GetComponent<Collider>()->SetMass(0.89f);
@@ -437,25 +437,22 @@ void SceneLoader::Level()
     player->GetComponent<Collider>()->SetGenerateHitEvents(true);
     player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.f, 1000.f });
     player->GetComponent<Collider>()->SetTag("player");
-    // player->GetComponent<Collider>()->SetAffectedByGravity(false);
     player->AddComponents<thomasWasLate::PlayerCharacter>(0.5f);
     player->AddComponents<thomasWasLate::CameraClamping>();
     player->AddComponents<thomasWasLate::BroadcastPlayerPosition>();
-    // player->AddComponents<ShapeRender>(true);
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
     
     // const auto testObject = scene->CreateGameObject("Y_testObject");
     // testObject->AddComponents<Transform>(600, 200);
-    // testObject->AddComponents<SpriteRenderComponent>("graphics/star.png", sf::Vector2i{ 50,50 }, 4, 0.035f);
+    // testObject->AddComponents<SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50,50 }, 1, 0.035f);
+    // testObject->GetComponent<SpriteRenderComponent>()->Pause();
+    // testObject->GetComponent<SpriteRenderComponent>()->SetCurrentAnimationFrame(2);
     // testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    // testObject->GetComponent<Collider>()->SetRestitution(1.5f);
     // testObject->GetComponent<Collider>()->SetCollisionResponse(Collider::CollisionResponse::Overlap);
-    // testObject->GetComponent<Collider>()->SetStaticFriction(0.f);
-    // testObject->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 600.f, 1500.f });
-    // testObject->GetComponent<Collider>()->SetTag("star");
+    // testObject->GetComponent<Collider>()->SetTag("HiddenBlock");
     // testObject->GetComponent<Collider>()->SetAffectedByGravity(false);
-    // testObject->AddComponents<thomasWasLate::StartPower>();
+    // testObject->GetComponent<Collider>()->SetIsMoveable(false);
 
     // auto breakableBlock = scene->CreateGameObject("Y_testObject");
     // // auto breakableBlock = std::make_unique<diji::GameObject>();
@@ -470,6 +467,7 @@ void SceneLoader::Level()
     // collider->SetIsMoveable(false);
     // breakableBlock->AddComponents<thomasWasLate::BreakableBlock>();
 
+#pragma region HUD
     // Create the HUD
     const auto marioName = scene->CreateGameObject("Z_MarioName");
     marioName->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.15f, static_cast<float>(window::VIEWPORT.y) * 0.05f);
@@ -566,7 +564,8 @@ void SceneLoader::Level()
     fpsCounter->AddComponents<Transform>(window::VIEWPORT.x - 100, 40);
     fpsCounter->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(fpsCounter);
-
+#pragma endregion
+    
 #pragma region Commands
     auto& input = InputManager::GetInstance();
 

@@ -12,6 +12,8 @@
 void thomasWasLate::MushroomScript::Init()
 {
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
+    m_ColliderCompPtr->SetTag("powerUp");
+
     m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
 
     diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener([this]()
@@ -35,10 +37,10 @@ void thomasWasLate::MushroomScript::FixedUpdate()
     m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
 }
 
-void thomasWasLate::MushroomScript::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&)
+void thomasWasLate::MushroomScript::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo& hitInfo)
 {
     if (other->GetTag() == "player")
-        Destroy();
+        OnHitEvent(other, hitInfo);
 }
 
 void thomasWasLate::MushroomScript::OnHitEvent(const diji::Collider* collider, const diji::CollisionInfo& hitInfo)
@@ -51,7 +53,7 @@ void thomasWasLate::MushroomScript::OnHitEvent(const diji::Collider* collider, c
         const auto& pos = m_TransformCompPtr->GetPosition();
         const auto& yOffset = collider->GetShape()->GetAABB().getSize().y;
         const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
-        GameManager::SpawnPointsText(scorePos, "1000");
+        GameManager::SpawnPointsText(scorePos, m_PointString);
         return;
     }
 
@@ -91,7 +93,6 @@ void thomasWasLate::MushroomScript::PlayStartAnimation()
                 const auto collider = GetOwner()->GetComponent<diji::Collider>();
                 collider->SetCollisionResponse(diji::Collider::CollisionResponse::Block);
                 collider->SetGenerateHitEvents(true);
-                collider->SetTag("powerUp");
                 collider->SetRestitution(0.f);
                 collider->SetMass(0.89f);
                 collider->SetStaticFriction(0.25f);

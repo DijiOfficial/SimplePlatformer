@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <string>
+
 #include "../../Interfaces/IBumpable.h"
 
 namespace diji
@@ -8,7 +10,7 @@ namespace diji
 
 namespace thomasWasLate
 {
-    class MushroomScript final : public IBumpable
+    class MushroomScript : public IBumpable
     {
     public:
         explicit MushroomScript(diji::GameObject* ownerPtr) : IBumpable{ ownerPtr } {}
@@ -25,13 +27,16 @@ namespace thomasWasLate
         void OnDisable() override {}
         void OnDestroy() override {}
 
-        void OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&) override;
+        void OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo& hitInfo) override;
         void OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo) override;
 
         void HandleBumpedBehavior(bool IsBumpingLeft) override;
 
-    private:
+    protected:
+        std::string m_PointString = "1000";
         diji::Collider* m_ColliderCompPtr = nullptr;
+        
+    private:
         diji::Transform* m_TransformCompPtr = nullptr;
         bool m_Paused = true;
 

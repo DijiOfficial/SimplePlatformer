@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "BreakableBlock.h"
-#include "Engine/Singleton/TimerManager.h"
 
 namespace diji
 {
@@ -9,7 +8,7 @@ namespace diji
 
 namespace thomasWasLate
 {
-    class StarBlock final : public BreakableBlock
+    class StarBlock : public BreakableBlock
     {
     public:
         explicit StarBlock(diji::GameObject* ownerPtr) : BreakableBlock{ ownerPtr } {}
@@ -18,8 +17,8 @@ namespace thomasWasLate
         void Init() override;
         void OnHitEvent(const diji::Collider* collider, const diji::CollisionInfo& hitInfo) override;
         
-    private:
+    protected:
         void SwitchToEmptyBlockState() const;
-        void SpawnStarPowerUp() const;
+        virtual void SpawnStarPowerUp() const;
     };
 }
