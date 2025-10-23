@@ -8,7 +8,7 @@ namespace thomasWasLate
         StartUp,
         Paused,
         Level,
-        Upgrading,
         GameOver,
+        LivesDisplayMenu
     };
 }

@@ -25,11 +25,11 @@ namespace thomasWasLate
         diji::Event<> OnNewLevelLoadedEvent;
         diji::Event<int> OnScoreAddedEvent;
         diji::Event<> OnCoinCollectedEvent;
+        
         void LoadLevel();
         void ClearLevelInfo() { m_LevelInfo = std::vector<char>(); }
         [[nodiscard]] const std::vector<char>& GetLevelInfo() const { return m_LevelInfo; }
         [[nodiscard]] const sf::Vector2u& GetStartPosition() const { return m_StartPosition; }
-        // [[nodiscard]] int GetCurrentLevel() const { return m_CurrentLevel; }
         [[nodiscard]] int GetRows() const { return m_Rows; }
         [[nodiscard]] int GetCols() const { return m_Cols; }
         void SetLevelCleared();
@@ -41,15 +41,30 @@ namespace thomasWasLate
         [[nodiscard]] bool CanSpawnFireball() const { return m_TotalFireballsInLevel < 2; }
 
         static void SpawnPointsText(const sf::Vector2f& position, const std::string& score);
+
+        struct PlayerInfo
+        {
+            int totalLives = 3;
+            int totalCoins = 0;
+            int totalScore = 0;
+            int currentLevel = 1;
+        };
+        [[nodiscard]] const PlayerInfo& GetPlayerInfo() const { return m_PlayerInfo; }
+        void LoseLife() { --m_PlayerInfo.totalLives; }
+        void AddLife() { ++m_PlayerInfo.totalLives; }
+        void SaveScore(const int score) { m_PlayerInfo.totalScore = score; }
+        void SaveCoins(const int coins) { m_PlayerInfo.totalCoins = coins; }
+        void ResetPlayerInfo();
+        
     private:
         std::vector<std::unique_ptr<diji::Collider>> m_TileColliders;
         PlayerHealthState m_CurrentPlayerState = PlayerHealthState::Small;
         sf::Vector2u m_StartPosition;
         std::vector<char> m_LevelInfo;
-        int m_CurrentLevel = 1;
         int m_Rows = 0;
         int m_Cols = 0;
         int m_TotalFireballsInLevel = 0;
+        PlayerInfo m_PlayerInfo;
 
         std::string LoadInformation();
         void ReadLevelInfo(const std::string& filepath);

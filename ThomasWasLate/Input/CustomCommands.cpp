@@ -73,5 +73,5 @@ void thomasWasLate::Attack::Execute()
 
 void thomasWasLate::StartGame::Execute()
 {
-    diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::Level));
+    diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::LivesDisplayMenu));
 }

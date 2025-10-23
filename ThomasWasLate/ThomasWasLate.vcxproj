@@ -181,6 +181,7 @@
     <ClCompile Include="Components\Enemies\GoombaAI.cpp" />
     <ClCompile Include="Components\Other\CameraClamping.cpp" />
     <ClCompile Include="Components\Other\Flag.cpp" />
+    <ClCompile Include="Components\Other\HudManager.cpp" />
     <ClCompile Include="Components\Other\PointsBehaviour.cpp" />
     <ClCompile Include="Components\Other\SmallCoinScript.cpp" />
     <ClCompile Include="Components\Other\TimerScript.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="Components\Enemies\GoombaAI.h" />
     <ClInclude Include="Components\Other\CameraClamping.h" />
     <ClInclude Include="Components\Other\Flag.h" />
+    <ClInclude Include="Components\Other\HudManager.h" />
     <ClInclude Include="Components\Other\PointsBehaviour.h" />
     <ClInclude Include="Components\Other\SmallCoinScript.h" />
     <ClInclude Include="Components\Other\TimerScript.h" />

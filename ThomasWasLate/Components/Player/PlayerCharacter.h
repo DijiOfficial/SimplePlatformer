@@ -51,7 +51,6 @@ namespace thomasWasLate
 
         diji::Event<> OnHitByEnemyEvent;
         diji::Event<> OnFallingInHoleEvent;
-        diji::Event<> OnExtraLifeGainedEvent;
         diji::Event<int> OnPointsScoredEvent;
         diji::Event<const diji::Collider*, const std::string&> OnEnemyStompedEvent;
         diji::Event<bool> OnPoweringUpEvent;

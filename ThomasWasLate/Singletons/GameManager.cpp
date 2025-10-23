@@ -37,7 +37,7 @@ void thomasWasLate::GameManager::LoadLevel()
 
 void thomasWasLate::GameManager::SetLevelCleared()
 {
-    ++m_CurrentLevel;
+    ++m_PlayerInfo.currentLevel;
 
     ResetLevel();
 }
@@ -49,8 +49,11 @@ void thomasWasLate::GameManager::ResetLevel()
     OnPlayerSwitchedEvent.ClearAllListeners();
     OnScoreAddedEvent.ClearAllListeners();
     OnCoinCollectedEvent.ClearAllListeners();
-    
-    diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::Level));
+
+    if (m_PlayerInfo.totalLives == 0)
+        diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::GameOver));
+    else
+        diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::LivesDisplayMenu));
     m_TotalFireballsInLevel = 0;
 }
 
@@ -76,9 +79,17 @@ void thomasWasLate::GameManager::SpawnPointsText(const sf::Vector2f& position, c
     diji::SceneManager::GetInstance().AddGameObjectToCanvas("ZZ_pointsText", std::move(pointsText), screenPos);
 }
 
+void thomasWasLate::GameManager::ResetPlayerInfo()
+{
+    m_PlayerInfo.totalLives = 3;
+    m_PlayerInfo.totalCoins = 0;
+    m_PlayerInfo.totalScore = 0;
+    m_PlayerInfo.currentLevel = 1;
+}
+
 std::string thomasWasLate::GameManager::LoadInformation()
 {
-    switch (m_CurrentLevel) // if you're going to read from a file put this information in the fucking file
+    switch (m_PlayerInfo.currentLevel) // if you're going to read from a file put this information in the fucking file
     {
     case 1:
         m_StartPosition.x = 100;
@@ -100,7 +111,7 @@ std::string thomasWasLate::GameManager::LoadInformation()
         throw std::runtime_error("Invalid Level.");
     }
 
-    return std::format("../ThomasWasLate/Resources/levels/level{}.txt", m_CurrentLevel);
+    return std::format("../ThomasWasLate/Resources/levels/level{}.txt", m_PlayerInfo.currentLevel);
 }
 
 void thomasWasLate::GameManager::ReadLevelInfo(const std::string& filepath)

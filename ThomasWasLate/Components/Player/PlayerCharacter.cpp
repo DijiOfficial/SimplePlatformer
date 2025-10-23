@@ -461,7 +461,9 @@ void thomasWasLate::PlayerCharacter::PlayDeathSequence() const
 
     (void)diji::TimerManager::GetInstance().SetTimer([&]()
     {
+        GameManager::GetInstance().LoseLife();
         GameManager::GetInstance().ResetLevel();
+        
     }, 3.41f, false);
 }
 
@@ -479,7 +481,7 @@ std::string thomasWasLate::PlayerCharacter::GetStompPointsAsString(const int bou
     
     if (index < 0 || index >= static_cast<int>(s_StompPointsTable.size()))
     {
-        OnExtraLifeGainedEvent.Broadcast();
+        GameManager::GetInstance().AddLife();
         return "1UP";
     }
 
