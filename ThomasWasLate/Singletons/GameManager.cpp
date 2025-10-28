@@ -14,12 +14,11 @@
 #include "../Components/Enemies/GoombaAI.h"
 #include "../Components/Blocks/StarBlock.h"
 #include "../Components/Other/Flag.h"
+#include "../Components/Blocks/HiddenBlocks.h"
+#include "../Components/Enemies/KoopaTroopa.h"
 
 #include <format>
 #include <fstream>
-
-#include "../Components/Blocks/HiddenBlocks.h"
-
 
 namespace thomasWasLate
 {
@@ -163,7 +162,7 @@ void thomasWasLate::GameManager::CreateWorldCollision()
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
-            if (std::string("0edxyfghijklmn").find(tile) == std::string::npos)
+            if (std::string("0edxyfghijklmno").find(tile) == std::string::npos)
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -269,7 +268,7 @@ void thomasWasLate::GameManager::CreateWorldCollision()
             {
                 const float left = static_cast<float>(col) * kTileSize;
                 const float bottom = static_cast<float>(row) * kTileSize;
-                sf::Vector2f center{ left + 25.f, bottom + + 25.f };
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
 
                 auto goomba = std::make_unique<diji::GameObject>();
                 goomba->AddComponents<diji::Transform>(2000, 0);
@@ -295,7 +294,7 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                     goomba->GetComponent<GoombaAI>()->SetActivationMilestone(col - 21);
                 }
 
-                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_MultiCoinBlock", std::move(goomba), center);
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_Goomba", std::move(goomba), center);
 
                 ++col;
             }
@@ -359,6 +358,34 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 oneUpBlock->AddComponents<HiddenBlocks>();
             
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_oneUpBlock", std::move(oneUpBlock), center);
+                
+                ++col;
+            }
+            else if (tile == 'o')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
+
+                auto koopa = std::make_unique<diji::GameObject>();
+                koopa->AddComponents<diji::Transform>(2200, 200);
+                koopa->AddComponents<diji::SpriteRenderComponent>("graphics/koopaTroopa.png", sf::Vector2i{ 50,75 }, 2, 0.15f);
+                koopa->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
+                const auto koopaCollider = koopa->GetComponent<diji::Collider>();
+                koopaCollider->SetRestitution(0.f);
+                koopaCollider->SetMass(0.89f);
+                koopaCollider->SetStaticFriction(0.25f);
+                koopaCollider->SetKineticFriction(0.15f);
+                koopaCollider->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
+                koopaCollider->SetGenerateHitEvents(true);
+                koopaCollider->SetTag("koopa");
+                koopa->AddComponents<KoopaTroopa>();
+                koopa->GetComponent<KoopaTroopa>()->SetActivationMilestone(col - 20);
+                koopa->SetActive(false);
+                
+                AddEnemyCollider(koopaCollider);
+        
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_Koopa", std::move(koopa), center);
                 
                 ++col;
             }

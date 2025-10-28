@@ -9,9 +9,9 @@
 #include "../../Singletons/GameManager.h"
 #include "Engine/Singleton/Helpers.h"
 
-void thomasWasLate::KoopaTroopa::Init()
+void thomasWasLate::KoopaTroopa::Start()
 {
-    BaseEnemy::Init();
+    BaseEnemy::Start();
     
     const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar");
     m_EnemyColliderCompPtr = player->GetComponent<diji::Collider>();
@@ -126,7 +126,10 @@ void thomasWasLate::KoopaTroopa::HandleBumped()
     m_KoopaTroopaState = KoopaTroopaState::Bumped;
 
     for (const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
+    {
+        if (enemyCollider == m_ColliderCompPtr) continue;
         m_ColliderCompPtr->OverlapCollider(enemyCollider);
+    }
 }
 
 void thomasWasLate::KoopaTroopa::SetRespawnTimer()

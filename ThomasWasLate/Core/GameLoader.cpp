@@ -444,19 +444,19 @@ void SceneLoader::Level()
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
     
-    const auto testObject = scene->CreateGameObject("Y_testObject");
-    testObject->AddComponents<Transform>(2200, 200);
-    testObject->AddComponents<SpriteRenderComponent>("graphics/koopaTroopa.png", sf::Vector2i{ 50,75 }, 2, 0.15f);
-    testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
-    const auto collider = testObject->GetComponent<diji::Collider>();
-    collider->SetRestitution(0.f);
-    collider->SetMass(0.89f);
-    collider->SetStaticFriction(0.25f);
-    collider->SetKineticFriction(0.15f);
-    collider->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
-    collider->SetGenerateHitEvents(true);
-    collider->SetTag("koopa");
-    testObject->AddComponents<thomasWasLate::KoopaTroopa>();
+    // const auto testObject = scene->CreateGameObject("Y_testObject");
+    // testObject->AddComponents<Transform>(2200, 200);
+    // testObject->AddComponents<SpriteRenderComponent>("graphics/koopaTroopa.png", sf::Vector2i{ 50,75 }, 2, 0.15f);
+    // testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
+    // const auto collider = testObject->GetComponent<diji::Collider>();
+    // collider->SetRestitution(0.f);
+    // collider->SetMass(0.89f);
+    // collider->SetStaticFriction(0.25f);
+    // collider->SetKineticFriction(0.15f);
+    // collider->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
+    // collider->SetGenerateHitEvents(true);
+    // collider->SetTag("koopa");
+    // testObject->AddComponents<thomasWasLate::KoopaTroopa>();
 
     // auto breakableBlock = scene->CreateGameObject("Y_testObject");
     // // auto breakableBlock = std::make_unique<diji::GameObject>();

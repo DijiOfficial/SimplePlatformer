@@ -16,15 +16,20 @@ void thomasWasLate::BaseEnemy::Init()
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
     m_SpriteRenderCompPtr = GetOwner()->GetComponent<diji::SpriteRenderComponent>();
 
-    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener([this]()
+    const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar");
+    player->GetComponent<BroadcastPlayerPosition>()->OnPositionMileStoneReachedEvent.AddListener(this, &BaseEnemy::CheckActivation);
+}
+
+void thomasWasLate::BaseEnemy::Start()
+{
+    const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar");
+    player->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener([this]()
     {
         m_Paused = true;
     });
 
-    const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar");
     player->GetComponent<PlayerCharacter>()->OnEnemyStompedEvent.AddListener(this, &BaseEnemy::HandleStomp);
     player->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener(this, &BaseEnemy::SetPauseState);
-    player->GetComponent<BroadcastPlayerPosition>()->OnPositionMileStoneReachedEvent.AddListener(this, &BaseEnemy::CheckActivation);
 }
 
 void thomasWasLate::BaseEnemy::Update()

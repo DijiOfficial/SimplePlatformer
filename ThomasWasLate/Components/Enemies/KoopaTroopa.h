@@ -11,7 +11,7 @@ namespace thomasWasLate
         explicit KoopaTroopa(diji::GameObject* ownerPtr) : BaseEnemy{ ownerPtr } {}
         ~KoopaTroopa() noexcept override = default;
 
-        void Init() override;
+        void Start() override;
 
         void HandleStomp(const diji::Collider* other, const std::string& score) override;
         void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo) override;

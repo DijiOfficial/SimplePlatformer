@@ -38,6 +38,7 @@ void thomasWasLate::BackgroundHandler::Init()
         { 'l', {0, 4} }, // small castle base
         { 'm', {0, 4} }, // big castle base
         { 'n', {0, 4} }, // 1up mushroom
+        { 'o', {0, 4} }, // Koopa Troopa
         // ... etc.
     };
 

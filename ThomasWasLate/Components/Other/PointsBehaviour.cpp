@@ -7,11 +7,8 @@
 
 void thomasWasLate::PointsBehaviour::Init()
 {
-    (void)diji::TimerManager::GetInstance().SetTimer([&]()
-    {
-        Destroy();
-    }, 1.7f, false);
-
+    Destroy(1.7f);
+    
     m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
 }
 
