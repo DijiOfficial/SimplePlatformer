@@ -92,6 +92,16 @@ bool diji::Collider::IsOverlappingCollider(const Collider* collider) const
     return std::ranges::find(m_CollidersToOverlap, collider) != m_CollidersToOverlap.end();
 }
 
+void diji::Collider::ClearOverlappedCollider(const Collider* collider)
+{
+    std::erase(m_CollidersToOverlap, collider);
+}
+
+void diji::Collider::ClearAllOverlappedCollider()
+{
+    m_CollidersToOverlap = std::vector<const Collider*>();
+}
+
 void diji::Collider::ResizeCollider(const sf::Vector2f& size) const
 {
     if (m_Type == CollisionShape::ShapeType::RECT)

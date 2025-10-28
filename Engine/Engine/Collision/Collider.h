@@ -104,6 +104,8 @@ namespace diji
 
         void OverlapCollider(const Collider* collider);
         [[nodiscard]] bool IsOverlappingCollider(const Collider* collider) const;
+        void ClearOverlappedCollider(const Collider* collider);
+        void ClearAllOverlappedCollider();
 
         void SetActive(const bool isActive) { m_IsActive = isActive; }
         [[nodiscard]] bool IsActive() const { return m_IsActive; }
@@ -134,6 +136,9 @@ namespace diji
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const;
 
         void ValidateColliderLists();
+
+        // temp
+        bool IsOverlapEmpty() const { return m_CollidersToOverlap.empty(); }
         
     private:
         // todo: if velocity is zero for a certain amount of time, set similar to static to save calculations
