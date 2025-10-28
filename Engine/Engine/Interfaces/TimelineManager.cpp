@@ -38,6 +38,7 @@ void diji::TimelineManager::UpdateAll()
 
 void diji::TimelineManager::ClearAll()
 {
+    m_Timelines.clear();
     m_Timelines = std::unordered_map<TimelineId, std::unique_ptr<Timeline>>();
     m_OwnerToTimelines = std::unordered_map<const GameObject*, std::vector<TimelineId>>();
 }
