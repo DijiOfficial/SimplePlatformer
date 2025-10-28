@@ -1,6 +1,8 @@
 ﻿#include "PlayerCharacter.h"
 
+#include "../../Helpers/MarioHelpers.h"
 #include "../../Interfaces/IKillable.h"
+#include "../../Interfaces/IShoveable.h"
 #include "../PowerUps/FireBall.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Collision/Collider.h"
@@ -14,21 +16,6 @@
 #include "Engine/Singleton/RandNumber.h"
 #include "Engine/Singleton/ResourceManager.h"
 #include "Engine/Singleton/TimerManager.h"
-
-const std::vector<int> thomasWasLate::PlayerCharacter::s_StompPointsTable =
-{
-    100,   // 1st stomp
-    200,   // 2nd stomp  
-    400,   // 3rd stomp
-    500,   // 4th stomp
-    800,   // 5th stomp
-    1000,  // 6th stomp
-    2000,  // 7th stomp
-    4000,  // 8th stomp
-    5000,  // 9th stomp
-    8000   // 10th stomp
-    // 11th+ stomps give 1-Up (handled separately)
-};
 
 thomasWasLate::PlayerCharacter::PlayerCharacter(diji::GameObject* ownerPtr, const float jumpTime)
     : Component{ ownerPtr }
@@ -66,6 +53,12 @@ void thomasWasLate::PlayerCharacter::Update()
     // temp
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::T))
         m_TransformCompPtr->SetPosition(9000, 200);
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::R))
+    {
+        GameManager::GetInstance().AddLife();
+        PlayDeathSequence();
+    }
     
     
     if (m_IsDead || m_IsPaused) return;
@@ -272,7 +265,6 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
         m_CurrentStateUPtr->OnEnter(GetOwner());
     }
 
-    // other
     const bool currLookDirection = m_IsLookingLeft;
     m_IsLookingLeft = m_CurrSpeed.x < 0.f;
 
@@ -295,6 +287,15 @@ void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other,
 
     if (other->GetTag() == "flagPole")
         HandleLevelCompletion(other->GetPosition());
+
+    if (other->GetTag() == "koopa")
+    {
+        const auto enemyInterface = diji::InterfaceRegistry::GetInterface<IShoveable>(other->GetParent());
+        enemyInterface->Shove(m_TransformCompPtr->GetPosition().x > other->GetPosition().x);
+        
+        const std::string& pointsString = mario::MarioHelpers::GetStompPointsAsString(m_BounceScoreMultiplier + 3);
+        OnEnemyStompedEvent.Broadcast(other, pointsString);
+    }
 }
 
 void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)
@@ -310,16 +311,16 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
 
     if (otherTag == "ground")
     {
+        m_KoopaStompToggle = false;
         m_BounceScoreMultiplier = 0;
         return;
     }
     
-    if (otherTag != "enemy") return;
+    if (otherTag != "enemy" && otherTag != "koopa") return;
 
     if (m_IsStartPoweredUp)
     {
-        const auto enemyInterface = diji::InterfaceRegistry::GetInterface<diji::IKillable>(other->GetParent());
-        // auto enemyInterface = other->GetInterface<diji::IKillable>();
+        const auto enemyInterface = diji::InterfaceRegistry::GetInterface<IKillable>(other->GetParent());
         enemyInterface->Kill(m_TransformCompPtr->GetPosition().x > other->GetPosition().x);
         return;
     }
@@ -332,7 +333,10 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
     const float dotProduct =  diji::Helpers::DotProduct(enemyToPlayer, UP_VECTOR);
     if (dotProduct > STOMP_THRESHOLD)
     {
-        StompEnemy(other);
+        if (otherTag == "koopa")
+            StompKoopa(other);
+        else
+            StompEnemy(other);
     }
     else
     {
@@ -472,21 +476,6 @@ void thomasWasLate::PlayerCharacter::OnNewLevelLoaded()
     m_TransformCompPtr->SetPosition(static_cast<sf::Vector2f>(GameManager::GetInstance().GetStartPosition()));
 
     m_SpawnPoint = m_TransformCompPtr->GetPosition();
-}
-
-std::string thomasWasLate::PlayerCharacter::GetStompPointsAsString(const int bounceMultiplier)
-{
-    // Clamp to valid range (1-based index)
-    const int index = bounceMultiplier - 1;
-    
-    if (index < 0 || index >= static_cast<int>(s_StompPointsTable.size()))
-    {
-        GameManager::GetInstance().AddLife();
-        return "1UP";
-    }
-
-    OnPointsScoredEvent.Broadcast(s_StompPointsTable[index]);
-    return std::to_string(s_StompPointsTable[index]);
 }
 
 void thomasWasLate::PlayerCharacter::DecelerateAfterSprint()
@@ -663,8 +652,12 @@ void thomasWasLate::PlayerCharacter::CheckEnemyStomp()
     auto ValidateEnemyStomp = [&](const diji::Collider* other) -> void
     {
         if (other->GetPosition().y <= m_ColliderCompPtr->GetPosition().y) return;
-        
-        StompEnemy(other);
+
+        if (other->GetTag() == "koopa")
+            StompKoopa(other);
+        else
+            StompEnemy(other);
+        // StompEnemy(other);
     };
     
     if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopLeft, dir, 10.f, m_ColliderCompPtr))
@@ -684,12 +677,25 @@ void thomasWasLate::PlayerCharacter::StompEnemy(const diji::Collider* other)
 {
     // I'm capping vertical velocity so max it out to ensure the bounce is same height as normal jump
     m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -m_JumpForce));
-
-    // Increment multiplier and get points string
+    
     ++m_BounceScoreMultiplier;
-    const std::string& pointsString = GetStompPointsAsString(m_BounceScoreMultiplier);
+    const std::string& pointsString = mario::MarioHelpers::GetStompPointsAsString(m_BounceScoreMultiplier);
     OnEnemyStompedEvent.Broadcast(other, pointsString);
+    
     m_ColliderCompPtr->IgnoreCollider(other);
+}
+
+void thomasWasLate::PlayerCharacter::StompKoopa(const diji::Collider* other)
+{
+    m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -m_JumpForce));
+
+    m_KoopaStompToggle = !m_KoopaStompToggle;
+
+    if (m_KoopaStompToggle)
+        ++m_BounceScoreMultiplier;
+
+    const std::string& pointsString = m_KoopaStompToggle ? mario::MarioHelpers::GetStompPointsAsString(m_BounceScoreMultiplier) : "";
+    OnEnemyStompedEvent.Broadcast(other, pointsString);
 }
 
 void thomasWasLate::PlayerCharacter::PlayFireTransitionAnimation()

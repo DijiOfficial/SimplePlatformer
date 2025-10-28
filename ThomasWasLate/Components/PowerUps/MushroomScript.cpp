@@ -66,7 +66,7 @@ void thomasWasLate::MushroomScript::OnHitEvent(const diji::Collider* collider, c
     m_Speed = -m_Speed;
 }
 
-void thomasWasLate::MushroomScript::HandleBumpedBehavior(const bool IsBumpingLeft)
+void thomasWasLate::MushroomScript::HandleBumpedBehavior(const bool IsBumpingLeft, const bool)
 {
     const sf::Vector2f impulse = IsBumpingLeft ? sf::Vector2f{-200.f, -1000.f} : sf::Vector2f{200.f, -1000.f};
     m_ColliderCompPtr->ApplyImpulse(impulse);

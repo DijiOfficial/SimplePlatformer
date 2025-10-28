@@ -30,7 +30,7 @@ namespace thomasWasLate
         void OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo& hitInfo) override;
         void OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo) override;
 
-        void HandleBumpedBehavior(bool IsBumpingLeft) override;
+        void HandleBumpedBehavior(bool IsBumpingLeft, const bool addPoints = true) override;
 
     protected:
         std::string m_PointString = "1000";

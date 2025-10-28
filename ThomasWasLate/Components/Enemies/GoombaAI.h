@@ -13,7 +13,7 @@ namespace thomasWasLate
 {
     class PlayerStates;
 
-    class GoombaAI final : public IBumpable, public diji::IKillable
+    class GoombaAI final : public IBumpable, public IKillable
     {
     public:
         explicit GoombaAI(diji::GameObject* ownerPtr) : IBumpable{ ownerPtr } {}
@@ -33,10 +33,10 @@ namespace thomasWasLate
         void HandleStomp(const diji::Collider* other, const std::string& score);
         void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo) override;
 
-        void HandleBumpedBehavior(bool isBumpingLeft) override;
+        void HandleBumpedBehavior(bool isBumpingLeft, const bool addPoints = true) override;
         void SetActivationMilestone(const int milestone) { m_ActivationMilestone = milestone; }
 
-        void Kill(bool isBumpingLeft) override;
+        void Kill(bool isBumpingLeft, const bool addPoints = true) override;
 
     private:
         diji::Collider* m_ColliderCompPtr = nullptr;

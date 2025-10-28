@@ -2,11 +2,27 @@
 
 #include "../Components/Other/SmallCoinScript.h"
 #include "../Interfaces/IBumpable.h"
+#include "../Singletons/GameManager.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Singleton/SceneManager.h"
+
+const std::vector<int> mario::MarioHelpers::s_StompPointsTable =
+{
+    100,   // 1st stomp
+    200,   // 2nd stomp  
+    400,   // 3rd stomp
+    500,   // 4th stomp
+    800,   // 5th stomp
+    1000,  // 6th stomp
+    2000,  // 7th stomp
+    4000,  // 8th stomp
+    5000,  // 9th stomp
+    8000   // 10th stomp
+    // 11th+ stomps give 1-Up (handled separately)
+};
 
 bool mario::MarioHelpers::DoesPlayerHitBottomOfBlock(const sf::Vector2f& playerCenter, const sf::FloatRect& blockAABB, const sf::Vector2f& normal)
 {
@@ -52,4 +68,19 @@ void mario::MarioHelpers::SpawnCoinAboveBlock(const sf::Vector2f& colliderCenter
     coinTest->AddComponents<diji::SpriteRenderComponent>("graphics/smallCoins.png", sf::Vector2i{ 25,50 }, 4, 0.03f);
     coinTest->AddComponents<thomasWasLate::SmallCoinScript>();
     diji::SceneManager::GetInstance().SpawnGameObject("G_SmallCoin", std::move(coinTest), { colliderCenterPos.x, colliderCenterPos.y - 50.f });
+}
+
+std::string mario::MarioHelpers::GetStompPointsAsString(const int bounceMultiplier)
+{
+    // Clamp to valid range (1-based index)
+    const int index = bounceMultiplier - 1;
+    
+    if (index < 0 || index >= static_cast<int>(s_StompPointsTable.size()))
+    {
+        thomasWasLate::GameManager::GetInstance().AddLife();
+        return "1UP";
+    }
+
+    thomasWasLate::GameManager::GetInstance().OnScoreAddedEvent.Broadcast(s_StompPointsTable[index]);
+    return std::to_string(s_StompPointsTable[index]);
 }

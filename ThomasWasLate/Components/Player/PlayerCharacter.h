@@ -51,7 +51,6 @@ namespace thomasWasLate
 
         diji::Event<> OnHitByEnemyEvent;
         diji::Event<> OnFallingInHoleEvent;
-        diji::Event<int> OnPointsScoredEvent;
         diji::Event<const diji::Collider*, const std::string&> OnEnemyStompedEvent;
         diji::Event<bool> OnPoweringUpEvent;
         diji::Event<> OnLevelFinishedEvent;
@@ -59,7 +58,6 @@ namespace thomasWasLate
 
     private:
         const std::set<std::string> GROUND_TAGS = { "ground", "luckyBlock", "breakBlock" };
-        static const std::vector<int> s_StompPointsTable;
         diji::Timeline* m_FlagPoleTimelinePtr = nullptr;
         std::unique_ptr<PlayerStates> m_CurrentStateUPtr = nullptr;
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;
@@ -116,11 +114,11 @@ namespace thomasWasLate
         bool m_CanAttack = true;
         bool m_IsStartPoweredUp = false;
         bool m_IsFlagTriggered = false;
+        bool m_KoopaStompToggle = false;
 
         void HandleDeathSequence();
         void PlayDeathSequence() const;
         void OnNewLevelLoaded();
-        [[nodiscard]] std::string GetStompPointsAsString(int bounceMultiplier);
         void DecelerateAfterSprint();
         void CheckIfPlayerIsGrounded();
         void PlayGrowthAnimation();
@@ -129,6 +127,7 @@ namespace thomasWasLate
         void InvisibilityFlash();
         void CheckEnemyStomp();
         void StompEnemy(const diji::Collider* other);
+        void StompKoopa(const diji::Collider* other);
         void PlayFireTransitionAnimation();
         void HandleStarPickup();
         void UpdateStarPowerShader();

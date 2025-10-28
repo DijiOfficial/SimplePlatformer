@@ -148,7 +148,7 @@ void thomasWasLate::GameManager::ReadLevelInfo(const std::string& filepath)
 }
 
 // todo: rename, it also creates enemeis
-void thomasWasLate::GameManager::CreateWorldCollision() const
+void thomasWasLate::GameManager::CreateWorldCollision()
 {
     constexpr float kTileSize = 50.0f;
 
@@ -286,6 +286,8 @@ void thomasWasLate::GameManager::CreateWorldCollision() const
                 goomba->AddComponents<GoombaAI>();
                 goomba->GetComponent<GoombaAI>()->SetActivationMilestone(col - 20);
                 goomba->SetActive(false);
+
+                AddEnemyCollider(collider);
 
                 if (tile == 'h')
                 {

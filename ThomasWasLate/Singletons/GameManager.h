@@ -55,8 +55,10 @@ namespace thomasWasLate
         void SaveScore(const int score) { m_PlayerInfo.totalScore = score; }
         void SaveCoins(const int coins) { m_PlayerInfo.totalCoins = coins; }
         void ResetPlayerInfo();
+        std::unordered_set<const diji::Collider*> GetEnemyColliders() const { return m_EnemyColliders; }
         
     private:
+        std::unordered_set<const diji::Collider*> m_EnemyColliders;
         std::vector<std::unique_ptr<diji::Collider>> m_TileColliders;
         PlayerHealthState m_CurrentPlayerState = PlayerHealthState::Small;
         sf::Vector2u m_StartPosition;
@@ -68,6 +70,7 @@ namespace thomasWasLate
 
         std::string LoadInformation();
         void ReadLevelInfo(const std::string& filepath);
-        void CreateWorldCollision() const;
+        void CreateWorldCollision();
+        void AddEnemyCollider(const diji::Collider* collider) { m_EnemyColliders.insert(collider); }
     };
 }

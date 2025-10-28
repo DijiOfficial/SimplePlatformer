@@ -80,23 +80,24 @@ void thomasWasLate::GoombaAI::OnHitEvent(const diji::Collider* other, const diji
     m_Speed = -m_Speed;
 }
 
-void thomasWasLate::GoombaAI::HandleBumpedBehavior(const bool isBumpingLeft)
+void thomasWasLate::GoombaAI::HandleBumpedBehavior(const bool isBumpingLeft, const bool addPoints)
 {
     m_TransformCompPtr->SetRotation(180.f);
     GetOwner()->GetComponent<diji::SpriteRenderComponent>()->Pause();
     
     const sf::Vector2f impulse = isBumpingLeft ? sf::Vector2f{-300.f, -1200.f} : sf::Vector2f{300.f, -1200.f};
     m_ColliderCompPtr->ApplyImpulse(impulse);
-    m_ColliderCompPtr->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+    m_ColliderCompPtr->SetCollisionResponse(diji::Collider::CollisionResponse::Ignore);
     m_Paused = true;
-    
+
+    if (!addPoints) return;
     GameManager::SpawnPointsText(m_TransformCompPtr->GetPosition(), "100");
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(100);
 }
 
-void thomasWasLate::GoombaAI::Kill(const bool isBumpingLeft)
+void thomasWasLate::GoombaAI::Kill(const bool isBumpingLeft, const bool addPoints)
 {
-    HandleBumpedBehavior(isBumpingLeft);
+    HandleBumpedBehavior(isBumpingLeft, addPoints);
 }
 
 void thomasWasLate::GoombaAI::CheckActivation(const int milestone) const

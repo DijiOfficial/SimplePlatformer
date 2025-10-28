@@ -5,6 +5,7 @@
 #include "GameState.h"
 #include "../Components/Backgrounds/BackgroundHandler.h"
 #include "../Components/Backgrounds/CustomBackgroundRenderer.h"
+#include "../Components/Enemies/KoopaTroopa.h"
 #include "../Components/Other/CameraClamping.h"
 #include "../Components/Other/HudManager.h"
 #include "../Components/Player/PlayerCharacter.h"
@@ -443,16 +444,19 @@ void SceneLoader::Level()
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
     
-    // const auto testObject = scene->CreateGameObject("Y_testObject");
-    // testObject->AddComponents<Transform>(600, 200);
-    // testObject->AddComponents<SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50,50 }, 1, 0.035f);
-    // testObject->GetComponent<SpriteRenderComponent>()->Pause();
-    // testObject->GetComponent<SpriteRenderComponent>()->SetCurrentAnimationFrame(2);
-    // testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    // testObject->GetComponent<Collider>()->SetCollisionResponse(Collider::CollisionResponse::Overlap);
-    // testObject->GetComponent<Collider>()->SetTag("HiddenBlock");
-    // testObject->GetComponent<Collider>()->SetAffectedByGravity(false);
-    // testObject->GetComponent<Collider>()->SetIsMoveable(false);
+    const auto testObject = scene->CreateGameObject("Y_testObject");
+    testObject->AddComponents<Transform>(2200, 200);
+    testObject->AddComponents<SpriteRenderComponent>("graphics/koopaTroopa.png", sf::Vector2i{ 50,75 }, 2, 0.15f);
+    testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
+    const auto collider = testObject->GetComponent<diji::Collider>();
+    collider->SetRestitution(0.f);
+    collider->SetMass(0.89f);
+    collider->SetStaticFriction(0.25f);
+    collider->SetKineticFriction(0.15f);
+    collider->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
+    collider->SetGenerateHitEvents(true);
+    collider->SetTag("koopa");
+    testObject->AddComponents<thomasWasLate::KoopaTroopa>();
 
     // auto breakableBlock = scene->CreateGameObject("Y_testObject");
     // // auto breakableBlock = std::make_unique<diji::GameObject>();
@@ -608,7 +612,6 @@ void SceneLoader::Level()
 
 #pragma region Events
 
-    player->GetComponent<thomasWasLate::PlayerCharacter>()->OnPointsScoredEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
     thomasWasLate::GameManager::GetInstance().OnScoreAddedEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
     thomasWasLate::GameManager::GetInstance().OnCoinCollectedEvent.AddListener(coinsCounterHud->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
     

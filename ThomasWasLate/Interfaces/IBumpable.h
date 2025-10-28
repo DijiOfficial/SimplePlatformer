@@ -20,6 +20,6 @@ namespace thomasWasLate
         void OnDisable() override = 0;
         void OnDestroy() override = 0;
 
-        virtual void HandleBumpedBehavior(const bool IsBumpingLeft) = 0; 
+        virtual void HandleBumpedBehavior(const bool IsBumpingLeft, const bool addPoints = true) = 0; 
     };
 }
