@@ -187,7 +187,17 @@ diji::GameObject* diji::Scene::CreateGameObject(const std::string& name, const G
 
 diji::GameObject* diji::Scene::CreateGameObjectFromTemplate(const std::string& name, const GameObject* original)
 {
-    const std::string finalName = GenerateUniqueName(name);
+    const std::string finalName = GenerateUniqueName(m_ObjectsUPtrMap, name);
+
+    m_ObjectsUPtrMap[finalName] = std::make_unique<GameObject>();
+    original->CreateDuplicate(m_ObjectsUPtrMap[finalName].get());
+
+    return m_ObjectsUPtrMap[finalName].get();
+}
+
+diji::GameObject* diji::Scene::CreateCanvasObjectFromTemplate(const std::string& name, const GameObject* original)
+{
+    const std::string finalName = GenerateUniqueName(m_CanvasObjectsUPtrMap, name);
 
     m_ObjectsUPtrMap[finalName] = std::make_unique<GameObject>();
     original->CreateDuplicate(m_ObjectsUPtrMap[finalName].get());
@@ -197,7 +207,15 @@ diji::GameObject* diji::Scene::CreateGameObjectFromTemplate(const std::string& n
 
 diji::GameObject* diji::Scene::AddObjectToScene(std::unique_ptr<GameObject> object, const std::string& desiredName)
 {
-    const std::string finalName = GenerateUniqueName(desiredName);
+    const std::string finalName = GenerateUniqueName(m_ObjectsUPtrMap, desiredName);
+
+    m_ObjectsUPtrMap[finalName] = std::move(object);
+    return m_ObjectsUPtrMap[finalName].get();
+}
+
+diji::GameObject* diji::Scene::AddObjectToCanvas(std::unique_ptr<GameObject> object, const std::string& desiredName)
+{
+    const std::string finalName = GenerateUniqueName(m_CanvasObjectsUPtrMap, desiredName);
 
     m_ObjectsUPtrMap[finalName] = std::move(object);
     return m_ObjectsUPtrMap[finalName].get();
@@ -406,13 +424,13 @@ void diji::Scene::DrawGameObjects() const
     }
 }
 
-std::string diji::Scene::GenerateUniqueName(const std::string& baseName) const
+std::string diji::Scene::GenerateUniqueName(const std::map<std::string, std::unique_ptr<GameObject>>& objectMap, const std::string& baseName)
 {
     std::string finalName = baseName;
 
     // Check if name already exists, if it does get the suffix and increment it until you get new name
     // todo: Likely some optimization can be done here. Like keeping track of the last used suffix or internal counter or ...
-    while (m_ObjectsUPtrMap.contains(finalName))
+    while (objectMap.contains(finalName))
     {
         // Find numeric suffix
         size_t pos = finalName.size();

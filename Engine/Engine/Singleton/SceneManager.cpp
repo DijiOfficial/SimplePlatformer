@@ -177,7 +177,7 @@ diji::GameObject* diji::SceneManager::SpawnGameObject(const std::string& name, s
 
 diji::GameObject* diji::SceneManager::AddGameObjectToCanvas(const std::string& name, const GameObject* original, const sf::Vector2f& spawnLocation) const
 {
-    const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->CreateGameObjectFromTemplate(name, original);
+    const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->CreateCanvasObjectFromTemplate(name, original);
     gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
 
     // Set as canvas object
@@ -191,7 +191,7 @@ diji::GameObject* diji::SceneManager::AddGameObjectToCanvas(const std::string& n
 
 diji::GameObject* diji::SceneManager::AddGameObjectToCanvas(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const
 {
-    const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->AddObjectToScene(std::move(original), name);
+    const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->AddObjectToCanvas(std::move(original), name);
     gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
 
     // Set as canvas object
