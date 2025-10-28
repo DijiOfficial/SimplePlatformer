@@ -1,7 +1,6 @@
 ﻿#include "KoopaTroopa.h"
 
 #include "../../Helpers/MarioHelpers.h"
-#include "../Player/PlayerCharacter.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Collision/Collider.h"
@@ -10,40 +9,15 @@
 #include "../../Singletons/GameManager.h"
 #include "Engine/Singleton/Helpers.h"
 
-void thomasWasLate::KoopaTroopa::Init() // identical
+void thomasWasLate::KoopaTroopa::Init()
 {
-    m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
-    m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
-    m_SpriteRenderCompPtr = GetOwner()->GetComponent<diji::SpriteRenderComponent>();
-
-    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener([this]()
-    {
-        m_Paused = true;
-    });
-
+    BaseEnemy::Init();
+    
     const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar");
-    player->GetComponent<PlayerCharacter>()->OnEnemyStompedEvent.AddListener(this, &KoopaTroopa::HandleStomp);
-    player->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener(this, &KoopaTroopa::SetPauseState);
-    // player->GetComponent<BroadcastPlayerPosition>()->OnPositionMileStoneReachedEvent.AddListener(this, &KoopaTroopa::CheckActivation);
-
-    //new
     m_EnemyColliderCompPtr = player->GetComponent<diji::Collider>();
 }
 
-void thomasWasLate::KoopaTroopa::Update()// identical
-{
-    if (m_TransformCompPtr->GetPosition().y > 600.f)
-        Destroy();
-}
-
-void thomasWasLate::KoopaTroopa::FixedUpdate()// identical
-{
-    if (m_Paused) return;
-    
-    m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
-}
-
-void thomasWasLate::KoopaTroopa::HandleStomp(const diji::Collider* other, const std::string& score) // different
+void thomasWasLate::KoopaTroopa::HandleStomp(const diji::Collider* other, const std::string& score)
 {
     if (other != m_ColliderCompPtr) return;
     switch (m_KoopaTroopaState)
@@ -103,7 +77,7 @@ void thomasWasLate::KoopaTroopa::OnTriggerEnter(const diji::Collider* other, con
     }
 }
 
-void thomasWasLate::KoopaTroopa::HandleBumpedBehavior(const bool, const bool) // different
+void thomasWasLate::KoopaTroopa::HandleBumpedBehavior(const bool, const bool)
 {
     // m_TransformCompPtr->SetRotation(180.f);
     // GetOwner()->GetComponent<diji::SpriteRenderComponent>()->Pause();
@@ -117,7 +91,7 @@ void thomasWasLate::KoopaTroopa::HandleBumpedBehavior(const bool, const bool) //
     // GameManager::GetInstance().OnScoreAddedEvent.Broadcast(100);
 }
 
-void thomasWasLate::KoopaTroopa::Kill(const bool isBumpingLeft, const bool) // different
+void thomasWasLate::KoopaTroopa::Kill(const bool isBumpingLeft, const bool)
 {
     m_TransformCompPtr->SetRotation(180.f);
     m_SpriteRenderCompPtr->SetStartingFrame(4, 0);
@@ -153,14 +127,6 @@ void thomasWasLate::KoopaTroopa::HandleBumped()
 
     for (const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
         m_ColliderCompPtr->OverlapCollider(enemyCollider);
-}
-
-void thomasWasLate::KoopaTroopa::SpawnPointsText(const std::string& score) const
-{
-    const auto& pos = m_TransformCompPtr->GetPosition();
-    const auto& yOffset = m_ColliderCompPtr->GetShape()->GetAABB().getSize().y * 3.f;
-    const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
-    GameManager::SpawnPointsText(scorePos, score);
 }
 
 void thomasWasLate::KoopaTroopa::SetRespawnTimer()

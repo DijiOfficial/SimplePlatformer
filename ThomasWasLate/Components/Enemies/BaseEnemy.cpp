@@ -1,0 +1,56 @@
+﻿#include "BaseEnemy.h"
+
+#include "../../Helpers/MarioHelpers.h"
+#include "../Player/PlayerCharacter.h"
+#include "Engine/Singleton/SceneManager.h"
+#include "Engine/Components/Transform.h"
+#include "Engine/Collision/Collider.h"
+#include "Engine/Core/GameObject.h"
+#include "Engine/Components/SpriteRenderComp.h"
+#include "../../Singletons/GameManager.h"
+#include "../Player/BroadcastPlayerPosition.h"
+
+void thomasWasLate::BaseEnemy::Init()
+{
+    m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
+    m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
+    m_SpriteRenderCompPtr = GetOwner()->GetComponent<diji::SpriteRenderComponent>();
+
+    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener([this]()
+    {
+        m_Paused = true;
+    });
+
+    const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar");
+    player->GetComponent<PlayerCharacter>()->OnEnemyStompedEvent.AddListener(this, &BaseEnemy::HandleStomp);
+    player->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener(this, &BaseEnemy::SetPauseState);
+    player->GetComponent<BroadcastPlayerPosition>()->OnPositionMileStoneReachedEvent.AddListener(this, &BaseEnemy::CheckActivation);
+}
+
+void thomasWasLate::BaseEnemy::Update()
+{
+    if (m_TransformCompPtr->GetPosition().y > 600.f)
+        Destroy();
+}
+
+void thomasWasLate::BaseEnemy::FixedUpdate()
+{
+    if (m_Paused) return;
+    
+    m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
+}
+
+void thomasWasLate::BaseEnemy::CheckActivation(const int milestone) const
+{
+    if (m_ActivationMilestone != milestone) return;
+
+    SetActive(true);
+}
+
+void thomasWasLate::BaseEnemy::SpawnPointsText(const std::string& score) const
+{
+    const auto& pos = m_TransformCompPtr->GetPosition();
+    const auto& yOffset = m_ColliderCompPtr->GetShape()->GetAABB().getSize().y * 3.f;
+    const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
+    GameManager::SpawnPointsText(scorePos, score);
+}

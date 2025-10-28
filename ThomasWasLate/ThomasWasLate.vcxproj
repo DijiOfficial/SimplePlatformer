@@ -179,6 +179,7 @@
     <ClCompile Include="Components\Blocks\LuckyBlock.cpp" />
     <ClCompile Include="Components\Blocks\MultiCoinBlock.cpp" />
     <ClCompile Include="Components\Blocks\StarBlock.cpp" />
+    <ClCompile Include="Components\Enemies\BaseEnemy.cpp" />
     <ClCompile Include="Components\Enemies\GoombaAI.cpp" />
     <ClCompile Include="Components\Enemies\KoopaTroopa.cpp" />
     <ClCompile Include="Components\Other\CameraClamping.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="Components\Blocks\LuckyBlock.h" />
     <ClInclude Include="Components\Blocks\MultiCoinBlock.h" />
     <ClInclude Include="Components\Blocks\StarBlock.h" />
+    <ClInclude Include="Components\Enemies\BaseEnemy.h" />
     <ClInclude Include="Components\Enemies\GoombaAI.h" />
     <ClInclude Include="Components\Enemies\KoopaTroopa.h" />
     <ClInclude Include="Components\Other\CameraClamping.h" />

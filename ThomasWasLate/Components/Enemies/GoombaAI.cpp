@@ -2,43 +2,12 @@
 
 #include "../Player/PlayerCharacter.h"
 #include "../../Singletons/GameManager.h"
-#include "../Player/BroadcastPlayerPosition.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/SceneManager.h"
-#include "Engine/Singleton/TimeSingleton.h"
-
-void thomasWasLate::GoombaAI::Init()
-{
-    m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
-    m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
-
-    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener([this]()
-    {
-        m_Paused = true;
-    });
-
-    const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar");
-    player->GetComponent<PlayerCharacter>()->OnEnemyStompedEvent.AddListener(this, &GoombaAI::HandleStomp);
-    player->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener(this, &GoombaAI::SetPauseState);
-    player->GetComponent<BroadcastPlayerPosition>()->OnPositionMileStoneReachedEvent.AddListener(this, &GoombaAI::CheckActivation);
-}
-
-void thomasWasLate::GoombaAI::Update()
-{
-    if (m_TransformCompPtr->GetPosition().y > 600.f)
-        Destroy();
-}
-
-void thomasWasLate::GoombaAI::FixedUpdate()
-{
-    if (m_Paused) return;
-    
-    m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
-}
 
 void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const std::string& score)
 {
@@ -58,14 +27,8 @@ void thomasWasLate::GoombaAI::HandleStomp(const diji::Collider* other, const std
 
     Destroy(0.65f);
 
-    // Stop moving
     m_Speed = 0.f;
-    
-    // Spawn points text
-    const auto& pos = m_TransformCompPtr->GetPosition();
-    const auto& yOffset = m_ColliderCompPtr->GetShape()->GetAABB().getSize().y * 3.f;
-    const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
-    GameManager::SpawnPointsText(scorePos, score);
+    SpawnPointsText(score);
 }
 
 void thomasWasLate::GoombaAI::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo)
@@ -98,11 +61,4 @@ void thomasWasLate::GoombaAI::HandleBumpedBehavior(const bool isBumpingLeft, con
 void thomasWasLate::GoombaAI::Kill(const bool isBumpingLeft, const bool addPoints)
 {
     HandleBumpedBehavior(isBumpingLeft, addPoints);
-}
-
-void thomasWasLate::GoombaAI::CheckActivation(const int milestone) const
-{
-    if (m_ActivationMilestone != milestone) return;
-
-    SetActive(true);
 }

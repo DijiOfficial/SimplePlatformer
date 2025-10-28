@@ -3,6 +3,7 @@
 
 namespace thomasWasLate
 {
+    // todo: refactor IBumpable to use the IInterface 
     class IBumpable : public diji::Component
     {
     public:
