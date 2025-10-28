@@ -225,10 +225,13 @@ void diji::Scene::Remove(const GameObject* object)
 {
     for (auto it = m_ObjectsUPtrMap.begin(); it != m_ObjectsUPtrMap.end(); ++it)
     {
+        // Safe destruction pattern to avoid double deletion
         if (it->second.get() == object)
         {
-            it->second->OnDestroy();
+            const std::unique_ptr<GameObject> localUp = std::move(it->second);
             m_ObjectsUPtrMap.erase(it);
+
+            localUp->OnDestroy();
             break;
         }
     }
@@ -237,8 +240,10 @@ void diji::Scene::Remove(const GameObject* object)
     {
         if (it->second.get() == object)
         {
-            it->second->OnDestroy();
+            const std::unique_ptr<GameObject> localUp = std::move(it->second);
             m_CanvasObjectsUPtrMap.erase(it);
+
+            localUp->OnDestroy();
             break;
         }
     }
