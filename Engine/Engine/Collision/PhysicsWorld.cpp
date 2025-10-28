@@ -287,11 +287,12 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
     for (size_t i = 0; i < size; ++i)
     {
         auto& [colliderPtr, predictedAABB, pos, vel, collisionsVec] = predictionsVec[i];
-        
+        if (!colliderPtr->IsActive()) continue;
+
         // STATIC COLLISIONS: Check against all static colliders
         for (const auto& [aabb, staticCollider] : m_StaticInfos)
         {
-            if (!colliderPtr->IsActive()) continue;
+            if (!staticCollider->IsActive()) continue;
             if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
             if (colliderPtr->IsIgnoringCollider(staticCollider) || staticCollider->IsIgnoringCollider(colliderPtr)) continue;
             if (!AABBOverlap(predictedAABB, aabb)) continue;
@@ -308,9 +309,8 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         // DYNAMIC COLLISIONS: Check against remaining dynamic colliders (avoid duplicates)
         for (size_t j = i + 1; j < size; ++j)
         {
-            if (!colliderPtr->IsActive()) continue;
-
             Prediction& otherPrediction = predictionsVec[j];
+            if (!otherPrediction.collider->IsActive()) continue;
             if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore || otherPrediction.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
             if (colliderPtr->IsIgnoringAllDynamicColliders() || otherPrediction.collider->IsIgnoringAllDynamicColliders()) continue;
             if (colliderPtr->IsIgnoringCollider(otherPrediction.collider) || otherPrediction.collider->IsIgnoringCollider(colliderPtr)) continue;
