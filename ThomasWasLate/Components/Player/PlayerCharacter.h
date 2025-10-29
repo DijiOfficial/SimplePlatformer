@@ -48,6 +48,7 @@ namespace thomasWasLate
         void Sprint();
         void StopSprint();
         void Attack();
+        void SetAgainstCameraEdge(const bool isAgainst) { m_IsAgainstCameraEdge = isAgainst; }
 
         diji::Event<> OnHitByEnemyEvent;
         diji::Event<> OnFallingInHoleEvent;
@@ -116,6 +117,7 @@ namespace thomasWasLate
         bool m_IsStartPoweredUp = false;
         bool m_IsFlagTriggered = false;
         bool m_KoopaStompToggle = false;
+        bool m_IsAgainstCameraEdge = false;
 
         void HandleDeathSequence();
         void PlayDeathSequence() const;

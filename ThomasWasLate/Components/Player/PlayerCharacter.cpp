@@ -110,7 +110,6 @@ void thomasWasLate::PlayerCharacter::FixedUpdate()
         if (m_JumpTime < m_MaxJumpTime)
             m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 1.5f * multiplier });
     }
-
 }
 
 void thomasWasLate::PlayerCharacter::LateUpdate()
@@ -125,7 +124,7 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
     {
         if (m_IsOnGround)
         {
-            if (diji::Helpers::isZero(m_CurrSpeed.x))
+            if (diji::Helpers::isZero(m_CurrSpeed.x) && !m_IsAgainstCameraEdge)
             {
                 if (currentState != PlayerStates::PlayerState::Idle)
                     newState = std::make_unique<IdleState>();

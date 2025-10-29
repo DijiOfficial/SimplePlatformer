@@ -11,6 +11,7 @@ namespace diji
 
 namespace thomasWasLate
 {
+    class PlayerCharacter;
     class CameraClamping final : public diji::Component
     {
     public:
@@ -29,11 +30,13 @@ namespace thomasWasLate
         void OnDestroy() override {}
 
     private:
-        sf::FloatRect m_Arena;
-        float m_LastArenaPosX = 0.f;
-        float m_PlayerHalfWidth = 0.f;
-        diji::Camera* m_CameraPtr = nullptr;
+        PlayerCharacter* m_PlayerCharacterCompPtr = nullptr;
         diji::Transform* m_PlayerTransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
+        diji::Camera* m_CameraPtr = nullptr;
+        sf::FloatRect m_Arena;
+        sf::Vector2f m_LastPosition;
+        float m_LastArenaPosX = 0.f;
+        float m_PlayerHalfWidth = 0.f;
     };
 }

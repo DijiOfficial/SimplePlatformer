@@ -6,11 +6,13 @@
 #include "Engine/Core/GameObject.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/SceneManager.h"
+#include "PlayerCharacter.h"
 
 void thomasWasLate::CameraClamping::Init()
 {
     m_PlayerTransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
+    m_PlayerCharacterCompPtr = GetOwner()->GetComponent<PlayerCharacter>();
     m_CameraPtr = diji::SceneManager::GetInstance().GetMainCamera()->GetComponent<diji::Camera>();
 }
 
@@ -49,6 +51,9 @@ void thomasWasLate::CameraClamping::LateUpdate()
     if (!diji::Helpers::AreFloatEqual(clampedPlayerX, playerX))
     {
         m_PlayerTransformCompPtr->SetPosition(clampedPlayerX, playerPos.y);
-        // m_ColliderCompPtr->SetVelocity(sf::Vector2f{0.01f, m_ColliderCompPtr->GetVelocity().y});
+        m_ColliderCompPtr->SetVelocity(sf::Vector2f{0.00f, m_ColliderCompPtr->GetVelocity().y});
+        m_PlayerCharacterCompPtr->SetAgainstCameraEdge(true);
+        return;
     }
+    m_PlayerCharacterCompPtr->SetAgainstCameraEdge(false);
 }

@@ -182,13 +182,88 @@
     <ClCompile Include="Components\Enemies\BaseEnemy.cpp" />
     <ClCompile Include="Components\Enemies\GoombaAI.cpp" />
     <ClCompile Include="Components\Enemies\KoopaTroopa.cpp" />
-    <ClCompile Include="Components\Other\CameraClamping.cpp" />
     <ClCompile Include="Components\Other\Flag.cpp" />
     <ClCompile Include="Components\Other\HudManager.cpp" />
     <ClCompile Include="Components\Other\PointsBehaviour.cpp" />
     <ClCompile Include="Components\Other\SmallCoinScript.cpp" />
     <ClCompile Include="Components\Other\TimerScript.cpp" />
     <ClCompile Include="Components\Player\BroadcastPlayerPosition.cpp" />
+    <ClCompile Include="Components\Player\CameraClamping.cpp">
+      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <Optimization>Disabled</Optimization>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\bin\intermediates\x64\Debug\ThomasWasLate\</AssemblerListingLocation>
+      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
+      <BrowseInformation>false</BrowseInformation>
+      <BrowseInformationFile>C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\bin\intermediates\x64\Debug\ThomasWasLate\</BrowseInformationFile>
+      <CompileAs>Default</CompileAs>
+      <ConformanceMode>true</ConformanceMode>
+      <DiagnosticsFormat>Column</DiagnosticsFormat>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <ExpandAttributedSource>false</ExpandAttributedSource>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <EnableASAN>false</EnableASAN>
+      <EnableFuzzer>false</EnableFuzzer>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <EnableVectorLength>NotSet</EnableVectorLength>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <GenerateModuleDependencies>false</GenerateModuleDependencies>
+      <GenerateSourceDependencies>false</GenerateSourceDependencies>
+      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ModuleDependenciesFile>C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\bin\intermediates\x64\Debug\ThomasWasLate\</ModuleDependenciesFile>
+      <ModuleOutputFile>C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\bin\intermediates\x64\Debug\ThomasWasLate\</ModuleOutputFile>
+      <OmitDefaultLibName>false</OmitDefaultLibName>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <ObjectFileName>C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\bin\intermediates\x64\Debug\ThomasWasLate\</ObjectFileName>
+      <CallingConvention>Cdecl</CallingConvention>
+      <ProgramDataBaseFileName>C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\bin\intermediates\x64\Debug\ThomasWasLate\vc143.pdb</ProgramDataBaseFileName>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\bin\intermediates\x64\Debug\ThomasWasLate\ThomasWasLate.pch</PrecompiledHeaderOutputFile>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessKeepComments>false</PreprocessKeepComments>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <ShowIncludes>false</ShowIncludes>
+      <SourceDependenciesFile>C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\bin\intermediates\x64\Debug\ThomasWasLate\</SourceDependenciesFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <SpectreMitigation>false</SpectreMitigation>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <TrackerLogDirectory>C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\bin\intermediates\x64\Debug\ThomasWasLate\ThomasWasLate.tlog\</TrackerLogDirectory>
+      <TranslateIncludes>false</TranslateIncludes>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <UseFullPaths>true</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <XMLDocumentationFileName>C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\bin\intermediates\x64\Debug\ThomasWasLate\</XMLDocumentationFileName>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <IntelJCCErratum>false</IntelJCCErratum>
+      <BuildStlModules>false</BuildStlModules>
+      <TreatAngleIncludeAsExternal>false</TreatAngleIncludeAsExternal>
+      <ExternalWarningLevel>InheritWarningLevel</ExternalWarningLevel>
+      <TreatExternalTemplatesAsInternal>true</TreatExternalTemplatesAsInternal>
+      <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_UNICODE;UNICODE;</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\Engine;C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\3rdParty\SFML_x64\include;C:\Users\dylan\OneDrive - Hogeschool West-Vlaanderen\TUS\GamePatterns\CA_Nov1\SFML_GamePatterns\Engine;C:\Program Files (x86)\Visual Leak Detector\include;</AdditionalIncludeDirectories>
+      <SDLCheck>true</SDLCheck>
+      <LinkCompiled>true</LinkCompiled>
+    </ClCompile>
     <ClCompile Include="Components\Player\PlayerCharacter.cpp" />
     <ClCompile Include="Components\Player\PlayerStates.cpp" />
     <ClCompile Include="Components\PowerUps\FireBall.cpp" />
@@ -214,13 +289,13 @@
     <ClInclude Include="Components\Enemies\BaseEnemy.h" />
     <ClInclude Include="Components\Enemies\GoombaAI.h" />
     <ClInclude Include="Components\Enemies\KoopaTroopa.h" />
-    <ClInclude Include="Components\Other\CameraClamping.h" />
     <ClInclude Include="Components\Other\Flag.h" />
     <ClInclude Include="Components\Other\HudManager.h" />
     <ClInclude Include="Components\Other\PointsBehaviour.h" />
     <ClInclude Include="Components\Other\SmallCoinScript.h" />
     <ClInclude Include="Components\Other\TimerScript.h" />
     <ClInclude Include="Components\Player\BroadcastPlayerPosition.h" />
+    <ClInclude Include="Components\Player\CameraClamping.h" />
     <ClInclude Include="Components\Player\PlayerCharacter.h" />
     <ClInclude Include="Components\Player\PlayerStates.h" />
     <ClInclude Include="Components\PowerUps\FireBall.h" />
