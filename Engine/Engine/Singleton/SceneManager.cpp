@@ -81,22 +81,6 @@ void diji::SceneManager::OnDestroy() const
 
 void diji::SceneManager::EndFrameUpdate()
 {
-    // Handle pending destroy
-    if (m_HasPendingDestroy)
-    {
-        // todo: Instead of iterating through all of them and removing them, pass it to the scene so I can use swap method to destroy all of them without having to iterate over all of the game objects multiple time.
-        for (const auto gameObject : m_PendingDestroyVec)
-        {
-            m_ScenesUPtrMap.at(m_ActiveSceneId)->Remove(gameObject);
-            m_TimelineManagerUPtr->ClearGameObjectTimelines(gameObject);
-        }
-
-        m_PendingDestroyVec = std::vector<const GameObject*>();
-        m_HasPendingDestroy = false;
-
-        m_ScenesUPtrMap.at(m_ActiveSceneId)->ValidateCollidersAfterDestroy();
-    }
-    
     //  We can load the new scene
     if (m_IsSceneChange) // todo: async new scene loading
     {
@@ -128,7 +112,23 @@ void diji::SceneManager::EndFrameUpdate()
 
         Init();
         Start();
+        
+        return;
     }
+
+    // Handle pending destroy
+    if (!m_HasPendingDestroy) return;
+    // todo: Instead of iterating through all of them and removing them, pass it to the scene so I can use swap method to destroy all of them without having to iterate over all of the game objects multiple time.
+    for (const auto gameObject : m_PendingDestroyVec)
+    {
+        m_ScenesUPtrMap.at(m_ActiveSceneId)->Remove(gameObject);
+        m_TimelineManagerUPtr->ClearGameObjectTimelines(gameObject);
+    }
+
+    m_PendingDestroyVec = std::vector<const GameObject*>();
+    m_HasPendingDestroy = false;
+
+    m_ScenesUPtrMap.at(m_ActiveSceneId)->ValidateCollidersAfterDestroy();
 }
 
 void diji::SceneManager::SetPendingDestroy(const GameObject* gameObject)
