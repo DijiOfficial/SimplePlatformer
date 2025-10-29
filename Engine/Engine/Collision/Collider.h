@@ -133,6 +133,9 @@ namespace diji
 
         void SetIgnoreAllDynamicColliders(const bool ignore) { m_IsIgnoringDynamicColliders = ignore; }
         [[nodiscard]] bool IsIgnoringAllDynamicColliders() const { return m_IsIgnoringDynamicColliders; }
+
+        void SetIsOnlyApplyingGroundFriction(const bool isApplied) { m_IsOnlyApplyingGroundFriction = isApplied; }
+        [[nodiscard]]  bool IsOnlyApplyingGroundFriction() const { return m_IsOnlyApplyingGroundFriction; }
         
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const;
 
@@ -171,6 +174,7 @@ namespace diji
         bool m_IsMoveable = true;
         bool m_IsIgnoringDynamicColliders = false; // todo: this should be like Unreal collision settings instead
         bool m_IsActive = true;
+        bool m_IsOnlyApplyingGroundFriction = false;
   
         std::string m_Tag = "Untagged";
     };

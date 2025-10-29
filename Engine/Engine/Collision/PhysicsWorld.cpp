@@ -477,41 +477,52 @@ void diji::PhysicsWorld::ApplyFrictionOnce(Prediction& prediction) const
 
     // If there were no collisions this frame, do nothing
     bool hadCollision = false;
+    bool hasGroundCollision = false;
+
     for (const auto& collisionInfo : prediction.collisionInfoVec)
     {
-        if (collisionInfo.hasCollision)
+        if (!collisionInfo.hasCollision)
+            continue;
+
+        hadCollision = true;
+
+        // Determine if this is a "ground" collision — assumes normal points upward
+        if (collisionInfo.normal.y < -0.5f) // adjust threshold as needed
         {
-            hadCollision = true;
+            hasGroundCollision = true;
             break;
         }
     }
-    if (!hadCollision) return;
+
+    if (!hadCollision)
+        return;
+
+    // If collider only applies ground friction, require ground collision
+    if (prediction.collider->IsOnlyApplyingGroundFriction() && !hasGroundCollision)
+        return;
 
     // Current linear speed
     const float speed = Helpers::LengthFast(prediction.vel);
-    if (speed <= Helpers::EPSILON) return; // already stopped or too small to matter
+    if (speed <= Helpers::EPSILON)
+        return; // already stopped or too small to matter
 
     // Friction force (simple model): F = mu * normalForce
-    // Use normalForce = mass * |g.y| (simple vertical gravity assumption)
     const float gravityMagnitude = std::abs(m_Gravity.y);
     const float normalForce = mass * gravityMagnitude;
 
     const float frictionForce = mu * normalForce;
 
-    // Convert friction force to impulse over this frame: impulse = F * dt
-    const float maxFrictionImpulseThisFrame = frictionForce * dt; // units: mass * velocity
-
-    // Impulse needed to stop this frame: impulse = mass * speed
+    // Convert friction force to impulse over this frame
+    const float maxFrictionImpulseThisFrame = frictionForce * dt;
     const float neededImpulse = mass * speed;
-
-    // Clamp so we don't reverse velocity: applied impulse is min of the two
     const float appliedImpulse = std::min(maxFrictionImpulseThisFrame, neededImpulse);
 
-    if (appliedImpulse <= 0.0f) return;
+    if (appliedImpulse <= 0.0f)
+        return;
 
     // Apply impulse opposite to current velocity vector
-    const sf::Vector2f velDir = prediction.vel / speed; // normalized direction
-    const sf::Vector2f deltaV = -(appliedImpulse / mass) * velDir; // deltaV = impulse/mass, opposite direction
+    const sf::Vector2f velDir = prediction.vel / speed;
+    const sf::Vector2f deltaV = -(appliedImpulse / mass) * velDir;
 
     prediction.vel += deltaV;
 }

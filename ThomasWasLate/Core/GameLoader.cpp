@@ -436,6 +436,7 @@ void SceneLoader::Level()
     player->GetComponent<Collider>()->SetStaticFriction(0.25f);
     player->GetComponent<Collider>()->SetKineticFriction(0.15f);
     player->GetComponent<Collider>()->SetGenerateHitEvents(true);
+    player->GetComponent<Collider>()->SetIsOnlyApplyingGroundFriction(true);
     player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.f, 1000.f });
     player->GetComponent<Collider>()->SetTag("player");
     player->AddComponents<thomasWasLate::PlayerCharacter>(0.5f);
