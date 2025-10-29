@@ -580,7 +580,10 @@ void thomasWasLate::PlayerCharacter::PlayShrinkAnimation()
     (void)diji::TimerManager::GetInstance().SetTimer([&]()
     {
         m_ColliderCompPtr->ResizeCollider(sf::Vector2f{ 48, 48 });
-        m_ColliderCompPtr->SetIgnoreAllDynamicColliders(true);
+
+        for(const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
+            m_ColliderCompPtr->OverlapCollider(enemyCollider);
+        
         std::unique_ptr<PlayerStates> newBigState = std::make_unique<IdleState>();
         m_CurrentStateUPtr = std::move(newBigState);
         m_CurrentStateUPtr->OnEnter(GetOwner());
@@ -634,7 +637,8 @@ void thomasWasLate::PlayerCharacter::InvisibilityFlash()
     if (m_InvincibilityTimer <= 0.f)
     {
         m_InvincibilityRenderTimer = 0.f;
-        m_ColliderCompPtr->SetIgnoreAllDynamicColliders(false);
+        // m_ColliderCompPtr->SetIgnoreAllDynamicColliders(false);
+        m_ColliderCompPtr->ClearAllOverlappedCollider();
         m_SpriteRenderCompPtr->EnableRender();
         m_IsInvincible = false;
     }
@@ -725,6 +729,9 @@ void thomasWasLate::PlayerCharacter::HandleStarPickup()
     m_IsStartPoweredUp = true;
     m_StarPowerTimer = 0;
     m_SpriteRenderCompPtr->SetRenderWithShader(true);
+
+    // for(const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
+    //     m_ColliderCompPtr->OverlapCollider(enemyCollider);
 }
 
 void thomasWasLate::PlayerCharacter::UpdateStarPowerShader()
