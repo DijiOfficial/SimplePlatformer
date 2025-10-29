@@ -80,6 +80,7 @@ namespace thomasWasLate
             None,
         };
         MovementDirection m_MovementDirection = MovementDirection::None;
+        MovementDirection m_LookDirection = MovementDirection::Right;
 
         enum class PowerUpState : uint8_t
         {

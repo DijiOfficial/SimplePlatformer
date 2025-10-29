@@ -257,12 +257,6 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
         m_CurrentStateUPtr = std::move(newState);
         m_CurrentStateUPtr->OnEnter(GetOwner());
     }
-
-    const bool currLookDirection = m_IsLookingLeft;
-    m_IsLookingLeft = m_CurrSpeed.x < 0.f;
-
-    if (m_IsLookingLeft != currLookDirection)
-        m_SpriteRenderCompPtr->InvertSprite();
     
     if (!m_IsStartPoweredUp) return;
     UpdateStarPowerShader();
@@ -354,6 +348,12 @@ void thomasWasLate::PlayerCharacter::Move(const sf::Vector2f& direction)
     if (m_IsDead || m_IsPaused) return;
 
     m_MovementDirection = direction.x > 0.f ? MovementDirection::Right : (direction.x < 0.f ? MovementDirection::Left : MovementDirection::None);
+
+    if (m_MovementDirection != m_LookDirection)
+    {
+        m_LookDirection = m_MovementDirection;
+        m_SpriteRenderCompPtr->InvertSprite();
+    }
 }
 
 void thomasWasLate::PlayerCharacter::StopMove()
