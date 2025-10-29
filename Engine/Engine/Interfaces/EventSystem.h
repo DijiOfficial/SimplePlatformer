@@ -20,7 +20,8 @@ namespace diji
         Event& operator=(const Event&) = delete;
         Event(Event&&) noexcept = delete;
         Event& operator=(Event&&) noexcept = delete;
-        
+
+        // todo: don't allow lambda functions they can cause memory corruption issues. Unless I can guarantee their lifetime
         template<typename T>
         ListenerId AddListener(T* observer, void (T::*func)(Args...))
         {
