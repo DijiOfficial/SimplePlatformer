@@ -102,8 +102,6 @@ void thomasWasLate::PlayerCharacter::FixedUpdate()
         m_ColliderCompPtr->ApplyForce(direction * m_Acceleration * multiplier);
     }
 
-    // speed is currently way to strong of an influence
-    // const float multiplier = std::abs(m_CurrSpeed.x) * 0.005f <= 1 ? 1.f : 1 + (std::abs(m_CurrSpeed.x) / m_SprintMaxVelocity.x);
     const float multiplier = 1 + (std::abs(m_CurrSpeed.x) / m_SprintMaxVelocity.x) * 0.25f;
     if (m_IsJumping)
     {
@@ -113,12 +111,6 @@ void thomasWasLate::PlayerCharacter::FixedUpdate()
             m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * 1.5f * multiplier });
     }
 
-    // If player jumped for one frame, ensure they get a consistent minimum jump
-    // if (m_MinJumpTime > 0.f)
-    // {
-    //     m_MinJumpTime -= m_TimeSingletonInstance.GetFixedUpdateDeltaTime();
-    //     m_ColliderCompPtr->ApplyForce({ 0.f, -m_JumpForce * multiplier });
-    // }
 }
 
 void thomasWasLate::PlayerCharacter::LateUpdate()
@@ -372,6 +364,7 @@ void thomasWasLate::PlayerCharacter::Jump()
     if (!m_IsOnGround || m_IsJumping) return;
     if (!m_CanJump) return;
 
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_ColliderCompPtr->GetVelocity().x, 0.f });
     m_ColliderCompPtr->ApplyImpulse({ 0.f, -m_JumpForce * 0.9f});
     m_IsOnGround = false;
     m_IsJumping = true;
