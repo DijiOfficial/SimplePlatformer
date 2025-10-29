@@ -74,32 +74,32 @@ sf::FloatRect diji::Collider::GetAABBAt(const sf::Vector2f& pos) const
 
 void diji::Collider::IgnoreCollider(const Collider* collider)
 {
-    m_IgnoredColliders.push_back(collider);
+    m_IgnoredColliders.insert(collider);
 }
 
 bool diji::Collider::IsIgnoringCollider(const Collider* collider) const
 {
-    return std::ranges::find(m_IgnoredColliders, collider) != m_IgnoredColliders.end();
+    return m_IgnoredColliders.contains(collider);
 }
 
 void diji::Collider::OverlapCollider(const Collider* collider)
 {
-     m_CollidersToOverlap.push_back(collider);
+     m_CollidersToOverlap.insert(collider);
 }
 
 bool diji::Collider::IsOverlappingCollider(const Collider* collider) const
 {
-    return std::ranges::find(m_CollidersToOverlap, collider) != m_CollidersToOverlap.end();
+    return m_CollidersToOverlap.contains(collider);
 }
 
 void diji::Collider::ClearOverlappedCollider(const Collider* collider)
 {
-    std::erase(m_CollidersToOverlap, collider);
+    m_CollidersToOverlap.erase(collider);
 }
 
 void diji::Collider::ClearAllOverlappedCollider()
 {
-    m_CollidersToOverlap = std::vector<const Collider*>();
+    m_CollidersToOverlap = std::unordered_set<const Collider*>();
 }
 
 void diji::Collider::ResizeCollider(const sf::Vector2f& size) const

@@ -143,8 +143,10 @@ namespace diji
     private:
         // todo: if velocity is zero for a certain amount of time, set similar to static to save calculations
         Transform* m_TransformCompPtr = nullptr;
-        std::vector<const Collider*> m_IgnoredColliders;
-        std::vector<const Collider*> m_CollidersToOverlap;
+        // todo: use unordered_set for faster lookup
+        
+        std::unordered_set<const Collider*> m_IgnoredColliders;
+        std::unordered_set<const Collider*> m_CollidersToOverlap;
         CollisionShape::ShapeType m_Type;
         std::unique_ptr<CollisionShape> m_Shape;
         const TimeSingleton& m_TimeSingletonInstance = TimeSingleton::GetInstance();
