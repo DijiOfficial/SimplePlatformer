@@ -101,6 +101,7 @@ namespace diji
 
         void IgnoreCollider(const Collider* collider);
         [[nodiscard]] bool IsIgnoringCollider(const Collider* collider) const;
+        void ClearAllIgnoredColliders();
 
         void OverlapCollider(const Collider* collider);
         [[nodiscard]] bool IsOverlappingCollider(const Collider* collider) const;

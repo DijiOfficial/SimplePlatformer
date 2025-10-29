@@ -77,6 +77,11 @@ void diji::Collider::IgnoreCollider(const Collider* collider)
     m_IgnoredColliders.insert(collider);
 }
 
+void diji::Collider::ClearAllIgnoredColliders()
+{
+    m_IgnoredColliders = std::unordered_set<const Collider*>();
+}
+
 bool diji::Collider::IsIgnoringCollider(const Collider* collider) const
 {
     return m_IgnoredColliders.contains(collider);
