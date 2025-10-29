@@ -195,7 +195,7 @@
     <ClCompile Include="Components\PowerUps\FireFlower.cpp" />
     <ClCompile Include="Components\PowerUps\MushroomScript.cpp"/>
     <ClCompile Include="Components\PowerUps\OneUpMushroom.cpp" />
-    <ClCompile Include="Components\PowerUps\StartPower.cpp" />
+    <ClCompile Include="Components\PowerUps\StarPower.cpp" />
     <ClCompile Include="Core\GameLoader.cpp" />
     <ClCompile Include="Helpers\MarioHelpers.cpp" />
     <ClCompile Include="Input\CustomCommands.cpp" />
@@ -227,7 +227,7 @@
     <ClInclude Include="Components\PowerUps\FireFlower.h" />
     <ClInclude Include="Components\PowerUps\MushroomScript.h" />
     <ClInclude Include="Components\PowerUps\OneUpMushroom.h" />
-    <ClInclude Include="Components\PowerUps\StartPower.h" />
+    <ClInclude Include="Components\PowerUps\StarPower.h" />
     <ClInclude Include="Core\GameLoader.h" />
     <ClInclude Include="Core\GameState.h" />
     <ClInclude Include="Helpers\MarioHelpers.h" />

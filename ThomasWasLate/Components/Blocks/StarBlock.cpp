@@ -2,7 +2,7 @@
 
 #include "Engine/Collision/Collider.h"
 #include "../../Helpers/MarioHelpers.h"
-#include "../PowerUps/StartPower.h"
+#include "../PowerUps/StarPower.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Core/GameObject.h"
@@ -61,7 +61,7 @@ void thomasWasLate::StarBlock::SpawnStarPowerUp() const
     star->AddComponents<diji::Transform>(600, 200);
     star->AddComponents<diji::SpriteRenderComponent>("graphics/star.png", sf::Vector2i{ 50,50 }, 4, 0.035f);
     star->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    star->AddComponents<StartPower>();
+    star->AddComponents<StarPower>();
 
     diji::SceneManager::GetInstance().SpawnGameObject("C_PowerUp", std::move(star),  GetOwner()->GetComponent<diji::Transform>()->GetPosition());
 }

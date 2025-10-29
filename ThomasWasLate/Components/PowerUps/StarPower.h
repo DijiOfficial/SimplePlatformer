@@ -8,11 +8,11 @@ namespace diji
 
 namespace thomasWasLate
 {
-    class StartPower final : public diji::Component
+    class StarPower final : public diji::Component
     {
     public:
-        explicit StartPower(diji::GameObject* ownerPtr) : Component(ownerPtr) {}
-        ~StartPower() noexcept override = default;
+        explicit StarPower(diji::GameObject* ownerPtr) : Component(ownerPtr) {}
+        ~StarPower() noexcept override = default;
 
         void Init() override;
         void OnEnable() override {}

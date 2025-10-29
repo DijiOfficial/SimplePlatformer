@@ -1,4 +1,4 @@
-﻿#include "StartPower.h"
+﻿#include "StarPower.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Singleton/SceneManager.h"
@@ -7,7 +7,7 @@
 #include "Engine/Collision/Collider.h"
 #include "Engine/Singleton/Helpers.h"
 
-void thomasWasLate::StartPower::Init()
+void thomasWasLate::StarPower::Init()
 {
     m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
@@ -20,7 +20,7 @@ void thomasWasLate::StartPower::Init()
     PlayStartAnimation();
 }
 
-void thomasWasLate::StartPower::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo& hitInfo)
+void thomasWasLate::StarPower::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo& hitInfo)
 {
     if (other->GetTag() == "ground")
     {
@@ -44,7 +44,7 @@ void thomasWasLate::StartPower::OnTriggerEnter(const diji::Collider* other, cons
     GameManager::SpawnPointsText(scorePos, "1000");
 }
 
-void thomasWasLate::StartPower::PlayStartAnimation() const
+void thomasWasLate::StarPower::PlayStartAnimation() const
 {
     const auto& timelinePtr = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
 
