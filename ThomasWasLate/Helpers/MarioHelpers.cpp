@@ -48,13 +48,13 @@ void mario::MarioHelpers::CheckForCollisionAboveBlock(const diji::Collider* coll
     const sf::Vector2f TopLeft = { origin.x - offset, origin.y - offset };
     const sf::Vector2f TopRight = { origin.x + offset, origin.y - offset };
     
-    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopLeft, dir, 10.f, collider))
+    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopLeft, dir, 15.f, collider))
     {
         if (hit->info.hasCollision && (hit->collider->GetTag() == "enemy" || hit->collider->GetTag() == "powerUp"))
             hit->collider->GetParent()->GetComponent<thomasWasLate::IBumpable>()->HandleBumpedBehavior(true);
     }
 
-    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopRight, dir, 10.f, collider))
+    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopRight, dir, 15.f, collider))
     {
         if (hit->info.hasCollision && (hit->collider->GetTag() == "enemy" || hit->collider->GetTag() == "powerUp"))
             hit->collider->GetParent()->GetComponent<thomasWasLate::IBumpable>()->HandleBumpedBehavior(false);
