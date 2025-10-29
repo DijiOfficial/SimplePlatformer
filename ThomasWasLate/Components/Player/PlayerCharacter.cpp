@@ -82,6 +82,7 @@ void thomasWasLate::PlayerCharacter::Update()
         m_IsJumping = false;
         m_JumpTime = m_MaxJumpTime;
         m_MinJumpTime = 0.f;
+        m_ColliderCompPtr->ApplyImpulse(sf::Vector2f{ 0, m_JumpForce * 0.25f });
     }
 
     // If player stopped sprinting, interpolate back to base speed over 1 second
