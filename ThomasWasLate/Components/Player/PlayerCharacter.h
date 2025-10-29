@@ -57,7 +57,7 @@ namespace thomasWasLate
         diji::Event<> OnCastleReachedEvent;
 
     private:
-        const std::set<std::string> GROUND_TAGS = { "ground", "luckyBlock", "breakBlock" };
+        const std::set<std::string> GROUND_TAGS = { "ground", "luckyBlock", "breakBlock", "HiddenBlock" };
         diji::Timeline* m_FlagPoleTimelinePtr = nullptr;
         std::unique_ptr<PlayerStates> m_CurrentStateUPtr = nullptr;
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;

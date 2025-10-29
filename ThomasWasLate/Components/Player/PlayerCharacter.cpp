@@ -310,7 +310,7 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
         return;
     }
 
-    if (otherTag == "ground")
+    if (GROUND_TAGS.contains(otherTag))
     {
         m_KoopaStompToggle = false;
         m_BounceScoreMultiplier = 0;
