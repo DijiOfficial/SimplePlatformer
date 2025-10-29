@@ -271,17 +271,26 @@ void thomasWasLate::PlayerCharacter::LateUpdate()
 void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&)
 {
     if (m_IsDead || m_IsPaused) return;
-
-    if (other->GetTag() == "powerUp")
+    const std::string& otherTag = other->GetTag();
+    
+    if (otherTag == "powerUp")
         HandlePowerUpCollision();
 
-    if (other->GetTag() == "star")
+    if (otherTag == "star")
         HandleStarPickup();
 
-    if (other->GetTag() == "flagPole")
+    if (otherTag == "flagPole")
         HandleLevelCompletion(other->GetPosition());
 
-    if (other->GetTag() == "koopa")
+    if (otherTag != "enemy" && otherTag != "koopa") return;
+    if (m_IsStartPoweredUp)
+    {
+        const auto enemyInterface = diji::InterfaceRegistry::GetInterface<IKillable>(other->GetParent());
+        enemyInterface->Kill(m_TransformCompPtr->GetPosition().x > other->GetPosition().x);
+        return;
+    }
+
+    if (otherTag == "koopa")
     {
         const auto enemyInterface = diji::InterfaceRegistry::GetInterface<IShoveable>(other->GetParent());
         enemyInterface->Shove(m_TransformCompPtr->GetPosition().x > other->GetPosition().x);
@@ -310,13 +319,7 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
     }
     
     if (otherTag != "enemy" && otherTag != "koopa") return;
-
-    if (m_IsStartPoweredUp)
-    {
-        const auto enemyInterface = diji::InterfaceRegistry::GetInterface<IKillable>(other->GetParent());
-        enemyInterface->Kill(m_TransformCompPtr->GetPosition().x > other->GetPosition().x);
-        return;
-    }
+    
     const sf::Vector2f playerCenter = m_TransformCompPtr->GetPosition();
     const sf::Vector2f enemyCenter = other->GetPosition();
     
@@ -630,7 +633,6 @@ void thomasWasLate::PlayerCharacter::InvisibilityFlash()
     if (m_InvincibilityTimer <= 0.f)
     {
         m_InvincibilityRenderTimer = 0.f;
-        // m_ColliderCompPtr->SetIgnoreAllDynamicColliders(false);
         m_ColliderCompPtr->ClearAllOverlappedCollider();
         m_SpriteRenderCompPtr->EnableRender();
         m_IsInvincible = false;
@@ -723,8 +725,8 @@ void thomasWasLate::PlayerCharacter::HandleStarPickup()
     m_StarPowerTimer = 0;
     m_SpriteRenderCompPtr->SetRenderWithShader(true);
 
-    // for(const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
-    //     m_ColliderCompPtr->OverlapCollider(enemyCollider);
+    for(const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
+        m_ColliderCompPtr->OverlapCollider(enemyCollider);
 }
 
 void thomasWasLate::PlayerCharacter::UpdateStarPowerShader()
@@ -742,6 +744,7 @@ void thomasWasLate::PlayerCharacter::UpdateStarPowerShader()
     {
         m_IsStartPoweredUp = false;
         m_SpriteRenderCompPtr->SetRenderWithShader(false);
+        m_ColliderCompPtr->ClearAllOverlappedCollider();
     }
 }
 
