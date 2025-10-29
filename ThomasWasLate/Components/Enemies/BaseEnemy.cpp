@@ -23,10 +23,7 @@ void thomasWasLate::BaseEnemy::Init()
 void thomasWasLate::BaseEnemy::Start()
 {
     const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar");
-    player->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener([this]()
-    {
-        m_Paused = true;
-    });
+    player->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener(this, &BaseEnemy::Pause);
 
     player->GetComponent<PlayerCharacter>()->OnEnemyStompedEvent.AddListener(this, &BaseEnemy::HandleStomp);
     player->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener(this, &BaseEnemy::SetPauseState);

@@ -60,10 +60,10 @@ void thomasWasLate::KoopaTroopa::OnTriggerExit(const diji::Collider* other, cons
         m_ColliderCompPtr->ClearOverlappedCollider(m_EnemyColliderCompPtr);
 }
 
-void thomasWasLate::KoopaTroopa::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo& collision_info)
+void thomasWasLate::KoopaTroopa::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&)
 {
     if (other->GetTag() == "fireBall")
-        return HandleBumpedBehavior(collision_info.normal.x < 0.f);
+        return Kill(other->GetPosition().x < m_TransformCompPtr->GetPosition().x);
 
     if (m_KoopaTroopaState != KoopaTroopaState::Bumped) return;
     
@@ -93,6 +93,7 @@ void thomasWasLate::KoopaTroopa::HandleBumpedBehavior(const bool, const bool)
 
 void thomasWasLate::KoopaTroopa::Kill(const bool isBumpingLeft, const bool)
 {
+    diji::TimerManager::GetInstance().ClearTimer(m_TimerHandle);
     m_TransformCompPtr->SetRotation(180.f);
     m_SpriteRenderCompPtr->SetStartingFrame(4, 0);
     m_SpriteRenderCompPtr->SetTotalAnimationFrames(0);
