@@ -14,7 +14,7 @@ void thomasWasLate::Flag::StartAnimation()
     m_TimelinePtr = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
 
     auto &track = m_TimelinePtr->AddFloatTrack("MoveVertically");
-    track.keys = { { .time= 0.f, .value= 0.f }, { .time= 1.f, .value= 340.f }, };
+    track.keys = { { .time= 0.f, .value= 0.f }, { .time= 1.31f, .value= 490.f }, };
     
     diji::Transform* transformPtr = GetOwner()->GetComponent<diji::Transform>();
     sf::Vector2f originalPos = transformPtr->GetPosition();
@@ -27,7 +27,7 @@ void thomasWasLate::Flag::StartAnimation()
     auto& [eventName, eventKeysVec] = m_TimelinePtr->AddEventTrack("OnAnimationEnd");
     eventKeysVec =
     {
-        { .time= 1.f, .callback= [&]()
+        { .time= 1.31f, .callback= [&]()
             {
                 OnFlagAnimationFinishedEvent.Broadcast();
                 m_TimelinePtr->Stop();

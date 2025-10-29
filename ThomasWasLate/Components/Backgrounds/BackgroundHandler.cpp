@@ -33,7 +33,7 @@ void thomasWasLate::BackgroundHandler::Init()
         { 'g', {0, 4} }, // Goomba (fitting isn't it?) (invisible tile because it's not a background tile)
         { 'h', {0, 4} }, // Goomba but offset by 25 (invisible tile because it's not a background tile)
         { 'i', {0, 4} }, // Star block
-        { 'k', {3, 0} }, // pole top
+        { 'k', {0, 4} }, // pole top
         { 'j', {3, 1} }, // pole body
         { 'l', {0, 4} }, // small castle base
         { 'm', {0, 4} }, // big castle base

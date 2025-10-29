@@ -322,8 +322,16 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 flag->AddComponents<diji::Render>();
                 flag->AddComponents<Flag>();
 
-                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_flag", std::move(flag), center - sf::Vector2f{ 25, -50 });
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_flag", std::move(flag), center - sf::Vector2f{ 25, 100 });
 
+                // create the poleEnd
+                auto poleTop = std::make_unique<diji::GameObject>();
+                poleTop->AddComponents<diji::Transform>(600, 300);
+                poleTop->AddComponents<diji::TextureComp>("graphics/poleTop.png");
+                poleTop->AddComponents<diji::Render>();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_poleTop", std::move(poleTop), center - sf::Vector2f{ 0, 75.f });
+                
                 ++col;
             }
             else if (tile == 'l' || tile == 'm')
