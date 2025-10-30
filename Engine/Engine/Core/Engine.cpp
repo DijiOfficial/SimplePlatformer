@@ -56,7 +56,6 @@ void diji::Engine::Run(const std::function<void()>& load) const
 		const auto currentTime{ std::chrono::high_resolution_clock::now() };
 		const float deltaTime{ std::chrono::duration<float>(currentTime - lastFrameTime).count() };
 		lastFrameTime = currentTime;
-		lag += deltaTime;
 
 		TimeSingleton::GetInstance().SetDeltaTime(deltaTime);
 		if (!input.ProcessInput())
@@ -68,6 +67,7 @@ void diji::Engine::Run(const std::function<void()>& load) const
 			continue;
 		}
 
+		lag += deltaTime;
 		while (lag >= FIXED_TIME_STEP)
 		{
 			sceneManager.FixedUpdate(); // todo: pass down fixed time step instead of getting it from the singleton
