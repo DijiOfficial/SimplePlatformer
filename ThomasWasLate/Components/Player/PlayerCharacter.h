@@ -49,6 +49,8 @@ namespace thomasWasLate
         void StopSprint();
         void Attack();
         void SetAgainstCameraEdge(const bool isAgainst) { m_IsAgainstCameraEdge = isAgainst; }
+        void PausePlayer() { m_IsPaused = true; }
+        void SetTransitionState();
 
         diji::Event<> OnHitByEnemyEvent;
         diji::Event<> OnFallingInHoleEvent;

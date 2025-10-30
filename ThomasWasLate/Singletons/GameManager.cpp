@@ -38,20 +38,28 @@ void thomasWasLate::GameManager::LoadLevel()
     OnNewLevelLoadedEvent.Broadcast();
 }
 
+void thomasWasLate::GameManager::SwitchToNextScene()
+{
+    ClearListeners();
+    
+    if (m_ShouldPlayTransition)
+        diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::TransitionToNextLevel));
+    else
+        diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::Level));
+}
+
 void thomasWasLate::GameManager::SetLevelCleared()
 {
     ++m_PlayerInfo.currentLevel;
+    m_ShouldPlayTransition = true;
 
+    OnLevelClearedEvent.Broadcast();
     ResetLevel();
 }
 
 void thomasWasLate::GameManager::ResetLevel()
 {
-    // I don't think I need to clear them anymore?
-    OnNewLevelLoadedEvent.ClearAllListeners();
-    OnPlayerSwitchedEvent.ClearAllListeners();
-    OnScoreAddedEvent.ClearAllListeners();
-    OnCoinCollectedEvent.ClearAllListeners();
+    ClearListeners();
 
     if (m_PlayerInfo.totalLives == 0)
         diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::GameOver));
@@ -92,6 +100,15 @@ void thomasWasLate::GameManager::ResetPlayerInfo()
 
 std::string thomasWasLate::GameManager::LoadInformation()
 {
+    if (m_ShouldPlayTransition)
+    {
+        m_ShouldPlayTransition = false;
+        m_StartPosition.x = 100;
+        m_StartPosition.y = 100;
+        
+        return "../ThomasWasLate/Resources/levels/transitionLevel.txt";
+    }
+    
     switch (m_PlayerInfo.currentLevel) // if you're going to read from a file put this information in the fucking file
     {
     case 1:
@@ -148,7 +165,7 @@ void thomasWasLate::GameManager::ReadLevelInfo(const std::string& filepath)
     file.close();
 }
 
-// todo: rename, it also creates enemeis
+// todo: rename, it also creates enemies
 void thomasWasLate::GameManager::CreateWorldCollision()
 {
     constexpr float kTileSize = 50.0f;
@@ -164,7 +181,7 @@ void thomasWasLate::GameManager::CreateWorldCollision()
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
-            if (std::string("0edxyfghijklmno").find(tile) == std::string::npos)
+            if (std::string("0edxyfghijklmnoABCDEF").find(tile) == std::string::npos)
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -185,7 +202,6 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 const auto collider = tempBound->GetComponent<diji::Collider>();
                 collider->SetStatic(true);
                 // tempBound->AddComponents<diji::ShapeRender>();
-
                 collider->SetTag("ground");
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
@@ -407,6 +423,40 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 
                 ++col;
             }
+            else if (tile == 'A' || tile == 'B' || tile == 'C' || tile == 'D' || tile == 'E' || tile == 'F')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
+                
+                int x = 0, y = 0;
+                switch (tile)
+                {
+                case 'D': x = 0; y = 2; break;
+                case 'E': x = 1; y = 2; break;
+                case 'F': x = 2; y = 2; break;
+                case 'A': x = 0; y = 3; break;
+                case 'B': x = 1; y = 3; break;
+                case 'C': x = 2; y = 3; break;
+                default: break;
+                }
+
+                auto foregroundTexture = std::make_unique<diji::GameObject>();
+                foregroundTexture->AddComponents<diji::Transform>(600, 300);
+                foregroundTexture->AddComponents<diji::SpriteRenderComponent>("graphics/tiles_sheet.png", sf::Vector2i{50, 50}, 1, 0.05f);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetFrameSize(sf::Vector2i{50, 50});
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetStartingFrame(x, y);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetTotalAnimationFrames(1);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetFrameDuration(0.01f);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetLooping(false);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->Pause();
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetCurrentAnimationFrame(0);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->UpdateFrame();
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SkipStart();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("ZZ_foregroundTexture", std::move(foregroundTexture), center);
+               ++col;
+            }
             else
             {
                 ++col;
@@ -435,4 +485,13 @@ void thomasWasLate::GameManager::CreateWorldCollision()
             (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
         }
     }
+}
+
+void thomasWasLate::GameManager::ClearListeners()
+{
+    OnNewLevelLoadedEvent.ClearAllListeners();
+    OnPlayerSwitchedEvent.ClearAllListeners();
+    OnScoreAddedEvent.ClearAllListeners();
+    OnCoinCollectedEvent.ClearAllListeners();
+    OnLevelClearedEvent.ClearAllListeners();
 }

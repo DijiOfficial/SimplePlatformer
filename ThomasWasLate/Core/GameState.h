@@ -9,6 +9,7 @@ namespace thomasWasLate
         Paused,
         Level,
         GameOver,
-        LivesDisplayMenu
+        LivesDisplayMenu,
+        TransitionToNextLevel
     };
 }

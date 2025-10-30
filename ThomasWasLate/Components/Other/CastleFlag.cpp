@@ -11,7 +11,9 @@
 
 void thomasWasLate::CastleFlag::Init()
 {
-    diji::SceneManager::GetInstance().GetGameObject("Z_HUDManager")->GetComponent<HudManager>()->OnScoreCountedEvent.AddListener(this, &CastleFlag::StartAnimation);
+    const auto HUDEvent = diji::SceneManager::GetInstance().GetGameObject("Z_HUDManager");
+    if (HUDEvent)
+        HUDEvent->GetComponent<HudManager>()->OnScoreCountedEvent.AddListener(this, &CastleFlag::StartAnimation);
 }
 
 void thomasWasLate::CastleFlag::Update()

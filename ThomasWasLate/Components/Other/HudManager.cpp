@@ -19,8 +19,9 @@ void thomasWasLate::HudManager::Init()
 
     player->OnHitByEnemyEvent.AddListener(this, &HudManager::SaveScoreAndCoins);
     player->OnFallingInHoleEvent.AddListener(this, &HudManager::SaveScoreAndCoins);
-    player->OnCastleReachedEvent.AddListener(this, &HudManager::SaveScoreAndCoins);
     player->OnCastleReachedEvent.AddListener(this, &HudManager::StartTimerPointCount);
+
+    GameManager::GetInstance().OnLevelClearedEvent.AddListener(this, &HudManager::SaveScoreAndCoins);
     
     m_CoinsCounterCompPtr->OnGivenScoreReachedEvent.AddListener(this, &HudManager::Handle100CoinsCollected);
 }

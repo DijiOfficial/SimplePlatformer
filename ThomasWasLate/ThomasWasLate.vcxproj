@@ -190,6 +190,7 @@
     <ClCompile Include="Components\Other\TimerScript.cpp" />
     <ClCompile Include="Components\Player\BroadcastPlayerPosition.cpp" />
     <ClCompile Include="Components\Player\CameraClamping.cpp" />
+    <ClCompile Include="Components\Player\MenuTransition.cpp" />
     <ClCompile Include="Components\Player\PlayerCharacter.cpp" />
     <ClCompile Include="Components\Player\PlayerStates.cpp" />
     <ClCompile Include="Components\PowerUps\FireBall.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="Components\Other\TimerScript.h" />
     <ClInclude Include="Components\Player\BroadcastPlayerPosition.h" />
     <ClInclude Include="Components\Player\CameraClamping.h" />
+    <ClInclude Include="Components\Player\MenuTransition.h" />
     <ClInclude Include="Components\Player\PlayerCharacter.h" />
     <ClInclude Include="Components\Player\PlayerStates.h" />
     <ClInclude Include="Components\PowerUps\FireBall.h" />

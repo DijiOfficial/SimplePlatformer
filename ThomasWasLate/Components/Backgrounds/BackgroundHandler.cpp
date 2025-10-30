@@ -39,6 +39,12 @@ void thomasWasLate::BackgroundHandler::Init()
         { 'm', {0, 4} }, // big castle base
         { 'n', {0, 4} }, // 1up mushroom
         { 'o', {0, 4} }, // Koopa Troopa
+        { 'D', {0, 2} }, // TopRight Side Pipe (Z priority)
+        { 'E', {1, 2} }, // MiddleRight Side Pipe (Z priority)
+        { 'F', {2, 2} }, // BottomRight Side Pipe (Z priority)
+        { 'A', {0, 3} }, // TopLeft Side Pipe (Z priority)
+        { 'B', {1, 3} }, // MiddleLeft Side Pipe (Z priority)
+        { 'C', {2, 3} }, // BottomLeft Side Pipe (Z priority)
         // ... etc.
     };
 

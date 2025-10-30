@@ -49,7 +49,8 @@ void thomasWasLate::PlayerCharacter::Start()
     sf::Shader& starShader = diji::ResourceManager::GetInstance().LoadShader("", "shaders/star.frag");
     m_SpriteRenderCompPtr->SetShader(&starShader);
 
-    diji::SceneManager::GetInstance().GetGameObject("E_flag")->GetComponent<Flag>()->OnFlagAnimationFinishedEvent.AddListener(this, &PlayerCharacter::StopFlagAnimAndMoveToCastle);
+    if (const auto flag = diji::SceneManager::GetInstance().GetGameObject("E_flag"))
+        flag->GetComponent<Flag>()->OnFlagAnimationFinishedEvent.AddListener(this, &PlayerCharacter::StopFlagAnimAndMoveToCastle);
 }
 
 #include <SFML/Window/Keyboard.hpp>
@@ -439,6 +440,19 @@ void thomasWasLate::PlayerCharacter::Attack()
 
     GameManager::GetInstance().FireballAdded();
     m_CanAttack = false;
+}
+
+void thomasWasLate::PlayerCharacter::SetTransitionState()
+{
+    std::unique_ptr<PlayerStates> newState;
+    if (m_PowerUpState == PowerUpState::Small)
+        newState = std::make_unique<RunningState>();
+    else if (m_PowerUpState == PowerUpState::Fire)
+        newState = std::make_unique<FireRunningState>();
+    else
+        newState = std::make_unique<BigRunningState>();
+    m_CurrentStateUPtr = std::move(newState);
+    m_CurrentStateUPtr->OnEnter(GetOwner());
 }
 
 void thomasWasLate::PlayerCharacter::HandleDeathSequence()

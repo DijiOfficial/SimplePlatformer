@@ -5,16 +5,15 @@
 #include "GameState.h"
 #include "../Components/Backgrounds/BackgroundHandler.h"
 #include "../Components/Backgrounds/CustomBackgroundRenderer.h"
-#include "../Components/Other/CastleFlag.h"
 #include "../Components/Player/CameraClamping.h"
 #include "../Components/Other/HudManager.h"
 #include "../Components/Player/PlayerCharacter.h"
 #include "../Components/Other/TimerScript.h"
 #include "../Components/Player/BroadcastPlayerPosition.h"
+#include "../Components/Player/MenuTransition.h"
 #include "../Input/CustomCommands.h"
 #include "../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
-#include "Engine/Components/AutoDestroy.h"
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Input/InputManager.h"
@@ -47,6 +46,8 @@ void SceneLoader::GameStartUp()
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::StartMenu), StartMenu);
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::LivesDisplayMenu), LivesDisplayMenu);
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::GameOver), GameOverMenu);
+    SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::TransitionToNextLevel), TransitionToNextLevel);
+
     // StartMenu();
     Level();
 }
@@ -183,13 +184,13 @@ void SceneLoader::LivesDisplayMenu()
 
     (void)TimerManager::GetInstance().SetTimer([]
     {
-        SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLate::thomasWasLateState::Level));
+        thomasWasLate::GameManager::GetInstance().SwitchToNextScene();
     }, 2.6f, false);
     
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->AddComponents<Transform>(0, 0);
     camera->AddComponents<Camera>(window::VIEWPORT);
-
+#pragma region HUD
      // Create the HUD    
     const auto marioName = scene->CreateGameObject("Z_MarioName");
     marioName->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.15f, static_cast<float>(window::VIEWPORT.y) * 0.05f);
@@ -293,6 +294,7 @@ void SceneLoader::LivesDisplayMenu()
     fpsCounter->AddComponents<Transform>(window::VIEWPORT.x - 100, 40);
     fpsCounter->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(fpsCounter);
+#pragma endregion
 }
 
 void SceneLoader::GameOverMenu()
@@ -399,6 +401,131 @@ void SceneLoader::GameOverMenu()
     fpsCounter->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(fpsCounter);
 }
+
+void SceneLoader::TransitionToNextLevel()
+{
+    SceneManager::GetInstance().SetActiveScene(static_cast<int>(thomasWasLate::thomasWasLateState::TransitionToNextLevel));
+    const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(thomasWasLate::thomasWasLateState::TransitionToNextLevel));
+    GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(thomasWasLate::thomasWasLateState::TransitionToNextLevel));
+
+    (void)TimerManager::GetInstance().SetTimer([]
+    {
+        thomasWasLate::GameManager::GetInstance().SwitchToNextScene();
+    }, 5.6f, false);
+    
+    const sf::FloatRect arena{ 0,-(115 * 4.5), 1920.f, 1080.f };
+    const auto camera = scene->CreateCameraObject("A_Camera");
+    camera->AddComponents<Transform>(0, 0);
+    camera->AddComponents<Camera>(window::VIEWPORT); // todo: probably clamp it to 1920x1080 instead
+    camera->GetComponent<Camera>()->SetLevelBoundaries(arena);
+
+    const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
+    staticBackground->AddComponents<Transform>(0, 0);
+    staticBackground->AddComponents<TextureComp>("graphics/background.png");
+    staticBackground->AddComponents<thomasWasLate::CustomBackgroundRenderer>();
+
+    const auto background = scene->CreateGameObject("B_Background");
+    background->AddComponents<Transform>(0, 0);
+    background->AddComponents<Sprite>("graphics/tiles_sheet.png");
+    background->AddComponents<Render>();
+    background->AddComponents<thomasWasLate::BackgroundHandler>();
+    
+    const auto player = scene->CreateGameObject("X_PlayerChar");
+    player->AddComponents<Transform>(200, 475);
+    player->AddComponents<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
+    player->GetComponent<SpriteRenderComponent>()->SetScale(3);
+    player->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
+    const auto collider = player->GetComponent<Collider>();
+    collider->SetCollisionResponse(Collider::CollisionResponse::Ignore);
+    collider->SetActive(false);
+    collider->SetAffectedByGravity(false);
+    player->AddComponents<thomasWasLate::PlayerCharacter>(0.5f);
+    player->GetComponent<thomasWasLate::PlayerCharacter>()->PausePlayer();
+    player->AddComponents<thomasWasLate::MenuTransition>();
+    
+#pragma region HUD
+    // Create the HUD
+    const auto marioName = scene->CreateGameObject("Z_MarioName");
+    marioName->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.15f, static_cast<float>(window::VIEWPORT.y) * 0.05f);
+    marioName->AddComponents<TextComp>("MARIO", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    marioName->GetComponent<TextComp>()->GetText().setCharacterSize(25);
+    marioName->GetComponent<TextComp>()->SetCentered(true);
+    marioName->AddComponents<Render>();
+    scene->SetGameObjectAsCanvasObject(marioName);
+    
+    const auto scoreHUD = scene->CreateGameObject("Z_ScoreHUD");
+    scoreHUD->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.15f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f);
+    scoreHUD->AddComponents<TextComp>("000000", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    scoreHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
+    scoreHUD->GetComponent<TextComp>()->SetCentered(true);
+    const int score = thomasWasLate::GameManager::GetInstance().GetPlayerInfo().totalScore;
+    scoreHUD->AddComponents<ScoreCounter>(score, true);
+    scoreHUD->GetComponent<ScoreCounter>()->SetString("");
+    scoreHUD->GetComponent<ScoreCounter>()->SetUsingZeroPadding(true);
+    scoreHUD->AddComponents<Render>();
+    scene->SetGameObjectAsCanvasObject(scoreHUD);
+
+    const auto coinsCounterHud = scene->CreateGameObject("Z_CoinsCounterHUD");
+    coinsCounterHud->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.4f, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f);
+    coinsCounterHud->AddComponents<TextComp>("00", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    coinsCounterHud->GetComponent<TextComp>()->GetText().setCharacterSize(25);
+    coinsCounterHud->GetComponent<TextComp>()->SetCentered(true);
+    const int coins = thomasWasLate::GameManager::GetInstance().GetPlayerInfo().totalCoins;
+    coinsCounterHud->AddComponents<ScoreCounter>(coins, true);
+    coinsCounterHud->GetComponent<ScoreCounter>()->SetString("");
+    coinsCounterHud->GetComponent<ScoreCounter>()->SetUsingZeroPadding(true, 2);
+    coinsCounterHud->GetComponent<ScoreCounter>()->SetGoalScore(100);
+    coinsCounterHud->AddComponents<Render>();
+    scene->SetGameObjectAsCanvasObject(coinsCounterHud);
+    
+    const auto xMarkHUD = scene->CreateGameObject("Z_xMarkHUD");
+    xMarkHUD->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.4f - 38, static_cast<float>(window::VIEWPORT.y) * 0.05f + 32.f);
+    xMarkHUD->AddComponents<TextComp>("X", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    xMarkHUD->GetComponent<TextComp>()->GetText().setCharacterSize(18);
+    xMarkHUD->GetComponent<TextComp>()->SetCentered(true);
+    xMarkHUD->AddComponents<Render>();
+    scene->SetGameObjectAsCanvasObject(xMarkHUD);
+    
+    const auto coinImageHud = scene->CreateGameObject("Z_CoinsImageHUD");
+    coinImageHud->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.4f - 60, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f);
+    coinImageHud->AddComponents<SpriteRenderComponent>("graphics/HUDCoins.png", sf::Vector2i{ 24, 24 }, 6, 0.15f);
+    scene->SetGameObjectAsCanvasObject(coinImageHud);
+
+    const auto worldNameHUD = scene->CreateGameObject("Z_worldNameHUD");
+    worldNameHUD->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f);
+    worldNameHUD->AddComponents<TextComp>("WORLD", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    worldNameHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
+    worldNameHUD->GetComponent<TextComp>()->SetCentered(true);
+    worldNameHUD->AddComponents<Render>();
+    scene->SetGameObjectAsCanvasObject(worldNameHUD);
+
+    const auto worldCountHUD = scene->CreateGameObject("Z_worldCountHUD");
+    worldCountHUD->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f);
+    const std::string levelStr = std::format("1-{}", thomasWasLate::GameManager::GetInstance().GetPlayerInfo().currentLevel);
+    worldCountHUD->AddComponents<TextComp>(levelStr, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    worldCountHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
+    worldCountHUD->GetComponent<TextComp>()->SetCentered(true);
+    worldCountHUD->AddComponents<Render>();
+    scene->SetGameObjectAsCanvasObject(worldCountHUD);
+
+    const auto timerName = scene->CreateGameObject("Z_timerName");
+    timerName->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.85f, static_cast<float>(window::VIEWPORT.y) * 0.05f);
+    timerName->AddComponents<TextComp>("TIME", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    timerName->GetComponent<TextComp>()->GetText().setCharacterSize(25);
+    timerName->GetComponent<TextComp>()->SetCentered(true);
+    timerName->AddComponents<Render>();
+    scene->SetGameObjectAsCanvasObject(timerName);
+
+    const auto fpsCounter = scene->CreateGameObject("Z_FPSCounter");
+    fpsCounter->AddComponents<TextComp>("0 FPS", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    fpsCounter->GetComponent<TextComp>()->GetText().setCharacterSize(10);
+    fpsCounter->AddComponents<FPSCounter>();
+    fpsCounter->AddComponents<Transform>(window::VIEWPORT.x - 100, 40);
+    fpsCounter->AddComponents<Render>();
+    scene->SetGameObjectAsCanvasObject(fpsCounter);
+#pragma endregion
+}
+
 #pragma endregion
 
 void SceneLoader::Level()
