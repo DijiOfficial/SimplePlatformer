@@ -7,7 +7,8 @@
 
 void thomasWasLate::PointsBehaviour::Init()
 {
-    Destroy(1.7f);
+    if (!m_ShouldIgnoreLifetime)
+        Destroy(1.7f);
     
     m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
 }
@@ -15,6 +16,10 @@ void thomasWasLate::PointsBehaviour::Init()
 void thomasWasLate::PointsBehaviour::Update()
 {
     m_TransformCompPtr->AddOffset(0, m_Speed * diji::TimeSingleton::GetInstance().GetDeltaTime());
+
+    const sf::Vector2f pos = m_TransformCompPtr->GetPosition();
+    if (pos.y <= m_MaxHeight)
+        m_TransformCompPtr->SetPosition(pos.x, m_MaxHeight);
 }
 
 void thomasWasLate::PointsBehaviour::SetValue(const int value) const

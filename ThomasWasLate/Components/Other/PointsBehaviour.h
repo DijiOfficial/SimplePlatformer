@@ -11,7 +11,7 @@ namespace thomasWasLate
     class PointsBehaviour final : public diji::Component
     {
     public:
-        explicit PointsBehaviour(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
+        explicit PointsBehaviour(diji::GameObject* ownerPtr, const bool shouldIgnoreLifetime = false) : Component{ ownerPtr }, m_ShouldIgnoreLifetime{ shouldIgnoreLifetime } {}
         ~PointsBehaviour() noexcept override = default;
 
         void Init() override;
@@ -26,9 +26,13 @@ namespace thomasWasLate
         void OnDestroy() override {}
 
         void SetValue(int value) const;
+        void SetSpeed(const float speed) { m_Speed = speed; }
+        void SetMaxHeight(const float maxHeight) { m_MaxHeight = maxHeight; }
 
     private:
         diji::Transform* m_TransformCompPtr = nullptr;
+        float m_MaxHeight = -10000.f;
         float m_Speed = -90.f;
+        bool m_ShouldIgnoreLifetime = false;
     };
 }

@@ -1,5 +1,7 @@
 ﻿#include "PlayerCharacter.h"
 
+#include <array>
+
 #include "../../Helpers/MarioHelpers.h"
 #include "../../Interfaces/IKillable.h"
 #include "../../Interfaces/IShoveable.h"
@@ -8,8 +10,11 @@
 #include "Engine/Collision/Collider.h"
 #include "../../Singletons/GameManager.h"
 #include "../Other/Flag.h"
+#include "../Other/PointsBehaviour.h"
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/SpriteRenderComp.h"
+#include "Engine/Components/TextComp.h"
+#include "Engine/Components/Render.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Interfaces/IInterface.h"
 #include "Engine/Singleton/Helpers.h"
@@ -781,6 +786,25 @@ void thomasWasLate::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& c
         m_TransformCompPtr->SetPosition(originalPos.x, originalPos.y + y);
     };
 
+    // handle pole score
+    const int flagPoleChunk = static_cast<int>(std::floorf(distanceToMove * 0.01f));
+    constexpr std::array flagPointTable = { 100, 400, 800, 2000, 5000 };
+    const int index = std::clamp(flagPoleChunk, 0, static_cast<int>(flagPointTable.size() - 1));
+    const int flagPoints = flagPointTable[index];
+
+    GameManager::GetInstance().OnScoreAddedEvent.Broadcast(flagPoints);
+    const std::string pointsString = std::to_string(flagPoints);
+    auto pointsText = std::make_unique<diji::GameObject>();
+    pointsText->AddComponents<diji::Transform>(sf::Vector2f{ originalPos.x + 65.f, 425.f });
+    pointsText->AddComponents<diji::TextComp>(pointsString, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    pointsText->GetComponent<diji::TextComp>()->GetText().setCharacterSize(18);
+    pointsText->AddComponents<diji::Render>();
+    pointsText->AddComponents<PointsBehaviour>(true);
+    pointsText->GetComponent<PointsBehaviour>()->SetSpeed(-375.f);
+    pointsText->GetComponent<PointsBehaviour>()->SetMaxHeight(-75.f);
+
+    diji::SceneManager::GetInstance().SpawnGameObject("ZZ_pointsText", std::move(pointsText), sf::Vector2f{ originalPos.x + 65.f, 425.f });
+    
     OnLevelFinishedEvent.Broadcast();
 }
 

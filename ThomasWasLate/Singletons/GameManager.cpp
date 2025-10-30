@@ -20,6 +20,8 @@
 #include <format>
 #include <fstream>
 
+#include "../Components/Other/CastleFlag.h"
+
 namespace thomasWasLate
 {
     class GoombaAI;
@@ -346,6 +348,14 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 castle->AddComponents<diji::Render>();
             
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_castle", std::move(castle), center);
+
+                auto castleFlag = std::make_unique<diji::GameObject>();
+                castleFlag->AddComponents<diji::Transform>(11000, 250);
+                castleFlag->AddComponents<diji::TextureComp>("graphics/castleFlag.png");
+                castleFlag->AddComponents<diji::Render>();
+                castleFlag->AddComponents<CastleFlag>();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("C_castleFlag", std::move(castleFlag), center + sf::Vector2f{ 0.f, -75.f });
                 
                 ++col;
             }

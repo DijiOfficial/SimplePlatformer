@@ -5,6 +5,7 @@
 #include "GameState.h"
 #include "../Components/Backgrounds/BackgroundHandler.h"
 #include "../Components/Backgrounds/CustomBackgroundRenderer.h"
+#include "../Components/Other/CastleFlag.h"
 #include "../Components/Player/CameraClamping.h"
 #include "../Components/Other/HudManager.h"
 #include "../Components/Player/PlayerCharacter.h"
@@ -13,6 +14,7 @@
 #include "../Input/CustomCommands.h"
 #include "../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
+#include "Engine/Components/AutoDestroy.h"
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Input/InputManager.h"
@@ -443,20 +445,17 @@ void SceneLoader::Level()
     player->AddComponents<thomasWasLate::BroadcastPlayerPosition>();
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
+
+    //todo: create last flag object, activate it on OnScoreCountedEvent from HudManager and handle fireworks(500points each) spawn there too (no fireworks is 50frames after flag animation to load level)
+    //
+
+    
+ 
     
     // const auto testObject = scene->CreateGameObject("Y_testObject");
-    // testObject->AddComponents<Transform>(2200, 200);
-    // testObject->AddComponents<SpriteRenderComponent>("graphics/koopaTroopa.png", sf::Vector2i{ 50,75 }, 2, 0.15f);
-    // testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
-    // const auto collider = testObject->GetComponent<diji::Collider>();
-    // collider->SetRestitution(0.f);
-    // collider->SetMass(0.89f);
-    // collider->SetStaticFriction(0.25f);
-    // collider->SetKineticFriction(0.15f);
-    // collider->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
-    // collider->SetGenerateHitEvents(true);
-    // collider->SetTag("koopa");
-    // testObject->AddComponents<thomasWasLate::KoopaTroopa>();
+    // testObject->AddComponents<Transform>(11000, 250);
+    // testObject->AddComponents<SpriteRenderComponent>("graphics/explosion.png", sf::Vector2i{ 50, 50 }, 3, 0.135f);
+    // testObject->AddComponents<AutoDestroy>(0.405f);
 
     // auto breakableBlock = scene->CreateGameObject("Y_testObject");
     // // auto breakableBlock = std::make_unique<diji::GameObject>();
@@ -559,7 +558,12 @@ void SceneLoader::Level()
 
     const auto HUDManager = scene->CreateGameObject("Z_HUDManager");
     HUDManager->AddComponents<Transform>(0, 0);
-    HUDManager->AddComponents<thomasWasLate::HudManager>(scoreHUD->GetComponent<ScoreCounter>(), coinsCounterHud->GetComponent<ScoreCounter>());
+    HUDManager->AddComponents<thomasWasLate::HudManager>
+    (
+        scoreHUD->GetComponent<ScoreCounter>(),
+        coinsCounterHud->GetComponent<ScoreCounter>(),
+        timerHUD->GetComponent<ScoreCounter>()
+    );
 
     const auto fpsCounter = scene->CreateGameObject("Z_FPSCounter");
     fpsCounter->AddComponents<TextComp>("0 FPS", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
