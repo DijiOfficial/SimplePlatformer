@@ -88,4 +88,13 @@ namespace thomasWasLate
 
         void Execute() override;
     };
+
+    class Pause final : public diji::GameActorCommands
+    {
+    public:
+        explicit Pause(diji::GameObject* actor) : GameActorCommands{ actor } {}
+        ~Pause() noexcept override = default;
+
+        void Execute() override;
+    };
 }

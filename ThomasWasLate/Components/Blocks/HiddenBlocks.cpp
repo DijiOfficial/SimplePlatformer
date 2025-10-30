@@ -9,6 +9,7 @@
 #include "Engine/Singleton/SceneManager.h"
 #include "../../Helpers/MarioHelpers.h"
 #include "../PowerUps/OneUpMushroom.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 
 void thomasWasLate::HiddenBlocks::Start()
 {
@@ -38,6 +39,7 @@ void thomasWasLate::HiddenBlocks::OnTriggerEnter(const diji::Collider* collider,
     mario::MarioHelpers::CheckForCollisionAboveBlock(selfCollider);
     SwitchToEmptyBlockState();
     m_IsHit = true;
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_powerup_appears.wav", false);
 }
 
 void thomasWasLate::HiddenBlocks::SpawnStarPowerUp() const

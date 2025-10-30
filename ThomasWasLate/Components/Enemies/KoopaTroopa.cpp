@@ -7,6 +7,7 @@
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "../../Singletons/GameManager.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/Helpers.h"
 
 void thomasWasLate::KoopaTroopa::Start()
@@ -93,6 +94,8 @@ void thomasWasLate::KoopaTroopa::HandleBumpedBehavior(const bool, const bool)
 
 void thomasWasLate::KoopaTroopa::Kill(const bool isBumpingLeft, const bool)
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_kick.wav", false);
+
     diji::TimerManager::GetInstance().ClearTimer(m_TimerHandle);
     m_TransformCompPtr->SetRotation(180.f);
     m_SpriteRenderCompPtr->SetStartingFrame(4, 0);
@@ -120,6 +123,8 @@ void thomasWasLate::KoopaTroopa::Shove(const bool isShovingLeft)
 
 void thomasWasLate::KoopaTroopa::HandleBumped()
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_kick.wav", false);
+
     diji::TimerManager::GetInstance().ClearTimer(m_TimerHandle);
     SetShellAppearance();
     

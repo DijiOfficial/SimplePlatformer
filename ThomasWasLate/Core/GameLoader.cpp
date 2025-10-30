@@ -299,6 +299,8 @@ void SceneLoader::LivesDisplayMenu()
 
 void SceneLoader::GameOverMenu()
 {
+    ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_gameover.wav", false);
+    
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(thomasWasLate::thomasWasLateState::GameOver));
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(thomasWasLate::thomasWasLateState::GameOver));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(thomasWasLate::thomasWasLateState::GameOver));
@@ -531,6 +533,8 @@ void SceneLoader::TransitionToNextLevel()
 
 void SceneLoader::Level()
 {
+    ServiceLocator::GetSoundSystem().AddSoundRequest("sound/LevelMusic.mp3", true);
+
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(thomasWasLate::thomasWasLateState::Level));
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(thomasWasLate::thomasWasLateState::Level));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(thomasWasLate::thomasWasLateState::Level));
@@ -549,7 +553,7 @@ void SceneLoader::Level()
     background->AddComponents<Render>();
     background->AddComponents<thomasWasLate::BackgroundHandler>();
 
-    const sf::FloatRect arena{ 0,-(115 * 4.5),12000.f, 1080.f };
+    const sf::FloatRect arena{ 0,-(115 * 4.5) + 25.f,12000.f, 1080.f };
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->AddComponents<Transform>(0, 0);
     camera->AddComponents<Camera>(window::VIEWPORT); // todo: probably clamp it to 1920x1080 instead
@@ -740,12 +744,17 @@ void SceneLoader::Level()
     input.BindCommand<thomasWasLate::Attack>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::X, player);
     input.BindCommand<thomasWasLate::Attack>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::B, player);
 
+    input.BindCommand<thomasWasLate::Pause>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::Enter, nullptr);
+    input.BindCommand<thomasWasLate::Pause>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::Escape, nullptr);
+    input.BindCommand<thomasWasLate::Pause>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Start, player);
+
+
 #pragma endregion
 
 #pragma region Events
 
     thomasWasLate::GameManager::GetInstance().OnScoreAddedEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
     thomasWasLate::GameManager::GetInstance().OnCoinCollectedEvent.AddListener(coinsCounterHud->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
-    
+    timerHUD->GetComponent<ScoreCounter>()->OnGivenScoreReachedEvent.AddListener(player->GetComponent<thomasWasLate::PlayerCharacter>(), &thomasWasLate::PlayerCharacter::KillPlayer);
 #pragma endregion
 }

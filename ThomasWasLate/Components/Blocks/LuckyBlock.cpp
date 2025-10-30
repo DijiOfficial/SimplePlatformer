@@ -12,6 +12,7 @@
 #include "Engine/Interfaces/Timeline.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "../../Helpers/MarioHelpers.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 
 void thomasWasLate::LuckyBlock::OnHitEvent(const diji::Collider* collider, const diji::CollisionInfo& hitInfo)
 {
@@ -25,10 +26,11 @@ void thomasWasLate::LuckyBlock::OnHitEvent(const diji::Collider* collider, const
 
     m_IsHit = true;
     PlayAnimation();
+    if (m_IsPowerUpBlock)
+        diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_powerup_appears.wav", false);
 
     mario::MarioHelpers::CheckForCollisionAboveBlock(selfCollider);
 }
-
 
 void thomasWasLate::LuckyBlock::PlayAnimation() const
 {

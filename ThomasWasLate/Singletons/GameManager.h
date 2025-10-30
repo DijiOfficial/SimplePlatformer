@@ -55,7 +55,7 @@ namespace thomasWasLate
         };
         [[nodiscard]] const PlayerInfo& GetPlayerInfo() const { return m_PlayerInfo; }
         void LoseLife() { --m_PlayerInfo.totalLives; }
-        void AddLife() { ++m_PlayerInfo.totalLives; }
+        void AddLife();
         void SaveScore(const int score) { m_PlayerInfo.totalScore = score; }
         void SaveCoins(const int coins) { m_PlayerInfo.totalCoins = coins; }
         void ResetPlayerInfo();

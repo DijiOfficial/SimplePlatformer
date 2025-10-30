@@ -3,7 +3,9 @@
 #include "../Components/Player/PlayerCharacter.h"
 #include "../Core/GameState.h"
 #include "Engine/Collision/Collider.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/GameStateManager.h"
+#include "Engine/Singleton/PauseSingleton.h"
 #include "Engine/Singleton/RandNumber.h"
 
 thomasWasLate::MoveCharacter::MoveCharacter(diji::GameObject* actor, const sf::Vector2f& direction, const bool isMoving)
@@ -74,4 +76,11 @@ void thomasWasLate::Attack::Execute()
 void thomasWasLate::StartGame::Execute()
 {
     diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::LivesDisplayMenu));
+}
+
+void thomasWasLate::Pause::Execute()
+{
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_pause.wav", false);
+
+    diji::PauseSingleton::GetInstance().TogglePause();
 }

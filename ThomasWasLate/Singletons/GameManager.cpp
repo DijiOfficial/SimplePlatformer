@@ -22,6 +22,7 @@
 
 #include "../Components/Other/CastleFlag.h"
 #include "../Components/Player/PlayerCharacter.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 
 namespace thomasWasLate
 {
@@ -60,6 +61,9 @@ void thomasWasLate::GameManager::SetLevelCleared()
 
 void thomasWasLate::GameManager::ResetLevel()
 {
+    m_CurrentPlayerState = PlayerHealthState::Small;
+    m_LastPlayerState = PlayerHealthState::Small;
+    
     ClearListeners();
 
     if (m_PlayerInfo.totalLives == 0)
@@ -110,6 +114,12 @@ void thomasWasLate::GameManager::SpawnPointsText(const sf::Vector2f& position, c
     diji::SceneManager::GetInstance().AddGameObjectToCanvas("ZZ_pointsText", std::move(pointsText), screenPos);
 }
 
+void thomasWasLate::GameManager::AddLife()
+{
+    ++m_PlayerInfo.totalLives;
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_1-up.wav", false);
+}
+
 void thomasWasLate::GameManager::ResetPlayerInfo()
 {
     m_PlayerInfo.totalLives = 3;
@@ -133,11 +143,11 @@ std::string thomasWasLate::GameManager::LoadInformation()
     {
     case 1:
         m_StartPosition.x = 100;
-        m_StartPosition.y = 100;
+        m_StartPosition.y = 400;
         break;
     case 2:
         m_StartPosition.x = 100;
-        m_StartPosition.y = 100;
+        m_StartPosition.y = 0;
         break;
     case 3:
         m_StartPosition.x = 1250;

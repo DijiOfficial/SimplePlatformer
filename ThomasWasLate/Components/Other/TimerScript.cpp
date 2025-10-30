@@ -3,6 +3,7 @@
 #include "../Player/PlayerCharacter.h"
 #include "Engine/Components/ScoreCounter.h"
 #include "Engine/Core/GameObject.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/SceneManager.h"
 
 void thomasWasLate::TimerScript::Init()
@@ -25,6 +26,7 @@ void thomasWasLate::TimerScript::Init()
     diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnLevelFinishedEvent.AddListener([this]()
     {
         m_Paused = true;
+        m_ScoreCounterCompPtr->OnGivenScoreReachedEvent.ClearAllListeners();
     });
 }
 
@@ -38,5 +40,7 @@ void thomasWasLate::TimerScript::Update()
     {
         m_Timer += m_TickTime;
         m_ScoreCounterCompPtr->DecreaseScore();
+        if (m_ScoreCounterCompPtr->GetScore() == 99)
+            diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_warning.wav", false);
     }
 }

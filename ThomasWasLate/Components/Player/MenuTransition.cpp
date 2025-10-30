@@ -2,6 +2,7 @@
 #include "PlayerCharacter.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Core/GameObject.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/SceneManager.h"
 
 void thomasWasLate::MenuTransition::Init()
@@ -24,6 +25,14 @@ void thomasWasLate::MenuTransition::Init()
     auto& [eventName, eventKeysVec] = timeline->GetEventTrack("OnAnimationEnd");
     eventKeysVec =
     {
+
+        { .time= 2.75f, .callback= [&]()
+            {
+                diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_pipe.wav", false);
+            }
+        },
+
+        
         { .time= 3.f, .callback= [&]()
             {
                 SetActive(false);

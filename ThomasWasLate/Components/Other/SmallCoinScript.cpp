@@ -2,11 +2,14 @@
 
 #include "../../Singletons/GameManager.h"
 #include "Engine/Components/Transform.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Interfaces/Timeline.h"
 #include "Engine/Singleton/SceneManager.h"
 
 void thomasWasLate::SmallCoinScript::Init()
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_coin.wav", false);
+
     diji::Timeline* timelinePtr = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
 
     auto &track = timelinePtr->AddFloatTrack("MoveVertically");

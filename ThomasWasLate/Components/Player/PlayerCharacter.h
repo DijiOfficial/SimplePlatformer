@@ -51,6 +51,7 @@ namespace thomasWasLate
         void SetAgainstCameraEdge(const bool isAgainst) { m_IsAgainstCameraEdge = isAgainst; }
         void PausePlayer() { m_IsPaused = true; }
         void SetTransitionState();
+        void KillPlayer() { OnFallingInHoleEvent.Broadcast(); HandleDeathSequence(); }
         [[nodiscard]] int GetPowerUpState() const { return static_cast<int>(m_PowerUpState); }
 
         diji::Event<> OnHitByEnemyEvent;

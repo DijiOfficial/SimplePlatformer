@@ -3,6 +3,7 @@
 #include "../../Singletons/GameManager.h"
 #include "../Player/PlayerCharacter.h"
 #include "Engine/Components/ScoreCounter.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/SceneManager.h"
 
 thomasWasLate::HudManager::HudManager(diji::GameObject* ownerPtr, diji::ScoreCounter* score, diji::ScoreCounter* coins, diji::ScoreCounter* timer)

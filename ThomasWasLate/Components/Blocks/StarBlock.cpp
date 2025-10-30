@@ -6,6 +6,7 @@
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Core/GameObject.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Interfaces/Timeline.h"
 #include "Engine/Singleton/SceneManager.h"
 
@@ -28,12 +29,13 @@ void thomasWasLate::StarBlock::OnHitEvent(const diji::Collider* collider, const 
 {
     if (collider->GetTag() != "player" || hitInfo.normal.y >= 0.f || m_IsHit)
         return;
-
+    
     const auto selfCollider = GetOwner()->GetComponent<diji::Collider>();
     const sf::Vector2f playerCenter = collider->GetPosition();
     const sf::FloatRect blockAABB = selfCollider->GetAABB();
     if (mario::MarioHelpers::DoesPlayerHitBottomOfBlock(playerCenter, blockAABB, hitInfo.normal)) return;
 
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_powerup_appears.wav", false);
     mario::MarioHelpers::CheckForCollisionAboveBlock(selfCollider);
     SwitchToEmptyBlockState();
     m_IsHit = true;

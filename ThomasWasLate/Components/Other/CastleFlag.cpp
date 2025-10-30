@@ -6,6 +6,7 @@
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Components/Transform.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/RandNumber.h"
 #include "Engine/Singleton/TimerManager.h"
 
@@ -66,6 +67,8 @@ void thomasWasLate::CastleFlag::StartAnimation(const int fireworksToSpawn)
 
 void thomasWasLate::CastleFlag::SpawnFirework()
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_fireworks.wav", false);
+
     const sf::Vector2f center = GetOwner()->GetComponent<diji::Transform>()->GetPosition();
 
     constexpr float halfWidth = 400.0f;

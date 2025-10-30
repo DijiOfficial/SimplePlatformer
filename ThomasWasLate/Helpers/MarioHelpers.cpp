@@ -7,6 +7,7 @@
 #include "Engine/Collision/Collider.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Components/Transform.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/SceneManager.h"
 
 const std::vector<int> mario::MarioHelpers::s_StompPointsTable =
@@ -37,7 +38,11 @@ bool mario::MarioHelpers::DoesPlayerHitBottomOfBlock(const sf::Vector2f& playerC
     const float halfExtentAlongTangent = std::abs(tangent.x) * halfExtents.x + std::abs(tangent.y) * halfExtents.y + 8.f;
 
     // is block above player center
-    return std::abs(coordAlongTangent) > halfExtentAlongTangent;
+    const bool noHit = std::abs(coordAlongTangent) > halfExtentAlongTangent;
+    if (!noHit)
+        diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_bump.wav", false);
+    
+    return noHit;
 }
 
 void mario::MarioHelpers::CheckForCollisionAboveBlock(const diji::Collider* collider)

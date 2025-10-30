@@ -11,6 +11,8 @@
 
 #include <array>
 
+#include "Engine/Interfaces/ISoundSystem.h"
+
 void thomasWasLate::BreakableBlock::Init()
 {
     m_TimelinePtr = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
@@ -41,6 +43,8 @@ void thomasWasLate::BreakableBlock::OnHitEvent(const diji::Collider* collider, c
 
 void thomasWasLate::BreakableBlock::PlayAnimation() const
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_breakblock.wav", false);
+    
     // create particles
     const sf::Vector2f& center = GetOwner()->GetComponent<diji::Transform>()->GetPosition();
     constexpr float offset = 15.f;

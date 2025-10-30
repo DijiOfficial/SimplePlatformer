@@ -17,6 +17,7 @@
 #include "Engine/Components/Render.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Interfaces/IInterface.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/RandNumber.h"
 #include "Engine/Singleton/ResourceManager.h"
@@ -330,6 +331,8 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
     const float dotProduct =  diji::Helpers::DotProduct(enemyToPlayer, UP_VECTOR);
     if (dotProduct > STOMP_THRESHOLD)
     {
+        diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_stomp.wav", false);
+
         if (otherTag == "koopa")
             StompKoopa(other);
         else
@@ -380,6 +383,9 @@ void thomasWasLate::PlayerCharacter::Jump()
     m_IsJumping = true;
     m_CanJump = false;
     m_MinJumpTime = m_MaxJumpTime * 0.15f;
+    
+    const std::string sound = m_PowerUpState == PowerUpState::Small ? "sound/smb_jump-small.wav" : "sound/smb_jump-super.wav";
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest(sound, false);
 }
 
 void thomasWasLate::PlayerCharacter::ClearJump()
@@ -413,6 +419,8 @@ void thomasWasLate::PlayerCharacter::Attack()
     if (m_IsDead || m_IsPaused) return;
     if (m_PowerUpState != PowerUpState::Fire) return;
     if (!GameManager::GetInstance().CanSpawnFireball()) return;
+
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_fireball.wav", false);
 
     // todo: use template instead
     auto fireBall = std::make_unique<diji::GameObject>();
@@ -460,6 +468,8 @@ void thomasWasLate::PlayerCharacter::SetTransitionState()
 
 void thomasWasLate::PlayerCharacter::HandleDeathSequence()
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_mariodie.wav", false);
+    
     m_IsDead = true;
 
     auto newState = std::make_unique<DeathState>();
@@ -577,6 +587,8 @@ void thomasWasLate::PlayerCharacter::PlayGrowthAnimation()
 
 void thomasWasLate::PlayerCharacter::PlayShrinkAnimation()
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_pipe.wav", false);
+
     m_IsPaused = true;
     OnPoweringUpEvent.Broadcast(true);
     GameManager::GetInstance().SwitchCurrentPlayerState();
@@ -614,6 +626,8 @@ void thomasWasLate::PlayerCharacter::PlayShrinkAnimation()
 
 void thomasWasLate::PlayerCharacter::HandlePowerUpCollision()
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_powerup.wav", false);
+
     bool skip = false;
     m_ColliderCompPtr->SetAffectedByGravity(false);
     if (m_PowerUpState == PowerUpState::Small)
@@ -742,6 +756,8 @@ void thomasWasLate::PlayerCharacter::PlayFireTransitionAnimation()
 
 void thomasWasLate::PlayerCharacter::HandleStarPickup()
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_powerup.wav", false);
+
     m_IsStartPoweredUp = true;
     m_StarPowerTimer = 0;
     m_SpriteRenderCompPtr->SetRenderWithShader(true);
@@ -771,6 +787,8 @@ void thomasWasLate::PlayerCharacter::UpdateStarPowerShader()
 
 void thomasWasLate::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& center)
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_flagpole.wav", false);
+    
     m_IsPaused = true;
     m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0, 0});
     m_ColliderCompPtr->SetAffectedByGravity(false);
@@ -834,7 +852,8 @@ void thomasWasLate::PlayerCharacter::StopFlagAnimAndMoveToCastle()
     m_SpriteRenderCompPtr->InvertSprite();
     m_SpriteRenderCompPtr->Pause();
     m_TransformCompPtr->SetPosition(m_FlagCenter.x + 25, m_TransformCompPtr->GetPosition().y);
-    
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_stage_clear.wav", false);
+
     (void)diji::TimerManager::GetInstance().SetTimer([&]
     {
         m_SpriteRenderCompPtr->InvertSprite();

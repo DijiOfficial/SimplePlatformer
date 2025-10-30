@@ -6,6 +6,7 @@
 #include "Engine/Components/Transform.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Components/SpriteRenderComp.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/SceneManager.h"
 
@@ -45,6 +46,8 @@ void thomasWasLate::GoombaAI::OnHitEvent(const diji::Collider* other, const diji
 
 void thomasWasLate::GoombaAI::HandleBumpedBehavior(const bool isBumpingLeft, const bool addPoints)
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_kick.wav", false);
+
     m_TransformCompPtr->SetRotation(180.f);
     GetOwner()->GetComponent<diji::SpriteRenderComponent>()->Pause();
     
