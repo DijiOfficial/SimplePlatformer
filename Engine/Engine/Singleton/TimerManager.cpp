@@ -45,7 +45,7 @@ diji::TimerManager::TimerHandle diji::TimerManager::SetTimer(std::function<void(
     Timer timer;
     timer.id = m_NextId++;
     timer.callback = std::move(callback);
-    timer.timeRemaining = (initialDelay > 0.0f) ? initialDelay + interval : interval;
+    timer.timeRemaining = initialDelay + interval >= 0.f ? initialDelay + interval : 0.f;
     timer.interval = interval;
     timer.looping = isLooping;
 
