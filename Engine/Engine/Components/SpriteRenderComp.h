@@ -51,6 +51,7 @@ namespace diji
         void SetLooping(const bool loop) { m_IsLooping = loop; }
         void SetFrameDuration(const float time) { m_FrameDuration = time; }
         void SetTotalAnimationTime(float time);
+        void SkipStart() { m_SkipStart = true; }
 
         void UpdateFrame();
 
@@ -69,5 +70,6 @@ namespace diji
 
         bool m_IsPlaying = true;
         bool m_IsLooping = true;
+        bool m_SkipStart = false;
     };
 }

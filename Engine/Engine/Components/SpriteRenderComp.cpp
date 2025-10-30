@@ -36,6 +36,8 @@ void diji::SpriteRenderComponent::Init()
 
 void diji::SpriteRenderComponent::Start()
 {
+    if (m_SkipStart) return;
+    
     m_Sprite.setScale(sf::Vector2f{ m_Scale, m_Scale });
 
     m_Sprite.setTextureRect({ 0, 0, m_FrameSize.x, m_FrameSize.y });
