@@ -51,6 +51,8 @@ void thomasWasLate::PlayerCharacter::Start()
 
     if (const auto flag = diji::SceneManager::GetInstance().GetGameObject("E_flag"))
         flag->GetComponent<Flag>()->OnFlagAnimationFinishedEvent.AddListener(this, &PlayerCharacter::StopFlagAnimAndMoveToCastle);
+
+    m_PowerUpState = static_cast<PowerUpState>(GameManager::GetInstance().GetLastPlayerState());
 }
 
 #include <SFML/Window/Keyboard.hpp>
@@ -417,9 +419,9 @@ void thomasWasLate::PlayerCharacter::Attack()
     fireBall->AddComponents<diji::Transform>(300, 500);
     fireBall->AddComponents<diji::SpriteRenderComponent>("graphics/fireBall.png", sf::Vector2i{ 24,24 }, 4, 0.065f);
     fireBall->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 24, 24 });
-    fireBall->AddComponents<FireBall>(m_ColliderCompPtr, !m_IsLookingLeft);
+    fireBall->AddComponents<FireBall>(m_ColliderCompPtr, m_LookDirection != MovementDirection::Left);
 
-    diji::SceneManager::GetInstance().SpawnGameObject("Y_fireBall", std::move(fireBall), m_TransformCompPtr->GetPosition() + sf::Vector2f{ m_IsLookingLeft ? -30.f : 30.f, -10.f });
+    diji::SceneManager::GetInstance().SpawnGameObject("Y_fireBall", std::move(fireBall), m_TransformCompPtr->GetPosition() + sf::Vector2f{ m_LookDirection == MovementDirection::Left ? -30.f : 30.f, -10.f });
 
     // play animation
     std::unique_ptr<PlayerStates> newState = std::make_unique<ThrowingFireballState>();
@@ -444,6 +446,7 @@ void thomasWasLate::PlayerCharacter::Attack()
 
 void thomasWasLate::PlayerCharacter::SetTransitionState()
 {
+    m_PowerUpState = static_cast<PowerUpState>(GameManager::GetInstance().GetLastPlayerState());
     std::unique_ptr<PlayerStates> newState;
     if (m_PowerUpState == PowerUpState::Small)
         newState = std::make_unique<RunningState>();

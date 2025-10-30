@@ -21,6 +21,7 @@
 #include <fstream>
 
 #include "../Components/Other/CastleFlag.h"
+#include "../Components/Player/PlayerCharacter.h"
 
 namespace thomasWasLate
 {
@@ -30,7 +31,7 @@ namespace thomasWasLate
 
 void thomasWasLate::GameManager::LoadLevel()
 {
-    m_CurrentPlayerState = PlayerHealthState::Small;
+    m_CurrentPlayerState = m_LastPlayerState == PlayerHealthState::Small ? PlayerHealthState::Small : PlayerHealthState::Big;
     ReadLevelInfo(LoadInformation());
 
     CreateWorldCollision();
@@ -76,6 +77,25 @@ void thomasWasLate::GameManager::SwitchCurrentPlayerState()
         m_CurrentPlayerState = PlayerHealthState::Small;
 }
 
+void thomasWasLate::GameManager::SavePlayerState()
+{
+    switch (diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->GetPowerUpState())
+    {
+    case 0:
+        m_LastPlayerState = PlayerHealthState::Small;
+        break;
+    case 1:
+        m_LastPlayerState = PlayerHealthState::Big;
+        break;
+    case 2:
+        m_LastPlayerState = PlayerHealthState::Fire;
+        break;
+    default:
+        m_LastPlayerState = PlayerHealthState::Small;
+        break;
+    }
+}
+
 void thomasWasLate::GameManager::SpawnPointsText(const sf::Vector2f& position, const std::string& score)
 {
     sf::Vector2f screenPos = diji::SceneManager::GetInstance().GetScreenPosition(position);
@@ -117,7 +137,7 @@ std::string thomasWasLate::GameManager::LoadInformation()
         break;
     case 2:
         m_StartPosition.x = 100;
-        m_StartPosition.y = 3600;
+        m_StartPosition.y = 100;
         break;
     case 3:
         m_StartPosition.x = 1250;

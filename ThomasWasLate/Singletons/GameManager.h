@@ -20,6 +20,7 @@ namespace thomasWasLate
     {
     public:
         [[nodiscard]] PlayerHealthState GetCurrentPlayerState() const { return m_CurrentPlayerState; }
+        [[nodiscard]] PlayerHealthState GetLastPlayerState() const { return m_LastPlayerState; }
 
         diji::Event<> OnPlayerSwitchedEvent;
         diji::Event<> OnNewLevelLoadedEvent;
@@ -37,6 +38,7 @@ namespace thomasWasLate
         void SetLevelCleared();
         void ResetLevel();
         void SwitchCurrentPlayerState();
+        void SavePlayerState();
         void SetPlayerState(const PlayerHealthState newState) { m_CurrentPlayerState = newState; }
         void FireballAdded() { ++m_TotalFireballsInLevel; }
         void FireballRemoved() { --m_TotalFireballsInLevel; }
@@ -63,6 +65,7 @@ namespace thomasWasLate
         std::unordered_set<const diji::Collider*> m_EnemyColliders;
         std::vector<std::unique_ptr<diji::Collider>> m_TileColliders;
         PlayerHealthState m_CurrentPlayerState = PlayerHealthState::Small;
+        PlayerHealthState m_LastPlayerState = PlayerHealthState::Small;
         sf::Vector2u m_StartPosition;
         std::vector<char> m_LevelInfo;
         int m_Rows = 0;

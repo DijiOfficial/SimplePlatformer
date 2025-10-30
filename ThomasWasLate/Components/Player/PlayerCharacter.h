@@ -51,6 +51,7 @@ namespace thomasWasLate
         void SetAgainstCameraEdge(const bool isAgainst) { m_IsAgainstCameraEdge = isAgainst; }
         void PausePlayer() { m_IsPaused = true; }
         void SetTransitionState();
+        [[nodiscard]] int GetPowerUpState() const { return static_cast<int>(m_PowerUpState); }
 
         diji::Event<> OnHitByEnemyEvent;
         diji::Event<> OnFallingInHoleEvent;
@@ -110,7 +111,6 @@ namespace thomasWasLate
         bool m_IsOnGround = false;
         bool m_IsJumping = false;
         bool m_StoppedSprinting = false;
-        bool m_IsLookingLeft = false;
         bool m_IsDead = false;
         bool m_CanJump = true;
         bool m_IsPaused = false;

@@ -431,7 +431,8 @@ void SceneLoader::TransitionToNextLevel()
     background->AddComponents<thomasWasLate::BackgroundHandler>();
     
     const auto player = scene->CreateGameObject("X_PlayerChar");
-    player->AddComponents<Transform>(200, 475);
+    const sf::Vector2f pos = thomasWasLate::GameManager::GetInstance().GetLastPlayerState() == thomasWasLate::PlayerHealthState::Small ? sf::Vector2f{ 200, 475 } : sf::Vector2f{ 200, 450 };
+    player->AddComponents<Transform>(pos);
     player->AddComponents<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
     player->GetComponent<SpriteRenderComponent>()->SetScale(3);
     player->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
