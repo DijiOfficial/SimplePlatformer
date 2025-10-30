@@ -833,7 +833,7 @@ void thomasWasLate::PlayerCharacter::StopFlagAnimAndMoveToCastle()
     m_FlagPoleTimelinePtr->Stop();
     m_SpriteRenderCompPtr->InvertSprite();
     m_SpriteRenderCompPtr->Pause();
-    m_TransformCompPtr->SetPosition(m_FlagCenter.x + 40, m_TransformCompPtr->GetPosition().y);
+    m_TransformCompPtr->SetPosition(m_FlagCenter.x + 25, m_TransformCompPtr->GetPosition().y);
     
     (void)diji::TimerManager::GetInstance().SetTimer([&]
     {
