@@ -47,8 +47,8 @@ void SceneLoader::GameStartUp()
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::GameOver), GameOverMenu);
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::TransitionToNextLevel), TransitionToNextLevel);
 
-    // StartMenu();
-    Level();
+    StartMenu();
+    // Level();
 }
 
 #pragma region Menus
@@ -76,12 +76,23 @@ void SceneLoader::StartMenu()
     
      // Create the HUD
     const auto playerOneText = scene->CreateGameObject("Z_PlayerOneText");
-    playerOneText->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.70f);
+    playerOneText->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.65f);
     playerOneText->AddComponents<TextComp>("PUSH START BUTTON", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     playerOneText->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     playerOneText->GetComponent<TextComp>()->SetCentered(true);
     playerOneText->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(playerOneText);
+
+    const auto highScore = scene->CreateGameObject("Z_HighScore");
+    highScore->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.70f);
+    highScore->AddComponents<TextComp>("000000", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    highScore->GetComponent<TextComp>()->GetText().setCharacterSize(25);
+    highScore->GetComponent<TextComp>()->SetCentered(true);
+    highScore->AddComponents<ScoreCounter>(thomasWasLate::GameManager::GetInstance().GetHighScoreFromFile(), true);
+    highScore->GetComponent<ScoreCounter>()->SetString("TOP-");
+    highScore->GetComponent<ScoreCounter>()->SetUsingZeroPadding(true);
+    highScore->AddComponents<Render>();
+    scene->SetGameObjectAsCanvasObject(highScore);
 
     const auto myName = scene->CreateGameObject("Z_Disclaimer");
     myName->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.80f);
@@ -304,6 +315,8 @@ void SceneLoader::GameOverMenu()
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(thomasWasLate::thomasWasLateState::GameOver));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(thomasWasLate::thomasWasLateState::GameOver));
 
+    thomasWasLate::GameManager::GetInstance().SaveHighScoreToFile();
+    
     (void)TimerManager::GetInstance().SetTimer([]
     {
         thomasWasLate::GameManager::GetInstance().ResetPlayerInfo();

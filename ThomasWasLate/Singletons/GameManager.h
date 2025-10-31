@@ -64,6 +64,9 @@ namespace thomasWasLate
         [[nodiscard]] std::unordered_set<const diji::Collider*> GetEnemyColliders() const { return m_EnemyColliders; }
         [[nodiscard]] bool IsCheckPointActivated() const { return m_PlayerInfo.checkPointActivated; }
         [[nodiscard]] const sf::Vector2f& GetCheckPointPosition() const { return m_PlayerInfo.checkPointPosition; }
+
+        [[nodiscard]] int GetHighScoreFromFile() const;
+        void SaveHighScoreToFile() const;
         
     private:
         std::unordered_set<const diji::Collider*> m_EnemyColliders;
@@ -72,6 +75,7 @@ namespace thomasWasLate
         PlayerHealthState m_LastPlayerState = PlayerHealthState::Small;
         sf::Vector2u m_StartPosition;
         std::vector<char> m_LevelInfo;
+        std::string m_HighScoreFileName = "../ThomasWasLate/Resources/levels/highscores.txt";
         int m_Rows = 0;
         int m_Cols = 0;
         int m_TotalFireballsInLevel = 0;

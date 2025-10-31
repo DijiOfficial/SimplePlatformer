@@ -85,6 +85,8 @@ void thomasWasLate::GameManager::ResetLevel(const bool playerDied)
     if (m_PlayerInfo.currentLevel >= 4)
     {
         // trigger end screen?
+        SaveHighScoreToFile();
+
         diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::StartMenu));
         ResetPlayerInfo();
     }
@@ -146,6 +148,37 @@ void thomasWasLate::GameManager::ResetPlayerInfo()
     m_PlayerInfo.totalScore = 0;
     m_PlayerInfo.currentLevel = 1;
     m_PlayerInfo.checkPointActivated = false;
+}
+
+int thomasWasLate::GameManager::GetHighScoreFromFile() const
+{
+    std::ifstream file(m_HighScoreFileName);
+    if (!file.is_open())
+        throw std::runtime_error("Could not open high score file: " + m_HighScoreFileName);
+
+    int highScore = 0;
+    file >> highScore;
+    // if (!file.good())
+    //     throw std::runtime_error("Error reading high score from file: " + m_HighScoreFileName);
+
+    file.close();
+    return highScore;
+}
+
+void thomasWasLate::GameManager::SaveHighScoreToFile() const
+{
+    // I can probably optimize this by reading it at the start of the program and keeping track of the high score until the end of the program avoiding file I/O multiple times
+    const int currentHigh = GetHighScoreFromFile();
+    if (m_PlayerInfo.totalScore <= currentHigh)
+        return;
+
+    std::ofstream file(m_HighScoreFileName, std::ios::trunc);
+    if (!file.is_open())
+        throw std::runtime_error("Could not open high score file: " + m_HighScoreFileName);
+
+
+    file << m_PlayerInfo.totalScore;
+    file.close();
 }
 
 std::string thomasWasLate::GameManager::LoadInformation()
