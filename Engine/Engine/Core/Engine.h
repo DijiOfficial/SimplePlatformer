@@ -23,9 +23,11 @@ namespace diji
 		Engine& operator=(const Engine& other) = delete;
 		Engine& operator=(Engine&& other) = delete;
 
-		void Run(const std::function<void()>& load) const;
+		static void Run(const std::function<void()>& load);
 
 	private:
 		static constexpr float FIXED_TIME_STEP{ 1 / 60.f };
+		static unsigned int QueryRefreshRate();
+		static void ValidateVSync();
 	};
 }

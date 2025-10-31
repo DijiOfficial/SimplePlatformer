@@ -1,5 +1,8 @@
-// #define WIN32_LEAN_AND_MEAN 
-// #include <windows.h>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#endif
 
 #include "Engine.h"
 #include "Renderer.h"
@@ -13,6 +16,7 @@
 #include <chrono>
 #include <SFML/Graphics.hpp>
 #include <stdexcept>
+#include <thread>
 
 diji::Engine::Engine(const std::string& dataPath, const std::string& title, const bool useScreenResolution)
 {
@@ -30,20 +34,29 @@ diji::Engine::Engine(const std::string& dataPath, const std::string& title, cons
 	ResourceManager::GetInstance().Init(dataPath);
 }
 
-void diji::Engine::Run(const std::function<void()>& load) const
+// todo: settings?
+// constexpr float FRAME_RATE = 260.f;
+// constexpr bool useFixedFrameRate = true;
+// constexpr auto FRAME_DURATION = std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double>(1.0 / FRAME_RATE));
+
+void diji::Engine::Run(const std::function<void()>& load)
 {
 	load();
 	
 	//Enable vSync
-	window::g_window_ptr->setVerticalSyncEnabled(true);
-
+	ValidateVSync();
+	// window::g_window_ptr->setVerticalSyncEnabled(true);
+	// constexpr bool isFrameRateTooLow = useFixedFrameRate && (FRAME_RATE <= FIXED_TIME_STEP);
+	
 	const auto& renderer = Renderer::GetInstance();
 	auto& sceneManager = SceneManager::GetInstance();
 	auto& input = InputManager::GetInstance();
 	const auto& pause = PauseSingleton::GetInstance();
 	auto& time = TimeSingleton::GetInstance();
 
-	auto lastFrameTime{ std::chrono::high_resolution_clock::now() };
+	auto lastFrameTime = std::chrono::steady_clock::now();
+	// auto nextFrameTime = lastFrameTime;
+
 	float lag = 0.0f;
 
 	sceneManager.Init();
@@ -53,8 +66,8 @@ void diji::Engine::Run(const std::function<void()>& load) const
 	
 	while (window::g_window_ptr->isOpen())
 	{
-		const auto currentTime{ std::chrono::high_resolution_clock::now() };
-		const float deltaTime{ std::chrono::duration<float>(currentTime - lastFrameTime).count() };
+		const auto currentTime = std::chrono::steady_clock::now();
+		const float deltaTime = std::chrono::duration<float>(currentTime - lastFrameTime).count();
 		lastFrameTime = currentTime;
 
 		TimeSingleton::GetInstance().SetDeltaTime(deltaTime);
@@ -75,6 +88,7 @@ void diji::Engine::Run(const std::function<void()>& load) const
 		}
 
 		time.SetFixedTimeAlpha(lag / FIXED_TIME_STEP);
+		// time.SetFixedTimeAlpha(isFrameRateTooLow ? 1.0f : lag / FIXED_TIME_STEP);
 		// starting to consider passing the deltaTime to Update methods with [[maybe_unused]] attribute
 		// TimeSingleton is useful for other purposes but gets annoying to use in update methods and mostly optimizing the call
 		sceneManager.Update();
@@ -83,9 +97,34 @@ void diji::Engine::Run(const std::function<void()>& load) const
 		renderer.Render();
 		
 		sceneManager.EndFrameUpdate();
+
+		// if (!useFixedFrameRate) continue;
+		// nextFrameTime += FRAME_DURATION;
+		// const auto frameEnd = std::chrono::steady_clock::now();
+		// if (nextFrameTime > frameEnd)
+		// 	std::this_thread::sleep_until(nextFrameTime);
+		// else
+		// 	nextFrameTime = frameEnd;
 	}
 	
 	window::g_window_ptr->close();
 	
 	sceneManager.OnDestroy();
+}
+
+unsigned int diji::Engine::QueryRefreshRate()
+{
+#ifdef _WIN32
+	DEVMODE devMode = {};
+	devMode.dmSize = sizeof(devMode);
+	if (EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &devMode))
+		return devMode.dmDisplayFrequency;
+#endif
+	// Add other platforms if needed
+	return 0; // Unknown
+}
+
+void diji::Engine::ValidateVSync()
+{
+	window::g_window_ptr->setVerticalSyncEnabled(QueryRefreshRate() > 60);
 }
