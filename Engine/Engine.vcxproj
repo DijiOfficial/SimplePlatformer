@@ -19,12 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\Collision\BVHTree.h" />
     <ClInclude Include="Engine\Collision\Collider.h" />
     <ClInclude Include="Engine\Collision\CollisionDispatcher.h" />
     <ClInclude Include="Engine\Collision\CollisionShape.h" />
     <ClInclude Include="Engine\Collision\CollisionsHelper.h" />
     <ClInclude Include="Engine\Collision\CollisionStructs.h" />
     <ClInclude Include="Engine\Collision\PhysicsWorld.h" />
+    <ClInclude Include="Engine\Collision\PhysicsWorldQuadTree.h" />
+    <ClInclude Include="Engine\Collision\QuadTree.h" />
     <ClInclude Include="Engine\Components\AutoDestroy.h" />
     <ClInclude Include="Engine\Components\Camera.h" />
     <ClInclude Include="Engine\Components\Component.h" />
@@ -63,11 +66,14 @@
     <ClInclude Include="Engine\Singleton\TimeSingleton.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\Collision\BVHTree.cpp" />
     <ClCompile Include="Engine\Collision\Collider.cpp" />
     <ClCompile Include="Engine\Collision\CollisionDispatcher.cpp" />
     <ClCompile Include="Engine\Collision\CollisionShape.cpp" />
     <ClCompile Include="Engine\Collision\CollisionsHelper.cpp" />
     <ClCompile Include="Engine\Collision\PhysicsWorld.cpp" />
+    <ClCompile Include="Engine\Collision\PhysicsWorldQuadTree.cpp" />
+    <ClCompile Include="Engine\Collision\QuadTree.cpp" />
     <ClCompile Include="Engine\Components\AutoDestroy.cpp" />
     <ClCompile Include="Engine\Components\Camera.cpp" />
     <ClCompile Include="Engine\Components\Component.cpp" />
