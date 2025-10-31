@@ -406,6 +406,8 @@ void SceneLoader::GameOverMenu()
 
 void SceneLoader::TransitionToNextLevel()
 {
+    ServiceLocator::GetSoundSystem().AddSoundRequest("sound/Transition.mp3", false);
+
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(thomasWasLate::thomasWasLateState::TransitionToNextLevel));
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(thomasWasLate::thomasWasLateState::TransitionToNextLevel));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(thomasWasLate::thomasWasLateState::TransitionToNextLevel));
@@ -542,7 +544,7 @@ void SceneLoader::Level()
     // static_cast<float>(window::VIEWPORT.x) * -0.5f + 25.f, static_cast<float>(window::VIEWPORT.y) * -0.5f + 25.f
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
     // staticBackground->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.5f);
-    staticBackground->AddComponents<Transform>(0, 0);
+    staticBackground->AddComponents<Transform>(0, -20);
     staticBackground->AddComponents<TextureComp>("graphics/background.png");
     staticBackground->AddComponents<thomasWasLate::CustomBackgroundRenderer>();
     // scene->SetGameObjectAsStaticBackground(staticBackground);
@@ -553,7 +555,7 @@ void SceneLoader::Level()
     background->AddComponents<Render>();
     background->AddComponents<thomasWasLate::BackgroundHandler>();
 
-    const sf::FloatRect arena{ 0,-(115 * 4.5) + 25.f,12000.f, 1080.f };
+    const sf::FloatRect arena{ 0,-(115 * 4.5),12000.f, 1080.f };
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->AddComponents<Transform>(0, 0);
     camera->AddComponents<Camera>(window::VIEWPORT); // todo: probably clamp it to 1920x1080 instead

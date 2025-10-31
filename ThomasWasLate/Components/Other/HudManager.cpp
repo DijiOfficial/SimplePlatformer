@@ -36,6 +36,7 @@ void thomasWasLate::HudManager::FixedUpdate()
     {
         m_IsCountingTimerPoints = false;
         OnScoreCountedEvent.Broadcast(m_FireWorksToSpawn);
+        diji::ServiceLocator::GetSoundSystem().StopMusic();
         return;
     }
 
@@ -58,6 +59,8 @@ void thomasWasLate::HudManager::SaveScoreAndCoins() const
 
 void thomasWasLate::HudManager::StartTimerPointCount()
 {
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/beep.wav", true);
+
     const int totalScore = m_TimerCounterCompPtr->GetScore();
     switch (totalScore % 10)
     {

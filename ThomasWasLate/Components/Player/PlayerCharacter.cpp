@@ -757,6 +757,7 @@ void thomasWasLate::PlayerCharacter::PlayFireTransitionAnimation()
 void thomasWasLate::PlayerCharacter::HandleStarPickup()
 {
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_powerup.wav", false);
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/Invincibility.wav", true);
 
     m_IsStartPoweredUp = true;
     m_StarPowerTimer = 0;
@@ -782,13 +783,15 @@ void thomasWasLate::PlayerCharacter::UpdateStarPowerShader()
         m_IsStartPoweredUp = false;
         m_SpriteRenderCompPtr->SetRenderWithShader(false);
         m_ColliderCompPtr->ClearAllOverlappedCollider();
+        diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/LevelMusic.mp3", true);
     }
 }
 
 void thomasWasLate::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& center)
 {
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_flagpole.wav", false);
-    
+    diji::ServiceLocator::GetSoundSystem().StopMusic();
+
     m_IsPaused = true;
     m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0, 0});
     m_ColliderCompPtr->SetAffectedByGravity(false);
