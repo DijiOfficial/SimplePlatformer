@@ -36,6 +36,7 @@ namespace diji
         void SetScoreIncreaseIncrement(const int increment) { m_ScoreIncrease = increment; }
         void SetUsingZeroPadding(bool isUsing, int totalDigits = 6);
         void SetTotalDigits(int digits);
+        void SetScore(const int score) { m_Score = score; }
         
         Event<int> OnScoreIncreasedEvent;
         Event<int> OnScoreDecreasedEvent;
