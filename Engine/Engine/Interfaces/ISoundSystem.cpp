@@ -9,7 +9,7 @@ namespace diji
 {
 	std::unique_ptr<ISoundSystem> ServiceLocator::_ss_instance{ std::make_unique<NullSoundSystem>() };
 
-	void SFMLISoundSystem::PlayAudio(const std::string& audio, const bool isMusic, const int volume) const
+	void SFMLISoundSystem::PlayAudio(const std::string& audio, const bool isMusic, const int volume)
 	{
 
 		if (audio == "invalid")
@@ -17,14 +17,18 @@ namespace diji
 
 		if (isMusic)
 		{
-			// Music* music = nullptr;
-			// music = ResourceManager::GetInstance().LoadMusic(audio);
-			// m_LastMusicPlayed = audio;
-			// if (music)
-			// {
-			// 	music->Play(true);
-			// 	music->SetVolume(volume);
-			// }
+			if (!m_LastMusicPlayed.empty() && m_LastMusicPlayed != audio)
+			{
+				auto& soundEffect = ResourceManager::GetInstance().LoadSoundEffect(m_LastMusicPlayed);
+					soundEffect.pause();
+			}
+
+			auto& soundEffect = ResourceManager::GetInstance().LoadSoundEffect(audio);
+			m_LastMusicPlayed = audio;
+
+			soundEffect.setLoop(true);
+			soundEffect.setVolume(static_cast<float>(volume));
+			soundEffect.play();
 			return;
 		}
 
@@ -74,22 +78,31 @@ namespace diji
 	{
 		m_IsPaused = true;
 
-		// if (m_LastMusicPlayed != "")
-		// {
-		// 	Music* music = ResourceManager::GetInstance().LoadMusic(m_LastMusicPlayed);
-		// 	music->Pause();
-		// }
+		if (!m_LastMusicPlayed.empty())
+		{
+			auto& soundEffect = ResourceManager::GetInstance().LoadSoundEffect(m_LastMusicPlayed);
+			soundEffect.pause();
+		}
 	}
 
 	void SFMLISoundSystem::Resume()
 	{
 		m_IsPaused = false;
 
-		// if (m_LastMusicPlayed != "")
-		// {
-		// 	Music* music = ResourceManager::GetInstance().LoadMusic(m_LastMusicPlayed);
-		// 	music->Resume();
-		// }
+		if (!m_LastMusicPlayed.empty())
+		{
+			auto& soundEffect = ResourceManager::GetInstance().LoadSoundEffect(m_LastMusicPlayed);
+			soundEffect.play();
+		}
+	}
+
+	void SFMLISoundSystem::StopMusic()
+	{
+		if (!m_LastMusicPlayed.empty())
+		{
+			auto& soundEffect = ResourceManager::GetInstance().LoadSoundEffect(m_LastMusicPlayed);
+			soundEffect.stop();
+		}
 	}
 
 	std::pair<std::pair<bool, int>, std::string> SFMLISoundSystem::GetNextSoundRequest()
@@ -137,5 +150,11 @@ namespace diji
 	{
 		_real_ss->Resume();
 		std::cout << "Resuming Audio\n";
+	}
+
+	void LoggingSoundSystem::StopMusic()
+	{
+		_real_ss->StopMusic();
+		std::cout << "Stopped Music\n";
 	}
 }
