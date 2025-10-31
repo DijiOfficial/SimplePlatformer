@@ -187,6 +187,7 @@
     <ClCompile Include="Components\Other\HudManager.cpp" />
     <ClCompile Include="Components\Other\PointsBehaviour.cpp" />
     <ClCompile Include="Components\Other\SmallCoinScript.cpp" />
+    <ClCompile Include="Components\Other\StaticCoin.cpp" />
     <ClCompile Include="Components\Other\TimerScript.cpp" />
     <ClCompile Include="Components\Player\BroadcastPlayerPosition.cpp" />
     <ClCompile Include="Components\Player\CameraClamping.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="Components\Other\HudManager.h" />
     <ClInclude Include="Components\Other\PointsBehaviour.h" />
     <ClInclude Include="Components\Other\SmallCoinScript.h" />
+    <ClInclude Include="Components\Other\StaticCoin.h" />
     <ClInclude Include="Components\Other\TimerScript.h" />
     <ClInclude Include="Components\Player\BroadcastPlayerPosition.h" />
     <ClInclude Include="Components\Player\CameraClamping.h" />

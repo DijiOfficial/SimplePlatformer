@@ -21,6 +21,7 @@
 #include <fstream>
 
 #include "../Components/Other/CastleFlag.h"
+#include "../Components/Other/StaticCoin.h"
 #include "../Components/Player/PlayerCharacter.h"
 #include "Engine/Interfaces/ISoundSystem.h"
 
@@ -215,7 +216,7 @@ void thomasWasLate::GameManager::CreateWorldCollision()
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
-            if (std::string("0edxyfghijklmnoABCDEF").find(tile) == std::string::npos)
+            if (std::string("0edxyfghijklmnopqABCDEF").find(tile) == std::string::npos)
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -429,7 +430,7 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 
                 ++col;
             }
-            else if (tile == 'o')
+            else if (tile == 'o' || tile == 'p')
             {
                 const float left = static_cast<float>(col) * kTileSize;
                 const float bottom = static_cast<float>(row) * kTileSize;
@@ -450,6 +451,12 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 koopa->AddComponents<KoopaTroopa>();
                 koopa->GetComponent<KoopaTroopa>()->SetActivationMilestone(col - 20);
                 koopa->SetActive(false);
+
+                if (tile == 'p')
+                {
+                    center.x += 25.f;
+                    koopa->GetComponent<GoombaAI>()->SetActivationMilestone(col - 21);
+                }
                 
                 AddEnemyCollider(koopaCollider);
         
@@ -490,6 +497,27 @@ void thomasWasLate::GameManager::CreateWorldCollision()
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("ZZ_foregroundTexture", std::move(foregroundTexture), center);
                ++col;
+            }
+            else if (tile == 'q')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
+                
+                auto staticCoin = std::make_unique<diji::GameObject>();
+                staticCoin->AddComponents<diji::Transform>(975, 275);
+                staticCoin->AddComponents<diji::SpriteRenderComponent>("graphics/staticCoin.png", sf::Vector2i{ 50, 50 }, 6, 0.135f);
+                staticCoin->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                const auto collider = staticCoin->GetComponent<diji::Collider>();
+                collider->SetStatic(true);
+                collider->SetTag("coin");
+                collider->SetAffectedByGravity(false);
+                collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+                staticCoin->AddComponents<StaticCoin>();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_Goomba", std::move(staticCoin), center);
+
+                ++col;
             }
             else
             {
