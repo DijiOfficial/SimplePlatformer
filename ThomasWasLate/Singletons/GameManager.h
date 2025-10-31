@@ -50,7 +50,7 @@ namespace thomasWasLate
             int totalLives = 3;
             int totalCoins = 0;
             int totalScore = 0;
-            int currentLevel = 3;
+            int currentLevel = 1;
         };
         [[nodiscard]] const PlayerInfo& GetPlayerInfo() const { return m_PlayerInfo; }
         void LoseLife() { --m_PlayerInfo.totalLives; }

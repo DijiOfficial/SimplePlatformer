@@ -580,17 +580,17 @@ void SceneLoader::Level()
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
 
-    const auto testObject = scene->CreateGameObject("Y_testObject");
-    // auto testObject = std::make_unique<diji::GameObject>();
-    testObject->AddComponents<Transform>(975, 275);
-    testObject->AddComponents<SpriteRenderComponent>("graphics/staticCoin.png", sf::Vector2i{ 50, 50 }, 6, 0.135f);
-    testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    const auto collider = testObject->GetComponent<Collider>();
-    collider->SetStatic(true);
-    collider->SetTag("coin");
-    collider->SetAffectedByGravity(false);
-    collider->SetCollisionResponse(Collider::CollisionResponse::Overlap);
-    testObject->AddComponents<thomasWasLate::StaticCoin>();
+    // const auto testObject = scene->CreateGameObject("Y_testObject");
+    // // auto testObject = std::make_unique<diji::GameObject>();
+    // testObject->AddComponents<Transform>(975, 275);
+    // testObject->AddComponents<SpriteRenderComponent>("graphics/staticCoin.png", sf::Vector2i{ 50, 50 }, 6, 0.135f);
+    // testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+    // const auto collider = testObject->GetComponent<Collider>();
+    // collider->SetStatic(true);
+    // collider->SetTag("coin");
+    // collider->SetAffectedByGravity(false);
+    // collider->SetCollisionResponse(Collider::CollisionResponse::Overlap);
+    // testObject->AddComponents<thomasWasLate::StaticCoin>();
     
  
     

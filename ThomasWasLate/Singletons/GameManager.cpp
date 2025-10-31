@@ -80,9 +80,12 @@ void thomasWasLate::GameManager::ResetLevel(const bool playerDied)
     else
         diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::LivesDisplayMenu));
 
-    // todo: reset lives?
     if (m_PlayerInfo.currentLevel >= 4)
+    {
+        // trigger end screen?
         diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::StartMenu));
+        ResetPlayerInfo();
+    }
     
     m_TotalFireballsInLevel = 0;
 }
