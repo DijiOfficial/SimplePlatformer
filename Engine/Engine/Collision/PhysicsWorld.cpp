@@ -172,7 +172,7 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
     // 2) Static colliders
     for (const auto& [aabb, colliderPtr] : m_StaticInfos)
     {
-        if (!collider || colliderPtr == collider || collider->IsIgnoringCollider(colliderPtr))
+        if (!colliderPtr || !collider || colliderPtr == collider || collider->IsIgnoringCollider(colliderPtr))
             continue;
 
         // if anyone can figure out why I need to use the local bounds and not the AABB here please tell me, I don't know what the fuck is going on
