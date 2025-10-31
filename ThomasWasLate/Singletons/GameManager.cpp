@@ -21,6 +21,7 @@
 #include <fstream>
 
 #include "../Components/Other/CastleFlag.h"
+#include "../Components/Other/CheckPoint.h"
 #include "../Components/Other/StaticCoin.h"
 #include "../Components/Player/PlayerCharacter.h"
 #include "Engine/Interfaces/ISoundSystem.h"
@@ -59,6 +60,7 @@ void thomasWasLate::GameManager::SetLevelCleared()
     
     SavePlayerState();
     ++m_PlayerInfo.currentLevel;
+    m_PlayerInfo.checkPointActivated = false;
     m_ShouldPlayTransition = true;
 
     OnLevelClearedEvent.Broadcast();
@@ -143,6 +145,7 @@ void thomasWasLate::GameManager::ResetPlayerInfo()
     m_PlayerInfo.totalCoins = 0;
     m_PlayerInfo.totalScore = 0;
     m_PlayerInfo.currentLevel = 1;
+    m_PlayerInfo.checkPointActivated = false;
 }
 
 std::string thomasWasLate::GameManager::LoadInformation()
@@ -228,7 +231,7 @@ void thomasWasLate::GameManager::CreateWorldCollision()
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
-            if (std::string("0edxyfghijklmnopqABCDEF").find(tile) == std::string::npos)
+            if (std::string("0edxyfghijklmnopqrABCDEF").find(tile) == std::string::npos)
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -529,6 +532,21 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 staticCoin->AddComponents<StaticCoin>();
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("K_StaticCoin", std::move(staticCoin), center);
+
+                ++col;
+            }
+            else if (tile == 'r')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
+                
+                auto checkPoint = std::make_unique<diji::GameObject>();
+                checkPoint->AddComponents<diji::Transform>(1000, 275);
+                checkPoint->AddComponents<CheckPoint>();
+                checkPoint->GetComponent<CheckPoint>()->SetActivationMilestone(col);
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_checkPoint", std::move(checkPoint), center);
 
                 ++col;
             }

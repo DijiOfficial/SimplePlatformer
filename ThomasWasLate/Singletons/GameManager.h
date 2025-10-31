@@ -51,14 +51,19 @@ namespace thomasWasLate
             int totalCoins = 0;
             int totalScore = 0;
             int currentLevel = 1;
+            bool checkPointActivated = false;
+            sf::Vector2f checkPointPosition = { 0.f, 0.f };
         };
         [[nodiscard]] const PlayerInfo& GetPlayerInfo() const { return m_PlayerInfo; }
         void LoseLife() { --m_PlayerInfo.totalLives; }
         void AddLife();
+        void TriggerCheckPoint(const sf::Vector2f& pos) { m_PlayerInfo.checkPointActivated = true; m_PlayerInfo.checkPointPosition = pos; }
         void SaveScore(const int score) { m_PlayerInfo.totalScore = score; }
         void SaveCoins(const int coins) { m_PlayerInfo.totalCoins = coins; }
         void ResetPlayerInfo();
         [[nodiscard]] std::unordered_set<const diji::Collider*> GetEnemyColliders() const { return m_EnemyColliders; }
+        [[nodiscard]] bool IsCheckPointActivated() const { return m_PlayerInfo.checkPointActivated; }
+        [[nodiscard]] const sf::Vector2f& GetCheckPointPosition() const { return m_PlayerInfo.checkPointPosition; }
         
     private:
         std::unordered_set<const diji::Collider*> m_EnemyColliders;

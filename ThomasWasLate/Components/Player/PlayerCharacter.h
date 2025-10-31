@@ -68,7 +68,6 @@ namespace thomasWasLate
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
-        sf::Vector2f m_SpawnPoint = { 0.f, 0.f };
         sf::Vector2f m_FlagCenter = { 0.f, 0.f };
         const diji::TimeSingleton& m_TimeSingletonInstance = diji::TimeSingleton::GetInstance();
         const sf::Vector2f UP_VECTOR = { 0.f, -1.f };
@@ -124,7 +123,7 @@ namespace thomasWasLate
 
         void HandleDeathSequence();
         void PlayDeathSequence() const;
-        void OnNewLevelLoaded();
+        void LoadPosition() const;
         void DecelerateAfterSprint();
         void CheckIfPlayerIsGrounded();
         void PlayGrowthAnimation();

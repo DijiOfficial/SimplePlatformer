@@ -2,6 +2,7 @@
 
 #include <array>
 
+#include "../../Core/GameState.h"
 #include "../../Helpers/MarioHelpers.h"
 #include "../../Interfaces/IKillable.h"
 #include "../../Interfaces/IShoveable.h"
@@ -18,6 +19,7 @@
 #include "Engine/Components/Transform.h"
 #include "Engine/Interfaces/IInterface.h"
 #include "Engine/Interfaces/ISoundSystem.h"
+#include "Engine/Singleton/GameStateManager.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/RandNumber.h"
 #include "Engine/Singleton/ResourceManager.h"
@@ -40,7 +42,7 @@ void thomasWasLate::PlayerCharacter::Init()
 
     m_ColliderCompPtr->SetMaxVelocity(m_BaseMaxVelocity);
 
-    GameManager::GetInstance().OnNewLevelLoadedEvent.AddListener(this, &PlayerCharacter::OnNewLevelLoaded);
+    LoadPosition();
 
     diji::SceneManager::GetInstance().GetMainCamera()->GetComponent<diji::Camera>()->SetFollow(GetOwner());
 }
@@ -500,11 +502,15 @@ void thomasWasLate::PlayerCharacter::PlayDeathSequence() const
     }, 3.41f, false);
 }
 
-void thomasWasLate::PlayerCharacter::OnNewLevelLoaded()
+void thomasWasLate::PlayerCharacter::LoadPosition() const
 {
-    m_TransformCompPtr->SetPosition(static_cast<sf::Vector2f>(GameManager::GetInstance().GetStartPosition()));
-
-    m_SpawnPoint = m_TransformCompPtr->GetPosition();
+    if ( static_cast<thomasWasLateState>(diji::GameStateManager::GetInstance().GetCurrentGameState()) != thomasWasLateState::Level) return;
+    
+    const auto& gameManager = GameManager::GetInstance();
+    if (gameManager.IsCheckPointActivated())
+        m_TransformCompPtr->SetPosition(gameManager.GetCheckPointPosition());
+    else
+        m_TransformCompPtr->SetPosition(static_cast<sf::Vector2f>(gameManager.GetStartPosition()));
 }
 
 void thomasWasLate::PlayerCharacter::DecelerateAfterSprint()

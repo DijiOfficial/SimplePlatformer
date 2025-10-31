@@ -32,5 +32,6 @@ namespace thomasWasLate
 
         const int BLOCK_SIZE = 50;
         int m_LastBroadcastedMileStone = 0;
+        bool m_IsFirstUpdate = true;
     };
 }
