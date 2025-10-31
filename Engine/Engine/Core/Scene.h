@@ -60,6 +60,8 @@ namespace diji
         void ValidateCollidersAfterDestroy();
     
     private:
+        // todo: use unordered_map for m_ObjectsUPtrMap and m_CanvasObjectsUPtrMap. Use Depth value instead for ordering during rendering.
+        std::unordered_map<std::string, unsigned long long int> m_NameIndexUMap;
         std::map<std::string, std::unique_ptr<GameObject>> m_ObjectsUPtrMap;
         std::map<std::string, std::unique_ptr<GameObject>> m_CanvasObjectsUPtrMap;
         std::vector<SplitScreenView> m_MultiplayerViews;
@@ -73,6 +75,6 @@ namespace diji
         bool m_RenderBackground = false;
 
         void DrawGameObjects() const;
-        static std::string GenerateUniqueName(const std::map<std::string, std::unique_ptr<GameObject>>& objectMap, const std::string& baseName);
+        std::string GenerateUniqueName(const std::map<std::string, std::unique_ptr<GameObject>>& objectMap, const std::string& baseName);
     };
 }

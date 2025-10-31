@@ -1,4 +1,7 @@
 ﻿#include "Scene.h"
+
+#include <format>
+
 #include "Engine.h"
 #include "../Collision/Collider.h"
 #include "../Components/Camera.h"
@@ -199,10 +202,10 @@ diji::GameObject* diji::Scene::CreateCanvasObjectFromTemplate(const std::string&
 {
     const std::string finalName = GenerateUniqueName(m_CanvasObjectsUPtrMap, name);
 
-    m_ObjectsUPtrMap[finalName] = std::make_unique<GameObject>();
-    original->CreateDuplicate(m_ObjectsUPtrMap[finalName].get());
+    m_CanvasObjectsUPtrMap[finalName] = std::make_unique<GameObject>();
+    original->CreateDuplicate(m_CanvasObjectsUPtrMap[finalName].get());
 
-    return m_ObjectsUPtrMap[finalName].get();
+    return m_CanvasObjectsUPtrMap[finalName].get();
 }
 
 diji::GameObject* diji::Scene::AddObjectToScene(std::unique_ptr<GameObject> object, const std::string& desiredName)
@@ -217,8 +220,8 @@ diji::GameObject* diji::Scene::AddObjectToCanvas(std::unique_ptr<GameObject> obj
 {
     const std::string finalName = GenerateUniqueName(m_CanvasObjectsUPtrMap, desiredName);
 
-    m_ObjectsUPtrMap[finalName] = std::move(object);
-    return m_ObjectsUPtrMap[finalName].get();
+    m_CanvasObjectsUPtrMap[finalName] = std::move(object);
+    return m_CanvasObjectsUPtrMap[finalName].get();
 }
 
 void diji::Scene::Remove(const GameObject* object)
@@ -301,7 +304,6 @@ sf::Vector2i diji::Scene::GetScreenPosition(const sf::Vector2f& worldCoords) con
 
     return window::g_window_ptr->mapCoordsToPixel(worldCoords); // Use default view
 }
-
 
 void diji::Scene::SetGameObjectAsCanvasObject(const std::string& name)
 {
@@ -431,29 +433,48 @@ void diji::Scene::DrawGameObjects() const
 
 std::string diji::Scene::GenerateUniqueName(const std::map<std::string, std::unique_ptr<GameObject>>& objectMap, const std::string& baseName)
 {
-    std::string finalName = baseName;
+    size_t pos = baseName.size();
+    while (pos > 0 && std::isdigit(static_cast<unsigned char>(baseName[pos - 1])))
+        --pos;
 
-    // Check if name already exists, if it does get the suffix and increment it until you get new name
-    // todo: Likely some optimization can be done here. Like keeping track of the last used suffix or internal counter or ...
-    while (objectMap.contains(finalName))
+    const std::string strippedName = baseName.substr(0, pos);
+    bool baseHasNumber = pos < baseName.size();
+    unsigned long long parsedSuffix = 0;
+
+    if (baseHasNumber)
     {
-        // Find numeric suffix
-        size_t pos = finalName.size();
-        while (pos > 0 && std::isdigit(static_cast<unsigned char>(finalName[pos - 1])))
-            --pos;
-
-        if (pos == finalName.size()) // No number suffix so append 0
-        {
-            finalName += "0";
-        }
-        else
-        {
-            // Increment existing number suffix
-            std::string namePart = finalName.substr(0, pos);
-            const int number = std::stoi(finalName.substr(pos));
-            finalName = namePart + std::to_string(number + 1);
-        }
+        const auto begin = baseName.data() + pos;
+        const auto end   = baseName.data() + baseName.size();
+        auto [charPtr, errc] = std::from_chars(begin, end, parsedSuffix);
+        if (errc != std::errc())
+            throw std::invalid_argument("what the fuck did you do cuh?");
     }
 
-    return finalName;
+    auto &idx = m_NameIndexUMap[strippedName];
+
+    if (!objectMap.contains(baseName))
+    {
+        idx = baseHasNumber ? parsedSuffix + 1ULL : 1ULL;
+        return baseName;
+    }
+    
+    if (idx == 0)
+        idx = baseHasNumber ? parsedSuffix + 1ULL : 1ULL;
+    
+    std::string finalName;
+    finalName.reserve(strippedName.size() + 32);
+
+    for (;; ++idx)
+    {
+        finalName = strippedName;
+        char buf[32];
+        auto [ptr, ec] = std::to_chars(buf, buf + sizeof(buf), idx);
+        finalName.append(buf, ptr - buf);
+
+        if (!objectMap.contains(finalName))
+        {
+            m_NameIndexUMap[strippedName] = idx + 1ULL;
+            return finalName;
+        }
+    }
 }

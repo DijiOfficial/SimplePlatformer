@@ -1,13 +1,9 @@
 ﻿#include "GameLoader.h"
-
-#include <format>
-
 #include "GameState.h"
 #include "../Components/Backgrounds/BackgroundHandler.h"
 #include "../Components/Backgrounds/CustomBackgroundRenderer.h"
 #include "../Components/Player/CameraClamping.h"
 #include "../Components/Other/HudManager.h"
-#include "../Components/Other/StaticCoin.h"
 #include "../Components/Player/PlayerCharacter.h"
 #include "../Components/Other/TimerScript.h"
 #include "../Components/Player/BroadcastPlayerPosition.h"
@@ -31,6 +27,8 @@
 #include "Engine/Core/Engine.h"
 #include "Engine/Singleton/GameStateManager.h"
 #include "Engine/Singleton/TimerManager.h"
+
+#include <format>
 
 using namespace diji;
 
