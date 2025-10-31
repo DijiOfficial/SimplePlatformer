@@ -639,9 +639,10 @@ void SceneLoader::Level()
     scoreHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     scoreHUD->GetComponent<TextComp>()->SetCentered(true);
     const int score = thomasWasLate::GameManager::GetInstance().GetPlayerInfo().totalScore;
-    scoreHUD->AddComponents<ScoreCounter>(score, true);
+    scoreHUD->AddComponents<ScoreCounter>(0, true);
     scoreHUD->GetComponent<ScoreCounter>()->SetString("");
     scoreHUD->GetComponent<ScoreCounter>()->SetUsingZeroPadding(true);
+    scoreHUD->GetComponent<ScoreCounter>()->SetScore(score);
     scoreHUD->AddComponents<Render>();
     scene->SetGameObjectAsCanvasObject(scoreHUD);
 

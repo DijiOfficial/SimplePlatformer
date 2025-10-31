@@ -294,6 +294,7 @@ void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other,
         return;
     }
 
+    if (m_IsInvincible) return;
     if (otherTag == "koopa")
     {
         const auto enemyInterface = diji::InterfaceRegistry::GetInterface<IShoveable>(other->GetParent());

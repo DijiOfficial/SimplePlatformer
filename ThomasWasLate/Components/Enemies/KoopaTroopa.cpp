@@ -42,7 +42,7 @@ void thomasWasLate::KoopaTroopa::OnHitEvent(const diji::Collider* other, const d
 {
     if (m_Paused) return;
     if (other->GetTag() == "fireBall")
-        return Kill(other->GetPosition().x < m_TransformCompPtr->GetPosition().x);
+        return Kill(other->GetPosition().x > m_TransformCompPtr->GetPosition().x);
 
     if (diji::Helpers::isZero(hitInfo.normal.x))
         return;
@@ -95,7 +95,7 @@ void thomasWasLate::KoopaTroopa::HandleBumpedBehavior(const bool, const bool)
 void thomasWasLate::KoopaTroopa::Kill(const bool isBumpingLeft, const bool)
 {
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_kick.wav", false);
-
+    
     diji::TimerManager::GetInstance().ClearTimer(m_TimerHandle);
     m_TransformCompPtr->SetRotation(180.f);
     m_SpriteRenderCompPtr->SetStartingFrame(4, 0);
@@ -105,7 +105,9 @@ void thomasWasLate::KoopaTroopa::Kill(const bool isBumpingLeft, const bool)
     m_SpriteRenderCompPtr->Pause();
     m_SpriteRenderCompPtr->SetCurrentAnimationFrame(0);
     m_SpriteRenderCompPtr->UpdateFrame();
-    
+
+    m_ColliderCompPtr->SetIsMoveable(true);
+    m_ColliderCompPtr->ClearAllOverlappedCollider();
     const sf::Vector2f impulse = isBumpingLeft ? sf::Vector2f{-300.f, -1200.f} : sf::Vector2f{300.f, -1200.f};
     m_ColliderCompPtr->ApplyImpulse(impulse);
     m_ColliderCompPtr->SetCollisionResponse(diji::Collider::CollisionResponse::Ignore);
@@ -113,6 +115,8 @@ void thomasWasLate::KoopaTroopa::Kill(const bool isBumpingLeft, const bool)
     
     GameManager::SpawnPointsText(m_TransformCompPtr->GetPosition(), "200");
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(200);
+
+    diji::TimerManager::GetInstance().ClearTimer(m_TimerHandle);
 }
 
 void thomasWasLate::KoopaTroopa::Shove(const bool isShovingLeft)
