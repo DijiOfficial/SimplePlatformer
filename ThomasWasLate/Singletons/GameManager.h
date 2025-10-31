@@ -36,9 +36,8 @@ namespace thomasWasLate
         [[nodiscard]] int GetRows() const { return m_Rows; }
         [[nodiscard]] int GetCols() const { return m_Cols; }
         void SetLevelCleared();
-        void ResetLevel();
+        void ResetLevel(bool playerDied = true);
         void SwitchCurrentPlayerState();
-        void SavePlayerState();
         void SetPlayerState(const PlayerHealthState newState) { m_CurrentPlayerState = newState; }
         void FireballAdded() { ++m_TotalFireballsInLevel; }
         void FireballRemoved() { --m_TotalFireballsInLevel; }
@@ -79,5 +78,6 @@ namespace thomasWasLate
         void CreateWorldCollision();
         void AddEnemyCollider(const diji::Collider* collider) { m_EnemyColliders.insert(collider); }
         void ClearListeners();
+        void SavePlayerState();
     };
 }

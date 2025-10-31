@@ -424,7 +424,7 @@ void SceneLoader::TransitionToNextLevel()
     camera->GetComponent<Camera>()->SetLevelBoundaries(arena);
 
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
-    staticBackground->AddComponents<Transform>(0, 0);
+    staticBackground->AddComponents<Transform>(0, -20);
     staticBackground->AddComponents<TextureComp>("graphics/background.png");
     staticBackground->AddComponents<thomasWasLate::CustomBackgroundRenderer>();
 
@@ -435,8 +435,7 @@ void SceneLoader::TransitionToNextLevel()
     background->AddComponents<thomasWasLate::BackgroundHandler>();
     
     const auto player = scene->CreateGameObject("X_PlayerChar");
-    const sf::Vector2f pos = thomasWasLate::GameManager::GetInstance().GetLastPlayerState() == thomasWasLate::PlayerHealthState::Small ? sf::Vector2f{ 200, 475 } : sf::Vector2f{ 200, 450 };
-    player->AddComponents<Transform>(pos);
+    player->AddComponents<Transform>(200, 475);
     player->AddComponents<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
     player->GetComponent<SpriteRenderComponent>()->SetScale(3);
     player->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });

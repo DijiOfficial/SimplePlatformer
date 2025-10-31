@@ -5,7 +5,7 @@
 #include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/SceneManager.h"
 
-void thomasWasLate::MenuTransition::Init()
+void thomasWasLate::MenuTransition::Start()
 {
     GetOwner()->GetComponent<PlayerCharacter>()->SetTransitionState();
 

@@ -54,7 +54,6 @@ void thomasWasLate::HudManager::SaveScoreAndCoins() const
 {
     GameManager::GetInstance().SaveCoins(m_CoinsCounterCompPtr->GetScore());
     GameManager::GetInstance().SaveScore(m_ScoreCounterCompPtr->GetScore());
-    GameManager::GetInstance().SavePlayerState();
 }
 
 void thomasWasLate::HudManager::StartTimerPointCount()

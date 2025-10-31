@@ -53,7 +53,7 @@ void thomasWasLate::PlayerCharacter::Start()
     if (const auto flag = diji::SceneManager::GetInstance().GetGameObject("E_flag"))
         flag->GetComponent<Flag>()->OnFlagAnimationFinishedEvent.AddListener(this, &PlayerCharacter::StopFlagAnimAndMoveToCastle);
 
-    m_PowerUpState = static_cast<PowerUpState>(GameManager::GetInstance().GetLastPlayerState());
+    CheckForSavedState();
 }
 
 #include <SFML/Window/Keyboard.hpp>
@@ -469,7 +469,8 @@ void thomasWasLate::PlayerCharacter::SetTransitionState()
 void thomasWasLate::PlayerCharacter::HandleDeathSequence()
 {
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_mariodie.wav", false);
-    
+    diji::ServiceLocator::GetSoundSystem().StopMusic();
+
     m_IsDead = true;
 
     auto newState = std::make_unique<DeathState>();
@@ -894,4 +895,24 @@ void thomasWasLate::PlayerCharacter::StopFlagAnimAndMoveToCastle()
             }
         };
     }, 0.4f, false);
+}
+
+void thomasWasLate::PlayerCharacter::CheckForSavedState()
+{
+    m_PowerUpState = static_cast<PowerUpState>(GameManager::GetInstance().GetLastPlayerState());
+
+    if (m_PowerUpState != PowerUpState::Small)
+    {
+        m_ColliderCompPtr->ResizeCollider(sf::Vector2f{ 48, 96 });
+        m_TransformCompPtr->SetPosition(m_TransformCompPtr->GetPosition() + sf::Vector2f{ 0.f, -24.f });
+
+        std::unique_ptr<PlayerStates> newState;
+        if (m_PowerUpState == PowerUpState::Fire)
+            newState = std::make_unique<FireIdleState>();
+        else
+            newState = std::make_unique<BigIdleState>();
+        
+        m_CurrentStateUPtr = std::move(newState);
+        m_CurrentStateUPtr->OnEnter(GetOwner());
+    }
 }

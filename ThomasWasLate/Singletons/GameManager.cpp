@@ -52,17 +52,21 @@ void thomasWasLate::GameManager::SwitchToNextScene()
 
 void thomasWasLate::GameManager::SetLevelCleared()
 {
+    SavePlayerState();
     ++m_PlayerInfo.currentLevel;
     m_ShouldPlayTransition = true;
 
     OnLevelClearedEvent.Broadcast();
-    ResetLevel();
+    ResetLevel(false);
 }
 
-void thomasWasLate::GameManager::ResetLevel()
+void thomasWasLate::GameManager::ResetLevel(const bool playerDied)
 {
-    m_CurrentPlayerState = PlayerHealthState::Small;
-    m_LastPlayerState = PlayerHealthState::Small;
+    if (playerDied)
+    {
+        m_CurrentPlayerState = PlayerHealthState::Small;
+        m_LastPlayerState = PlayerHealthState::Small;
+    }
     
     ClearListeners();
 

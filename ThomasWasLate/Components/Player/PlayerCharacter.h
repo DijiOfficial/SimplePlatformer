@@ -139,5 +139,6 @@ namespace thomasWasLate
         void UpdateStarPowerShader();
         void HandleLevelCompletion(const sf::Vector2f& center);
         void StopFlagAnimAndMoveToCastle();
+        void CheckForSavedState();
     };
 }

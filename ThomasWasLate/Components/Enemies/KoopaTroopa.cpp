@@ -111,8 +111,8 @@ void thomasWasLate::KoopaTroopa::Kill(const bool isBumpingLeft, const bool)
     m_ColliderCompPtr->SetCollisionResponse(diji::Collider::CollisionResponse::Ignore);
     m_Paused = true;
     
-    GameManager::SpawnPointsText(m_TransformCompPtr->GetPosition(), "100");
-    GameManager::GetInstance().OnScoreAddedEvent.Broadcast(100);
+    GameManager::SpawnPointsText(m_TransformCompPtr->GetPosition(), "200");
+    GameManager::GetInstance().OnScoreAddedEvent.Broadcast(200);
 }
 
 void thomasWasLate::KoopaTroopa::Shove(const bool isShovingLeft)
