@@ -33,6 +33,7 @@ namespace thomasWasLate
 
 void thomasWasLate::GameManager::LoadLevel()
 {
+    m_IsLevelAlreadyCleared = false;
     m_CurrentPlayerState = m_LastPlayerState == PlayerHealthState::Small ? PlayerHealthState::Small : PlayerHealthState::Big;
     ReadLevelInfo(LoadInformation());
 
@@ -53,6 +54,9 @@ void thomasWasLate::GameManager::SwitchToNextScene()
 
 void thomasWasLate::GameManager::SetLevelCleared()
 {
+    if (m_IsLevelAlreadyCleared) return;
+    m_IsLevelAlreadyCleared = true;
+    
     SavePlayerState();
     ++m_PlayerInfo.currentLevel;
     m_ShouldPlayTransition = true;
@@ -70,11 +74,16 @@ void thomasWasLate::GameManager::ResetLevel(const bool playerDied)
     }
     
     ClearListeners();
-
+        
     if (m_PlayerInfo.totalLives == 0)
         diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::GameOver));
     else
         diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::LivesDisplayMenu));
+
+    // todo: reset lives?
+    if (m_PlayerInfo.currentLevel >= 4)
+        diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(thomasWasLateState::StartMenu));
+    
     m_TotalFireballsInLevel = 0;
 }
 
@@ -398,7 +407,7 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 castle->AddComponents<diji::TextureComp>("graphics/smallCastle.png");
                 castle->AddComponents<diji::Render>();
             
-                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_castle", std::move(castle), center);
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("D_castle", std::move(castle), center);
 
                 auto castleFlag = std::make_unique<diji::GameObject>();
                 castleFlag->AddComponents<diji::Transform>(11000, 250);
@@ -455,7 +464,7 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 if (tile == 'p')
                 {
                     center.x += 25.f;
-                    koopa->GetComponent<GoombaAI>()->SetActivationMilestone(col - 21);
+                    koopa->GetComponent<KoopaTroopa>()->SetActivationMilestone(col - 21);
                 }
                 
                 AddEnemyCollider(koopaCollider);
@@ -509,13 +518,14 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 staticCoin->AddComponents<diji::SpriteRenderComponent>("graphics/staticCoin.png", sf::Vector2i{ 50, 50 }, 6, 0.135f);
                 staticCoin->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
                 const auto collider = staticCoin->GetComponent<diji::Collider>();
-                collider->SetStatic(true);
+                // collider->SetStatic(true); // todo: I have no idea why this causes crash at runtime when collected
                 collider->SetTag("coin");
                 collider->SetAffectedByGravity(false);
+                collider->SetIsMoveable(false);
                 collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
                 staticCoin->AddComponents<StaticCoin>();
 
-                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_Goomba", std::move(staticCoin), center);
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("K_StaticCoin", std::move(staticCoin), center);
 
                 ++col;
             }

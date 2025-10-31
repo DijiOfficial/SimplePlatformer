@@ -50,7 +50,7 @@ namespace thomasWasLate
             int totalLives = 3;
             int totalCoins = 0;
             int totalScore = 0;
-            int currentLevel = 1;
+            int currentLevel = 3;
         };
         [[nodiscard]] const PlayerInfo& GetPlayerInfo() const { return m_PlayerInfo; }
         void LoseLife() { --m_PlayerInfo.totalLives; }
@@ -71,6 +71,7 @@ namespace thomasWasLate
         int m_Cols = 0;
         int m_TotalFireballsInLevel = 0;
         bool m_ShouldPlayTransition = false;
+        bool m_IsLevelAlreadyCleared = false;
         PlayerInfo m_PlayerInfo;
 
         std::string LoadInformation();
