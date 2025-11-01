@@ -21,6 +21,8 @@ namespace diji
         IInterface& operator=(const IInterface&) = default;
         IInterface(IInterface&&) = default;
         IInterface& operator=(IInterface&&) = default;
+
+        void UnregisterInterface();
         
     protected:
         IInterface()
@@ -30,7 +32,6 @@ namespace diji
         
     private:
         void RegisterInterface();
-        void UnregisterInterface();
     };
 
     class InterfaceRegistry final : public Singleton<InterfaceRegistry>

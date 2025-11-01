@@ -173,12 +173,14 @@
   <ItemGroup>
     <ClCompile Include="Components\Backgrounds\BackgroundHandler.cpp" />
     <ClCompile Include="Components\Backgrounds\CustomBackgroundRenderer.cpp" />
-    <ClCompile Include="Components\Blocks\BreakableBlock.cpp" />
-    <ClCompile Include="Components\Blocks\Debris.cpp" />
-    <ClCompile Include="Components\Blocks\HiddenBlocks.cpp" />
-    <ClCompile Include="Components\Blocks\LuckyBlock.cpp" />
-    <ClCompile Include="Components\Blocks\MultiCoinBlock.cpp" />
-    <ClCompile Include="Components\Blocks\StarBlock.cpp" />
+    <ClCompile Include="Components\Blocks\BaseBlock.cpp" />
+    <ClCompile Include="Components\Blocks\HiddenBlock\HiddenBlock.cpp" />
+    <ClCompile Include="Components\Blocks\HiddenBlock\OneUpBlock.cpp" />
+    <ClCompile Include="Components\Blocks\Others\Debris.cpp" />
+    <ClCompile Include="Components\Blocks\SharedBehaviour\PowerUpBlock.cpp" />
+    <ClCompile Include="Components\Blocks\SharedBehaviour\StarBlock.cpp" />
+    <ClCompile Include="Components\Blocks\UniqueBehaviour\BreakableBlock.cpp" />
+    <ClCompile Include="Components\Blocks\UniqueBehaviour\MultiCoinBlock.cpp" />
     <ClCompile Include="Components\Enemies\BaseEnemy.cpp" />
     <ClCompile Include="Components\Enemies\GoombaAI.cpp" />
     <ClCompile Include="Components\Enemies\KoopaTroopa.cpp" />
@@ -193,6 +195,7 @@
     <ClCompile Include="Components\Other\LevelObjects\Flag.cpp" />
     <ClCompile Include="Components\Player\BroadcastPlayerPosition.cpp" />
     <ClCompile Include="Components\Player\CameraClamping.cpp" />
+    <ClCompile Include="Components\Player\CheckPlayerTopPixel.cpp" />
     <ClCompile Include="Components\Player\MenuTransition.cpp" />
     <ClCompile Include="Components\Player\PlayerCharacter.cpp" />
     <ClCompile Include="Components\Player\PlayerStates.cpp" />
@@ -209,12 +212,14 @@
   <ItemGroup>
     <ClInclude Include="Components\Backgrounds\BackgroundHandler.h" />
     <ClInclude Include="Components\Backgrounds\CustomBackgroundRenderer.h" />
-    <ClInclude Include="Components\Blocks\BreakableBlock.h" />
-    <ClInclude Include="Components\Blocks\Debris.h" />
-    <ClInclude Include="Components\Blocks\HiddenBlocks.h" />
-    <ClInclude Include="Components\Blocks\LuckyBlock.h" />
-    <ClInclude Include="Components\Blocks\MultiCoinBlock.h" />
-    <ClInclude Include="Components\Blocks\StarBlock.h" />
+    <ClInclude Include="Components\Blocks\BaseBlock.h" />
+    <ClInclude Include="Components\Blocks\HiddenBlock\HiddenBlock.h" />
+    <ClInclude Include="Components\Blocks\HiddenBlock\OneUpBlock.h" />
+    <ClInclude Include="Components\Blocks\Others\Debris.h" />
+    <ClInclude Include="Components\Blocks\SharedBehaviour\PowerUpBlock.h" />
+    <ClInclude Include="Components\Blocks\SharedBehaviour\StarBlock.h" />
+    <ClInclude Include="Components\Blocks\UniqueBehaviour\BreakableBlock.h" />
+    <ClInclude Include="Components\Blocks\UniqueBehaviour\MultiCoinBlock.h" />
     <ClInclude Include="Components\Enemies\BaseEnemy.h" />
     <ClInclude Include="Components\Enemies\GoombaAI.h" />
     <ClInclude Include="Components\Enemies\KoopaTroopa.h" />
@@ -229,6 +234,7 @@
     <ClInclude Include="Components\Other\LevelObjects\Flag.h" />
     <ClInclude Include="Components\Player\BroadcastPlayerPosition.h" />
     <ClInclude Include="Components\Player\CameraClamping.h" />
+    <ClInclude Include="Components\Player\CheckPlayerTopPixel.h" />
     <ClInclude Include="Components\Player\MenuTransition.h" />
     <ClInclude Include="Components\Player\PlayerCharacter.h" />
     <ClInclude Include="Components\Player\PlayerStates.h" />
@@ -242,6 +248,7 @@
     <ClInclude Include="Input\CustomCommands.h" />
     <ClInclude Include="Interfaces\IBumpable.h" />
     <ClInclude Include="Interfaces\IKillable.h" />
+    <ClInclude Include="Interfaces\IPlayerBumpable.h" />
     <ClInclude Include="Interfaces\IPowerUp.h" />
     <ClInclude Include="Interfaces\IShoveable.h" />
     <ClInclude Include="Singletons\GameManager.h" />

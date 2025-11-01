@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <SFML/Graphics/Glsl.hpp>
+
 #include "BaseEnemy.h"
 
 namespace thomasWasLate
@@ -15,5 +17,8 @@ namespace thomasWasLate
         void HandleBumpedBehavior(bool isBumpingLeft, const bool addPoints = true) override;
 
         void Kill(bool isBumpingLeft, const bool addPoints = true) override;
+
+    private:
+        bool m_HasBeenBumped = false;
     };
 }

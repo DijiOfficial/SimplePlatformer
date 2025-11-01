@@ -55,6 +55,9 @@ namespace thomasWasLate
         void KillPlayer() { OnFallingInHoleEvent.Broadcast(); HandleDeathSequence(); }
         [[nodiscard]] int GetPowerUpState() const { return static_cast<int>(m_PowerUpState); }
         void OnPowerUpCollected(PowerUpType power) override;
+        [[nodiscard]] bool IsDead() const { return m_IsDead; }
+        [[nodiscard]] bool IsPaused() const { return m_IsPaused; }
+        void Bump();
 
         diji::Event<> OnHitByEnemyEvent;
         diji::Event<> OnFallingInHoleEvent;
@@ -90,7 +93,7 @@ namespace thomasWasLate
 
         enum class PowerUpState : uint8_t
         {
-            Small,
+            Small = 0,
             Big,
             Fire,
         };

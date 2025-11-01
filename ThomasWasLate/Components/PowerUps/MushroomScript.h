@@ -14,5 +14,6 @@ namespace thomasWasLate
         
     private:
         void OnAnimationComplete() override;
+        bool m_HasBeenBumped = false;
     };
 }

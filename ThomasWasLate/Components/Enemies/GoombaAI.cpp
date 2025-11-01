@@ -46,6 +46,9 @@ void thomasWasLate::GoombaAI::OnHitEvent(const diji::Collider* other, const diji
 
 void thomasWasLate::GoombaAI::HandleBumpedBehavior(const bool isBumpingLeft, const bool addPoints)
 {
+    if (m_HasBeenBumped) return;
+    m_HasBeenBumped = true;
+    
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_kick.wav", false);
 
     m_TransformCompPtr->SetRotation(180.f);

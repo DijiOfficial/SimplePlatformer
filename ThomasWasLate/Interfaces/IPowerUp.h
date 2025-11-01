@@ -8,7 +8,7 @@ namespace thomasWasLate
     public:
         ~IPowerUp() noexcept override = default;
 
-        enum PowerUpType : uint8_t
+        enum class PowerUpType : uint8_t
         {
             None = 255,
             Mushroom = 0,

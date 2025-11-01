@@ -71,7 +71,6 @@ void thomasWasLate::PlayerCharacter::Update()
         PlayDeathSequence();
     }
     
-    
     if (m_IsDead || m_IsPaused) return;
 
     if (m_IsInvincible)
@@ -87,14 +86,6 @@ void thomasWasLate::PlayerCharacter::Update()
     }
     
     CheckIfPlayerIsGrounded();
-
-    if (diji::Helpers::isZero(m_CurrSpeed.y) && m_IsJumping)
-    {
-        m_IsJumping = false;
-        m_JumpTime = m_MaxJumpTime;
-        m_MinJumpTime = 0.f;
-        m_ColliderCompPtr->ApplyImpulse(sf::Vector2f{ 0, m_JumpForce * 0.25f });
-    }
 
     // If player stopped sprinting, interpolate back to base speed over 1 second
     if (m_StoppedSprinting)
@@ -453,20 +444,29 @@ void thomasWasLate::PlayerCharacter::OnPowerUpCollected(const PowerUpType power)
 {
     switch (power)
     {
-    case Mushroom:
-    case FireFlower:
+    case PowerUpType::Mushroom:
+    case PowerUpType::FireFlower:
         HandlePowerUpCollision();
         break;
-    case OneUpMushroom:
+    case PowerUpType::OneUpMushroom:
         GameManager::GetInstance().AddLife();
         break;
-    case Star:
+    case PowerUpType::Star:
         HandleStarPickup();
         break;
-    case None:
+    case PowerUpType::None:
     default:
         break;
     }
+}
+
+void thomasWasLate::PlayerCharacter::Bump()
+{
+    m_IsJumping = false;
+    m_JumpTime = m_MaxJumpTime;
+    m_MinJumpTime = 0.f;
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_ColliderCompPtr->GetVelocity().x, 0.f });
+    m_ColliderCompPtr->ApplyImpulse(sf::Vector2f{ 0, m_JumpForce * 0.10f });
 }
 
 void thomasWasLate::PlayerCharacter::HandleDeathSequence()
@@ -541,7 +541,6 @@ void thomasWasLate::PlayerCharacter::CheckIfPlayerIsGrounded()
     
     // if(!diji::Helpers::isZero(m_CurrSpeed.y)) return;
 
-    // Inside your game loop or input handler:
     const float offset = m_PowerUpState == PowerUpState::Small ? 22.f : 44.f;
     const sf::Vector2f origin = m_TransformCompPtr->GetPosition();
     const sf::Vector2f dir = { 0, 1 };

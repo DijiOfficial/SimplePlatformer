@@ -30,6 +30,8 @@
 
 #include <format>
 
+#include "../Components/Player/CheckPlayerTopPixel.h"
+
 using namespace diji;
 
 void SceneLoader::GameStartUp()
@@ -588,6 +590,7 @@ void SceneLoader::Level()
     player->AddComponents<thomasWasLate::PlayerCharacter>(0.5f);
     player->AddComponents<thomasWasLate::CameraClamping>();
     player->AddComponents<thomasWasLate::BroadcastPlayerPosition>();
+    player->AddComponents<thomasWasLate::CheckPlayerTopPixel>();
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
 

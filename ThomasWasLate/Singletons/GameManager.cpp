@@ -9,13 +9,13 @@
 #include "Engine/Interfaces/ISoundSystem.h"
 #include "../Core/GameState.h"
 #include "../Components/Other/HUD/PointsBehaviour.h"
-#include "../Components/Blocks/LuckyBlock.h"
-#include "../Components/Blocks/BreakableBlock.h"
-#include "../Components/Blocks/MultiCoinBlock.h"
+#include "../Components/Blocks/SharedBehaviour/PowerUpBlock.h"
+#include "../Components/Blocks/UniqueBehaviour/BreakableBlock.h"
+#include "../Components/Blocks/UniqueBehaviour/MultiCoinBlock.h"
 #include "../Components/Enemies/GoombaAI.h"
-#include "../Components/Blocks/StarBlock.h"
+#include "../Components/Blocks/SharedBehaviour/StarBlock.h"
 #include "../Components/Other/LevelObjects/Flag.h"
-#include "../Components/Blocks/HiddenBlocks.h"
+#include "../Components/Blocks/HiddenBlock/OneUpBlock.h"
 #include "../Components/Enemies/KoopaTroopa.h"
 #include "../Components/Enemies/PiranhaPlant.h"
 #include "../Components/Other/LevelObjects/CastleFlag.h"
@@ -25,6 +25,8 @@
 
 #include <format>
 #include <fstream>
+
+#include "../Components/Blocks/BaseBlock.h"
 
 namespace thomasWasLate
 {
@@ -264,7 +266,7 @@ void thomasWasLate::GameManager::CreateWorldCollision()
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
-            if (std::string("0edxyfghijklmnopqrsABCDEF").find(tile) == std::string::npos)
+            if (std::string("0edxyfghijklmnopqrstuvABCDEF").find(tile) == std::string::npos)
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -293,76 +295,73 @@ void thomasWasLate::GameManager::CreateWorldCollision()
             {
                 const float left = static_cast<float>(col) * kTileSize;
                 const float bottom = static_cast<float>(row) * kTileSize;
-                // constexpr float width  = kTileSize;
-                // constexpr float height = kTileSize;
-                // sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
                 sf::Vector2f center{ left + 25.f, bottom + + 25.f };
 
                 auto luckyBlock = std::make_unique<diji::GameObject>();
                 luckyBlock->AddComponents<diji::Transform>(500, 200);
-                luckyBlock->AddComponents<diji::SpriteRenderComponent>("graphics/luckyBlock.png", sf::Vector2i{ 50,50 }, 3, 0.25f);
+                luckyBlock->AddComponents<diji::SpriteRenderComponent>("graphics/luckyBlock.png", sf::Vector2i{ 50,50 }, 6, 0.135f);
+                luckyBlock->GetComponent<diji::SpriteRenderComponent>()->SetStartingFrameX(1);
                 luckyBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
                 const auto collider = luckyBlock->GetComponent<diji::Collider>();
                 collider->SetTag("luckyBlock");
                 collider->SetAffectedByGravity(false);
-                collider->SetGenerateHitEvents(true);
                 collider->SetIsMoveable(false);
-                luckyBlock->AddComponents<LuckyBlock>();
+                
+                if (tile == 'e')
+                    luckyBlock->AddComponents<BaseBlock>(BaseBlock::ItemSpawnType::Coin);
+                if (tile == 'y')
+                    luckyBlock->AddComponents<PowerUpBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
                 if (tile == 'x')
-                    luckyBlock->GetComponent<LuckyBlock>()->SetAsPowerUpBlock();
+                    luckyBlock->AddComponents<PowerUpBlock>(BaseBlock::ItemSpawnType::PowerUp);
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_luckyBlock", std::move(luckyBlock), center);
 
                 ++col;
             }
-            else if (tile == 'd')
+            else if (tile == 'd' || tile == 'f' || tile == 'i' || tile == 'n' || tile == 't' || tile == 'u' || tile == 'v')
             {
                 const float left = static_cast<float>(col) * kTileSize;
                 const float bottom = static_cast<float>(row) * kTileSize;
-                // constexpr float width  = kTileSize;
-                // constexpr float height = kTileSize;
-                // sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
                 sf::Vector2f center{ left + 25.f, bottom + + 25.f };
             
                 auto breakableBlock = std::make_unique<diji::GameObject>();
                 breakableBlock->AddComponents<diji::Transform>(600, 300);
                 breakableBlock->AddComponents<diji::SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50, 50 }, 1, 0.0f);
+                breakableBlock->GetComponent<diji::SpriteRenderComponent>()->SetStartingFrameX(1);
                 breakableBlock->GetComponent<diji::SpriteRenderComponent>()->SetLooping(false);
+                breakableBlock->GetComponent<diji::SpriteRenderComponent>()->SkipStart();
+                breakableBlock->GetComponent<diji::SpriteRenderComponent>()->UpdateFrame();
                 breakableBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
                 const auto collider = breakableBlock->GetComponent<diji::Collider>();
                 collider->SetTag("breakBlock");
                 collider->SetAffectedByGravity(false);
-                collider->SetGenerateHitEvents(true);
                 collider->SetIsMoveable(false);
-                breakableBlock->AddComponents<BreakableBlock>();
-            
+
+                if (tile == 'd')
+                    breakableBlock->AddComponents<BreakableBlock>(BaseBlock::ItemSpawnType::None);
+                else if (tile == 'i')
+                    breakableBlock->AddComponents<StarBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
+                else if (tile == 'f')
+                    breakableBlock->AddComponents<MultiCoinBlock>(BaseBlock::ItemSpawnType::Coin);
+                else if (tile == 'n')
+                {
+                    breakableBlock->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+                    breakableBlock->GetComponent<diji::Collider>()->SetTag("HiddenBlock");
+                    breakableBlock->AddComponents<OneUpBlock>(BaseBlock::ItemSpawnType::OneUpMushroom);
+                }
+                else if (tile == 't')
+                {
+                    breakableBlock->AddComponents<HiddenBlock>(BaseBlock::ItemSpawnType::None);
+                    breakableBlock->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+                    breakableBlock->GetComponent<diji::Collider>()->SetTag("HiddenBlock");
+                }
+                else if (tile == 'u')
+                    breakableBlock->AddComponents<StarBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
+                else if (tile == 'v')
+                    breakableBlock->AddComponents<PowerUpBlock>(BaseBlock::ItemSpawnType::PowerUp);
+
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_breakableBlock", std::move(breakableBlock), center);
                 
-                ++col;
-            }
-            else if (tile == 'f' || tile == 'i')
-            {
-                const float left = static_cast<float>(col) * kTileSize;
-                const float bottom = static_cast<float>(row) * kTileSize;
-                sf::Vector2f center{ left + 25.f, bottom + 25.f };
-                
-                auto multiCoinBlock = std::make_unique<diji::GameObject>();
-                multiCoinBlock->AddComponents<diji::Transform>(600, 300);
-                multiCoinBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-                multiCoinBlock->AddComponents<diji::SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50, 50 }, 1, 0.0f);
-                multiCoinBlock->GetComponent<diji::SpriteRenderComponent>()->SetLooping(false);
-                const auto collider = multiCoinBlock->GetComponent<diji::Collider>();
-                collider->SetTag("breakBlock");
-                collider->SetAffectedByGravity(false);
-                collider->SetGenerateHitEvents(true);
-                collider->SetIsMoveable(false);
-
-                if (tile == 'i')
-                    multiCoinBlock->AddComponents<StarBlock>();
-                else
-                    multiCoinBlock->AddComponents<MultiCoinBlock>();
-
-                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_MultiCoinBlock", std::move(multiCoinBlock), center);
                 ++col;
             }
             else if (tile == 'g' || tile == 'h')
@@ -455,26 +454,6 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 castleFlag->AddComponents<CastleFlag>();
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("C_castleFlag", std::move(castleFlag), center + sf::Vector2f{ 0.f, -75.f });
-                
-                ++col;
-            }
-            else if (tile == 'n')
-            {
-                const float left = static_cast<float>(col) * kTileSize;
-                const float bottom = static_cast<float>(row) * kTileSize;
-                sf::Vector2f center{ left + 25.f, bottom + 25.f };
-            
-                auto oneUpBlock = std::make_unique<diji::GameObject>();
-                oneUpBlock->AddComponents<diji::Transform>(600, 300);
-                oneUpBlock->AddComponents<diji::SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50,50 }, 1, 0.035f);
-                oneUpBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-                oneUpBlock->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
-                oneUpBlock->GetComponent<diji::Collider>()->SetTag("HiddenBlock");
-                oneUpBlock->GetComponent<diji::Collider>()->SetAffectedByGravity(false);
-                oneUpBlock->GetComponent<diji::Collider>()->SetIsMoveable(false);
-                oneUpBlock->AddComponents<HiddenBlocks>();
-            
-                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_oneUpBlock", std::move(oneUpBlock), center);
                 
                 ++col;
             }
@@ -618,28 +597,6 @@ void thomasWasLate::GameManager::CreateWorldCollision()
             {
                 ++col;
             }
-        }
-
-        if (row == m_Rows - 1)
-        {
-            const float width  = static_cast<float>(m_Cols) * 1.5f * kTileSize;
-            const float left = -static_cast<float>(m_Cols) * kTileSize * 0.5f;
-            const float bottom = static_cast<float>(row + 2) * kTileSize;
-            constexpr float height = kTileSize;
-            
-            sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
-
-            auto tempBound = std::make_unique<diji::GameObject>();
-            tempBound->AddComponents<diji::Transform>(center);
-            tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ width, height });
-            // tempBound->AddComponents<diji::ShapeRender>();
-            
-            const auto collider = tempBound->GetComponent<diji::Collider>();
-            collider->SetStatic(true);
-            collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
-            collider->SetTag("void");
-            
-            (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
         }
     }
 }
