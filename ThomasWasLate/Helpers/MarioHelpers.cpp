@@ -56,13 +56,14 @@ void mario::MarioHelpers::CheckForCollisionAboveBlock(const diji::Collider* coll
     if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopLeft, dir, 15.f, collider))
     {
         if (hit->info.hasCollision && (hit->collider->GetTag() == "enemy" || hit->collider->GetTag() == "powerUp" || hit->collider->GetTag() == "coin"))
-            hit->collider->GetParent()->GetComponent<thomasWasLate::IBumpable>()->HandleBumpedBehavior(true);
+            diji::InterfaceRegistry::GetInterface<thomasWasLate::IBumpable>(hit->collider->GetParent())->HandleBumpedBehavior(true);
+
     }
 
     if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopRight, dir, 15.f, collider))
     {
         if (hit->info.hasCollision && (hit->collider->GetTag() == "enemy" || hit->collider->GetTag() == "powerUp" || hit->collider->GetTag() == "coin"))
-            hit->collider->GetParent()->GetComponent<thomasWasLate::IBumpable>()->HandleBumpedBehavior(false);
+            diji::InterfaceRegistry::GetInterface<thomasWasLate::IBumpable>(hit->collider->GetParent())->HandleBumpedBehavior(true);
     }
 }
 

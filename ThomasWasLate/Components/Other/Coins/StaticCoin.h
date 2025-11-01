@@ -1,12 +1,13 @@
 ﻿#pragma once
+#include "Engine/Components/Component.h"
 #include "../../../Interfaces/IBumpable.h"
 
 namespace thomasWasLate
 {
-    class StaticCoin final : public IBumpable
+    class StaticCoin final : public diji::Component, public IBumpable
     {
     public:
-        explicit StaticCoin(diji::GameObject* ownerPtr) : IBumpable{ ownerPtr } {}
+        explicit StaticCoin(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
         ~StaticCoin() noexcept override = default;
 
         void Init() override {}

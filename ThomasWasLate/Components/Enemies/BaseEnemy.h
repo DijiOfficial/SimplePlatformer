@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Engine/Components/Component.h"
 #include "../..//Interfaces/IBumpable.h"
 #include "../..//Interfaces/IKillable.h"
 
@@ -12,10 +13,10 @@ namespace diji
 
 namespace thomasWasLate
 {
-    class BaseEnemy : public IBumpable, public IKillable
+    class BaseEnemy : public diji::Component, public IBumpable, public IKillable
     {
     public:
-        explicit BaseEnemy(diji::GameObject* ownerPtr) : IBumpable{ ownerPtr } {}
+        explicit BaseEnemy(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
         ~BaseEnemy() noexcept override = default;
 
         void Init() override;

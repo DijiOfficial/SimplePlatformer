@@ -1,7 +1,8 @@
 ﻿#pragma once
-#include <string>
-
+#include "Engine/Components/Component.h"
 #include "../../Interfaces/IBumpable.h"
+
+#include <string>
 
 namespace diji
 {
@@ -10,10 +11,10 @@ namespace diji
 
 namespace thomasWasLate
 {
-    class MushroomScript : public IBumpable
+    class MushroomScript : public diji::Component, public IBumpable
     {
     public:
-        explicit MushroomScript(diji::GameObject* ownerPtr) : IBumpable{ ownerPtr } {}
+        explicit MushroomScript(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
         ~MushroomScript() noexcept override = default;
 
         void Init() override;
