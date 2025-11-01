@@ -3,6 +3,7 @@
 #include "../Core/Scene.h"
 #include "../Collision/PhysicsWorld.h"
 #include "../Interfaces/TimelineManager.h"
+#include "../Components/Transform.h"
 
 namespace diji
 {
@@ -43,6 +44,12 @@ namespace diji
         GameObject* SpawnGameObject(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const;
         GameObject* AddGameObjectToCanvas(const std::string& name, const GameObject* original, const sf::Vector2f& spawnLocation) const;
         GameObject* AddGameObjectToCanvas(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const;
+        GameObject* OverwriteGameObject(const std::string& name, const GameObject* original, const sf::Vector2f& spawnLocation) const;
+        GameObject* OverwriteGameObject(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const;
+        GameObject* OverwriteCanvasObject(const std::string& name, const GameObject* original, const sf::Vector2f& spawnLocation) const;
+        GameObject* OverwriteCanvasObject(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const;
+        
+        
 
         void ChangePlayerViewCenter(int currPlayer, const sf::Vector2f& newCenter) const;
         void SetViewParameters(int idx, const Transform* target, bool isFollowing = false, const sf::Vector2f& offset = {}) const;
@@ -70,5 +77,18 @@ namespace diji
         bool m_HasPendingDestroy = false;
         bool m_IsMultiplayer = false;
         int m_NumPlayers = 0;
+
+        template<typename Function>
+        GameObject* CreateAndInitGameObject(const sf::Vector2f& spawnLocation, Function&& func) const
+        {
+            auto* scene = m_ScenesUPtrMap.at(m_ActiveSceneId).get();
+            GameObject* gameObject = std::forward<Function>(func)(scene);
+
+            gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
+            gameObject->Init();
+            gameObject->Start();
+
+            return gameObject;
+        }
     };
 }

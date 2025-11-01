@@ -154,47 +154,74 @@ std::string diji::SceneManager::GetGameObjectName(const GameObject* object) cons
 
 diji::GameObject* diji::SceneManager::SpawnGameObject(const std::string& name, const GameObject* original, const sf::Vector2f& spawnLocation) const
 {
-    const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->CreateGameObjectFromTemplate(name, original);
-
-    gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
-
-    gameObject->Init();
-    gameObject->Start();
-
-    return gameObject;
+    return CreateAndInitGameObject(spawnLocation,
+        [name, original](auto* scene) -> GameObject*
+        {
+            return scene->CreateGameObjectFromTemplate(name, original);
+        });
 }
 
 diji::GameObject* diji::SceneManager::SpawnGameObject(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const
 {
-    const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->AddObjectToScene(std::move(original), name);
-    gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
-
-    gameObject->Init();
-    gameObject->Start();
-
-    return gameObject;
+    return CreateAndInitGameObject(spawnLocation,
+        [orig = std::move(original), name = name](auto* scene) mutable -> GameObject*
+        {
+            return scene->AddObjectToScene(std::move(orig), name);
+        });
 }
 
 diji::GameObject* diji::SceneManager::AddGameObjectToCanvas(const std::string& name, const GameObject* original, const sf::Vector2f& spawnLocation) const
 {
-    const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->CreateCanvasObjectFromTemplate(name, original);
-    gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
-
-    gameObject->Init();
-    gameObject->Start();
-
-    return gameObject;
+    return CreateAndInitGameObject(spawnLocation,
+        [name, original](auto* scene) -> diji::GameObject*
+        {
+            return scene->CreateCanvasObjectFromTemplate(name, original);
+        });
 }
 
 diji::GameObject* diji::SceneManager::AddGameObjectToCanvas(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const
 {
-    const auto gameObject = m_ScenesUPtrMap.at(m_ActiveSceneId).get()->AddObjectToCanvas(std::move(original), name);
-    gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
+    return CreateAndInitGameObject(spawnLocation,
+        [orig = std::move(original), name = name](auto* scene) mutable -> GameObject*
+        {
+            return scene->AddObjectToCanvas(std::move(orig), name);
+        });
+}
 
-    gameObject->Init();
-    gameObject->Start();
+diji::GameObject* diji::SceneManager::OverwriteGameObject(const std::string& name, const GameObject* original, const sf::Vector2f& spawnLocation) const
+{
+    return CreateAndInitGameObject(spawnLocation,
+        [name, original](auto* scene) -> GameObject*
+        {
+            return scene->OverwriteGameObjectFromTemplate(name, original);
+        });
+}
 
-    return gameObject;
+diji::GameObject* diji::SceneManager::OverwriteGameObject(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const
+{
+    return CreateAndInitGameObject(spawnLocation,
+        [orig = std::move(original), name = name](auto* scene) mutable -> GameObject*
+        {
+            return scene->OverwriteObjectInScene(std::move(orig), name);
+        });
+}
+
+diji::GameObject* diji::SceneManager::OverwriteCanvasObject(const std::string& name, const GameObject* original, const sf::Vector2f& spawnLocation) const
+{
+    return CreateAndInitGameObject(spawnLocation,
+        [name, original](auto* scene) -> GameObject*
+        {
+            return scene->OverwriteCanvasObjectFromTemplate(name, original);
+        });
+}
+
+diji::GameObject* diji::SceneManager::OverwriteCanvasObject(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const
+{
+    return CreateAndInitGameObject(spawnLocation,
+        [orig = std::move(original), name = name](auto* scene) mutable -> GameObject*
+        {
+            return scene->OverwriteObjectInCanvas(std::move(orig), name);
+        });
 }
 
 void diji::SceneManager::ChangePlayerViewCenter(const int currPlayer, const sf::Vector2f& newCenter) const

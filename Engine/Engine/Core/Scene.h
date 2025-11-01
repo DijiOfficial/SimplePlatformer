@@ -40,6 +40,10 @@ namespace diji
         [[nodiscard]] GameObject* CreateCanvasObjectFromTemplate(const std::string& name, const GameObject* original);
         [[nodiscard]] GameObject* AddObjectToScene(std::unique_ptr<GameObject> object, const std::string& desiredName);
         [[nodiscard]] GameObject* AddObjectToCanvas(std::unique_ptr<GameObject> object, const std::string& desiredName);
+        [[nodiscard]] GameObject* OverwriteGameObjectFromTemplate(const std::string& name, const GameObject* original);
+        [[nodiscard]] GameObject* OverwriteCanvasObjectFromTemplate(const std::string& name, const GameObject* original);
+        [[nodiscard]] GameObject* OverwriteObjectInScene(std::unique_ptr<GameObject> object, const std::string& name);
+        [[nodiscard]] GameObject* OverwriteObjectInCanvas(std::unique_ptr<GameObject> object, const std::string& name);
         void Remove(const GameObject* object);
         void Remove(const std::string& name);
         void RemoveAll();

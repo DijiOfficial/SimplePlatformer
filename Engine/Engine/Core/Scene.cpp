@@ -224,6 +224,46 @@ diji::GameObject* diji::Scene::AddObjectToCanvas(std::unique_ptr<GameObject> obj
     return m_CanvasObjectsUPtrMap[finalName].get();
 }
 
+diji::GameObject* diji::Scene::OverwriteGameObjectFromTemplate(const std::string& name, const GameObject* original)
+{
+    if (m_ObjectsUPtrMap.contains(name))
+        m_ObjectsUPtrMap[name]->OnDestroy();
+    
+    m_ObjectsUPtrMap[name] = std::make_unique<GameObject>();
+    original->CreateDuplicate(m_ObjectsUPtrMap[name].get());
+
+    return m_ObjectsUPtrMap[name].get();
+}
+
+diji::GameObject* diji::Scene::OverwriteCanvasObjectFromTemplate(const std::string& name, const GameObject* original)
+{
+    if (m_CanvasObjectsUPtrMap.contains(name))
+        m_CanvasObjectsUPtrMap[name]->OnDestroy();
+
+    m_CanvasObjectsUPtrMap[name] = std::make_unique<GameObject>();
+    original->CreateDuplicate(m_CanvasObjectsUPtrMap[name].get());
+
+    return m_CanvasObjectsUPtrMap[name].get();
+}
+
+diji::GameObject* diji::Scene::OverwriteObjectInScene(std::unique_ptr<GameObject> object, const std::string& name)
+{
+    if (m_ObjectsUPtrMap.contains(name))
+        m_ObjectsUPtrMap[name]->OnDestroy();
+
+    m_ObjectsUPtrMap[name] = std::move(object);
+    return m_ObjectsUPtrMap[name].get();
+}
+
+diji::GameObject* diji::Scene::OverwriteObjectInCanvas(std::unique_ptr<GameObject> object, const std::string& name)
+{
+    if (m_CanvasObjectsUPtrMap.contains(name))
+        m_CanvasObjectsUPtrMap[name]->OnDestroy();
+
+    m_CanvasObjectsUPtrMap[name] = std::move(object);
+    return m_CanvasObjectsUPtrMap[name].get();
+}
+
 void diji::Scene::Remove(const GameObject* object)
 {
     for (auto it = m_ObjectsUPtrMap.begin(); it != m_ObjectsUPtrMap.end(); ++it)

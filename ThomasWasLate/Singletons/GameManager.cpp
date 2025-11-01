@@ -132,7 +132,7 @@ void thomasWasLate::GameManager::SpawnPointsText(const sf::Vector2f& position, c
     pointsText->AddComponents<diji::Render>();
     pointsText->AddComponents<PointsBehaviour>();
 
-    diji::SceneManager::GetInstance().AddGameObjectToCanvas("ZZ_pointsText", std::move(pointsText), screenPos);
+    diji::SceneManager::GetInstance().OverwriteCanvasObject("ZZ_pointsText", std::move(pointsText), screenPos);
 }
 
 void thomasWasLate::GameManager::AddLife()
