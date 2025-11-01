@@ -1,6 +1,6 @@
 ﻿#include "SmallCoinScript.h"
 
-#include "../../Singletons/GameManager.h"
+#include "../../../Singletons/GameManager.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Interfaces/Timeline.h"

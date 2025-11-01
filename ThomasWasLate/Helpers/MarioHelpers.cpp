@@ -1,6 +1,6 @@
 ﻿#include "MarioHelpers.h"
 
-#include "../Components/Other/SmallCoinScript.h"
+#include "../Components/Other/Coins/SmallCoinScript.h"
 #include "../Interfaces/IBumpable.h"
 #include "../Singletons/GameManager.h"
 #include "Engine/Singleton/Helpers.h"

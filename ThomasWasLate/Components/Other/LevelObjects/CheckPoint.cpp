@@ -1,7 +1,7 @@
 ﻿#include "CheckPoint.h"
 
-#include "../../Singletons/GameManager.h"
-#include "../Player/BroadcastPlayerPosition.h"
+#include "../../../Singletons/GameManager.h"
+#include "../../Player/BroadcastPlayerPosition.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Core/GameObject.h"

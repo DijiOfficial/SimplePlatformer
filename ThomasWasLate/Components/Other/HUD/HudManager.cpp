@@ -1,7 +1,7 @@
 ﻿#include "HudManager.h"
 
-#include "../../Singletons/GameManager.h"
-#include "../Player/PlayerCharacter.h"
+#include "../../../Singletons/GameManager.h"
+#include "../../Player/PlayerCharacter.h"
 #include "Engine/Components/ScoreCounter.h"
 #include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/SceneManager.h"

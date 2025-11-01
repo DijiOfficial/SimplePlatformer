@@ -1,7 +1,7 @@
 ﻿#include "CastleFlag.h"
 
-#include "HudManager.h"
-#include "../../Singletons/GameManager.h"
+#include "../HUD/HudManager.h"
+#include "../../../Singletons/GameManager.h"
 #include "Engine/Components/AutoDestroy.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Singleton/SceneManager.h"

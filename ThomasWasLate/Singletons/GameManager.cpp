@@ -1,31 +1,30 @@
 ﻿#include "GameManager.h"
-#include "../Core/GameState.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Components/TextComp.h"
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Components/Render.h"
 #include "Engine/Core/GameObject.h"
-#include "../Components/Other/PointsBehaviour.h"
-#include "../Components/Blocks/LuckyBlock.h"
 #include "Engine/Components/SpriteRenderComp.h"
+#include "Engine/Interfaces/ISoundSystem.h"
+#include "../Core/GameState.h"
+#include "../Components/Other/HUD/PointsBehaviour.h"
+#include "../Components/Blocks/LuckyBlock.h"
 #include "../Components/Blocks/BreakableBlock.h"
 #include "../Components/Blocks/MultiCoinBlock.h"
 #include "../Components/Enemies/GoombaAI.h"
 #include "../Components/Blocks/StarBlock.h"
-#include "../Components/Other/Flag.h"
+#include "../Components/Other/LevelObjects/Flag.h"
 #include "../Components/Blocks/HiddenBlocks.h"
 #include "../Components/Enemies/KoopaTroopa.h"
+#include "../Components/Enemies/PiranhaPlant.h"
+#include "../Components/Other/LevelObjects/CastleFlag.h"
+#include "../Components/Other/LevelObjects/CheckPoint.h"
+#include "../Components/Other/Coins/StaticCoin.h"
+#include "../Components/Player/PlayerCharacter.h"
 
 #include <format>
 #include <fstream>
-
-#include "../Components/Enemies/PiranhaPlant.h"
-#include "../Components/Other/CastleFlag.h"
-#include "../Components/Other/CheckPoint.h"
-#include "../Components/Other/StaticCoin.h"
-#include "../Components/Player/PlayerCharacter.h"
-#include "Engine/Interfaces/ISoundSystem.h"
 
 namespace thomasWasLate
 {

@@ -1,7 +1,7 @@
 ﻿#include "StaticCoin.h"
 
-#include "../../Helpers/MarioHelpers.h"
-#include "../../Singletons/GameManager.h"
+#include "../../../Helpers/MarioHelpers.h"
+#include "../../../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Core/GameObject.h"
