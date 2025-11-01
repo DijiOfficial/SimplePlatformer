@@ -28,11 +28,14 @@ namespace thomasWasLate
         void OnDestroy() override;
 
         void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo) override;
+        void OnTriggerEnter(const diji::Collider*, const diji::CollisionInfo&) override;
 
     private:
         diji::Camera* m_CameraPtr = nullptr;
         diji::Collider* m_PlayerCollider = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
         bool m_IsGoingRight = true;
+
+        void SpawnVFX() const;
     };
 }

@@ -42,6 +42,7 @@ void thomasWasLate::BackgroundHandler::Init()
         { 'p', {0, 4} }, // Koopa Troopa offset by 25
         { 'q', {0, 4} }, // Static Coin
         { 'r', {0, 4} }, // CheckPoint
+        { 's', {1, 0} }, // Piranha Plant (using top left pipe tile as it will replace the pipe tile to spawn the plant)
         { 'D', {0, 2} }, // TopRight Side Pipe (Z priority)
         { 'E', {1, 2} }, // MiddleRight Side Pipe (Z priority)
         { 'F', {2, 2} }, // BottomRight Side Pipe (Z priority)

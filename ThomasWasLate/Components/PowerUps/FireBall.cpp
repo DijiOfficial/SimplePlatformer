@@ -55,9 +55,22 @@ void thomasWasLate::FireBall::OnDestroy()
 
 void thomasWasLate::FireBall::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo)
 {
-    if (diji::Helpers::isZero(hitInfo.normal.x) && other->GetTag() != "enemy")
+    if (diji::Helpers::isZero(hitInfo.normal.x) && other->GetTag() != "enemy" && other->GetTag() != "koopa")
         return;
 
+    SpawnVFX();
+}
+
+void thomasWasLate::FireBall::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&)
+{
+    if (other->GetTag() != "plant")
+        return;
+
+    SpawnVFX();
+}
+
+void thomasWasLate::FireBall::SpawnVFX() const
+{
     Destroy();
 
     auto explosion = std::make_unique<diji::GameObject>();

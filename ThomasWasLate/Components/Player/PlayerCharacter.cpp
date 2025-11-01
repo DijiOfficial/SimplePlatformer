@@ -286,7 +286,7 @@ void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other,
     if (otherTag == "flagPole")
         HandleLevelCompletion(other->GetPosition());
 
-    if (otherTag != "enemy" && otherTag != "koopa") return;
+    if (otherTag != "enemy" && otherTag != "koopa" && otherTag != "plant") return;
     if (m_IsStartPoweredUp)
     {
         const auto enemyInterface = diji::InterfaceRegistry::GetInterface<IKillable>(other->GetParent());
@@ -303,6 +303,9 @@ void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other,
         const std::string& pointsString = mario::MarioHelpers::GetStompPointsAsString(m_BounceScoreMultiplier + 3);
         OnEnemyStompedEvent.Broadcast(other, pointsString);
     }
+
+    if (otherTag == "plant")
+        HitByEnemy();
 }
 
 void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)
@@ -342,18 +345,7 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
             StompEnemy(other);
     }
     else
-    {
-        OnHitByEnemyEvent.Broadcast();
-        if (m_PowerUpState == PowerUpState::Big || m_PowerUpState == PowerUpState::Fire)
-        {
-            m_PowerUpState = PowerUpState::Small;
-            PlayShrinkAnimation();
-        }
-        else
-        {
-            HandleDeathSequence();
-        }
-    }
+        HitByEnemy();
 }
 
 void thomasWasLate::PlayerCharacter::Move(const sf::Vector2f& direction)
@@ -605,6 +597,8 @@ void thomasWasLate::PlayerCharacter::PlayShrinkAnimation()
     std::unique_ptr<PlayerStates> newState = std::make_unique<ShrinkAnimationState>();
     m_CurrentStateUPtr = std::move(newState);
     m_CurrentStateUPtr->OnEnter(GetOwner());
+    m_ColliderCompPtr->SetAffectedByGravity(false);
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.f, 0.f });
     
     (void)diji::TimerManager::GetInstance().SetTimer([&]()
     {
@@ -616,6 +610,7 @@ void thomasWasLate::PlayerCharacter::PlayShrinkAnimation()
 
     (void)diji::TimerManager::GetInstance().SetTimer([&]()
     {
+        m_ColliderCompPtr->SetAffectedByGravity(true);
         m_ColliderCompPtr->ResizeCollider(sf::Vector2f{ 48, 48 });
 
         for(const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
@@ -922,4 +917,16 @@ void thomasWasLate::PlayerCharacter::CheckForSavedState()
         m_CurrentStateUPtr = std::move(newState);
         m_CurrentStateUPtr->OnEnter(GetOwner());
     }
+}
+
+void thomasWasLate::PlayerCharacter::HitByEnemy()
+{
+    OnHitByEnemyEvent.Broadcast();
+    if (m_PowerUpState == PowerUpState::Big || m_PowerUpState == PowerUpState::Fire)
+    {
+        m_PowerUpState = PowerUpState::Small;
+        PlayShrinkAnimation();
+    }
+    else
+        HandleDeathSequence();
 }

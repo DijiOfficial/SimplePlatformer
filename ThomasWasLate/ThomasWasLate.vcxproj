@@ -182,6 +182,7 @@
     <ClCompile Include="Components\Enemies\BaseEnemy.cpp" />
     <ClCompile Include="Components\Enemies\GoombaAI.cpp" />
     <ClCompile Include="Components\Enemies\KoopaTroopa.cpp" />
+    <ClCompile Include="Components\Enemies\PiranhaPlant.cpp" />
     <ClCompile Include="Components\Other\CastleFlag.cpp" />
     <ClCompile Include="Components\Other\CheckPoint.cpp" />
     <ClCompile Include="Components\Other\Flag.cpp" />
@@ -218,6 +219,7 @@
     <ClInclude Include="Components\Enemies\BaseEnemy.h" />
     <ClInclude Include="Components\Enemies\GoombaAI.h" />
     <ClInclude Include="Components\Enemies\KoopaTroopa.h" />
+    <ClInclude Include="Components\Enemies\PiranhaPlant.h" />
     <ClInclude Include="Components\Other\CastleFlag.h" />
     <ClInclude Include="Components\Other\CheckPoint.h" />
     <ClInclude Include="Components\Other\Flag.h" />

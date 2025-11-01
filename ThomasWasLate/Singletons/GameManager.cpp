@@ -20,6 +20,7 @@
 #include <format>
 #include <fstream>
 
+#include "../Components/Enemies/PiranhaPlant.h"
 #include "../Components/Other/CastleFlag.h"
 #include "../Components/Other/CheckPoint.h"
 #include "../Components/Other/StaticCoin.h"
@@ -264,7 +265,7 @@ void thomasWasLate::GameManager::CreateWorldCollision()
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
-            if (std::string("0edxyfghijklmnopqrABCDEF").find(tile) == std::string::npos)
+            if (std::string("0edxyfghijklmnopqrsABCDEF").find(tile) == std::string::npos)
             {
                 const int startC = col;
                 while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
@@ -580,6 +581,37 @@ void thomasWasLate::GameManager::CreateWorldCollision()
                 checkPoint->GetComponent<CheckPoint>()->SetActivationMilestone(col);
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_checkPoint", std::move(checkPoint), center);
+
+                ++col;
+            }
+            else if (tile == 's')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 50.f, bottom + 45.f };
+
+                auto piranhaPlant = std::make_unique<diji::GameObject>();
+                piranhaPlant->AddComponents<diji::Transform>(6000, 400);
+                piranhaPlant->AddComponents<diji::SpriteRenderComponent>("graphics/piranhaPlant.png", sf::Vector2i{ 50, 75 }, 2, 0.135f);
+                piranhaPlant->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
+                const auto collider = piranhaPlant->GetComponent<diji::Collider>();
+                collider->SetIsMoveable(false);
+                collider->SetTag("plant");
+                collider->SetAffectedByGravity(false);
+                collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+                piranhaPlant->AddComponents<PiranhaPlant>();
+                piranhaPlant->GetComponent<PiranhaPlant>()->SetActivationMilestone(col - 20);
+                piranhaPlant->SetActive(false);
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("BA_PiranhaPlant", std::move(piranhaPlant), center);
+
+                auto tempBound = std::make_unique<diji::GameObject>();
+                tempBound->AddComponents<diji::Transform>(center);
+                tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ kTileSize, kTileSize });
+                tempBound->GetComponent<diji::Collider>()->SetStatic(true);
+                tempBound->GetComponent<diji::Collider>()->SetTag("ground");
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center - sf::Vector2f{25.f, 25.f});
 
                 ++col;
             }

@@ -30,6 +30,8 @@
 
 #include <format>
 
+#include "../Components/Enemies/PiranhaPlant.h"
+
 using namespace diji;
 
 void SceneLoader::GameStartUp()
@@ -47,8 +49,8 @@ void SceneLoader::GameStartUp()
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::GameOver), GameOverMenu);
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::TransitionToNextLevel), TransitionToNextLevel);
 
-    StartMenu();
-    // Level();
+    // StartMenu();
+    Level();
 }
 
 #pragma region Menus
@@ -593,16 +595,15 @@ void SceneLoader::Level()
 
     // const auto testObject = scene->CreateGameObject("Y_testObject");
     // // auto testObject = std::make_unique<diji::GameObject>();
-    // testObject->AddComponents<Transform>(1000, 275);
-    // // testObject->AddComponents<SpriteRenderComponent>("graphics/staticCoin.png", sf::Vector2i{ 50, 50 }, 6, 0.135f);
-    // // testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    // // const auto collider = testObject->GetComponent<Collider>();
-    // // collider->SetStatic(true);
-    // // collider->SetTag("coin");
-    // // collider->SetAffectedByGravity(false);
-    // // collider->SetCollisionResponse(Collider::CollisionResponse::Overlap);
-    // testObject->AddComponents<thomasWasLate::CheckPoint>();
-    
+    // testObject->AddComponents<Transform>(6000, 400);
+    // testObject->AddComponents<SpriteRenderComponent>("graphics/piranhaPlant.png", sf::Vector2i{ 50, 75 }, 2, 0.135f);
+    // testObject->AddComponents<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
+    // const auto collider = testObject->GetComponent<Collider>();
+    // collider->SetIsMoveable(false);
+    // collider->SetTag("plant");
+    // collider->SetAffectedByGravity(false);
+    // collider->SetCollisionResponse(Collider::CollisionResponse::Overlap);
+    // testObject->AddComponents<thomasWasLate::PiranhaPlant>();
  
     
     // const auto testObject = scene->CreateGameObject("Y_testObject");

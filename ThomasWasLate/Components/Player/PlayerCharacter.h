@@ -139,5 +139,6 @@ namespace thomasWasLate
         void HandleLevelCompletion(const sf::Vector2f& center);
         void StopFlagAnimAndMoveToCastle();
         void CheckForSavedState();
+        void HitByEnemy();
     };
 }
