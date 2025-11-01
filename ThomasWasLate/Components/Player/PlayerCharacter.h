@@ -7,6 +7,7 @@
 #include "Engine/Components/Component.h"
 #include "Engine/Singleton/TimeSingleton.h"
 #include "PlayerStates.h"
+#include "../../Interfaces/IPowerUp.h"
 
 namespace diji
 {
@@ -21,7 +22,7 @@ namespace thomasWasLate
 {
     class PlayerStates;
 
-    class PlayerCharacter final : public diji::Component
+    class PlayerCharacter final : public diji::Component, public IPowerUp
     {
     public:
         explicit PlayerCharacter(diji::GameObject* ownerPtr, float jumpTime);
@@ -53,6 +54,7 @@ namespace thomasWasLate
         void SetTransitionState();
         void KillPlayer() { OnFallingInHoleEvent.Broadcast(); HandleDeathSequence(); }
         [[nodiscard]] int GetPowerUpState() const { return static_cast<int>(m_PowerUpState); }
+        void OnPowerUpCollected(PowerUpType power) override;
 
         diji::Event<> OnHitByEnemyEvent;
         diji::Event<> OnFallingInHoleEvent;

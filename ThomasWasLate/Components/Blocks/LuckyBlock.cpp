@@ -1,6 +1,5 @@
 ﻿#include "LuckyBlock.h"
 
-#include "../PowerUps/FireFlower.h"
 #include "../PowerUps/MushroomScript.h"
 #include "../../Singletons/GameManager.h"
 #include "Engine/Collision/Collider.h"
@@ -93,12 +92,12 @@ void thomasWasLate::LuckyBlock::SpawnPowerUp() const
     {
         powerUp->AddComponents<diji::TextureComp>("graphics/mushroom.png");
         powerUp->AddComponents<diji::Render>();
-        powerUp->AddComponents<MushroomScript>();
+        powerUp->AddComponents<MushroomScript>(IPowerUp::Mushroom, true);
     }
     else
     {
         powerUp->AddComponents<diji::SpriteRenderComponent>("graphics/fireFlower.png", sf::Vector2i{ 50, 50 }, 4, 0.065f);
-        powerUp->AddComponents<FireFlower>();
+        powerUp->AddComponents<BasePowerUp>(IPowerUp::FireFlower, false);
     }
 
 

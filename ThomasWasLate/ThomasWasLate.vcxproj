@@ -196,10 +196,9 @@
     <ClCompile Include="Components\Player\MenuTransition.cpp" />
     <ClCompile Include="Components\Player\PlayerCharacter.cpp" />
     <ClCompile Include="Components\Player\PlayerStates.cpp" />
+    <ClCompile Include="Components\PowerUps\BasePowerUp.cpp" />
     <ClCompile Include="Components\PowerUps\FireBall.cpp" />
-    <ClCompile Include="Components\PowerUps\FireFlower.cpp" />
     <ClCompile Include="Components\PowerUps\MushroomScript.cpp" />
-    <ClCompile Include="Components\PowerUps\OneUpMushroom.cpp" />
     <ClCompile Include="Components\PowerUps\StarPower.cpp" />
     <ClCompile Include="Core\GameLoader.cpp" />
     <ClCompile Include="Helpers\MarioHelpers.cpp" />
@@ -233,10 +232,9 @@
     <ClInclude Include="Components\Player\MenuTransition.h" />
     <ClInclude Include="Components\Player\PlayerCharacter.h" />
     <ClInclude Include="Components\Player\PlayerStates.h" />
+    <ClInclude Include="Components\PowerUps\BasePowerUp.h" />
     <ClInclude Include="Components\PowerUps\FireBall.h" />
-    <ClInclude Include="Components\PowerUps\FireFlower.h" />
     <ClInclude Include="Components\PowerUps\MushroomScript.h" />
-    <ClInclude Include="Components\PowerUps\OneUpMushroom.h" />
     <ClInclude Include="Components\PowerUps\StarPower.h" />
     <ClInclude Include="Core\GameLoader.h" />
     <ClInclude Include="Core\GameState.h" />
@@ -244,6 +242,7 @@
     <ClInclude Include="Input\CustomCommands.h" />
     <ClInclude Include="Interfaces\IBumpable.h" />
     <ClInclude Include="Interfaces\IKillable.h" />
+    <ClInclude Include="Interfaces\IPowerUp.h" />
     <ClInclude Include="Interfaces\IShoveable.h" />
     <ClInclude Include="Singletons\GameManager.h" />
   </ItemGroup>

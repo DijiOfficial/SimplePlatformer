@@ -8,7 +8,7 @@
 #include "Engine/Core/GameObject.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "../../Helpers/MarioHelpers.h"
-#include "../PowerUps/OneUpMushroom.h"
+#include "../PowerUps/MushroomScript.h"
 #include "Engine/Interfaces/ISoundSystem.h"
 
 void thomasWasLate::HiddenBlocks::Start()
@@ -49,7 +49,7 @@ void thomasWasLate::HiddenBlocks::SpawnStarPowerUp() const
     oneUpMushroom->AddComponents<diji::TextureComp>("graphics/oneUpMushroom.png");
     oneUpMushroom->AddComponents<diji::Render>();
     oneUpMushroom->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    oneUpMushroom->AddComponents<OneUpMushroom>();
+    oneUpMushroom->AddComponents<MushroomScript>(IPowerUp::OneUpMushroom, true);
 
     diji::SceneManager::GetInstance().SpawnGameObject("C_PowerUp", std::move(oneUpMushroom),  GetOwner()->GetComponent<diji::Transform>()->GetPosition());
 }

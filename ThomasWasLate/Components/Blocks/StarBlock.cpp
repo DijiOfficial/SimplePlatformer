@@ -63,7 +63,7 @@ void thomasWasLate::StarBlock::SpawnStarPowerUp() const
     star->AddComponents<diji::Transform>(600, 200);
     star->AddComponents<diji::SpriteRenderComponent>("graphics/star.png", sf::Vector2i{ 50,50 }, 4, 0.035f);
     star->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
-    star->AddComponents<StarPower>();
+    star->AddComponents<StarPower>(IPowerUp::Star, false);
 
     diji::SceneManager::GetInstance().SpawnGameObject("C_PowerUp", std::move(star),  GetOwner()->GetComponent<diji::Transform>()->GetPosition());
 }

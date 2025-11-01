@@ -1,7 +1,11 @@
 ﻿#pragma once
 #include "BaseEnemy.h"
-#include "Engine/Interfaces/Timeline.h"
 #include "Engine/Singleton/TimerManager.h"
+
+namespace diji
+{
+    class Timeline;
+}
 
 namespace thomasWasLate
 {

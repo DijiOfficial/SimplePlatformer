@@ -30,8 +30,6 @@
 
 #include <format>
 
-#include "../Components/Enemies/PiranhaPlant.h"
-
 using namespace diji;
 
 void SceneLoader::GameStartUp()

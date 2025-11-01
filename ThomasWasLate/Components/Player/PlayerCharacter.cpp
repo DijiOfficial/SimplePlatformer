@@ -276,12 +276,6 @@ void thomasWasLate::PlayerCharacter::OnTriggerEnter(const diji::Collider* other,
 {
     if (m_IsDead || m_IsPaused) return;
     const std::string& otherTag = other->GetTag();
-    
-    if (otherTag == "powerUp")
-        HandlePowerUpCollision();
-
-    if (otherTag == "star")
-        HandleStarPickup();
 
     if (otherTag == "flagPole")
         HandleLevelCompletion(other->GetPosition());
@@ -312,12 +306,6 @@ void thomasWasLate::PlayerCharacter::OnHitEvent(const diji::Collider* other, con
 {
     if (m_IsDead || m_IsPaused || m_IsInvincible) return;
     const std::string& otherTag = other->GetTag();
-
-    if (otherTag == "powerUp")
-    {
-        HandlePowerUpCollision();
-        return;
-    }
 
     if (GROUND_TAGS.contains(otherTag))
     {
@@ -459,6 +447,26 @@ void thomasWasLate::PlayerCharacter::SetTransitionState()
         newState = std::make_unique<BigRunningState>();
     m_CurrentStateUPtr = std::move(newState);
     m_CurrentStateUPtr->OnEnter(GetOwner());
+}
+
+void thomasWasLate::PlayerCharacter::OnPowerUpCollected(const PowerUpType power)
+{
+    switch (power)
+    {
+    case Mushroom:
+    case FireFlower:
+        HandlePowerUpCollision();
+        break;
+    case OneUpMushroom:
+        GameManager::GetInstance().AddLife();
+        break;
+    case Star:
+        HandleStarPickup();
+        break;
+    case None:
+    default:
+        break;
+    }
 }
 
 void thomasWasLate::PlayerCharacter::HandleDeathSequence()

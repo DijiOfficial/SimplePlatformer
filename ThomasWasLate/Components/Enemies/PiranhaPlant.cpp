@@ -5,8 +5,8 @@
 #include "Engine/Collision/Collider.h"
 #include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Components/Transform.h"
-#include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/SceneManager.h"
+#include "Engine/Interfaces/Timeline.h"
 
 void thomasWasLate::PiranhaPlant::Start()
 {
