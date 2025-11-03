@@ -49,8 +49,8 @@ void SceneLoader::GameStartUp()
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::GameOver), GameOverMenu);
     SceneManager::GetInstance().RegisterScene(static_cast<int>(thomasWasLate::thomasWasLateState::TransitionToNextLevel), TransitionToNextLevel);
 
-    // StartMenu();
-    Level();
+    StartMenu();
+    // Level();
 }
 
 #pragma region Menus
@@ -185,6 +185,8 @@ void SceneLoader::StartMenu()
     auto& input = InputManager::GetInstance();
 
     input.BindCommand<thomasWasLate::StartGame>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::Enter, nullptr);
+    input.BindCommand<thomasWasLate::StartGame>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Back, nullptr);
+    input.BindCommand<thomasWasLate::StartGame>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Start, nullptr);
 #pragma endregion
 }
 
@@ -770,8 +772,8 @@ void SceneLoader::Level()
 
     input.BindCommand<thomasWasLate::Pause>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::Enter, nullptr);
     input.BindCommand<thomasWasLate::Pause>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Key::Escape, nullptr);
-    input.BindCommand<thomasWasLate::Pause>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Start, player);
-
+    input.BindCommand<thomasWasLate::Pause>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Start, nullptr);
+    input.BindCommand<thomasWasLate::Pause>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Back, nullptr);
 
 #pragma endregion
 

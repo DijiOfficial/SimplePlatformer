@@ -107,7 +107,7 @@ void thomasWasLate::BackgroundHandler::OnNewLevelLoaded() const
             const sf::Vector2i& atlasPos = it->second;
 
             const float texLeft   = static_cast<float>(atlasPos.x * tileSize);
-            const float texTop    = static_cast<float>(atlasPos.y * tileSize);
+            const float texTop    = static_cast<float>(atlasPos.y * tileSize) + 1;
             const float texRight  = texLeft + tileSize;
             const float texBottom = texTop + tileSize;
 
