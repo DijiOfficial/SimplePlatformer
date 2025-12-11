@@ -1,0 +1,613 @@
+﻿#include "GameManager.h"
+#include "Engine/Singleton/SceneManager.h"
+#include "Engine/Components/Transform.h"
+#include "Engine/Components/TextComp.h"
+#include "Engine/Components/TextureComp.h"
+#include "Engine/Components/Render.h"
+#include "Engine/Core/GameObject.h"
+#include "Engine/Components/SpriteRenderComp.h"
+#include "Engine/Interfaces/ISoundSystem.h"
+#include "../Core/GameState.h"
+#include "../Components/Other/HUD/PointsBehaviour.h"
+#include "../Components/Blocks/SharedBehaviour/PowerUpBlock.h"
+#include "../Components/Blocks/UniqueBehaviour/BreakableBlock.h"
+#include "../Components/Blocks/UniqueBehaviour/MultiCoinBlock.h"
+#include "../Components/Enemies/GoombaAI.h"
+#include "../Components/Blocks/SharedBehaviour/StarBlock.h"
+#include "../Components/Other/LevelObjects/Flag.h"
+#include "../Components/Blocks/HiddenBlock/OneUpBlock.h"
+#include "../Components/Enemies/KoopaTroopa.h"
+#include "../Components/Enemies/PiranhaPlant.h"
+#include "../Components/Other/LevelObjects/CastleFlag.h"
+#include "../Components/Other/LevelObjects/CheckPoint.h"
+#include "../Components/Other/Coins/StaticCoin.h"
+#include "../Components/Player/PlayerCharacter.h"
+
+#include <format>
+#include <fstream>
+
+#include "../Components/Blocks/BaseBlock.h"
+
+namespace superMarioBros
+{
+    class GoombaAI;
+    class PointsBehaviour;
+}
+
+void superMarioBros::GameManager::LoadLevel()
+{
+    m_IsLevelAlreadyCleared = false;
+    m_CurrentPlayerState = m_LastPlayerState == PlayerHealthState::Small ? PlayerHealthState::Small : PlayerHealthState::Big;
+    ReadLevelInfo(LoadInformation());
+
+    CreateWorldCollision();
+
+    OnNewLevelLoadedEvent.Broadcast();
+}
+
+void superMarioBros::GameManager::SwitchToNextScene()
+{
+    ClearListeners();
+    
+    if (m_ShouldPlayTransition)
+        diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(superMarioBrosState::TransitionToNextLevel));
+    else
+        diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(superMarioBrosState::Level));
+}
+
+void superMarioBros::GameManager::SetLevelCleared()
+{
+    if (m_IsLevelAlreadyCleared) return;
+    m_IsLevelAlreadyCleared = true;
+    
+    SavePlayerState();
+    ++m_PlayerInfo.currentLevel;
+    m_PlayerInfo.checkPointActivated = false;
+    m_ShouldPlayTransition = true;
+
+    OnLevelClearedEvent.Broadcast();
+    ResetLevel(false);
+}
+
+void superMarioBros::GameManager::ResetLevel(const bool playerDied)
+{
+    if (playerDied)
+    {
+        m_CurrentPlayerState = PlayerHealthState::Small;
+        m_LastPlayerState = PlayerHealthState::Small;
+    }
+    
+    ClearListeners();
+        
+    if (m_PlayerInfo.totalLives == 0)
+        diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(superMarioBrosState::GameOver));
+    else
+        diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(superMarioBrosState::LivesDisplayMenu));
+
+    if (m_PlayerInfo.currentLevel >= 4)
+    {
+        // trigger end screen?
+        SaveHighScoreToFile();
+
+        diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(superMarioBrosState::StartMenu));
+        ResetPlayerInfo();
+    }
+    
+    m_TotalFireballsInLevel = 0;
+}
+
+void superMarioBros::GameManager::SwitchCurrentPlayerState()
+{
+    if (m_CurrentPlayerState == PlayerHealthState::Small)
+        m_CurrentPlayerState = PlayerHealthState::Big;
+    else
+        m_CurrentPlayerState = PlayerHealthState::Small;
+}
+
+void superMarioBros::GameManager::SavePlayerState()
+{
+    switch (diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->GetPowerUpState())
+    {
+    case 0:
+        m_LastPlayerState = PlayerHealthState::Small;
+        break;
+    case 1:
+        m_LastPlayerState = PlayerHealthState::Big;
+        break;
+    case 2:
+        m_LastPlayerState = PlayerHealthState::Fire;
+        break;
+    default:
+        m_LastPlayerState = PlayerHealthState::Small;
+        break;
+    }
+}
+
+void superMarioBros::GameManager::SpawnPointsText(const sf::Vector2f& position, const std::string& score)
+{
+    sf::Vector2f screenPos = diji::SceneManager::GetInstance().GetScreenPosition(position);
+    // screenPos.y += static_cast<float>(window::VIEWPORT.y) * 0.5f;
+    auto pointsText = std::make_unique<diji::GameObject>();
+    pointsText->AddComponents<diji::Transform>(screenPos);
+    pointsText->AddComponents<diji::TextComp>(score, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    pointsText->GetComponent<diji::TextComp>()->GetText().setCharacterSize(18);
+    pointsText->AddComponents<diji::Render>();
+    pointsText->AddComponents<PointsBehaviour>();
+
+    diji::SceneManager::GetInstance().OverwriteCanvasObject("ZZ_pointsText", std::move(pointsText), screenPos);
+}
+
+void superMarioBros::GameManager::AddLife()
+{
+    ++m_PlayerInfo.totalLives;
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_1-up.wav", false);
+}
+
+void superMarioBros::GameManager::ResetPlayerInfo()
+{
+    m_PlayerInfo.totalLives = 3;
+    m_PlayerInfo.totalCoins = 0;
+    m_PlayerInfo.totalScore = 0;
+    m_PlayerInfo.currentLevel = 1;
+    m_PlayerInfo.checkPointActivated = false;
+}
+
+int superMarioBros::GameManager::GetHighScoreFromFile() const
+{
+    std::ifstream file(m_HighScoreFileName);
+    if (!file.is_open())
+        throw std::runtime_error("Could not open high score file: " + m_HighScoreFileName);
+
+    int highScore = 0;
+    file >> highScore;
+    // if (!file.good())
+    //     throw std::runtime_error("Error reading high score from file: " + m_HighScoreFileName);
+
+    file.close();
+    return highScore;
+}
+
+void superMarioBros::GameManager::SaveHighScoreToFile() const
+{
+    // I can probably optimize this by reading it at the start of the program and keeping track of the high score until the end of the program avoiding file I/O multiple times
+    const int currentHigh = GetHighScoreFromFile();
+    if (m_PlayerInfo.totalScore <= currentHigh)
+        return;
+
+    std::ofstream file(m_HighScoreFileName, std::ios::trunc);
+    if (!file.is_open())
+        throw std::runtime_error("Could not open high score file: " + m_HighScoreFileName);
+
+
+    file << m_PlayerInfo.totalScore;
+    file.close();
+}
+
+std::string superMarioBros::GameManager::LoadInformation()
+{
+    if (m_ShouldPlayTransition)
+    {
+        m_ShouldPlayTransition = false;
+        m_StartPosition.x = 100;
+        m_StartPosition.y = 100;
+
+        //todo: remove string literal
+        return "../SuperMarioBros/Resources/levels/transitionLevel.txt";
+    }
+    
+    switch (m_PlayerInfo.currentLevel) // if you're going to read from a file put this information in the fucking file
+    {
+    case 1:
+        m_StartPosition.x = 100;
+        m_StartPosition.y = 400;
+        break;
+    case 2:
+        m_StartPosition.x = 100;
+        m_StartPosition.y = 0;
+        break;
+    case 3:
+        m_StartPosition.x = 1250;
+        m_StartPosition.y = 0;
+        break;
+    case 4:
+        m_StartPosition.x = 50;
+        m_StartPosition.y = 200;
+        break;
+    default:
+        throw std::runtime_error("Invalid Level.");
+    }
+
+    // todo: remove string literal
+    return std::format("../SuperMarioBros/Resources/levels/level{}.txt", m_PlayerInfo.currentLevel);
+}
+
+void superMarioBros::GameManager::ReadLevelInfo(const std::string& filepath)
+{
+    std::ifstream file(filepath);
+    if (!file.is_open())
+        throw std::runtime_error("Could not open level file: " + filepath);
+
+    std::string line;
+    m_Rows = 0;
+    m_Cols = 0;
+    m_LevelInfo = std::vector<char>();
+
+    while (std::getline(file, line))
+    {
+        int colCount = 0;
+
+        for (const char c : line)
+        {
+            m_LevelInfo.push_back(c);
+            ++colCount;
+        }
+
+        if (m_Rows == 0)
+            m_Cols = colCount;
+
+        ++m_Rows;
+    }
+
+    
+    file.close();
+}
+
+// todo: rename, it also creates enemies
+void superMarioBros::GameManager::CreateWorldCollision()
+{
+    constexpr float kTileSize = 50.0f;
+
+    // Clear previously created tagged colliders for tiles 2/3/4
+    // m_TileColliders = std::vector<std::unique_ptr<diji::Collider>>();
+    
+    for (int row = 0; row < m_Rows; ++row)
+    {
+        int col = 0;
+        while (col < m_Cols)
+        {
+            const int idx = row * m_Cols + col;
+            const char tile = m_LevelInfo[idx];
+
+            if (std::string("0edxyfghijklmnopqrstuvABCDEF").find(tile) == std::string::npos)
+            {
+                const int startC = col;
+                while (col < m_Cols && m_LevelInfo[row * m_Cols + col] != '0') // == tile? will work but colliders like pipes will become separate
+                    ++col;
+
+                const int len = col - startC;
+
+                const float left = static_cast<float>(startC) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                const float width  = static_cast<float>(len) * kTileSize;
+                constexpr float height = kTileSize;
+                
+                sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
+
+                auto tempBound = std::make_unique<diji::GameObject>();
+                tempBound->AddComponents<diji::Transform>(center);
+                tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ static_cast<float>(len) * kTileSize, kTileSize });
+                const auto collider = tempBound->GetComponent<diji::Collider>();
+                collider->SetStatic(true);
+                // tempBound->AddComponents<diji::ShapeRender>();
+                collider->SetTag("ground");
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
+            }
+            else if (tile == 'e' || tile == 'x' || tile == 'y')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + + 25.f };
+
+                auto luckyBlock = std::make_unique<diji::GameObject>();
+                luckyBlock->AddComponents<diji::Transform>(500, 200);
+                luckyBlock->AddComponents<diji::SpriteRenderComponent>("graphics/luckyBlock.png", sf::Vector2i{ 50,50 }, 6, 0.135f);
+                luckyBlock->GetComponent<diji::SpriteRenderComponent>()->SetStartingFrameX(1);
+                luckyBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                const auto collider = luckyBlock->GetComponent<diji::Collider>();
+                collider->SetTag("luckyBlock");
+                collider->SetAffectedByGravity(false);
+                collider->SetIsMoveable(false);
+                
+                if (tile == 'e')
+                    luckyBlock->AddComponents<BaseBlock>(BaseBlock::ItemSpawnType::Coin);
+                if (tile == 'y')
+                    luckyBlock->AddComponents<PowerUpBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
+                if (tile == 'x')
+                    luckyBlock->AddComponents<PowerUpBlock>(BaseBlock::ItemSpawnType::PowerUp);
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_luckyBlock", std::move(luckyBlock), center);
+
+                ++col;
+            }
+            else if (tile == 'd' || tile == 'f' || tile == 'i' || tile == 'n' || tile == 't' || tile == 'u' || tile == 'v')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + + 25.f };
+            
+                auto breakableBlock = std::make_unique<diji::GameObject>();
+                breakableBlock->AddComponents<diji::Transform>(600, 300);
+                breakableBlock->AddComponents<diji::SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50, 50 }, 1, 0.0f);
+                breakableBlock->GetComponent<diji::SpriteRenderComponent>()->SetStartingFrameX(1);
+                breakableBlock->GetComponent<diji::SpriteRenderComponent>()->SetLooping(false);
+                breakableBlock->GetComponent<diji::SpriteRenderComponent>()->SkipStart();
+                breakableBlock->GetComponent<diji::SpriteRenderComponent>()->UpdateFrame();
+                breakableBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                const auto collider = breakableBlock->GetComponent<diji::Collider>();
+                collider->SetTag("breakBlock");
+                collider->SetAffectedByGravity(false);
+                collider->SetIsMoveable(false);
+
+                if (tile == 'd')
+                    breakableBlock->AddComponents<BreakableBlock>(BaseBlock::ItemSpawnType::None);
+                else if (tile == 'i')
+                    breakableBlock->AddComponents<StarBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
+                else if (tile == 'f')
+                    breakableBlock->AddComponents<MultiCoinBlock>(BaseBlock::ItemSpawnType::Coin);
+                else if (tile == 'n')
+                {
+                    breakableBlock->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+                    breakableBlock->GetComponent<diji::Collider>()->SetTag("HiddenBlock");
+                    breakableBlock->AddComponents<OneUpBlock>(BaseBlock::ItemSpawnType::OneUpMushroom);
+                }
+                else if (tile == 't')
+                {
+                    breakableBlock->AddComponents<HiddenBlock>(BaseBlock::ItemSpawnType::None);
+                    breakableBlock->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+                    breakableBlock->GetComponent<diji::Collider>()->SetTag("HiddenBlock");
+                }
+                else if (tile == 'u')
+                    breakableBlock->AddComponents<StarBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
+                else if (tile == 'v')
+                    breakableBlock->AddComponents<PowerUpBlock>(BaseBlock::ItemSpawnType::PowerUp);
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_breakableBlock", std::move(breakableBlock), center);
+                
+                ++col;
+            }
+            else if (tile == 'g' || tile == 'h')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
+
+                auto goomba = std::make_unique<diji::GameObject>();
+                goomba->AddComponents<diji::Transform>(2000, 0);
+                goomba->AddComponents<diji::SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
+                goomba->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                const auto collider = goomba->GetComponent<diji::Collider>();
+                collider->SetRestitution(0.f);
+                collider->SetMass(0.89f);
+                collider->SetStaticFriction(0.25f);
+                collider->SetKineticFriction(0.15f);
+                collider->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
+                collider->SetGenerateHitEvents(true);
+                collider->SetTag("enemy");
+                goomba->AddComponents<GoombaAI>();
+                goomba->GetComponent<GoombaAI>()->SetActivationMilestone(col - 20);
+                goomba->SetActive(false);
+
+                AddEnemyCollider(collider);
+
+                if (tile == 'h')
+                {
+                    center.x += 25.f;
+                    goomba->GetComponent<GoombaAI>()->SetActivationMilestone(col - 21);
+                }
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_Goomba", std::move(goomba), center);
+
+                ++col;
+            }
+            else if (tile == 'k')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
+            
+                auto pole = std::make_unique<diji::GameObject>();
+                pole->AddComponents<diji::Transform>(600, 300);
+                pole->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 24,  16 * 50 });
+                const auto collider = pole->GetComponent<diji::Collider>();
+                collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+                collider->SetTag("flagPole");
+                collider->SetAffectedByGravity(false);
+                collider->SetStatic(true);
+            
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_endPole", std::move(pole), center);
+
+                // create the flag
+                auto flag = std::make_unique<diji::GameObject>();
+                flag->AddComponents<diji::Transform>(600, 300);
+                flag->AddComponents<diji::TextureComp>("graphics/flag.png");
+                flag->AddComponents<diji::Render>();
+                flag->AddComponents<Flag>();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_flag", std::move(flag), center - sf::Vector2f{ 25, 100 });
+
+                // create the poleEnd
+                auto poleTop = std::make_unique<diji::GameObject>();
+                poleTop->AddComponents<diji::Transform>(600, 300);
+                poleTop->AddComponents<diji::TextureComp>("graphics/poleTop.png");
+                poleTop->AddComponents<diji::Render>();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_poleTop", std::move(poleTop), center - sf::Vector2f{ 0, 75.f });
+                
+                ++col;
+            }
+            else if (tile == 'l' || tile == 'm')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f - 100.f };
+            
+                auto castle = std::make_unique<diji::GameObject>();
+                castle->AddComponents<diji::Transform>(600, 300);
+                castle->AddComponents<diji::TextureComp>("graphics/smallCastle.png");
+                castle->AddComponents<diji::Render>();
+            
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("D_castle", std::move(castle), center);
+
+                auto castleFlag = std::make_unique<diji::GameObject>();
+                castleFlag->AddComponents<diji::Transform>(11000, 250);
+                castleFlag->AddComponents<diji::TextureComp>("graphics/castleFlag.png");
+                castleFlag->AddComponents<diji::Render>();
+                castleFlag->AddComponents<CastleFlag>();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("C_castleFlag", std::move(castleFlag), center + sf::Vector2f{ 0.f, -75.f });
+                
+                ++col;
+            }
+            else if (tile == 'o' || tile == 'p')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
+
+                auto koopa = std::make_unique<diji::GameObject>();
+                koopa->AddComponents<diji::Transform>(2200, 200);
+                koopa->AddComponents<diji::SpriteRenderComponent>("graphics/koopaTroopa.png", sf::Vector2i{ 50,75 }, 2, 0.15f);
+                koopa->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
+                const auto koopaCollider = koopa->GetComponent<diji::Collider>();
+                koopaCollider->SetRestitution(0.f);
+                koopaCollider->SetMass(0.89f);
+                koopaCollider->SetStaticFriction(0.25f);
+                koopaCollider->SetKineticFriction(0.15f);
+                koopaCollider->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
+                koopaCollider->SetGenerateHitEvents(true);
+                koopaCollider->SetTag("koopa");
+                koopa->AddComponents<KoopaTroopa>();
+                koopa->GetComponent<KoopaTroopa>()->SetActivationMilestone(col - 20);
+                koopa->SetActive(false);
+
+                if (tile == 'p')
+                {
+                    center.x += 25.f;
+                    koopa->GetComponent<KoopaTroopa>()->SetActivationMilestone(col - 21);
+                }
+                
+                AddEnemyCollider(koopaCollider);
+        
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_Koopa", std::move(koopa), center);
+                
+                ++col;
+            }
+            else if (tile == 'A' || tile == 'B' || tile == 'C' || tile == 'D' || tile == 'E' || tile == 'F')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
+                
+                int x = 0, y = 0;
+                switch (tile)
+                {
+                case 'D': x = 0; y = 2; break;
+                case 'E': x = 1; y = 2; break;
+                case 'F': x = 2; y = 2; break;
+                case 'A': x = 0; y = 3; break;
+                case 'B': x = 1; y = 3; break;
+                case 'C': x = 2; y = 3; break;
+                default: break;
+                }
+
+                auto foregroundTexture = std::make_unique<diji::GameObject>();
+                foregroundTexture->AddComponents<diji::Transform>(600, 300);
+                foregroundTexture->AddComponents<diji::SpriteRenderComponent>("graphics/tiles_sheet.png", sf::Vector2i{50, 50}, 1, 0.05f);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetFrameSize(sf::Vector2i{50, 50});
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetStartingFrame(x, y);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetTotalAnimationFrames(1);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetFrameDuration(0.01f);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetLooping(false);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->Pause();
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetCurrentAnimationFrame(0);
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->UpdateFrame();
+                foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SkipStart();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("ZZ_foregroundTexture", std::move(foregroundTexture), center);
+               ++col;
+            }
+            else if (tile == 'q')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
+                
+                auto staticCoin = std::make_unique<diji::GameObject>();
+                staticCoin->AddComponents<diji::Transform>(975, 275);
+                staticCoin->AddComponents<diji::SpriteRenderComponent>("graphics/staticCoin.png", sf::Vector2i{ 50, 50 }, 6, 0.135f);
+                staticCoin->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                const auto collider = staticCoin->GetComponent<diji::Collider>();
+                // collider->SetStatic(true); // todo: I have no idea why this causes crash at runtime when collected
+                collider->SetTag("coin");
+                collider->SetAffectedByGravity(false);
+                collider->SetIsMoveable(false);
+                collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+                staticCoin->AddComponents<StaticCoin>();
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("K_StaticCoin", std::move(staticCoin), center);
+
+                ++col;
+            }
+            else if (tile == 'r')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 25.f, bottom + 25.f };
+                
+                auto checkPoint = std::make_unique<diji::GameObject>();
+                checkPoint->AddComponents<diji::Transform>(1000, 275);
+                checkPoint->AddComponents<CheckPoint>();
+                checkPoint->GetComponent<CheckPoint>()->SetActivationMilestone(col);
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("E_checkPoint", std::move(checkPoint), center);
+
+                ++col;
+            }
+            else if (tile == 's')
+            {
+                const float left = static_cast<float>(col) * kTileSize;
+                const float bottom = static_cast<float>(row) * kTileSize;
+                sf::Vector2f center{ left + 50.f, bottom + 45.f };
+
+                auto piranhaPlant = std::make_unique<diji::GameObject>();
+                piranhaPlant->AddComponents<diji::Transform>(6000, 400);
+                piranhaPlant->AddComponents<diji::SpriteRenderComponent>("graphics/piranhaPlant.png", sf::Vector2i{ 50, 75 }, 2, 0.135f);
+                piranhaPlant->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
+                const auto collider = piranhaPlant->GetComponent<diji::Collider>();
+                collider->SetIsMoveable(false);
+                collider->SetTag("plant");
+                collider->SetAffectedByGravity(false);
+                collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+                piranhaPlant->AddComponents<PiranhaPlant>();
+                piranhaPlant->GetComponent<PiranhaPlant>()->SetActivationMilestone(col - 20);
+                piranhaPlant->SetActive(false);
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("BA_PiranhaPlant", std::move(piranhaPlant), center);
+
+                auto tempBound = std::make_unique<diji::GameObject>();
+                tempBound->AddComponents<diji::Transform>(center);
+                tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ kTileSize, kTileSize });
+                tempBound->GetComponent<diji::Collider>()->SetStatic(true);
+                tempBound->GetComponent<diji::Collider>()->SetTag("ground");
+
+                (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center - sf::Vector2f{25.f, 25.f});
+
+                ++col;
+            }
+            else
+            {
+                ++col;
+            }
+        }
+    }
+}
+
+void superMarioBros::GameManager::ClearListeners()
+{
+    OnNewLevelLoadedEvent.ClearAllListeners();
+    OnPlayerSwitchedEvent.ClearAllListeners();
+    OnScoreAddedEvent.ClearAllListeners();
+    OnCoinCollectedEvent.ClearAllListeners();
+    OnLevelClearedEvent.ClearAllListeners();
+}
