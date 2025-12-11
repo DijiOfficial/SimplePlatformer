@@ -41,7 +41,7 @@ void superMarioBros::GoombaAI::OnHitEvent(const diji::Collider* other, const dij
     if (diji::Helpers::isZero(hitInfo.normal.x))
         return;
 
-    m_Speed = -m_Speed;
+    m_Speed = (hitInfo.normal.x < 0.f) ? -std::abs(m_Speed) : std::abs(m_Speed);
 }
 
 void superMarioBros::GoombaAI::HandleBumpedBehavior(const bool isBumpingLeft, const bool addPoints)
