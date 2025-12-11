@@ -112,16 +112,16 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
     auto testCollider = [&](const Collider* col, const sf::FloatRect& rect)
     {
         // Slab method: x slabs
-        const float minX = rect.left;
-        const float maxX = rect.left + rect.width;
+        const float minX = rect.position.x;
+        const float maxX = rect.position.x + rect.size.x;
         const float t1 = (minX - origin.x) * invDir.x;
         const float t2 = (maxX - origin.x) * invDir.x;
         float tEnter = std::min(t1, t2);
         float tExit  = std::max(t1, t2);
 
         // y slabs
-        const float minY = rect.top;
-        const float maxY = rect.top + rect.height;
+        const float minY = rect.position.y;
+        const float maxY = rect.position.y + rect.size.y;
         const float t3 = (minY - origin.y) * invDir.y;
         const float t4 = (maxY - origin.y) * invDir.y;
         
@@ -175,8 +175,8 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
         if (!colliderPtr || !collider || colliderPtr == collider || collider->IsIgnoringCollider(colliderPtr))
             continue;
 
-        // if anyone can figure out why I need to use the local bounds and not the AABB here please tell me, I don't know what the fuck is going on
-        testCollider(colliderPtr, colliderPtr->GetShape()->GetLocalShapeBounds());
+        // testCollider(colliderPtr, colliderPtr->GetShape()->GetLocalShapeBounds());
+        testCollider(colliderPtr, aabb);
     }
 
     return closestHit;

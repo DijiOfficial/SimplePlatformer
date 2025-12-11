@@ -97,7 +97,7 @@ void thomasWasLate::KoopaTroopa::Kill(const bool isBumpingLeft, const bool)
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_kick.wav", false);
     
     diji::TimerManager::GetInstance().ClearTimer(m_TimerHandle);
-    m_TransformCompPtr->SetRotation(180.f);
+    m_TransformCompPtr->SetRotation(sf::degrees(180.f));
     m_SpriteRenderCompPtr->SetStartingFrame(4, 0);
     m_SpriteRenderCompPtr->SetTotalAnimationFrames(0);
     m_SpriteRenderCompPtr->SetFrameDuration(0.1f);

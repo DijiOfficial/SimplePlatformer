@@ -70,8 +70,8 @@ void diji::Sprite::GenerateMap()
     const int tilesY = m_MaxHeight / m_TileSize;
 
     const auto& wall = m_WallSpritePosition;
-    const sf::Vector2f wallTopLeft = sf::Vector2f{ wall.left, wall.top };
-    const sf::Vector2f wallBottomRight = sf::Vector2f{ wall.left + wall.width, wall.height };
+    const sf::Vector2f wallTopLeft = sf::Vector2f{ wall.position.x, wall.position.y };
+    const sf::Vector2f wallBottomRight = sf::Vector2f{ wall.position.x + wall.size.x, wall.size.y };
 
     // Helper lambdas
     auto SetVertices = [](sf::Vertex* quad, float left, float top, float right, float bottom)
@@ -136,7 +136,7 @@ void diji::Sprite::GenerateMap()
                     {
                         // else generate a random terrain tile
                         const int randX = RandNumber::GetRandomRangeInt(0, m_TileCountX - 1);
-                        const int maxTerrainY = static_cast<int>(wall.top / static_cast<float>(m_TileSize)) - 1;
+                        const int maxTerrainY = static_cast<int>(wall.position.y / static_cast<float>(m_TileSize)) - 1;
                         const int randY = RandNumber::GetRandomRangeInt(0, maxTerrainY);
                         
                         sf::Vector2f terrainTopLeft  = { static_cast<float>(randX * m_TileSize), static_cast<float>(randY * m_TileSize) };

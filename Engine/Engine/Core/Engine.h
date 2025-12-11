@@ -7,7 +7,7 @@
 namespace window
 {
 	inline std::unique_ptr<sf::RenderWindow> g_window_ptr{};
-	inline sf::Vector2u VIEWPORT = sf::Vector2u{ sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height };
+	inline sf::Vector2u VIEWPORT = sf::Vector2u{ sf::VideoMode::getDesktopMode().size.x, sf::VideoMode::getDesktopMode().size.y };
 }
 
 namespace diji

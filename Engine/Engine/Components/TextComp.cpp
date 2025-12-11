@@ -6,11 +6,10 @@
 
 diji::TextComp::TextComp(GameObject* ownerPtr, const std::string& text, const std::string& filename, const sf::Color& color, const bool isCentered)
 	: Component(ownerPtr)
+	, m_Font{ ResourceManager::GetInstance().LoadFont(filename) }
+	, m_Text{ m_Font }
 	, m_IsCentered{ isCentered }
 {
-	m_Font = ResourceManager::GetInstance().LoadFont(filename);
-
-	m_Text.setFont(m_Font);
 	m_Text.setString(text);
 	m_Text.setFillColor(color);
 }

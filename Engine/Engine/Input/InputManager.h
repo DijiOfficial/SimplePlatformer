@@ -4,7 +4,6 @@
 #include "GameActorCommand.h"
 
 #include <ranges>
-// #include <map>
 #include <map>
 #include <optional>
 #include <variant>
@@ -41,7 +40,7 @@ namespace diji
     class Input final
     {
     public:
-        typedef std::variant<sf::Keyboard::Key, sf::Mouse::Button, Controller::Button> InputType;
+        typedef std::variant<sf::Keyboard::Scancode, sf::Mouse::Button, Controller::Button> InputType;
 
         explicit Input(const InputType input)
             : m_Input{ input }
@@ -104,8 +103,8 @@ namespace diji
         sf::RenderWindow* m_WindowPtr = nullptr;
         
         // Keyboard state tracking
-        std::unordered_map<sf::Keyboard::Key, bool> m_KeyPressedState;
-        std::unordered_map<sf::Keyboard::Key, bool> m_KeyHeldState;
+        std::unordered_map<sf::Keyboard::Scancode, bool> m_KeyPressedState;
+        std::unordered_map<sf::Keyboard::Scancode, bool> m_KeyHeldState;
 
         // Mouse state tracking
         std::unordered_map<sf::Mouse::Button, bool> m_MousePressedState;
@@ -153,7 +152,7 @@ namespace diji
         std::unordered_map<int, std::unordered_map<Controller::Button, bool, ControllerButtonHash>> m_ControllerHeldState;
         
         template <typename InputEnum>
-        void HandleInputForPlayer(const PlayerIdx playerIdx, const KeyState state, const InputEnum input)
+        void HandleInputOfPlayer(const PlayerIdx playerIdx, const KeyState state, const InputEnum input)
         {
             const CommandKey key{ state, input };
 
@@ -177,18 +176,18 @@ namespace diji
         {
             if (!event) return;
 
-            if (event->type == sf::Event::KeyPressed)
+            if (const auto* pressedEvent = event->getIf<PressedEvent>())
             {
-                const CodeType& code = event->key.*pressedMember;
+                const CodeType& code = pressedEvent->*pressedMember;
 
                 if (!heldMap[code])
                     pressedMap[code] = true;
 
                 heldMap[code] = true;
             }
-            else if (event->type == sf::Event::KeyReleased)
+            else if (const auto* releasedEvent = event->getIf<ReleasedEvent>())
             {
-                const CodeType& code = event->key.*releasedMember;
+                const CodeType& code = releasedEvent->*releasedMember;
 
                 pressedMap[code] = false;
                 heldMap[code] = false;
@@ -200,12 +199,12 @@ namespace diji
         {
             for (const auto& [input, isPressed] : pressedInputMap | std::views::filter([](const auto& pair) { return pair.second; }))
             {
-                HandleInputForPlayer(PlayerIdx::KEYBOARD, KeyState::PRESSED, Input::InputType{input});
+                HandleInputOfPlayer(PlayerIdx::KEYBOARD, KeyState::PRESSED, input);
             }
 
             for (const auto& [input, isHeld] : heldInputMap | std::views::filter([](const auto& pair) { return pair.second; }))
             {
-                HandleInputForPlayer(PlayerIdx::KEYBOARD, KeyState::HELD, Input::InputType{input});
+                HandleInputOfPlayer(PlayerIdx::KEYBOARD, KeyState::HELD, input);
             }
         }
         

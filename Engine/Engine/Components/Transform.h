@@ -44,8 +44,8 @@ namespace diji
 		void SetTarget(const GameObject* target);
 		[[nodiscard]] Transform* GetTarget() const { return m_Target; }
 
-		[[nodiscard]] float GetRotation() const { return m_Rotation; }
-		void SetRotation(const float angle) { m_Rotation = angle; }
+		[[nodiscard]] sf::Angle GetRotation() const { return m_Rotation; }
+		void SetRotation(const sf::Angle& angle) { m_Rotation = angle; }
 		
 	private:
 		sf::Vector2f m_Position;
@@ -55,7 +55,7 @@ namespace diji
 		Transform* m_Target = nullptr;
 		TimeSingleton& m_TimeSingleton = TimeSingleton::GetInstance();
 
-		float m_Rotation = 0.f;
+		sf::Angle m_Rotation = sf::degrees(0.0f);
 
 		void UpdateColliderPosition() const;
 	};

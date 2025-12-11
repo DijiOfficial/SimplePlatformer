@@ -27,8 +27,8 @@ const std::vector<int> mario::MarioHelpers::s_StompPointsTable =
 
 bool mario::MarioHelpers::DoesPlayerHitBottomOfBlock(const sf::Vector2f& playerCenter, const sf::FloatRect& blockAABB, const sf::Vector2f& normal)
 {
-    const sf::Vector2f blockCenter{ blockAABB.left + blockAABB.width * 0.5f, blockAABB.top  + blockAABB.height * 0.5f };
-    const sf::Vector2f halfExtents{ blockAABB.width * 0.5f, blockAABB.height * 0.5f };
+    const sf::Vector2f blockCenter{ blockAABB.position.x + blockAABB.size.x * 0.5f, blockAABB.position.y  + blockAABB.size.y * 0.5f };
+    const sf::Vector2f halfExtents{ blockAABB.size.x * 0.5f, blockAABB.size.y * 0.5f };
 
     const sf::Vector2f normalizedNormal = diji::Helpers::Normalize(normal);
     const sf::Vector2f tangent{ -normalizedNormal.y, normalizedNormal.x };

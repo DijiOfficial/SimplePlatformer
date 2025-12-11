@@ -52,7 +52,7 @@ void thomasWasLate::BaseEnemy::CheckActivation(const int milestone) const
 void thomasWasLate::BaseEnemy::SpawnPointsText(const std::string& score) const
 {
     const auto& pos = m_TransformCompPtr->GetPosition();
-    const auto& yOffset = m_ColliderCompPtr->GetShape()->GetAABB().getSize().y * 3.f;
+    const auto& yOffset = m_ColliderCompPtr->GetShape()->GetAABB().size.y * 3.f;
     const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
     GameManager::SpawnPointsText(scorePos, score);
 }

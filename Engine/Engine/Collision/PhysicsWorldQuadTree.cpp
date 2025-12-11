@@ -112,16 +112,16 @@
 //     auto testCollider = [&](const Collider* col, const sf::FloatRect& rect)
 //     {
 //         // Slab method: x slabs
-//         const float minX = rect.left;
-//         const float maxX = rect.left + rect.width;
+//         const float minX = rect.position.x;
+//         const float maxX = rect.position.x + rect.size.x;
 //         const float t1 = (minX - origin.x) * invDir.x;
 //         const float t2 = (maxX - origin.x) * invDir.x;
 //         float tEnter = std::min(t1, t2);
 //         float tExit  = std::max(t1, t2);
 //
 //         // y slabs
-//         const float minY = rect.top;
-//         const float maxY = rect.top + rect.height;
+//         const float minY = rect.position.y;
+//         const float maxY = rect.position.y + rect.size.y;
 //         const float t3 = (minY - origin.y) * invDir.y;
 //         const float t4 = (maxY - origin.y) * invDir.y;
 //         
@@ -754,13 +754,13 @@
 //     float minX=0,minY=0,maxX=0,maxY=0;
 //     auto expand = [&](const sf::FloatRect& r){
 //         if (first) {
-//             minX = r.left; minY = r.top; maxX = r.left + r.width; maxY = r.top + r.height;
+//             minX = r.position.x; minY = r.position.y; maxX = r.position.x + r.size.x; maxY = r.position.y + r.size.y;
 //             first = false;
 //         } else {
-//             minX = std::min(minX, r.left);
-//             minY = std::min(minY, r.top);
-//             maxX = std::max(maxX, r.left + r.width);
-//             maxY = std::max(maxY, r.top + r.height);
+//             minX = std::min(minX, r.position.x);
+//             minY = std::min(minY, r.position.y);
+//             maxX = std::max(maxX, r.position.x + r.size.x);
+//             maxY = std::max(maxY, r.position.y + r.size.y);
 //         }
 //     };
 //

@@ -30,7 +30,7 @@ namespace diji
         [[nodiscard]] virtual const sf::Shape& GetShape() const = 0;
         [[nodiscard]] virtual sf::FloatRect GetLocalShapeBounds() const = 0;
         virtual void SetPosition(const sf::Vector2f& pos) = 0;
-        virtual void SetRotation(float angleDeg) = 0;
+        virtual void SetRotation(const sf::Angle& angleDeg) = 0;
 
         // figure out how to restrict these functions so they can only be called through the collider class
         virtual void Resize(const sf::Vector2f&) {}
@@ -42,8 +42,8 @@ namespace diji
         void UpdateAABB(const sf::Vector2f& pos) // todo: not necessary?
         {
             m_AABB = GetLocalShapeBounds();
-            m_AABB.left = pos.x;
-            m_AABB.top = pos.y;
+            m_AABB.position.x = pos.x;
+            m_AABB.position.y = pos.y;
         }
 
         void UpdateAABB(const float x, const float y) { UpdateAABB(sf::Vector2f{x, y}); }
@@ -73,7 +73,7 @@ namespace diji
             , m_Circle{ radius }
         {
             // Center origin to make AABB centered by default (common for physics)
-            m_Circle.setOrigin(radius, radius);
+            m_Circle.setOrigin(sf::Vector2f{ radius, radius });
         }
 
         [[nodiscard]] const sf::Shape& GetShape() const override { return m_Circle; }
@@ -82,7 +82,7 @@ namespace diji
         void CollideWith(std::vector<CollisionInfo>&, const sf::FloatRect&, const sf::FloatRect&) override {}
 
         void SetPosition(const sf::Vector2f& pos) override { m_Circle.setPosition(pos); }
-        void SetRotation(const float angleDeg) override { m_Circle.setRotation(angleDeg); }
+        void SetRotation(const sf::Angle& angleDeg) override { m_Circle.setRotation(angleDeg); }
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const override;
 
     protected:
@@ -102,7 +102,7 @@ namespace diji
             , m_Rect{ size }
         {
             // center origin
-            m_Rect.setOrigin(size.x * 0.5f, size.y * 0.5f);
+            m_Rect.setOrigin(sf::Vector2f{ size.x * 0.5f, size.y * 0.5f });
         }
 
         [[nodiscard]] const sf::Shape& GetShape() const override { return m_Rect; }
@@ -114,12 +114,12 @@ namespace diji
         void HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&) override;
         void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override;
         void SetPosition(const sf::Vector2f& pos) override { m_Rect.setPosition(pos); }
-        void SetRotation(const float angleDeg) override { m_Rect.setRotation(angleDeg); }
+        void SetRotation(const sf::Angle& angleDeg) override { m_Rect.setRotation(angleDeg); }
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const override;
         void Resize(const sf::Vector2f& size) override
         {
             m_Rect.setSize(size);
-            m_Rect.setOrigin(size.x * 0.5f, size.y * 0.5f);
+            m_Rect.setOrigin(sf::Vector2f{ size.x * 0.5f, size.y * 0.5f });
         }
 
     private:
@@ -153,7 +153,7 @@ namespace diji
         void HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&) override {}
         void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override {}
         void SetPosition(const sf::Vector2f& pos) override { m_Triangle.setPosition(pos); }
-        void SetRotation(const float angleDeg) override { m_Triangle.setRotation(angleDeg); }
+        void SetRotation(const sf::Angle& angleDeg) override { m_Triangle.setRotation(angleDeg); }
 
     private:
         sf::ConvexShape m_Triangle;

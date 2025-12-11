@@ -19,8 +19,8 @@ void thomasWasLate::CameraClamping::Init()
 void thomasWasLate::CameraClamping::Start()
 {
     m_Arena = m_CameraPtr->GetLevelBoundaries();
-    m_LastArenaPosX = m_Arena.left;
-    m_PlayerHalfWidth = GetOwner()->GetComponent<diji::Collider>()->GetShape()->GetAABB().width * 0.5f;
+    m_LastArenaPosX = m_Arena.position.x;
+    m_PlayerHalfWidth = GetOwner()->GetComponent<diji::Collider>()->GetShape()->GetAABB().size.x * 0.5f;
 }
 
 void thomasWasLate::CameraClamping::LateUpdate()
@@ -32,15 +32,15 @@ void thomasWasLate::CameraClamping::LateUpdate()
 
     // compute desired camera-left based on player position and clamp it to previous arena boundaries
     float desiredLeft = playerX - viewHalf;
-    const float minLeft = m_Arena.left;
-    const float maxLeft = m_Arena.left + m_Arena.width - viewWidth;
+    const float minLeft = m_Arena.position.x;
+    const float maxLeft = m_Arena.position.x + m_Arena.size.x - viewWidth;
     desiredLeft = std::clamp(desiredLeft, minLeft, maxLeft);
 
     m_LastArenaPosX = std::max(m_LastArenaPosX, desiredLeft);
 
     // New camera bounding rect (left, top, remaining width, height)
-    const float remainingWidth = (m_Arena.left + m_Arena.width) - m_LastArenaPosX;
-    const sf::FloatRect newBounds{ m_LastArenaPosX, m_Arena.top, remainingWidth, m_Arena.height };
+    const float remainingWidth = (m_Arena.position.x + m_Arena.size.x) - m_LastArenaPosX;
+    const sf::FloatRect newBounds{ sf::Vector2f{ m_LastArenaPosX, m_Arena.position.y }, sf::Vector2f{ remainingWidth, m_Arena.size.y } };
     m_CameraPtr->SetLevelBoundaries(newBounds);
 
     // Clamp player X so it stays inside the view

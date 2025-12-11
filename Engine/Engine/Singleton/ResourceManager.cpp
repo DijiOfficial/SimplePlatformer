@@ -42,7 +42,7 @@ sf::Font& diji::ResourceManager::LoadFont(const std::string& file)
 	
 	// Store it if it's not already loaded
 	sf::Font tempFont;
-	if (!tempFont.loadFromFile(fullPath))
+	if (!tempFont.openFromFile(fullPath))
 	{
 		throw std::runtime_error("Failed to load font: " + fullPath);
 	}
@@ -92,7 +92,7 @@ sf::Shader& diji::ResourceManager::LoadShader(const std::string& vertexFile, con
 
 	auto shaderPtr = std::make_unique<sf::Shader>();
 	const bool success = vertexFile.empty()
-		? shaderPtr->loadFromFile(fullFragPath, sf::Shader::Fragment)
+		? shaderPtr->loadFromFile(fullFragPath, sf::Shader::Type::Fragment)
 		: shaderPtr->loadFromFile(fullVertPath, fullFragPath);
 
 	if (!success)

@@ -8,22 +8,22 @@ using Node = diji::BVHTree::Node;
 
 sf::FloatRect diji::BVHTree::MergeAABB(const sf::FloatRect& a, const sf::FloatRect& b)
 {
-    float left = std::min(a.left, b.left);
-    float top = std::min(a.top, b.top);
-    float right = std::max(a.left + a.width, b.left + b.width);
-    float bottom = std::max(a.top + a.height, b.top + b.height);
-    return sf::FloatRect(left, top, right - left, bottom - top);
+    const float left = std::min(a.position.x, b.position.x);
+    const float top = std::min(a.position.y, b.position.y);
+    const float right = std::max(a.position.x + a.size.x, b.position.x + b.size.x);
+    const float bottom = std::max(a.position.y + a.size.y, b.position.y + b.size.y);
+    return sf::FloatRect{ sf::Vector2f{ left, top }, sf::Vector2f{ right - left, bottom - top } };
 }
 
 float diji::BVHTree::Area(const sf::FloatRect& r)
 {
-    return r.width * r.height;
+    return r.size.x * r.size.y;
 }
 
 bool diji::BVHTree::Overlap(const sf::FloatRect& a, const sf::FloatRect& b)
 {
-    return !(a.left + a.width < b.left || b.left + b.width < a.left ||
-             a.top + a.height < b.top || b.top + b.height < a.top);
+    return !(a.position.x + a.size.x < b.position.x || b.position.x + b.size.x < a.position.x ||
+             a.position.y + a.size.y < b.position.y || b.position.y + b.size.y < a.position.y);
 }
 
 void diji::BVHTree::BuildFromAABBs(const std::vector<sf::FloatRect>& aabbs)
@@ -40,7 +40,7 @@ void diji::BVHTree::BuildFromAABBs(const std::vector<sf::FloatRect>& aabbs)
         Item it;
         it.index = i;
         it.aabb = aabbs[i];
-        it.center = { aabbs[i].left + aabbs[i].width * 0.5f, aabbs[i].top + aabbs[i].height * 0.5f };
+        it.center = { aabbs[i].position.x + aabbs[i].size.x * 0.5f, aabbs[i].position.y + aabbs[i].size.y * 0.5f };
         items.push_back(it);
     }
 
@@ -75,8 +75,8 @@ void diji::BVHTree::BuildFromAABBs(const std::vector<sf::FloatRect>& aabbs)
         for (int i = start + 1; i < end; ++i)
             bounds = MergeAABB(bounds, localItems[i].aabb);
 
-        float width = bounds.width;
-        float height = bounds.height;
+        float width = bounds.size.x;
+        float height = bounds.size.y;
         int axis = (width >= height) ? 0 : 1; // 0 = x, 1 = y
 
         // Partition by median of centers
@@ -156,15 +156,15 @@ int diji::BVHTree::RaycastFirst(const sf::Vector2f& origin, const sf::Vector2f& 
 
     auto slabTest = [&](const sf::FloatRect& r) -> bool
     {
-        const float minX = r.left;
-        const float maxX = r.left + r.width;
+        const float minX = r.position.x;
+        const float maxX = r.position.x + r.size.x;
         const float t1 = (minX - origin.x) * invDir.x;
         const float t2 = (maxX - origin.x) * invDir.x;
         float tEnter = std::min(t1, t2);
         float tExit  = std::max(t1, t2);
 
-        const float minY = r.top;
-        const float maxY = r.top + r.height;
+        const float minY = r.position.y;
+        const float maxY = r.position.y + r.size.y;
         const float t3 = (minY - origin.y) * invDir.y;
         const float t4 = (maxY - origin.y) * invDir.y;
         tEnter = std::max(tEnter, std::min(t3, t4));

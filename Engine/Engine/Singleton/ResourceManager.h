@@ -2,6 +2,7 @@
 #include "Singleton.h"
 // #include "Music.h"
 
+#include <map>
 #include <memory>
 #include <string>
 #include <unordered_map>

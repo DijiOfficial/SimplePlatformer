@@ -33,17 +33,17 @@ namespace diji
 		void Render() const;
 		void Destroy();
 		
-		void RenderTexture(const sf::Texture& texture, const sf::Vector2f& origin, float rotation, float x, float y, float scaleX = 1, float scaleY = 1) const;
-		void RenderTexture(const sf::Texture& texture, const sf::Vector2f& origin, float rotation, float x, float y, float scale = 1) const;
-		void RenderTexture(const sf::Texture& texture, const sf::Vector2f& origin, float rotation, float x, float y, int width, int height) const;
+		void RenderTexture(const sf::Texture& texture, const sf::Vector2f& origin, const sf::Angle& rotation, float x, float y, float scaleX = 1, float scaleY = 1) const;
+		void RenderTexture(const sf::Texture& texture, const sf::Vector2f& origin, const sf::Angle& rotation, float x, float y, float scale = 1) const;
+		void RenderTexture(const sf::Texture& texture, const sf::Vector2f& origin, const sf::Angle& rotation, float x, float y, int width, int height) const;
 		void RenderVertexArray(const sf::Texture& texture, const sf::VertexArray& vertexArray) const;
 		
 		void RenderText(sf::Text& text, float x, float y, float scaleX = 1, float scaleY = 1, bool isCentered = false) const;
 		void RenderText(sf::Text& text, float x, float y, float scale = 1, bool isCentered = false) const;
 		void RenderText(sf::Text& text, float x, float y, int width, int height, bool isCentered = false) const;
-		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, float angle, float scaleX = 1, float scaleY = 1) const;
-		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, float angle, float scale = 1) const;
-		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, int width, int height, float angle) const;
+		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, const sf::Angle& angle, float scaleX = 1, float scaleY = 1) const;
+		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, const sf::Angle& angle, float scale = 1) const;
+		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, int width, int height, const sf::Angle& angle) const;
 		
 		// todo: unecessary fucntions?
 		void DrawRect(const sf::RectangleShape& shape, const sf::Color& outline, const sf::Color& fill, float outlineWidth = 1.f) const;

@@ -43,7 +43,7 @@ void thomasWasLate::FireBall::Init()
 
 void thomasWasLate::FireBall::LateUpdate()
 {
-    if (m_CameraPtr->GetViewBounds().intersects(m_ColliderCompPtr->GetAABB())) return;
+    if (m_CameraPtr->GetViewBounds().findIntersection(m_ColliderCompPtr->GetAABB())) return;
 
     Destroy();
 }

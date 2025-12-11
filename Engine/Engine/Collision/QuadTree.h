@@ -68,10 +68,10 @@ namespace diji
         // Helper: does rect A fully fit inside rect B?
         static bool FitsIn(const sf::FloatRect& inner, const sf::FloatRect& outer)
         {
-            return (inner.left >= outer.left) &&
-                   (inner.top >= outer.top) &&
-                   (inner.left + inner.width <= outer.left + outer.width) &&
-                   (inner.top + inner.height <= outer.top + outer.height);
+            return (inner.position.x >= outer.position.x) &&
+                   (inner.position.y >= outer.position.y) &&
+                   (inner.position.x + inner.size.x <= outer.position.x + outer.size.x) &&
+                   (inner.position.y + inner.size.y <= outer.position.y + outer.size.y);
         }
 
     private:
@@ -114,10 +114,10 @@ namespace diji
     void QuadTree<T>::Subdivide()
     {
         // create four children with same capacity and with depth incremented
-        const float hw = m_Bounds.width * 0.5f;
-        const float hh = m_Bounds.height * 0.5f;
-        const float x = m_Bounds.left;
-        const float y = m_Bounds.top;
+        const float hw = m_Bounds.size.x * 0.5f;
+        const float hh = m_Bounds.size.y * 0.5f;
+        const float x = m_Bounds.position.x;
+        const float y = m_Bounds.position.y;
 
         sf::FloatRect rectNW(x,       y,       hw, hh);
         sf::FloatRect rectNE(x + hw,  y,       hw, hh);

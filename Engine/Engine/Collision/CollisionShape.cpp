@@ -65,14 +65,14 @@ void diji::Rect::CollideWith(std::vector<CollisionInfo>& collisionsVec, const Ph
 void diji::Rect::CollideWith(std::vector<CollisionInfo>& collisionsVec, const sf::FloatRect& staticAABB, const sf::FloatRect& predictedAABB)
 {
     // This only works for non-rotated rectangles (AABB)
-    const float leftA   = predictedAABB.left;
+    const float leftA   = predictedAABB.position.x;
     const float rightA  = PhysicsWorld::Right(predictedAABB);
-    const float topA    = predictedAABB.top;
+    const float topA    = predictedAABB.position.y;
     const float bottomA = PhysicsWorld::Bottom(predictedAABB);
 
-    const float leftB   = staticAABB.left;
+    const float leftB   = staticAABB.position.x;
     const float rightB  = PhysicsWorld::Right(staticAABB);
-    const float topB    = staticAABB.top;
+    const float topB    = staticAABB.position.y;
     const float bottomB = PhysicsWorld::Bottom(staticAABB);
     
     const float overlapX = std::min(rightA, rightB) - std::max(leftA, leftB);
@@ -219,10 +219,10 @@ void diji::Rect::HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld
 sf::Vector2f diji::Rect::GetSurfaceNormalAt(const sf::Vector2f& point) const
 {
     // Compute distances to each face
-    float leftDist   =  point.x - m_AABB.left;
-    float rightDist  = m_AABB.left + m_AABB.width - point.x;
-    float topDist    =  point.y - m_AABB.top;
-    float bottomDist = m_AABB.top  + m_AABB.height - point.y;
+    float leftDist   =  point.x - m_AABB.position.x;
+    float rightDist  = m_AABB.position.x + m_AABB.size.x - point.x;
+    float topDist    =  point.y - m_AABB.position.y;
+    float bottomDist = m_AABB.position.y  + m_AABB.size.y - point.y;
 
     // Find the minimal penetration axis
     const float minDist = std::min({ leftDist, rightDist, topDist, bottomDist });

@@ -51,7 +51,7 @@ void thomasWasLate::GoombaAI::HandleBumpedBehavior(const bool isBumpingLeft, con
     
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_kick.wav", false);
 
-    m_TransformCompPtr->SetRotation(180.f);
+    m_TransformCompPtr->SetRotation(sf::degrees(180.f));
     GetOwner()->GetComponent<diji::SpriteRenderComponent>()->Pause();
     
     const sf::Vector2f impulse = isBumpingLeft ? sf::Vector2f{-300.f, -1200.f} : sf::Vector2f{300.f, -1200.f};

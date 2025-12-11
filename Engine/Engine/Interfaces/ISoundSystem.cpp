@@ -11,7 +11,6 @@ namespace diji
 
 	void SFMLISoundSystem::PlayAudio(const std::string& audio, const bool isMusic, const int volume)
 	{
-
 		if (audio == "invalid")
 			return;
 
@@ -26,7 +25,7 @@ namespace diji
 			auto& soundEffect = ResourceManager::GetInstance().LoadSoundEffect(audio);
 			m_LastMusicPlayed = audio;
 
-			soundEffect.setLoop(true);
+			soundEffect.setLooping(true);
 			soundEffect.setVolume(static_cast<float>(volume));
 			soundEffect.play();
 			return;

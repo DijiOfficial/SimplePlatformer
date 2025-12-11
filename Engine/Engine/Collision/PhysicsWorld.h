@@ -50,8 +50,8 @@ namespace diji
 			bool Hit;
 		};
 
-		static float Right(const sf::FloatRect& r)  { return r.left + r.width; }
-		static float Bottom(const sf::FloatRect& r) { return r.top  + r.height; }
+		static float Right(const sf::FloatRect& r)  { return r.position.x + r.size.x; }
+		static float Bottom(const sf::FloatRect& r) { return r.position.y  + r.size.y; }
 
 		std::optional<RaycastHit> Raycast(const sf::Vector2f& origin, const sf::Vector2f& direction, float maxDistance, const Collider* collider = nullptr) const;
 
@@ -86,10 +86,10 @@ namespace diji
 		// Collision detection/resolution
 		static bool AABBOverlap(const sf::FloatRect& a, const sf::FloatRect& b)
 		{
-			return !(Right(a) <= b.left ||
-					 Right(b) <= a.left ||
-					 Bottom(a) <= b.top ||
-					 Bottom(b) <= a.top);
+			return !(Right(a) <= b.position.x ||
+					 Right(b) <= a.position.x ||
+					 Bottom(a) <= b.position.y ||
+					 Bottom(b) <= a.position.y);
 		}
 		
 		void PredictMovement(std::vector<Prediction>& predictionsVec) const;

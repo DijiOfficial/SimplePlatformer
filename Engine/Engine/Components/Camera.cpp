@@ -82,10 +82,8 @@ sf::FloatRect diji::Camera::GetViewBounds() const
 
     return sf::FloatRect
     {
-        center.x - size.x * 0.5f,
-        center.y - size.y * 0.5f,
-        size.x,
-        size.y
+        sf::Vector2f{ center.x - size.x * 0.5f, center.y - size.y * 0.5f },
+        sf::Vector2f{ size.x, size.y }
     };
 }
 
@@ -95,20 +93,20 @@ void diji::Camera::Clamp(sf::Vector2f& pos) const
     const float halfWidth = m_Width * 0.5f;
     const float halfHeight = m_Height * 0.5f;
 
-    const float levelLeft   = m_LevelBoundaries.left;
-    const float levelTop    = m_LevelBoundaries.top;
-    const float levelRight  = levelLeft + m_LevelBoundaries.width;
-    const float levelBottom = levelTop + m_LevelBoundaries.height;
+    const float levelLeft   = m_LevelBoundaries.position.x;
+    const float levelTop    = m_LevelBoundaries.position.y;
+    const float levelRight  = levelLeft + m_LevelBoundaries.size.x;
+    const float levelBottom = levelTop + m_LevelBoundaries.size.y;
 
     float minX = levelLeft + halfWidth;
     float maxX = levelRight - halfWidth;
     float minY = levelTop + halfHeight;
     float maxY = levelBottom - halfHeight;
 
-    if (m_LevelBoundaries.width < m_Width)
-        minX = maxX = levelLeft + m_LevelBoundaries.width * 0.5f;
-    if (m_LevelBoundaries.height < m_Height)
-        minY = maxY = levelTop + m_LevelBoundaries.height * 0.5f;
+    if (m_LevelBoundaries.size.x < m_Width)
+        minX = maxX = levelLeft + m_LevelBoundaries.size.x * 0.5f;
+    if (m_LevelBoundaries.size.y < m_Height)
+        minY = maxY = levelTop + m_LevelBoundaries.size.y * 0.5f;
 
     pos.x = std::clamp(pos.x, minX, maxX);
     pos.y = std::clamp(pos.y, minY, maxY);

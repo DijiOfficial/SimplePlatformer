@@ -47,7 +47,7 @@ namespace diji
 		void SetScale(float scale);
 		void SetWidth(int width);
 		void SetHeight(int height);
-		void SetRotationAngle(const float angle) { m_RotationAngle = angle; }
+		void SetRotationAngle(const sf::Angle& angle) { m_RotationAngle = angle; }
 		void SetOrigin(const sf::Vector2f& origin) { m_Origin = origin; }
 		void SetOrigin(float x, float y) { m_Origin = { x, y }; }
 		void SetOriginToCenter();
@@ -56,7 +56,7 @@ namespace diji
 		int GetHeight() const;
 		float GetScaleX() const { return m_ScaleX; }
 		float GetScaleY() const { return m_ScaleY; }
-		float GetRotationAngle() const { return m_RotationAngle; }
+		sf::Angle GetRotationAngle() const { return m_RotationAngle; }
 		sf::Vector2f GetOrigin() const { return m_Origin; }
 		sf::Vector2u GetSize() const;
 		bool IsCentered() const { return m_IsCentered; }
@@ -66,7 +66,7 @@ namespace diji
 		std::string m_FilePath;
 		sf::Vector2f m_Origin = { 0.f, 0.f };
 		
-		float m_RotationAngle = 0.f;
+		sf::Angle m_RotationAngle = sf::degrees(0.0f);
 		float m_ScaleX = 1;
 		float m_ScaleY = 1;
 
