@@ -3,6 +3,7 @@
 #include "CollisionDispatcher.h"
 #include "../Singleton/Helpers.h"
 #include "../Core/GameObject.h"
+#include "QuadTree.h"
 
 #include <stdexcept>
 
@@ -13,12 +14,16 @@ void diji::PhysicsWorld::Reset()
     m_ActiveTriggers = std::vector<TriggerPair>();
     m_PreviousFrameTriggers = std::vector<TriggerPair>();
     m_HitEventTriggers = std::vector<TriggerPair>();
+    m_WorldBounds = sf::FloatRect();
+    m_QuadTree = std::make_unique<QuadTree>(m_WorldBounds);
 }
 
 void diji::PhysicsWorld::AddCollider(Collider* collider)
 {
     if (!collider)
         throw std::runtime_error("Ya done did fucked up");
+
+    UpdateWorldBounds(collider->GetAABB());
 
     if (collider->IsStatic())
     {
@@ -61,7 +66,6 @@ void diji::PhysicsWorld::FixedUpdate()
     std::vector<Prediction> predictionsVec;
     PredictMovement(predictionsVec);
 
-    // todo: Spatial partitioning here
     // todo: Massive issue with rect colliders and composed ground colliders, where colliders moving along the ground get stopped on seams because the collider is getting pushed back instead of up
     // Phase 2: Detect collisions using predicted positions
     DetectCollisions(predictionsVec);
@@ -332,6 +336,126 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         }
     }
 }
+
+// todo: ultimately this model is too slow, from the creation of the quadtree to avoiding duplicate checks it doesn't work well
+// void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVec)
+// {
+//     std::unordered_set<std::pair<const Collider*, const Collider*>, PairHash> testedPairs;
+//     testedPairs.reserve(1024);
+//     
+//     if (!m_QuadTree)
+//         m_QuadTree = std::make_unique<QuadTree>(m_WorldBounds);
+//     
+//     std::unordered_map<const Collider*, size_t> predictionIndex;
+//     predictionIndex.reserve(predictionsVec.size());
+//     for (size_t i = 0; i < predictionsVec.size(); ++i)
+//     {
+//         predictionIndex.emplace(predictionsVec[i].collider, i);
+//     }
+//
+//     auto makePair = [](const Collider* a, const Collider* b)
+//     {
+//         return (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
+//     };
+//
+//     // Query quadtree for clusters containing both dynamic and static colliders
+//     const auto clusters = m_QuadTree->Query(m_DynamicColliders, m_StaticInfos);
+//
+//     // For each cluster, first test dynamic-dynamic pairs, then dynamic-static pairs
+//     for (const auto& [dynamic, statics] : clusters)
+//     {
+//         // --- dynamic-dynamic (pairwise) ---
+//         const size_t dynCount = dynamic.size();
+//         for (size_t a = 0; a < dynCount; ++a)
+//         {
+//             const Collider* aCol = dynamic[a];
+//             // find prediction index for a
+//             const auto ita = predictionIndex.find(aCol);
+//             if (ita == predictionIndex.end()) continue; // not a dynamic prediction (defensive)
+//             Prediction& predA = predictionsVec[ita->second];
+//             if (!predA.collider->IsActive()) continue;
+//
+//             for (size_t b = a + 1; b < dynCount; ++b)
+//             {
+//                 const Collider* bCol = dynamic[b];
+//                 const auto itb = predictionIndex.find(bCol);
+//                 if (itb == predictionIndex.end()) continue;
+//                 Prediction& predB = predictionsVec[itb->second];
+//                 if (!predB.collider->IsActive()) continue;
+//
+//                 // Ignore rules and early outs (mirror your original checks)
+//                 if (predA.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore ||
+//                     predB.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore)
+//                     continue;
+//
+//                 if (predA.collider->IsIgnoringAllDynamicColliders() || predB.collider->IsIgnoringAllDynamicColliders())
+//                     continue;
+//
+//                 if (predA.collider->IsIgnoringCollider(predB.collider) || predB.collider->IsIgnoringCollider(predA.collider))
+//                     continue;
+//
+//                 auto pair = makePair(aCol, bCol);
+//                 if (!testedPairs.insert(pair).second)
+//                     continue; // already processed this pair this frame
+//                 
+//                 if (!AABBOverlap(predA.AABB, predB.AABB))
+//                     continue;
+//
+//                 // Narrow-phase dynamic-dynamic
+//                 const auto [Overlap, Hit] = HandleDynamicCollisions(predA, predB);
+//
+//                 if (Overlap)
+//                     m_ActiveTriggers.push_back({ .trigger = predA.collider, .other = predB.collider, .hitInfo = predA.collisionInfoVec.back() });
+//
+//                 if (Hit)
+//                 {
+//                     if (predA.collider->IsGenerateHitEvents())
+//                         m_HitEventTriggers.push_back({ .trigger = predA.collider, .other = predB.collider, .hitInfo = predA.collisionInfoVec.back() });
+//
+//                     if (predB.collider->IsGenerateHitEvents())
+//                         m_HitEventTriggers.push_back({ .trigger = predB.collider, .other = predA.collider, .hitInfo = predB.collisionInfoVec.back() });
+//                 }
+//             }
+//         }
+//
+//         // --- dynamic-static ---
+//         const size_t statCount = statics.size();
+//         for (size_t i = 0; i < dynCount; ++i)
+//         {
+//             const Collider* dCol = dynamic[i];
+//             const auto itPred = predictionIndex.find(dCol);
+//             if (itPred == predictionIndex.end()) continue;
+//             Prediction& pred = predictionsVec[itPred->second];
+//             if (!pred.collider->IsActive()) continue;
+//
+//             // early-out: dynamic collider ignoring static response
+//             if (pred.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
+//
+//             for (size_t s = 0; s < statCount; ++s)
+//             {
+//                 const auto sCol = statics[s];
+//                 if (!sCol.collider || !sCol.collider->IsActive()) continue;
+//
+//                 if (pred.collider->IsIgnoringCollider(sCol.collider) || sCol.collider->IsIgnoringCollider(pred.collider)) continue;
+//
+//                 auto pair = makePair(dCol, sCol.collider);
+//                 if (!testedPairs.insert(pair).second)
+//                     continue;
+//                 
+//                 if (!AABBOverlap(pred.AABB, sCol.aabb)) continue;
+//
+//                 // Narrow-phase dynamic-static
+//                 const auto [Overlap, Hit] = HandleStaticCollisions(pred, sCol.collider);
+//
+//                 if (Overlap)
+//                     m_ActiveTriggers.push_back({ .trigger = pred.collider, .other = sCol.collider, .hitInfo = pred.collisionInfoVec.back() });
+//
+//                 if (Hit && pred.collider->IsGenerateHitEvents())
+//                     m_HitEventTriggers.push_back({ .trigger = pred.collider, .other = sCol.collider, .hitInfo = pred.collisionInfoVec.back() });
+//             }
+//         }
+//     }
+// }
 
 void diji::PhysicsWorld::ResolveCollision(Prediction& prediction, const CollisionInfo& collision)
 {
@@ -653,4 +777,28 @@ diji::PhysicsWorld::CollisionDetectionResult diji::PhysicsWorld::HandleDynamicCo
 {
     static CollisionDispatcher dispatcher;
     return dispatcher.Dispatch(dynamicColliderA, dynamicColliderB, dynamicColliderA.collider, dynamicColliderB.collider);
+}
+
+void diji::PhysicsWorld::UpdateWorldBounds(const sf::FloatRect& aabb)
+{
+    if (m_DynamicColliders.empty() && m_StaticInfos.empty())
+    {
+        m_WorldBounds = aabb;
+        return;
+    }
+
+    const float left   = std::min(m_WorldBounds.position.x, aabb.position.x);
+    const float top    = std::min(m_WorldBounds.position.y, aabb.position.y);
+    const float right  = std::max(m_WorldBounds.position.x + m_WorldBounds.size.x, aabb.position.x + aabb.size.x);
+    const float bottom = std::max(m_WorldBounds.position.y + m_WorldBounds.size.y, aabb.position.y + aabb.size.y);
+
+    m_WorldBounds.position.x   = left;
+    m_WorldBounds.position.y    = top;
+    m_WorldBounds.size.x  = right - left;
+    m_WorldBounds.size.y = bottom - top;
+
+    if (!m_QuadTree)
+        m_QuadTree = std::make_unique<QuadTree>(m_WorldBounds);
+    else
+        m_QuadTree->SetWorldBounds(m_WorldBounds);
 }

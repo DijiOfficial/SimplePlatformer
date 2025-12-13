@@ -9,17 +9,16 @@
 
 void diji::Collider::Start()
 {
+    if (m_IsInitialized) return;
+    m_IsInitialized = true;
+    
     m_TransformCompPtr = GetOwner()->GetComponent<Transform>();
     m_LastPosition = m_TransformCompPtr->GetPosition();
     m_NewPosition = m_TransformCompPtr->GetPosition();
 
-    const auto& pos = m_TransformCompPtr->GetPosition();
-    m_Shape->UpdateAABB(pos);
+    m_Shape->UpdateAABB(m_TransformCompPtr->GetPosition());
     
     SceneManager::GetInstance().GetPhysicsWorld()->AddCollider(this);
-
-    if (m_IsStatic)
-        m_Shape->SetPosition(m_TransformCompPtr->GetPosition());
 
     if (m_IsActive && !GetOwner()->IsActive())
         SetActive(false);
@@ -35,8 +34,11 @@ void diji::Collider::FixedUpdate()
 void diji::Collider::Update()
 {
     if (m_IsStatic) return;
-    
-    m_TransformCompPtr->SetPosition(Helpers::lerp(m_LastPosition, m_NewPosition, m_TimeSingletonInstance.GetFixedTimeAlpha()));
+
+    // todo: I don't like having to do this duplicate position update. it should be done once and the rest updated properly
+    const auto pos = Helpers::lerp(m_LastPosition, m_NewPosition, m_TimeSingletonInstance.GetFixedTimeAlpha());
+    m_TransformCompPtr->SetPosition(pos);
+    m_Shape->SetPosition(pos);
 }
 
 void diji::Collider::OnDestroy()
@@ -57,18 +59,19 @@ sf::Vector2f diji::Collider::GetPosition() const
 
 sf::FloatRect diji::Collider::GetAABB() const
 {
-    return GetAABBAt(GetPosition());
+    return m_Shape->GetLocalShapeBounds();
 }
 
+// todo: rename the function to GetProposedAABB or something
 sf::FloatRect diji::Collider::GetAABBAt(const sf::Vector2f& pos) const
 {
     sf::FloatRect rect;
     const sf::FloatRect& local = m_Shape->GetLocalShapeBounds();
 
-    rect.position.x   = pos.x + local.position.x;
-    rect.position.y    = pos.y + local.position.y;
-    rect.size.x  = local.size.x;
-    rect.size.y = local.size.y;
+    rect.position.x = pos.x;
+    rect.position.y = pos.y;
+    rect.size.x     = local.size.x;
+    rect.size.y     = local.size.y;
     return rect;
 }
 

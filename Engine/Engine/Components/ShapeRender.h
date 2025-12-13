@@ -30,6 +30,7 @@ namespace diji
         const sf::Color& GetOutlineColor() const { return m_OutlineColor; }
         float GetLineWidth() const { return m_LineWidth; }
         void SetDebugDraw() { m_IsDebug = true; }
+        void SetNeedUpdate() { m_NeedsUpdate = true; }
         
     private:
         Transform* m_TransformCompPtr = nullptr;

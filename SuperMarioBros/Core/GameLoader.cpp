@@ -30,6 +30,7 @@
 #include <format>
 
 #include "../Components/Player/CheckPlayerTopPixel.h"
+#include "Engine/Components/ShapeRender.h"
 
 using namespace diji;
 

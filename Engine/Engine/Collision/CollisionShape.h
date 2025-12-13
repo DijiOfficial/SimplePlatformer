@@ -8,7 +8,6 @@
 namespace diji
 {
     class PhysicsWorld;
-    struct PhysicsWorld::StaticColliderInfo;
 
     // todo: fix theses classes and remove old collision system implementation
     class CollisionShape
@@ -39,21 +38,15 @@ namespace diji
         // todo: take into account SFML inverted Y axis
         [[nodiscard]] virtual sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& p) const = 0;
 
-        void UpdateAABB(const sf::Vector2f& pos) // todo: not necessary?
-        {
-            m_AABB = GetLocalShapeBounds();
-            m_AABB.position.x = pos.x;
-            m_AABB.position.y = pos.y;
-        }
-
+        virtual void UpdateAABB(const sf::Vector2f& pos) = 0;
         void UpdateAABB(const float x, const float y) { UpdateAABB(sf::Vector2f{x, y}); }
 
-        virtual void CollideWith(std::vector<CollisionInfo>& collisionsVec, const PhysicsWorld::StaticColliderInfo& info, const sf::Vector2f& pos) = 0;
+        virtual void CollideWith(std::vector<CollisionInfo>& collisionsVec, const StaticColliderInfo& info, const sf::Vector2f& pos) = 0;
         virtual void CollideWith(std::vector<CollisionInfo>& collisionsVec, const sf::FloatRect& staticAABB, const sf::FloatRect& predictedAABB) = 0;
 
         virtual void HandleStaticCollisionWithRect(std::vector<CollisionInfo>& collisionsVec, const sf::RectangleShape& movingShape, const sf::Vector2f& predictedPos, const sf::RectangleShape& staticShape) = 0;
-        virtual void HandleStaticCollisionWithCircle(class Circle& circle, PhysicsWorld::StaticColliderInfo const& info) = 0;
-        virtual void HandleStaticCollisionWithTriangle(class Triangle& triangle, PhysicsWorld::StaticColliderInfo const& info) = 0;
+        virtual void HandleStaticCollisionWithCircle(class Circle& circle, StaticColliderInfo const& info) = 0;
+        virtual void HandleStaticCollisionWithTriangle(class Triangle& triangle, StaticColliderInfo const& info) = 0;
         
     protected:
         explicit CollisionShape(const sf::FloatRect& aabb) noexcept : m_AABB(aabb) {}
@@ -68,7 +61,7 @@ namespace diji
     class Circle final : public CollisionShape
     {
     public:
-        explicit Circle(float radius)
+        explicit Circle(const float radius)
             : CollisionShape()
             , m_Circle{ radius }
         {
@@ -78,18 +71,22 @@ namespace diji
 
         [[nodiscard]] const sf::Shape& GetShape() const override { return m_Circle; }
         [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Circle.getGlobalBounds(); }
-        void CollideWith(std::vector<CollisionInfo>&, const PhysicsWorld::StaticColliderInfo&, const sf::Vector2f&) override {}
+        void CollideWith(std::vector<CollisionInfo>&, const StaticColliderInfo&, const sf::Vector2f&) override {}
         void CollideWith(std::vector<CollisionInfo>&, const sf::FloatRect&, const sf::FloatRect&) override {}
 
         void SetPosition(const sf::Vector2f& pos) override { m_Circle.setPosition(pos); }
         void SetRotation(const sf::Angle& angleDeg) override { m_Circle.setRotation(angleDeg); }
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const override;
+        void UpdateAABB(const sf::Vector2f& pos) override
+        {
+            m_Circle.setPosition(pos);
+        }
 
     protected:
         void HandleStaticCollisionWithRect(std::vector<CollisionInfo>&, const sf::RectangleShape&, const sf::Vector2f&, const sf::RectangleShape&) override {}
-        void HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&) override {}
-        void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override {}
-
+        void HandleStaticCollisionWithCircle(Circle&, const StaticColliderInfo&) override {}
+        void HandleStaticCollisionWithTriangle(Triangle&, const StaticColliderInfo&) override {}
+    
     private:
         sf::CircleShape m_Circle;     
     };
@@ -107,12 +104,12 @@ namespace diji
 
         [[nodiscard]] const sf::Shape& GetShape() const override { return m_Rect; }
         [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Rect.getGlobalBounds(); }
-        void CollideWith(std::vector<CollisionInfo>& collisionsVec, const PhysicsWorld::StaticColliderInfo& info, const sf::Vector2f& pos) override;
+        void CollideWith(std::vector<CollisionInfo>& collisionsVec, const StaticColliderInfo& info, const sf::Vector2f& pos) override;
         void CollideWith(std::vector<CollisionInfo>& collisionsVec, const sf::FloatRect& staticAABB, const sf::FloatRect& predictedAABB) override;
 
         void HandleStaticCollisionWithRect(std::vector<CollisionInfo>& collisionsVec, const sf::RectangleShape& movingShape, const sf::Vector2f& predictedPos, const sf::RectangleShape& staticShape) override;
-        void HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&) override;
-        void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override;
+        void HandleStaticCollisionWithCircle(Circle&, const StaticColliderInfo&) override;
+        void HandleStaticCollisionWithTriangle(Triangle&, const StaticColliderInfo&) override;
         void SetPosition(const sf::Vector2f& pos) override { m_Rect.setPosition(pos); }
         void SetRotation(const sf::Angle& angleDeg) override { m_Rect.setRotation(angleDeg); }
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const override;
@@ -120,6 +117,11 @@ namespace diji
         {
             m_Rect.setSize(size);
             m_Rect.setOrigin(sf::Vector2f{ size.x * 0.5f, size.y * 0.5f });
+        }
+
+        void UpdateAABB(const sf::Vector2f& pos) override
+        {
+            m_Rect.setPosition(pos);
         }
 
     private:
@@ -146,15 +148,19 @@ namespace diji
         [[nodiscard]] sf::FloatRect GetLocalShapeBounds() const override { return m_Triangle.getGlobalBounds(); }
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f&) const override;
 
-        void CollideWith(std::vector<CollisionInfo>&, const PhysicsWorld::StaticColliderInfo&, const sf::Vector2f&) override {}
+        void CollideWith(std::vector<CollisionInfo>&, const StaticColliderInfo&, const sf::Vector2f&) override {}
         void CollideWith(std::vector<CollisionInfo>&, const sf::FloatRect&, const sf::FloatRect&) override {}
 
         void HandleStaticCollisionWithRect(std::vector<CollisionInfo>&, const sf::RectangleShape&, const sf::Vector2f&, const sf::RectangleShape&) override {}
-        void HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&) override {}
-        void HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&) override {}
+        void HandleStaticCollisionWithCircle(Circle&, const StaticColliderInfo&) override {}
+        void HandleStaticCollisionWithTriangle(Triangle&, const StaticColliderInfo&) override {}
         void SetPosition(const sf::Vector2f& pos) override { m_Triangle.setPosition(pos); }
         void SetRotation(const sf::Angle& angleDeg) override { m_Triangle.setRotation(angleDeg); }
-
+        void UpdateAABB(const sf::Vector2f& pos) override
+        {
+            m_Triangle.setPosition(pos);
+        }
+        
     private:
         sf::ConvexShape m_Triangle;
     };

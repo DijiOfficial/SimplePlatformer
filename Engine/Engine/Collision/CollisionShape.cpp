@@ -50,7 +50,7 @@ void diji::CollisionShape::ProjectOntoAxis(const std::vector<sf::Vector2f>& poin
     }
 }
 
-void diji::Rect::CollideWith(std::vector<CollisionInfo>& collisionsVec, const PhysicsWorld::StaticColliderInfo& info, const sf::Vector2f& pos)
+void diji::Rect::CollideWith(std::vector<CollisionInfo>& collisionsVec, const StaticColliderInfo& info, const sf::Vector2f& pos)
 {
     const auto rectShape = dynamic_cast<const sf::RectangleShape*>(&GetShape());
     const auto other = dynamic_cast<const sf::RectangleShape*>(&info.collider->GetShape()->GetShape());
@@ -208,11 +208,11 @@ void diji::Rect::HandleStaticCollisionWithRect(std::vector<CollisionInfo>& colli
     }
 }
 
-void diji::Rect::HandleStaticCollisionWithCircle(Circle&, const PhysicsWorld::StaticColliderInfo&)
+void diji::Rect::HandleStaticCollisionWithCircle(Circle&, const StaticColliderInfo&)
 {
 }
 
-void diji::Rect::HandleStaticCollisionWithTriangle(Triangle&, const PhysicsWorld::StaticColliderInfo&)
+void diji::Rect::HandleStaticCollisionWithTriangle(Triangle&, const StaticColliderInfo&)
 {
 }
 

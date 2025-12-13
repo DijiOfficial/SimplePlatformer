@@ -81,10 +81,10 @@ void superMarioBros::BackgroundHandler::OnNewLevelLoaded() const
             const int vertexIndex = (y * cols + x) * 6;
             sf::Vertex* quad = &tempVertexArray[vertexIndex];
 
-            float left   = static_cast<float>(x * tileSize);
-            float top    = static_cast<float>(y * tileSize);
-            float right  = left + tileSize;
-            float bottom = top + tileSize;
+            const float left   = static_cast<float>(x * tileSize);
+            const float top    = static_cast<float>(y * tileSize);
+            const float right  = left + tileSize;
+            const float bottom = top + tileSize;
 
             // Triangle A
             quad[0].position = { left,  top };

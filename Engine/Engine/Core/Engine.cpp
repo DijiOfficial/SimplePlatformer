@@ -43,7 +43,7 @@ void diji::Engine::Run(const std::function<void()>& load)
 	load();
 	
 	//Enable vSync
-	ValidateVSync();
+	// ValidateVSync();
 	// window::g_window_ptr->setVerticalSyncEnabled(true);
 	// constexpr bool isFrameRateTooLow = useFixedFrameRate && (FRAME_RATE <= FIXED_TIME_STEP);
 	

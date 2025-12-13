@@ -175,6 +175,7 @@ namespace diji
         bool m_IsIgnoringDynamicColliders = false; // todo: this should be like Unreal collision settings instead
         bool m_IsActive = true;
         bool m_IsOnlyApplyingGroundFriction = false;
+        bool m_IsInitialized = false;
   
         std::string m_Tag = "Untagged";
     };

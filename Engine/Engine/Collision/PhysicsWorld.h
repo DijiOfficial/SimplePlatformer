@@ -1,15 +1,14 @@
 ﻿#pragma once
 #include "../Singleton/TimeSingleton.h"
-#include "CollisionStructs.h"
+#include "QuadTree.h"
 
 #include <optional>
-#include <vector>
-#include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
 namespace diji
 {
 	class Collider;
+	class QuadTree;
 
 	class PhysicsWorld final
 	{
@@ -29,12 +28,6 @@ namespace diji
 		void SetGravity(const sf::Vector2f& gravity) { m_Gravity = gravity; }
 		[[nodiscard]] sf::Vector2f GetGravity() const { return m_Gravity; }
 		
-		struct StaticColliderInfo
-		{
-			sf::FloatRect aabb;
-			Collider* collider; // perhaps this can be optimized for memory usage if needed
-		};
-
 		struct Prediction
 		{
 			Collider* collider;
@@ -58,6 +51,9 @@ namespace diji
 	private:
 		std::vector<Collider*> m_DynamicColliders;
 		std::vector<StaticColliderInfo> m_StaticInfos;
+
+		std::unique_ptr<QuadTree> m_QuadTree = nullptr;
+		sf::FloatRect m_WorldBounds;
 		
 		sf::Vector2f m_Gravity{ 0.f, 980.f }; // This doesn't need to be a vector unless we want to simulate planets or some shit
 		const TimeSingleton& m_TimeSingletonInstance = TimeSingleton::GetInstance();
@@ -65,8 +61,8 @@ namespace diji
 		// physics trigger events
 		struct TriggerPair
 		{
-			Collider* trigger;
-			Collider* other;
+			const Collider* trigger;
+			const Collider* other;
 			CollisionInfo hitInfo;
 			
 			bool operator==(const TriggerPair& rhs) const
@@ -106,6 +102,9 @@ namespace diji
 		static void UpdateFinalPosition(const Prediction& prediction);
 		static CollisionDetectionResult HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider);
 		static CollisionDetectionResult HandleDynamicCollisions(Prediction& dynamicColliderA, Prediction& dynamicColliderB);
+
+		// QuadTree Functions
+		void UpdateWorldBounds(const sf::FloatRect& aabb);
 	};
 }
 

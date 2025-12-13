@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
 namespace diji
@@ -28,5 +29,21 @@ namespace diji
         const Collider* collider = nullptr;
         CollisionInfo info;
         float distance = 0.f;           // from origin along ray direction
+    };
+
+    struct StaticColliderInfo
+    {
+        sf::FloatRect aabb;
+        Collider* collider; // perhaps this can be optimized for memory usage if needed
+    };
+
+
+    // Various optimizations and helper structs can go here
+    struct PairHash // for quad tree collider pair hashing
+    {
+        size_t operator()(const std::pair<const Collider*, const Collider*>& p) const noexcept
+        {
+            return std::hash<const Collider*>{}(p.first) ^ std::hash<const Collider*>{}(p.second);
+        }
     };
 }
