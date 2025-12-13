@@ -35,7 +35,7 @@ void diji::QuadTree::Insert(Collider* collider, const bool isStatic, const sf::F
 
     // Store in this node
     if (isStatic)
-        m_Static.push_back({ box, collider });
+        m_Static.push_back({ .aabb= box, .collider= collider});
     else
         m_Dynamic.push_back(collider);
 
@@ -53,11 +53,11 @@ void diji::QuadTree::Insert(Collider* collider, const bool isStatic, const sf::F
         GetOverlappingChildren(m_Dynamic[i]->GetAABB(), overlaps);
 
         bool moved = false;
-        for (int q = 0; q < 4; ++q)
+        for (int j = 0; j < 4; ++j)
         {
-            if (overlaps[q])
+            if (overlaps[j])
             {
-                m_Children[q]->Insert(m_Dynamic[i], false);
+                m_Children[j]->Insert(m_Dynamic[i], false);
                 moved = true;
             }
         }
@@ -80,11 +80,11 @@ void diji::QuadTree::Insert(Collider* collider, const bool isStatic, const sf::F
         GetOverlappingChildren(m_Static[i].aabb, overlaps);
 
         bool moved = false;
-        for (int q = 0; q < 4; ++q)
+        for (int j = 0; j < 4; ++j)
         {
-            if (overlaps[q])
+            if (overlaps[j])
             {
-                m_Children[q]->Insert(m_Static[i].collider, true, m_Static[i].aabb);
+                m_Children[j]->Insert(m_Static[i].collider, true, m_Static[i].aabb);
                 moved = true;
             }
         }
@@ -123,24 +123,6 @@ void diji::QuadTree::Subdivide()
         m_Capacity, m_MaxDepth, m_Depth + 1);
 }
 
-diji::QuadTree::Quadrant diji::QuadTree::GetChildQuadrant(const sf::FloatRect& aabb) const
-{
-    const float centerX = m_WorldBounds.position.x + m_WorldBounds.size.x * 0.5f;
-    const float centerY = m_WorldBounds.position.y + m_WorldBounds.size.y * 0.5f;
-
-    const bool top = aabb.position.y + aabb.size.y <= centerY;
-    const bool bottom = aabb.position.y >= centerY;
-    const bool left = aabb.position.x + aabb.size.x <= centerX;
-    const bool right = aabb.position.x >= centerX;
-
-    if (top && left) return Quadrant::NW;    
-    if (top && right) return Quadrant::NE;   
-    if (bottom && left) return Quadrant::SW; 
-    if (bottom && right) return Quadrant::SE; 
-
-    return Quadrant::INVALID;
-}
-
 void diji::QuadTree::GetOverlappingChildren(const sf::FloatRect& aabb, std::array<bool, 4>& overlaps) const
 {
     const float centerX = m_WorldBounds.position.x + m_WorldBounds.size.x * 0.5f;
@@ -148,19 +130,19 @@ void diji::QuadTree::GetOverlappingChildren(const sf::FloatRect& aabb, std::arra
 
     overlaps.fill(false);
 
-    sf::FloatRect nw{ m_WorldBounds.position,
+    const sf::FloatRect nw{ m_WorldBounds.position,
                       { centerX - m_WorldBounds.position.x,
                         centerY - m_WorldBounds.position.y } };
 
-    sf::FloatRect ne{ { centerX, m_WorldBounds.position.y },
+    const sf::FloatRect ne{ { centerX, m_WorldBounds.position.y },
                       { m_WorldBounds.size.x * 0.5f,
                         m_WorldBounds.size.y * 0.5f } };
 
-    sf::FloatRect sw{ { m_WorldBounds.position.x, centerY },
+    const sf::FloatRect sw{ { m_WorldBounds.position.x, centerY },
                       { m_WorldBounds.size.x * 0.5f,
                         m_WorldBounds.size.y * 0.5f } };
 
-    sf::FloatRect se{ { centerX, centerY },
+    const sf::FloatRect se{ { centerX, centerY },
                       { m_WorldBounds.size.x * 0.5f,
                         m_WorldBounds.size.y * 0.5f } };
 
@@ -214,7 +196,7 @@ void diji::QuadTree::Clear()
         if (child)
         {
             child->Clear();
-            child.reset(); // optional: free memory and reset pointer
+            child.reset();
         }
     }
 }
