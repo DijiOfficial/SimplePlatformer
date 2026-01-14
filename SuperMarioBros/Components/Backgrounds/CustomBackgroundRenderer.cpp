@@ -7,7 +7,7 @@
 
 void superMarioBros::CustomBackgroundRenderer::Init()
 {
-    m_Scale = 5.f;
+    m_Scale = 3.1f;
     m_TextureCompPtr = GetOwner()->GetComponent<diji::TextureComp>();
     m_TextureCompPtr->SetScale(m_Scale);
     m_TextureCompPtr->SetOriginToCenter();
@@ -23,8 +23,8 @@ void superMarioBros::CustomBackgroundRenderer::RenderFrame() const
     const float posY = m_TransformCompPtr->GetPosition().y;
     const int chunk = static_cast<int>(m_PlayerTransformPtr->GetPosition().x / m_Width) % static_cast<int>(m_Width);
 
-    const float posX = m_Width * chunk;
-    const float posX2 = m_Width * (chunk + 1);
+    const float posX = m_Width * chunk + m_Width * 0.5f;
+    const float posX2 = m_Width * (chunk + 1) + m_Width * 0.5f;
     // Render center tile
     diji::Renderer::GetInstance().RenderTexture(
         m_SFMLTexture,

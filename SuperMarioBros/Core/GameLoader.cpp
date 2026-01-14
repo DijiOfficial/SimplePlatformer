@@ -30,7 +30,7 @@
 #include <format>
 
 #include "../Components/Player/CheckPlayerTopPixel.h"
-#include "Engine/Components/ShapeRender.h"
+#include "Engine/Core/Renderer.h"
 
 using namespace diji;
 
@@ -49,8 +49,8 @@ void SceneLoader::GameStartUp()
     SceneManager::GetInstance().RegisterScene(static_cast<int>(superMarioBros::superMarioBrosState::GameOver), GameOverMenu);
     SceneManager::GetInstance().RegisterScene(static_cast<int>(superMarioBros::superMarioBrosState::TransitionToNextLevel), TransitionToNextLevel);
 
-    StartMenu();
-    // Level();
+    // StartMenu();
+    Level();
 }
 
 #pragma region Menus
@@ -59,16 +59,18 @@ void SceneLoader::StartMenu()
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(superMarioBros::superMarioBrosState::StartMenu));
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(superMarioBros::superMarioBrosState::StartMenu));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::StartMenu));
+    Renderer::GetInstance().SetBackgroundColor(sf::Color(148, 148, 255));
 
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
-    staticBackground->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.5f);
+    staticBackground->AddComponents<Transform>(1920 * 0.5f, 1080 * 0.5f);
+    // staticBackground->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.5f);
     staticBackground->AddComponents<TextureComp>("graphics/menuBackground.png");
-    staticBackground->AddComponents<Render>();
+    staticBackground->AddComponents<Render>(1.0f);
     scene->SetGameObjectAsStaticBackground(staticBackground);
 
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->AddComponents<Transform>(0, 0);
-    camera->AddComponents<Camera>(window::VIEWPORT);
+    camera->AddComponents<Camera>(sf::Vector2u{ 1920, 1080 });
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     player->AddComponents<Transform>(400, 910);
@@ -195,6 +197,7 @@ void SceneLoader::LivesDisplayMenu()
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(superMarioBros::superMarioBrosState::LivesDisplayMenu));
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(superMarioBros::superMarioBrosState::LivesDisplayMenu));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::LivesDisplayMenu));
+    Renderer::GetInstance().SetBackgroundColor(sf::Color::Black);
 
     (void)TimerManager::GetInstance().SetTimer([]
     {
@@ -203,7 +206,7 @@ void SceneLoader::LivesDisplayMenu()
     
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->AddComponents<Transform>(0, 0);
-    camera->AddComponents<Camera>(window::VIEWPORT);
+    camera->AddComponents<Camera>(sf::Vector2f{ 1920.f, 1080.f });
 #pragma region HUD
      // Create the HUD    
     const auto marioName = scene->CreateGameObject("Z_MarioName");
@@ -279,7 +282,7 @@ void SceneLoader::LivesDisplayMenu()
     scene->SetGameObjectAsCanvasObject(worldCountCentered);
 
     const auto livesDisplay = scene->CreateGameObject("Z_livesDisplay");
-    livesDisplay->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.5f);
+    livesDisplay->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.49f, static_cast<float>(window::VIEWPORT.y) * 0.5f);
     const std::string livesStr = std::format("   x  {}", superMarioBros::GameManager::GetInstance().GetPlayerInfo().totalLives);
     livesDisplay->AddComponents<TextComp>(livesStr, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     livesDisplay->GetComponent<TextComp>()->GetText().setCharacterSize(25);
@@ -288,7 +291,7 @@ void SceneLoader::LivesDisplayMenu()
     scene->SetGameObjectAsCanvasObject(livesDisplay);
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
-    player->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f - 75.f, static_cast<float>(window::VIEWPORT.y) * 0.5f);
+    player->AddComponents<Transform>(965.f, static_cast<float>(window::VIEWPORT.y) * 0.5f);
     player->AddComponents<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 1, 0.05f);
     player->GetComponent<SpriteRenderComponent>()->SetScale(3);
     player->GetComponent<SpriteRenderComponent>()->Pause();
@@ -318,6 +321,7 @@ void SceneLoader::GameOverMenu()
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(superMarioBros::superMarioBrosState::GameOver));
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(superMarioBros::superMarioBrosState::GameOver));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::GameOver));
+    Renderer::GetInstance().SetBackgroundColor(sf::Color::Black);
 
     superMarioBros::GameManager::GetInstance().SaveHighScoreToFile();
     
@@ -329,7 +333,7 @@ void SceneLoader::GameOverMenu()
     
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->AddComponents<Transform>(0, 0);
-    camera->AddComponents<Camera>(window::VIEWPORT);
+    camera->AddComponents<Camera>(sf::Vector2f{ 1920.f, 1080.f });
 
      // Create the HUD    
     const auto marioName = scene->CreateGameObject("Z_MarioName");
@@ -427,6 +431,7 @@ void SceneLoader::TransitionToNextLevel()
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(superMarioBros::superMarioBrosState::TransitionToNextLevel));
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(superMarioBros::superMarioBrosState::TransitionToNextLevel));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::TransitionToNextLevel));
+    Renderer::GetInstance().SetBackgroundColor(sf::Color(92, 148, 252));
 
     (void)TimerManager::GetInstance().SetTimer([]
     {
@@ -436,11 +441,11 @@ void SceneLoader::TransitionToNextLevel()
     const sf::FloatRect arena{ sf::Vector2f{ 0, -(115 * 4.5) }, sf::Vector2f{ 1920.f, 1080.f } };
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->AddComponents<Transform>(0, 0);
-    camera->AddComponents<Camera>(window::VIEWPORT); // todo: probably clamp it to 1920x1080 instead
+    camera->AddComponents<Camera>(sf::Vector2f{ 1920.f, 1080.f });
     camera->GetComponent<Camera>()->SetLevelBoundaries(arena);
 
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
-    staticBackground->AddComponents<Transform>(0, -20);
+    staticBackground->AddComponents<Transform>(0, 178);
     staticBackground->AddComponents<TextureComp>("graphics/background.png");
     staticBackground->AddComponents<superMarioBros::CustomBackgroundRenderer>();
 
@@ -545,7 +550,6 @@ void SceneLoader::TransitionToNextLevel()
     scene->SetGameObjectAsCanvasObject(fpsCounter);
 #pragma endregion
 }
-
 #pragma endregion
 
 void SceneLoader::Level()
@@ -555,14 +559,12 @@ void SceneLoader::Level()
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(superMarioBros::superMarioBrosState::Level));
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(superMarioBros::superMarioBrosState::Level));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::Level));
+    Renderer::GetInstance().SetBackgroundColor(sf::Color(92, 148, 252));
 
-    // static_cast<float>(window::VIEWPORT.x) * -0.5f + 25.f, static_cast<float>(window::VIEWPORT.y) * -0.5f + 25.f
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
-    // staticBackground->AddComponents<Transform>(static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.5f);
-    staticBackground->AddComponents<Transform>(0, -20);
+    staticBackground->AddComponents<Transform>(0, 178);
     staticBackground->AddComponents<TextureComp>("graphics/background.png");
     staticBackground->AddComponents<superMarioBros::CustomBackgroundRenderer>();
-    // scene->SetGameObjectAsStaticBackground(staticBackground);
 
     const auto background = scene->CreateGameObject("B_Background");
     background->AddComponents<Transform>(0, 0);
@@ -573,7 +575,7 @@ void SceneLoader::Level()
     const sf::FloatRect arena{ sf::Vector2f{ 0, -(115 * 4.5) }, sf::Vector2f{ 12000.f, 1080.f } };
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->AddComponents<Transform>(0, 0);
-    camera->AddComponents<Camera>(window::VIEWPORT); // todo: probably clamp it to 1920x1080 instead
+    camera->AddComponents<Camera>(sf::Vector2f{ 1920.f, 1080.f });
     camera->GetComponent<Camera>()->SetLevelBoundaries(arena);
 
     const auto player = scene->CreateGameObject("X_PlayerChar");

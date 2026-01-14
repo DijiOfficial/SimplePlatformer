@@ -13,11 +13,12 @@
 void diji::Renderer::Init(sf::RenderWindow* window)
 {
 	m_WindowPtr = window;
+	m_ClearColor = sf::Color::Black;
 }
 
 void diji::Renderer::Render() const
 {
-	m_WindowPtr->clear();
+	m_WindowPtr->clear(m_ClearColor);
 	
 	SceneManager::GetInstance().Render();
 
