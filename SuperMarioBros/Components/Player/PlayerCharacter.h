@@ -49,6 +49,8 @@ namespace superMarioBros
         void Sprint();
         void StopSprint();
         void Attack();
+        void Crouch(bool isStart);
+        
         void SetAgainstCameraEdge(const bool isAgainst) { m_IsAgainstCameraEdge = isAgainst; }
         void PausePlayer() { m_IsPaused = true; }
         void SetTransitionState();
@@ -115,6 +117,7 @@ namespace superMarioBros
         float m_StarPowerTimer = 0.0f;
         bool m_IsOnGround = false;
         bool m_IsJumping = false;
+        bool m_IsCrouched = false;
         bool m_StoppedSprinting = false;
         bool m_IsDead = false;
         bool m_CanJump = true;

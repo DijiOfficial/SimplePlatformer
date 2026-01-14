@@ -97,4 +97,17 @@ namespace superMarioBros
 
         void Execute() override;
     };
+
+    class Crouch final : public diji::GameActorCommands
+    {
+    public:
+        explicit Crouch(diji::GameObject* actor, bool isStart);
+        ~Crouch() noexcept override = default;
+
+        void Execute() override;
+        
+    private:
+        PlayerCharacter* m_Character = nullptr;
+        bool m_IsStart = false;
+    };
 }

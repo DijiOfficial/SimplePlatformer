@@ -52,6 +52,7 @@ namespace superMarioBros
             BigJumping,
             BigDrifting,
             FlagPoleSlide,
+            Crouching,
         };
         [[nodiscard]] PlayerState GetState() const { return m_CurrentState; }
         
@@ -197,5 +198,17 @@ namespace superMarioBros
     {
     public:
         FireFlagPoleSlideState();
+    };
+
+    class CrouchingState final : public PlayerStates
+    {
+    public:
+        CrouchingState();
+    };
+
+    class FireCrouchingState final : public PlayerStates
+    {
+    public:
+        FireCrouchingState();
     };
 }

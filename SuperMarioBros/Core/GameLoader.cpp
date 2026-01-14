@@ -775,6 +775,12 @@ void SceneLoader::Level()
     input.BindCommand<superMarioBros::Pause>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Start, nullptr);
     input.BindCommand<superMarioBros::Pause>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Back, nullptr);
 
+    input.BindCommand<superMarioBros::Crouch>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::S, player, true);
+    input.BindCommand<superMarioBros::Crouch>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::S, player, false);
+    input.BindCommand<superMarioBros::Crouch>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Down, player, true);
+    input.BindCommand<superMarioBros::Crouch>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Down, player, false);
+    input.BindCommand<superMarioBros::Crouch>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::DPadDown, player, true);
+    input.BindCommand<superMarioBros::Crouch>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadDown, player, false);
 #pragma endregion
 
 #pragma region Events

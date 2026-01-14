@@ -9,9 +9,9 @@
 #include "Engine/Singleton/RandNumber.h"
 
 superMarioBros::MoveCharacter::MoveCharacter(diji::GameObject* actor, const sf::Vector2f& direction, const bool isMoving)
-    : GameActorCommands{ actor }
-    , m_Direction{ direction }
-    , m_IsMoving{ isMoving }
+    : GameActorCommands { actor }
+    , m_Direction { direction }
+    , m_IsMoving { isMoving }
 {
     m_Character = actor->GetComponent<PlayerCharacter>();
 }
@@ -25,8 +25,8 @@ void superMarioBros::MoveCharacter::Execute()
 }
 
 superMarioBros::CharacterJump::CharacterJump(diji::GameObject* actor, const bool isJumping)
-    : GameActorCommands{ actor }
-    , m_IsJumping{ isJumping }
+    : GameActorCommands { actor }
+    , m_IsJumping { isJumping }
 {
     m_Character = actor->GetComponent<PlayerCharacter>();
 }
@@ -40,7 +40,7 @@ void superMarioBros::CharacterJump::Execute()
 }
 
 superMarioBros::TempAddImpulse::TempAddImpulse(diji::GameObject* actor)
-    : GameActorCommands{ actor }
+    : GameActorCommands { actor }
 {
     m_Collider = actor->GetComponent<diji::Collider>();
 }
@@ -51,8 +51,8 @@ void superMarioBros::TempAddImpulse::Execute()
 }
 
 superMarioBros::Sprint::Sprint(diji::GameObject* actor, bool isSprinting)
-    : GameActorCommands{ actor }
-    , m_IsSprinting{ isSprinting }
+    : GameActorCommands { actor }
+    , m_IsSprinting { isSprinting }
 {
     m_Character = actor->GetComponent<PlayerCharacter>();
 }
@@ -63,7 +63,7 @@ void superMarioBros::Sprint::Execute()
 }
 
 superMarioBros::Attack::Attack(diji::GameObject* actor)
-    : GameActorCommands{ actor }
+    : GameActorCommands { actor }
 {
     m_Character = actor->GetComponent<PlayerCharacter>();
 }
@@ -83,4 +83,16 @@ void superMarioBros::Pause::Execute()
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_pause.wav", false);
 
     diji::PauseSingleton::GetInstance().TogglePause();
+}
+
+superMarioBros::Crouch::Crouch(diji::GameObject* actor, const bool isStart)
+    : GameActorCommands { actor }
+    , m_IsStart { isStart }
+{
+    m_Character = actor->GetComponent<PlayerCharacter>();
+}
+
+void superMarioBros::Crouch::Execute()
+{
+    m_Character->Crouch(m_IsStart);
 }

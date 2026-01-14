@@ -400,3 +400,37 @@ superMarioBros::FireFlagPoleSlideState::FireFlagPoleSlideState()
 
     m_CurrentState = PlayerState::FlagPoleSlide;
 }
+
+superMarioBros::CrouchingState::CrouchingState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 9,
+        .startingFrameY= 0,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+        
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::Crouching;
+}
+
+superMarioBros::FireCrouchingState::FireCrouchingState()
+{
+    m_AnimationState =
+    {
+        .startingFrameX= 9,
+        .startingFrameY= 3,
+        .totalAnimationFrames= 1,
+        .frameDuration = 0.065f,
+        .frameSize = sf::Vector2i{ 16, 32 },
+        
+        .m_IsPlaying= false,
+        .m_IsLooping= false
+    };
+
+    m_CurrentState = PlayerState::Crouching;
+}

@@ -169,7 +169,11 @@ void superMarioBros::PlayerCharacter::LateUpdate()
 
         if (m_PowerUpState == PowerUpState::Fire)
         {
-            if (m_IsOnGround)
+            if (m_IsCrouched)
+            {
+                newState = std::make_unique<FireCrouchingState>();
+            }
+            else if (m_IsOnGround)
             {
                 if (diji::Helpers::isZero(m_CurrSpeed.x))
                 {
@@ -211,7 +215,11 @@ void superMarioBros::PlayerCharacter::LateUpdate()
         }
         else
         {
-            if (m_IsOnGround)
+            if (m_IsCrouched)
+            {
+                newState = std::make_unique<CrouchingState>();
+            }
+            else if (m_IsOnGround)
             {
                 if (diji::Helpers::isZero(m_CurrSpeed.x))
                 {
@@ -311,8 +319,7 @@ void superMarioBros::PlayerCharacter::OnHitEvent(const diji::Collider* other, co
     const sf::Vector2f enemyCenter = other->GetPosition();
     
     // Calculate vector from enemy to player
-    sf::Vector2f enemyToPlayer = playerCenter - enemyCenter;
-    enemyToPlayer = diji::Helpers::Normalize(enemyToPlayer);
+    const sf::Vector2f enemyToPlayer = diji::Helpers::Normalize(playerCenter - enemyCenter);
     const float dotProduct =  diji::Helpers::DotProduct(enemyToPlayer, UP_VECTOR);
     if (dotProduct > STOMP_THRESHOLD)
     {
@@ -329,7 +336,7 @@ void superMarioBros::PlayerCharacter::OnHitEvent(const diji::Collider* other, co
 
 void superMarioBros::PlayerCharacter::Move(const sf::Vector2f& direction)
 {
-    if (m_IsDead || m_IsPaused) return;
+    if (m_IsDead || m_IsPaused || m_IsCrouched) return;
 
     m_MovementDirection = direction.x > 0.f ? MovementDirection::Right : (direction.x < 0.f ? MovementDirection::Left : MovementDirection::None);
 
@@ -350,6 +357,7 @@ void superMarioBros::PlayerCharacter::Jump()
     if (m_IsDead || m_IsPaused) return;
     if (!m_IsOnGround || m_IsJumping) return;
     if (!m_CanJump) return;
+    if (m_IsCrouched) return;
 
     m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_ColliderCompPtr->GetVelocity().x, 0.f });
     m_ColliderCompPtr->ApplyImpulse({ 0.f, -m_JumpForce * 0.9f});
@@ -424,6 +432,21 @@ void superMarioBros::PlayerCharacter::Attack()
 
     GameManager::GetInstance().FireballAdded();
     m_CanAttack = false;
+}
+
+void superMarioBros::PlayerCharacter::Crouch(const bool isStart)
+{
+    if (!isStart)
+    {
+        m_IsCrouched = false;
+        return;
+    }
+    m_IsCrouched = true;
+
+    StopMove();
+    
+    if (!m_StoppedSprinting)
+        StopSprint();
 }
 
 void superMarioBros::PlayerCharacter::SetTransitionState()
