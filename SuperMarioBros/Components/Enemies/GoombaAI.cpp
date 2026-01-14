@@ -46,8 +46,8 @@ void superMarioBros::GoombaAI::OnHitEvent(const diji::Collider* other, const dij
 
 void superMarioBros::GoombaAI::HandleBumpedBehavior(const bool isBumpingLeft, const bool addPoints)
 {
-    if (m_HasBeenBumped) return;
-    m_HasBeenBumped = true;
+    if (m_IsDead) return;
+    m_IsDead = true;
     
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_kick.wav", false);
 

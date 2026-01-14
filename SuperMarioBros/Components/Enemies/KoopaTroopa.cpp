@@ -90,10 +90,14 @@ void superMarioBros::KoopaTroopa::HandleBumpedBehavior(const bool, const bool)
     //
     // GameManager::SpawnPointsText(m_TransformCompPtr->GetPosition(), "100");
     // GameManager::GetInstance().OnScoreAddedEvent.Broadcast(100);
+    // m_IsDead = true;
 }
 
 void superMarioBros::KoopaTroopa::Kill(const bool isBumpingLeft, const bool)
 {
+    if (m_IsDead) return;
+    m_IsDead = true;
+    
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_kick.wav", false);
     
     diji::TimerManager::GetInstance().ClearTimer(m_TimerHandle);

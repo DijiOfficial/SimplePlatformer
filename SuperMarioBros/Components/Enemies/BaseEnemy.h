@@ -33,7 +33,6 @@ namespace superMarioBros
         virtual void HandleStomp(const diji::Collider* other, const std::string& score) = 0;
         void HandleBumpedBehavior(bool isBumpingLeft, const bool addPoints = true) override = 0;
         void Kill(bool isBumpingLeft, const bool addPoints = true) override = 0;
-
         void SetActivationMilestone(const int milestone) { m_ActivationMilestone = milestone; }
 
     protected:
@@ -44,6 +43,7 @@ namespace superMarioBros
         float m_Speed = BASE_SPEED;
         int m_ActivationMilestone = -1;
         bool m_Paused = false;
+        bool m_IsDead = false;
 
         void SetPauseState(const bool isPause) { m_Paused = isPause; }
         void CheckActivation(int milestone) const;
