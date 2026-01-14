@@ -34,5 +34,6 @@ namespace superMarioBros
         sf::Texture m_SFMLTexture;
 
         float m_Width = 0;
+        float m_WidthCenter = 0;
     };
 }

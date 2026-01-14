@@ -16,15 +16,16 @@ void superMarioBros::CustomBackgroundRenderer::Init()
     m_PlayerTransformPtr = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<diji::Transform>();
     m_SFMLTexture = m_TextureCompPtr->GetTexture();
     m_Width = static_cast<float>(m_SFMLTexture.getSize().x) * m_Scale;
+    m_WidthCenter = m_Width * 0.5f;
 }
 void superMarioBros::CustomBackgroundRenderer::RenderFrame() const
 {
     // not very efficient but works for now
     const float posY = m_TransformCompPtr->GetPosition().y;
-    const int chunk = static_cast<int>(m_PlayerTransformPtr->GetPosition().x / m_Width) % static_cast<int>(m_Width);
+    const int chunk = static_cast<int>(m_PlayerTransformPtr->GetPosition().x - m_WidthCenter) / static_cast<int>(m_Width);
 
-    const float posX = m_Width * chunk + m_Width * 0.5f;
-    const float posX2 = m_Width * (chunk + 1) + m_Width * 0.5f;
+    const float posX = m_Width * chunk + m_WidthCenter;
+    const float posX2 = m_Width * (chunk + 1) + m_WidthCenter;
     // Render center tile
     diji::Renderer::GetInstance().RenderTexture(
         m_SFMLTexture,
