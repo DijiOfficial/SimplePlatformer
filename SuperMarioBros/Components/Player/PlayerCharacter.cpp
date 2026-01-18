@@ -790,7 +790,7 @@ void superMarioBros::PlayerCharacter::PlayFireTransitionAnimation()
 void superMarioBros::PlayerCharacter::HandleStarPickup()
 {
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_powerup.wav", false);
-    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/Invincibility.wav", true);
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/InvincibilityNew.mp3", true);
 
     m_IsStartPoweredUp = true;
     m_StarPowerTimer = 0;
