@@ -3,7 +3,7 @@
 
 namespace superMarioBros
 {
-    class WorldBuilder
+    class WorldBuilder final
     {
     public:
         static void CreateWorld(const std::vector<char>& levelInfo, const int& rows, const int& cols);
