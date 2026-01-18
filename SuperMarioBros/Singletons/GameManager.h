@@ -1,11 +1,11 @@
 ﻿#pragma once
-#include <memory>
-#include <string>
-#include <SFML/System/Vector2.hpp>
-
 #include "Engine/Interfaces/EventSystem.h"
 #include "Engine/Singleton/Singleton.h"
 #include "Engine/Collision/Collider.h"
+
+#include <memory>
+#include <string>
+#include <SFML/System/Vector2.hpp>
 
 namespace superMarioBros
 {
@@ -67,7 +67,8 @@ namespace superMarioBros
 
         [[nodiscard]] int GetHighScoreFromFile() const;
         void SaveHighScoreToFile() const;
-        
+        void AddEnemyCollider(const diji::Collider* collider) { m_EnemyColliders.insert(collider); }
+
     private:
         std::unordered_set<const diji::Collider*> m_EnemyColliders;
         std::vector<std::unique_ptr<diji::Collider>> m_TileColliders;
@@ -86,8 +87,6 @@ namespace superMarioBros
 
         std::string LoadInformation();
         void ReadLevelInfo(const std::string& filepath);
-        void CreateWorldCollision();
-        void AddEnemyCollider(const diji::Collider* collider) { m_EnemyColliders.insert(collider); }
         void ClearListeners();
         void SavePlayerState();
     };
