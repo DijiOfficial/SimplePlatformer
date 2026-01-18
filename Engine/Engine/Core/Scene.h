@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "GameObject.h"
+#include "Engine.h"
+#include "../RAII_Wrappers/SplitScreenView.h"
+
 #include <map>
 #include <memory>
 #include <string>
 #include <SFML/Graphics/View.hpp>
-
-#include "Engine.h"
-#include "../RAII_Wrappers/SplitScreenView.h"
 
 namespace diji 
 {
@@ -51,7 +51,7 @@ namespace diji
         [[nodiscard]] GameObject* GetGameObject(const std::string& name) const;
         [[nodiscard]] std::string GetGameObjectName(const GameObject* object) const;
         void ChangeViewCenter(int idx, const sf::Vector2f& newCenter);
-        void SetViewParameters(int idx, const Transform* target, bool isFollowing = false, const sf::Vector2f& offset = {});
+        void SetViewParameters(int idx, Transform* target, bool isFollowing = false, const sf::Vector2f& offset = {});
         [[nodiscard]] sf::Vector2i GetScreenPosition(const sf::Vector2f& worldCoords) const;
 
         void SetGameObjectAsCanvasObject(const std::string& name);

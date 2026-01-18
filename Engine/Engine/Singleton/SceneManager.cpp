@@ -59,7 +59,6 @@ void diji::SceneManager::FixedUpdate() const
 void diji::SceneManager::Update() const
 {
     m_ScenesUPtrMap.at(m_ActiveSceneId)->Update();
-    TimerManager::GetInstance().Update(); // I'm not sure if it matters where/when this is updated. (before/after comps, late update?)
 
     m_TimelineManagerUPtr->UpdateAll();
 }
@@ -67,6 +66,8 @@ void diji::SceneManager::Update() const
 void diji::SceneManager::LateUpdate() const
 {
     m_ScenesUPtrMap.at(m_ActiveSceneId)->LateUpdate();
+
+    TimerManager::GetInstance().Update();
 }
 
 void diji::SceneManager::Render() const
@@ -229,7 +230,7 @@ void diji::SceneManager::ChangePlayerViewCenter(const int currPlayer, const sf::
     m_ScenesUPtrMap.at(m_ActiveSceneId)->ChangeViewCenter(currPlayer, newCenter);
 }
 
-void diji::SceneManager::SetViewParameters(const int idx, const Transform* target, const bool isFollowing, const sf::Vector2f& offset) const
+void diji::SceneManager::SetViewParameters(const int idx, Transform* target, const bool isFollowing, const sf::Vector2f& offset) const
 {
     for (const auto& scene : m_ScenesUPtrMap | std::views::values)
     {

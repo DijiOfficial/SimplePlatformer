@@ -11,7 +11,6 @@ namespace sf
 
 namespace diji 
 {
-    // todo: add a scale member variable.
     class TextComp final : public Component
     { 
     public:

@@ -6,7 +6,7 @@ namespace diji
     class Controller final
     {
     public:
-        enum class Button : unsigned int
+        enum class Button : uint16_t
         {
             DPadUp = 0x0001,
             DPadDown = 0x0002,

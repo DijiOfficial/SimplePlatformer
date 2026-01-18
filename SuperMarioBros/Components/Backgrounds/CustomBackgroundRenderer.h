@@ -28,6 +28,7 @@ namespace superMarioBros
         void RenderFrame() const override;
 
     private:
+        const diji::GameObject* m_OwnerPtr = nullptr;
         diji::TextureComp* m_TextureCompPtr = nullptr;
         diji::Transform* m_PlayerTransformPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;

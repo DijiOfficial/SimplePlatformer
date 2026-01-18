@@ -33,7 +33,7 @@ diji::Camera::Camera(GameObject* ownerPtr, const sf::Vector2u size)
 
 void diji::Camera::Init()
 {
-    m_TransformCompPtr = GetOwner()->GetComponent<Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
     window::g_window_ptr->setView(m_CameraView);
 }
 
@@ -41,7 +41,7 @@ void diji::Camera::LateUpdate()
 {
     if (m_IsLocked) return;
 
-    sf::Vector2f cameraPos = m_TransformCompPtr->GetPosition() + m_CameraOffset;
+    sf::Vector2f cameraPos = m_TransformCompPtr->GetWorldPosition() + m_CameraOffset;
 
     if (m_IsClamped)
         Clamp(cameraPos);
@@ -52,12 +52,12 @@ void diji::Camera::LateUpdate()
 
 void diji::Camera::SetFollow(const GameObject* target)
 {
-    m_TransformCompPtr = target->GetComponent<Transform>();
+    m_TransformCompPtr = target->GetRootComponent();
 }
 
 void diji::Camera::SetFollowSelf()
 {
-    m_TransformCompPtr = GetOwner()->GetComponent<Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
 }
 
 void diji::Camera::SetAsMainView() const
@@ -67,7 +67,7 @@ void diji::Camera::SetAsMainView() const
 
 void diji::Camera::ClearFollow()
 {
-    m_TransformCompPtr = GetOwner()->GetComponent<Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
 }
 
 sf::Vector2i diji::Camera::GetMouseWorldPosition(const sf::Vector2i& pos) const

@@ -31,12 +31,12 @@ void superMarioBros::CastleFlag::StartAnimation(const int fireworksToSpawn)
     auto &track = timeline->AddFloatTrack("MoveVertically");
     track.keys = { { .time= 0.f, .value= 0.f }, { .time= 0.5f, .value= 75.f }, };
     
-    diji::Transform* transformPtr = GetOwner()->GetComponent<diji::Transform>();
-    sf::Vector2f originalPos = transformPtr->GetPosition();
+    diji::Transform* transformPtr = GetOwner()->GetRootComponent();
+    sf::Vector2f originalPos = transformPtr->GetWorldPosition();
     
     track.onValue = [transformPtr, originalPos](const float y)
     {
-        transformPtr->SetPosition(originalPos.x, originalPos.y - y);
+        transformPtr->SetWorldPosition(sf::Vector2f{ originalPos.x, originalPos.y - y });
     };
 
     auto& [eventName, eventKeysVec] = timeline->AddEventTrack("OnAnimationEnd");
@@ -69,7 +69,7 @@ void superMarioBros::CastleFlag::SpawnFirework()
 {
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_fireworks.wav", false);
 
-    const sf::Vector2f center = GetOwner()->GetComponent<diji::Transform>()->GetPosition();
+    const sf::Vector2f center = GetOwner()->GetRootComponent()->GetWorldPosition();
 
     constexpr float halfWidth = 400.0f;
     constexpr float heightAbove = 400.0f;
@@ -80,9 +80,8 @@ void superMarioBros::CastleFlag::SpawnFirework()
     const sf::Vector2f spawnPos{ randomX, randomY };
 
     auto fireWork = std::make_unique<diji::GameObject>();
-    fireWork->AddComponents<diji::Transform>(0, 0);
-    fireWork->AddComponents<diji::SpriteRenderComponent>("graphics/explosion.png", sf::Vector2i{ 50, 50 }, 3, 0.135f);
-    fireWork->AddComponents<diji::AutoDestroy>(0.405f);
+    fireWork->AddComponent<diji::SpriteRenderComponent>("graphics/explosion.png", sf::Vector2i{ 50, 50 }, 3, 0.135f);
+    fireWork->AddComponent<diji::AutoDestroy>(0.405f);
 
     (void)diji::SceneManager::GetInstance().SpawnGameObject("G_fireWork", std::move(fireWork), spawnPos);
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(500);

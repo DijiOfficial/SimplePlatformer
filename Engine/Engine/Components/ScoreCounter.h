@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include <string>
-
 #include "Component.h"
+
+#include <string>
 
 namespace diji
 {

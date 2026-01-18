@@ -33,7 +33,6 @@ void diji::PhysicsWorld::AddCollider(Collider* collider)
         info.collider = collider;
 
         // Check for existing static collider?
-        
         m_StaticInfos.emplace_back(info);
     }
     else
@@ -47,7 +46,6 @@ void diji::PhysicsWorld::RemoveCollider(Collider* collider)
 {
     std::erase(m_DynamicColliders, collider);
 
-    // Remove any static info with matching owner
     const auto it = std::ranges::find_if(m_StaticInfos,
         [collider](const StaticColliderInfo& sColInfo)
         { 
@@ -81,7 +79,6 @@ void diji::PhysicsWorld::FixedUpdate()
             if (!prediction.collider->IsMoveable())
                 continue;
 
-            // Apply resolution logic here
             ResolveCollision(prediction, collision);
             // ApplyFriction(prediction, collision);
         }
@@ -106,7 +103,6 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
     std::optional<RaycastHit> closestHit;
     float closestDist = maxDistance;
     
-    // Handle zero direction
     const sf::Vector2f invDir
     {
         direction.x == 0.0f ? std::numeric_limits<float>::max() : 1.0f / direction.x,
@@ -132,16 +128,13 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
         tEnter = std::max(tEnter, std::min(t3, t4));
         tExit  = std::min(tExit,  std::max(t3, t4));
 
-        // No hit if outside [0,∞) or entry after exit
         if (tExit < 0.0f || tEnter > tExit) return;
 
         const float hitParam = (tEnter >= 0.0f ? tEnter : tExit);
         if (hitParam < 0.0f || hitParam > closestDist) return;
 
-        // Calculate actual hit point
         const sf::Vector2f hitPoint = origin + direction * hitParam;
         
-        // Calculate ACTUAL distance from origin to hit point
         const sf::Vector2f deltaToHit = hitPoint - origin;
         const float actualDistance = Helpers::LengthFast(deltaToHit);
         
@@ -149,7 +142,6 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
 
         const sf::Vector2f normal = col->GetSurfaceNormalAt(hitPoint);
 
-        // Record hit
         RaycastHit hit;
         hit.collider            = col;
         hit.info.point          = hitPoint;
@@ -188,23 +180,19 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
 
 void diji::PhysicsWorld::RemoveFromTriggerLists(Collider* collider)
 {
-    // Remove from current frame triggers
     auto removeFromActive = [collider](const TriggerPair& pair)
     {
         return pair.trigger == collider || pair.other == collider;
     };
     std::erase_if(m_ActiveTriggers, removeFromActive);
     
-    // Remove from previous frame triggers
     std::erase_if(m_PreviousFrameTriggers, removeFromActive);
     
-    // Remove from hit event triggers
     std::erase_if(m_HitEventTriggers, removeFromActive);
 }
 
 void diji::PhysicsWorld::ProcessTriggerEvents()
 {
-    // Process Enter events (new triggers)
     for (const auto& trigger : m_ActiveTriggers)
     {
         if (std::ranges::find(m_PreviousFrameTriggers, trigger) == m_PreviousFrameTriggers.end())
@@ -213,7 +201,6 @@ void diji::PhysicsWorld::ProcessTriggerEvents()
         }
     }
     
-    // Process Exit events (triggers that ended)
     for (const auto& trigger : m_PreviousFrameTriggers)
     {
         if (std::ranges::find(m_ActiveTriggers, trigger) == m_ActiveTriggers.end())
@@ -222,7 +209,6 @@ void diji::PhysicsWorld::ProcessTriggerEvents()
         }
     }
     
-    // Process Stay events (continuing triggers) 
     for (const auto& trigger : m_ActiveTriggers)
     {
         if (std::ranges::find(m_PreviousFrameTriggers, trigger) != m_PreviousFrameTriggers.end())
@@ -231,7 +217,6 @@ void diji::PhysicsWorld::ProcessTriggerEvents()
         }
     }
 
-    // Process Hit events (only fire once per new collision)
     for (const auto& trigger : m_HitEventTriggers)
     {
         NotifyHitEvent(trigger, EventType::Hit);
@@ -245,7 +230,6 @@ void diji::PhysicsWorld::ProcessTriggerEvents()
 
 void diji::PhysicsWorld::NotifyTriggerEvent(const TriggerPair& trigger, const EventType eventType)
 {
-    // Get GameObjects from both colliders and notify them
     if (auto* triggerGameObject = trigger.trigger->GetParent())
         triggerGameObject->NotifyTriggerEvent(trigger.other, eventType, trigger.hitInfo);
     
@@ -255,7 +239,6 @@ void diji::PhysicsWorld::NotifyTriggerEvent(const TriggerPair& trigger, const Ev
 
 void diji::PhysicsWorld::NotifyHitEvent(const TriggerPair& trigger, const EventType eventType)
 {
-    // Only notify the "trigger" collider GameObject
     if (auto* triggerGameObject = trigger.trigger->GetParent())
         triggerGameObject->NotifyTriggerEvent(trigger.other, eventType, trigger.hitInfo);
 }
@@ -277,7 +260,7 @@ void diji::PhysicsWorld::PredictMovement(std::vector<Prediction>& predictionsVec
 
         vel += forcesApplied * dt;
 
-        sf::Vector2f proposedPos = collider->GetNewPosition() + vel * dt;
+        sf::Vector2f proposedPos = collider->GetParent()->GetObjectPosition() + vel * dt;
         const auto predictedAabb = collider->GetAABBAt(proposedPos);
 
         predictionsVec.push_back({ .collider= collider, .AABB= predictedAabb, .pos= proposedPos, .vel= vel, .collisionInfoVec={} });
@@ -459,24 +442,17 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
 
 void diji::PhysicsWorld::ResolveCollision(Prediction& prediction, const CollisionInfo& collision)
 {
-    // Calculate relative velocity in collision normal direction
     const float velocityAlongNormal = Helpers::DotProduct(prediction.vel, collision.normal);
     
-    // Objects separating? No collision response needed
+    // Objects separating? No collision response needed (technically not needed as I'm snapping instead of resolving over dt)
     if (velocityAlongNormal > 0) return;
     
-    // Calculate impulse scalar using coefficient of restitution
     const float restitution = prediction.collider->GetRestitution();
     const float impulseScalar = -(1 + restitution) * velocityAlongNormal;
-    
-    // Apply impulse to velocity (since we have infinite mass walls, only affect player)
     const sf::Vector2f impulse = impulseScalar * collision.normal;
     prediction.vel += impulse;
-    
-    // Store impulse magnitude for friction calculation
     collision.normalImpulse = impulseScalar;
 
-    // Position correction to prevent sinking
     constexpr float correctionSlop = 0.1f;    // Minimum penetration to correct
     if (collision.penetration > correctionSlop)
     {
@@ -490,6 +466,7 @@ void diji::PhysicsWorld::ResolveCollision(Prediction& prediction, const Collisio
     // prediction.pos = collision.point;
 }
 
+// AI attempt at implementing Coulomb friction model with static and kinetic friction. I haven't checked thus I'm not using it
 void diji::PhysicsWorld::ApplyFrictionOnceWithStaticKinetic(Prediction& prediction) const
 {
     const float dt = m_TimeSingletonInstance.GetFixedUpdateDeltaTime();
@@ -507,10 +484,9 @@ void diji::PhysicsWorld::ApplyFrictionOnceWithStaticKinetic(Prediction& predicti
         anyCollision = true;
         const float absN = std::abs(collisionInfo.normalImpulse);
         totalNormalImpulse += absN;
-        weightedTangent += collisionInfo.tangent * absN; // weight tangent by contact normal impulse
+        weightedTangent += collisionInfo.tangent * absN; 
     }
 
-    // If no collisions, do nothing
     if (!anyCollision) return;
 
     // If total normal impulse is essentially zero, fallback to simple frame-based budget
@@ -536,10 +512,10 @@ void diji::PhysicsWorld::ApplyFrictionOnceWithStaticKinetic(Prediction& predicti
     }
 
     // 2) Determine representative tangent direction
-    const float tlen = Helpers::LengthFast(weightedTangent);
+    const float tLen = Helpers::LengthFast(weightedTangent);
     sf::Vector2f repTangent;
-    if (tlen > eps)
-        repTangent = weightedTangent / tlen; // normalized
+    if (tLen > eps)
+        repTangent = weightedTangent / tLen; // normalized
     else
     {
         // As fallback use current velocity's direction orthogonal to normal sum.
@@ -557,7 +533,7 @@ void diji::PhysicsWorld::ApplyFrictionOnceWithStaticKinetic(Prediction& predicti
     // 4) Friction budget (impulse) via Coulomb: maxFrictionImpulse = mu * totalNormalImpulse
     // Support both static and kinetic friction coefficients:
     // If your Collider only has one friction value, treat it as kinetic and compute static=1.5*mu_kinetic for a bit "stickiness".
-    float mu_k = prediction.collider->GetKineticFriction();       // kinetic
+    const float mu_k = prediction.collider->GetKineticFriction();       // kinetic
     float mu_s = prediction.collider->GetStaticFriction(); // static; ensure you add this accessor or fallback below
 
     // Fallback if collider doesn't expose static friction separately:
@@ -599,7 +575,6 @@ void diji::PhysicsWorld::ApplyFrictionOnce(Prediction& prediction) const
     const float mass = prediction.collider->GetMass();
     if (mass <= 0.0f) return;
 
-    // If there were no collisions this frame, do nothing
     bool hadCollision = false;
     bool hasGroundCollision = false;
 
@@ -610,7 +585,7 @@ void diji::PhysicsWorld::ApplyFrictionOnce(Prediction& prediction) const
 
         hadCollision = true;
 
-        // Determine if this is a "ground" collision — assumes normal points upward
+        // Determine if this is a "ground" collision, assumes normal points upward
         if (collisionInfo.normal.y < -0.5f) // adjust threshold as needed
         {
             hasGroundCollision = true;
@@ -621,22 +596,16 @@ void diji::PhysicsWorld::ApplyFrictionOnce(Prediction& prediction) const
     if (!hadCollision)
         return;
 
-    // If collider only applies ground friction, require ground collision
     if (prediction.collider->IsOnlyApplyingGroundFriction() && !hasGroundCollision)
         return;
 
-    // Current linear speed
     const float speed = Helpers::LengthFast(prediction.vel);
     if (speed <= Helpers::EPSILON)
-        return; // already stopped or too small to matter
+        return;
 
-    // Friction force (simple model): F = mu * normalForce
     const float gravityMagnitude = std::abs(m_Gravity.y);
     const float normalForce = mass * gravityMagnitude;
-
     const float frictionForce = mu * normalForce;
-
-    // Convert friction force to impulse over this frame
     const float maxFrictionImpulseThisFrame = frictionForce * dt;
     const float neededImpulse = mass * speed;
     const float appliedImpulse = std::min(maxFrictionImpulseThisFrame, neededImpulse);
@@ -644,7 +613,6 @@ void diji::PhysicsWorld::ApplyFrictionOnce(Prediction& prediction) const
     if (appliedImpulse <= 0.0f)
         return;
 
-    // Apply impulse opposite to current velocity vector
     const sf::Vector2f velDir = prediction.vel / speed;
     const sf::Vector2f deltaV = -(appliedImpulse / mass) * velDir;
 
@@ -658,7 +626,6 @@ void diji::PhysicsWorld::ApplyFriction(Prediction& prediction)
     const float mass = prediction.collider->GetMass();
     if (mass <= 0.0f) return;
 
-    // Sum normal impulses and compute a representative tangent (averaged)
     float totalNormalImpulse = 0.0f;
     sf::Vector2f avgTangent{0.0f, 0.0f};
     int groundContactCount = 0;
@@ -667,7 +634,6 @@ void diji::PhysicsWorld::ApplyFriction(Prediction& prediction)
     {
         if (!collisionInfo.hasCollision) continue;
 
-        // Only consider contacts that are roughly "under" the body (ground-like)
         if (collisionInfo.normal.y < -groundNormalThreshold)
         {
             totalNormalImpulse += std::abs(collisionInfo.normalImpulse);
@@ -678,30 +644,20 @@ void diji::PhysicsWorld::ApplyFriction(Prediction& prediction)
 
     if (groundContactCount == 0) return;
 
-    // Average and normalize tangent
     avgTangent /= static_cast<float>(groundContactCount);
     const float tangentLen = Helpers::LengthFast(avgTangent);
     if (tangentLen <= std::numeric_limits<float>::epsilon()) return;
     avgTangent /= tangentLen;
 
-    // Compute current tangential (sliding) velocity along the averaged tangent
     const float tangentialVelocity = Helpers::DotProduct(prediction.vel, avgTangent);
-    if (std::abs(tangentialVelocity) < Helpers::EPSILON) return; // effectively not sliding
+    if (std::abs(tangentialVelocity) < Helpers::EPSILON) return;
 
     // Coulomb friction: maximum friction impulse = mu * totalNormalImpulse
-    const float mu = prediction.collider->GetStaticFriction(); // use friction coefficient stored per-collider
-    const float maxFrictionImpulse = mu * totalNormalImpulse; // units: impulse (mass * deltaV)
-
-    // Required impulse to stop tangential velocity in a single impulse: impulse = mass * |v_t|
+    const float mu = prediction.collider->GetStaticFriction();
+    const float maxFrictionImpulse = mu * totalNormalImpulse;
     const float neededImpulse = std::abs(tangentialVelocity) * mass;
-
-    // Choose the impulse we will actually apply (do not exceed Coulomb limit)
     const float appliedImpulse = std::min(maxFrictionImpulse, neededImpulse);
-
-    // Direction: opposite current tangential velocity
     const float sign = (tangentialVelocity > 0.0f) ? -1.0f : 1.0f;
-
-    // Apply resulting Δv to prediction.vel: Δv = appliedImpulse / mass
     const float deltaV = (appliedImpulse / mass) * sign;
     prediction.vel += avgTangent * deltaV;
 }
@@ -710,10 +666,7 @@ void diji::PhysicsWorld::ApplyFriction(Prediction& prediction, const CollisionIn
 {
     // if (collision.normalImpulse <= 0) return;
     
-    // Calculate tangential (sliding) velocity
     const float tangentialVelocity = Helpers::DotProduct(prediction.vel, collision.tangent);
-    
-    // No sliding, no friction needed
     if (std::abs(tangentialVelocity) < 0.001f) return;
 
     const float mass = prediction.collider->GetMass();
@@ -758,11 +711,8 @@ void diji::PhysicsWorld::ApplyFriction(Prediction& prediction, const CollisionIn
 
 void diji::PhysicsWorld::UpdateFinalPosition(const Prediction& prediction)
 {
-    // Update final velocity and position with collision-modified values
     prediction.collider->SetVelocity(prediction.vel);
-    prediction.collider->SetNewPosition(prediction.pos);
-
-    // Clear net forces for next frame
+    prediction.collider->GetParent()->SetObjectPosition(prediction.pos);
     prediction.collider->ClearNetForce();
 }
 

@@ -12,7 +12,7 @@
 
 void superMarioBros::BaseEnemy::Init()
 {
-    m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
     m_SpriteRenderCompPtr = GetOwner()->GetComponent<diji::SpriteRenderComponent>();
 
@@ -31,15 +31,15 @@ void superMarioBros::BaseEnemy::Start()
 
 void superMarioBros::BaseEnemy::Update()
 {
-    if (m_TransformCompPtr->GetPosition().y > 600.f)
+    if (m_TransformCompPtr->GetWorldPosition().y > 600.f)
         Destroy();
 }
 
 void superMarioBros::BaseEnemy::FixedUpdate()
 {
     if (m_Paused) return;
-    
-    m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
+
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_Speed, m_ColliderCompPtr->GetVelocity().y });
 }
 
 void superMarioBros::BaseEnemy::CheckActivation(const int milestone) const
@@ -51,7 +51,7 @@ void superMarioBros::BaseEnemy::CheckActivation(const int milestone) const
 
 void superMarioBros::BaseEnemy::SpawnPointsText(const std::string& score) const
 {
-    const auto& pos = m_TransformCompPtr->GetPosition();
+    const auto& pos = m_TransformCompPtr->GetWorldPosition();
     const auto& yOffset = m_ColliderCompPtr->GetShape()->GetAABB().size.y * 3.f;
     const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
     GameManager::SpawnPointsText(scorePos, score);

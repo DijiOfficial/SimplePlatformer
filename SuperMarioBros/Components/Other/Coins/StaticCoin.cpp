@@ -24,6 +24,6 @@ void superMarioBros::StaticCoin::HandleBumpedBehavior(const bool, const bool)
     if (m_IsCollected) return;
     m_IsCollected = true;
     
-    MarioHelpers::SpawnCoinAboveBlock(GetOwner()->GetComponent<diji::Transform>()->GetPosition() + sf::Vector2f{ 0.f, 50.f });
+    MarioHelpers::SpawnCoinAboveBlock(GetOwner()->GetRootComponent()->GetWorldPosition() + sf::Vector2f{ 0.f, 50.f });
     Destroy();
 }

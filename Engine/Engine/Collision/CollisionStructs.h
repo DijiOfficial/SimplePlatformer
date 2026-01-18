@@ -6,7 +6,7 @@ namespace diji
 {
     class Collider;
 
-    enum class EventType
+    enum class EventType : uint8_t
     {
         Enter = 0,
         Stay = 1,

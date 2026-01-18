@@ -20,7 +20,7 @@ superMarioBros::BasePowerUp::BasePowerUp(diji::GameObject* ownerPtr, const IPowe
 
 void superMarioBros::BasePowerUp::Init()
 {
-    m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
     
     if (const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar"))
@@ -44,7 +44,7 @@ void superMarioBros::BasePowerUp::Start()
 
 void superMarioBros::BasePowerUp::Update()
 {
-    if (m_TransformCompPtr->GetPosition().y > 600.f)
+    if (m_TransformCompPtr->GetWorldPosition().y > 600.f)
         Destroy();
 }
 
@@ -52,7 +52,7 @@ void superMarioBros::BasePowerUp::FixedUpdate()
 {
     if (m_Paused || !m_CanMove) return;
 
-    m_TransformCompPtr->AddOffset(m_Speed * diji::TimeSingleton::GetInstance().GetFixedUpdateDeltaTime(), 0.f);
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_Speed, m_ColliderCompPtr->GetVelocity().y });
 }
 
 void superMarioBros::BasePowerUp::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&)
@@ -62,7 +62,7 @@ void superMarioBros::BasePowerUp::OnTriggerEnter(const diji::Collider* other, co
     
     Destroy();
 
-    const auto& pos = m_TransformCompPtr->GetPosition();
+    const auto& pos = m_TransformCompPtr->GetWorldPosition();
     constexpr float yOffset = 50.f;
     const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
     GameManager::SpawnPointsText(scorePos, m_PointString);
@@ -86,12 +86,12 @@ void superMarioBros::BasePowerUp::PlayStartAnimation()
     auto &track = m_TimelinePtr->AddFloatTrack("MoveVertically");
     track.keys = { { .time= 0.f, .value= 0.f }, { .time= 0.8f, .value= -50.f } };
 
-    diji::Transform* transformPtr = GetOwner()->GetComponent<diji::Transform>();
-    sf::Vector2f originalPos = transformPtr->GetPosition();
+    diji::Transform* transformPtr = GetOwner()->GetRootComponent();
+    sf::Vector2f originalPos = transformPtr->GetWorldPosition();
 
     track.onValue = [transformPtr, originalPos](const float y)
     {
-        transformPtr->SetPosition(originalPos.x, originalPos.y + y);
+        transformPtr->SetWorldPosition(sf::Vector2f{ originalPos.x, originalPos.y + y });
     };
 
     auto& [eventName, eventKeysVec] = m_TimelinePtr->AddEventTrack("OnAnimationEnd");

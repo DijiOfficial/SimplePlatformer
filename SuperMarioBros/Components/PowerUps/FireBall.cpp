@@ -74,9 +74,9 @@ void superMarioBros::FireBall::SpawnVFX() const
     Destroy();
 
     auto explosion = std::make_unique<diji::GameObject>();
-    explosion->AddComponents<diji::Transform>(300, 200);
-    explosion->AddComponents<diji::SpriteRenderComponent>("graphics/explosion.png", sf::Vector2i{ 50,50 }, 4, 0.035f);
+    explosion->SetObjectPosition(sf::Vector2f{ 300, 200 });
+    explosion->AddComponent<diji::SpriteRenderComponent>("graphics/explosion.png", sf::Vector2i{ 50,50 }, 4, 0.035f);
     explosion->GetComponent<diji::SpriteRenderComponent>()->SetLooping(false);
-    explosion->AddComponents<diji::AutoDestroy>(1.f);
-    diji::SceneManager::GetInstance().SpawnGameObject("Y_fireBallExplosion", std::move(explosion), GetOwner()->GetComponent<diji::Transform>()->GetPosition());
+    explosion->AddComponent<diji::AutoDestroy>(1.f);
+    diji::SceneManager::GetInstance().SpawnGameObject("Y_fireBallExplosion", std::move(explosion), GetOwner()->GetRootComponent()->GetWorldPosition());
 }

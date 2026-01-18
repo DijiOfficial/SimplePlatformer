@@ -44,7 +44,9 @@ namespace diji
 		};
 
 		static float Right(const sf::FloatRect& r)  { return r.position.x + r.size.x; }
+		static float Left(const sf::FloatRect& r)	{ return r.position.x - r.size.x; }
 		static float Bottom(const sf::FloatRect& r) { return r.position.y  + r.size.y; }
+		static float Top(const sf::FloatRect& r)	{ return r.position.y  - r.size.y; }
 
 		std::optional<RaycastHit> Raycast(const sf::Vector2f& origin, const sf::Vector2f& direction, float maxDistance, const Collider* collider = nullptr) const;
 
@@ -79,30 +81,28 @@ namespace diji
 		static void NotifyTriggerEvent(const TriggerPair& trigger, EventType eventType);
 		static void NotifyHitEvent(const TriggerPair& trigger, EventType eventType);
 		
-		// Collision detection/resolution
 		static bool AABBOverlap(const sf::FloatRect& a, const sf::FloatRect& b)
 		{
-			return !(Right(a) <= b.position.x ||
-					 Right(b) <= a.position.x ||
-					 Bottom(a) <= b.position.y ||
-					 Bottom(b) <= a.position.y);
+			return !(Right(a) <= Left(b) ||
+					 Right(b) <= Left(a) ||
+					 Bottom(a) <= Top(b) ||
+					 Bottom(b) <= Top(a));
 		}
 		
 		void PredictMovement(std::vector<Prediction>& predictionsVec) const;
 		void DetectCollisions(std::vector<Prediction>& predictionsVec);
-
 		static void ResolveCollision(Prediction& prediction, const CollisionInfo& collision);
 		
+		static void UpdateFinalPosition(const Prediction& prediction);
+		static CollisionDetectionResult HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider);
+		static CollisionDetectionResult HandleDynamicCollisions(Prediction& dynamicColliderA, Prediction& dynamicColliderB);
+
 		// different friction models, not sure which one to use
 		void ApplyFrictionOnceWithStaticKinetic(Prediction& prediction) const;
 		void ApplyFrictionOnce(Prediction& prediction) const;
 		void ApplyFriction(Prediction& prediction, const CollisionInfo& collision) const;
 		static void ApplyFriction(Prediction& prediction);
-
-		static void UpdateFinalPosition(const Prediction& prediction);
-		static CollisionDetectionResult HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider);
-		static CollisionDetectionResult HandleDynamicCollisions(Prediction& dynamicColliderA, Prediction& dynamicColliderB);
-
+		
 		// QuadTree Functions
 		void UpdateWorldBounds(const sf::FloatRect& aabb);
 	};

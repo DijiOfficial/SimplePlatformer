@@ -1,6 +1,5 @@
 ﻿#include "CollisionsHelper.h"
 #include "../Singleton/Helpers.h"
-#include "PhysicsWorld.h"
 
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -196,8 +195,8 @@ std::vector<sf::Vector2f> diji::CollisionsHelper::GetBoxAxes(const std::vector<s
     std::vector<sf::Vector2f> axes;
     for (size_t i = 0; i < corners.size(); ++i)
     {
-        sf::Vector2f p1 = corners[i];
-        sf::Vector2f p2 = corners[(i + 1) % corners.size()];
+        const sf::Vector2f p1 = corners[i];
+        const sf::Vector2f p2 = corners[(i + 1) % corners.size()];
         const sf::Vector2f edge = p2 - p1;
 
         sf::Vector2f normal(-edge.y, edge.x);
@@ -241,7 +240,7 @@ void diji::CollisionsHelper::ProjectCircleOntoAxis(const sf::CircleShape& circle
 {
     const sf::Vector2f distanceToCircleEdge = axis * circle.getRadius();
 
-    const sf::Vector2f p1 = circle.getPosition() + distanceToCircleEdge; // origin? I think it's alread centered
+    const sf::Vector2f p1 = circle.getPosition() + distanceToCircleEdge; // origin? I think it's already centered
     const sf::Vector2f p2 = circle.getPosition() - distanceToCircleEdge;
 
     min = Helpers::DotProduct(p1, axis);

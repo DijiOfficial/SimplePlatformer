@@ -38,7 +38,7 @@ namespace superMarioBros
         diji::Collider* m_ColliderCompPtr = nullptr;
         std::string m_PointString = "1000";
         IPowerUp::PowerUpType m_PowerUpType = IPowerUp::PowerUpType::None;
-        float m_Speed = 400.f;
+        float m_Speed = 200.f;
         bool m_Paused = true;
         bool m_CanMove = false;
         

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <cstdint>
 #include <SFML/System/Vector2.hpp>
 
 namespace diji
@@ -35,7 +36,7 @@ namespace superMarioBros
             bool m_IsLooping = true;
         };
         
-        enum class PlayerState
+        enum class PlayerState : uint8_t
         {
             Idle,
             Walking,

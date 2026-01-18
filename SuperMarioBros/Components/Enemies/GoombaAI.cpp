@@ -8,7 +8,6 @@
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/Helpers.h"
-#include "Engine/Singleton/SceneManager.h"
 
 void superMarioBros::GoombaAI::HandleStomp(const diji::Collider* other, const std::string& score)
 {
@@ -29,6 +28,7 @@ void superMarioBros::GoombaAI::HandleStomp(const diji::Collider* other, const st
     Destroy(0.65f);
 
     m_Speed = 0.f;
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_Speed, m_ColliderCompPtr->GetVelocity().y });
     SpawnPointsText(score);
 }
 
@@ -51,7 +51,7 @@ void superMarioBros::GoombaAI::HandleBumpedBehavior(const bool isBumpingLeft, co
     
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_kick.wav", false);
 
-    m_TransformCompPtr->SetRotation(sf::degrees(180.f));
+    m_TransformCompPtr->SetWorldRotation(sf::degrees(180.f));
     GetOwner()->GetComponent<diji::SpriteRenderComponent>()->Pause();
     
     const sf::Vector2f impulse = isBumpingLeft ? sf::Vector2f{-300.f, -1200.f} : sf::Vector2f{300.f, -1200.f};
@@ -60,7 +60,7 @@ void superMarioBros::GoombaAI::HandleBumpedBehavior(const bool isBumpingLeft, co
     m_Paused = true;
 
     if (!addPoints) return;
-    GameManager::SpawnPointsText(m_TransformCompPtr->GetPosition(), "100");
+    GameManager::SpawnPointsText(m_TransformCompPtr->GetWorldPosition(), "100");
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(100);
 }
 

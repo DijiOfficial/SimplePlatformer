@@ -21,7 +21,7 @@
 diji::Engine::Engine(const std::string& dataPath, const std::string& title, const bool useScreenResolution)
 {
 	window::VIEWPORT = useScreenResolution ? sf::Vector2u{ sf::VideoMode::getDesktopMode().size.x, sf::VideoMode::getDesktopMode().size.y } : sf::Vector2u{ 1920, 1080 };
-	window::g_window_ptr = std::make_unique<sf::RenderWindow>(sf::VideoMode(sf::Vector2u{ window::VIEWPORT.x, window::VIEWPORT.y }), title, sf::Style::Default ,sf::State::Fullscreen);
+	window::g_window_ptr = std::make_unique<sf::RenderWindow>(sf::VideoMode(sf::Vector2u{ window::VIEWPORT.x, window::VIEWPORT.y }), title, sf::Style::Default ,sf::State::Windowed);
 	
 	if (window::g_window_ptr == nullptr)
 	{
@@ -43,7 +43,7 @@ void diji::Engine::Run(const std::function<void()>& load)
 	load();
 	
 	//Enable vSync
-	// ValidateVSync();
+	ValidateVSync();
 	
 	// window::g_window_ptr->setVerticalSyncEnabled(true);
 	// constexpr bool isFrameRateTooLow = useFixedFrameRate && (FRAME_RATE <= FIXED_TIME_STEP);

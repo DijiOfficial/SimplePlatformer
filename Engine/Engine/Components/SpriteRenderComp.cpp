@@ -27,29 +27,21 @@ diji::SpriteRenderComponent::SpriteRenderComponent(GameObject* ownerPtr, const s
 
 void diji::SpriteRenderComponent::Init()
 {
-    m_TransformCompPtr = GetOwner()->GetComponent<Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
 }
 
 void diji::SpriteRenderComponent::Start()
 {
     if (m_SkipStart) return;
     
-    m_Sprite.setScale(sf::Vector2f{ m_Scale, m_Scale });
-
+    m_Sprite.setScale(m_TransformCompPtr->GetWorldScale2D());
     m_Sprite.setTextureRect(sf::IntRect{ sf::Vector2i{ 0, 0 }, sf::Vector2i{ m_FrameSize.x, m_FrameSize.y } });
 }
 
 void diji::SpriteRenderComponent::LateUpdate()
 {
-    const sf::Vector2f pos = [this]()
-    {
-        if (m_TransformCompPtr)
-            return m_TransformCompPtr->GetPosition();
-        
-        return sf::Vector2f{ 0, 0 };
-    }();
-    m_Sprite.setPosition(pos);
-    m_Sprite.setRotation(m_TransformCompPtr->GetRotation());
+    m_Sprite.setPosition(m_TransformCompPtr->GetWorldPosition());
+    m_Sprite.setRotation(m_TransformCompPtr->GetWorldRotation());
     
     if (!m_IsPlaying) return;
     
@@ -109,7 +101,8 @@ void diji::SpriteRenderComponent::SetFrameSizeY(const int y)
 
 sf::Vector2f diji::SpriteRenderComponent::GetScaledSize() const
 {
-    return sf::Vector2f{ std::abs(static_cast<float>(m_FrameSize.x) * m_Scale), std::abs(static_cast<float>(m_FrameSize.y) * m_Scale) };
+    const auto& scale = m_TransformCompPtr->GetWorldScale2D();
+    return sf::Vector2f{ std::abs(static_cast<float>(m_FrameSize.x) * scale.x), std::abs(static_cast<float>(m_FrameSize.y) * scale.y) };
 }
 
 void diji::SpriteRenderComponent::SetTotalAnimationFrames(const int count)
@@ -127,28 +120,46 @@ void diji::SpriteRenderComponent::SetScale(const float scale)
 {
     Render::SetScale(scale);
 
-    m_Sprite.setScale(sf::Vector2f{ m_Scale, m_Scale });
+    m_Sprite.setScale(sf::Vector2f{ scale, scale });
 }
 
 void diji::SpriteRenderComponent::InvertSprite()
 {
-    m_Scale = -m_Scale;
-
-    m_Sprite.setScale(sf::Vector2f{ m_Scale, std::abs(m_Scale) });
+    const auto* owner = GetOwner();
+    const auto scale = [&]()
+    {
+        const auto s = owner->GetObjectScale2D();
+        return sf::Vector2f{ -s.x, std::abs(s.y) };
+    }();
+    
+    owner->SetObjectScale2D(scale);
+    m_Sprite.setScale(scale);
 }
 
 void diji::SpriteRenderComponent::SetSpriteLookingLeft()
 {
-    m_Scale = -std::abs(m_Scale);
+    const auto* owner = GetOwner();
+    const auto scale = [&]()
+    {
+        const auto s = owner->GetObjectScale2D();
+        return sf::Vector2f{ -std::abs(s.x), std::abs(s.y) };
+    }();
 
-    m_Sprite.setScale(sf::Vector2f{ m_Scale, std::abs(m_Scale) });
+    owner->SetObjectScale2D(scale);
+    m_Sprite.setScale(scale);
 }
 
 void diji::SpriteRenderComponent::SetSpriteLookingRight()
 {
-    m_Scale = std::abs(m_Scale);
+    const auto* owner = GetOwner();
+    const auto scale = [&]()
+    {
+        const auto s = owner->GetObjectScale2D();
+        return sf::Vector2f{ std::abs(s.x), std::abs(s.y) };
+    }();
 
-    m_Sprite.setScale(sf::Vector2f{ m_Scale, m_Scale });
+    owner->SetObjectScale2D(scale);
+    m_Sprite.setScale(scale);
 }
 
 void diji::SpriteRenderComponent::SetTotalAnimationTime(const float time)

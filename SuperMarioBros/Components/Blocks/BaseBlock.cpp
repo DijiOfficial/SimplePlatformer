@@ -23,7 +23,7 @@ void superMarioBros::BaseBlock::Init()
     CreateTimeline();
     CreateItemTemplate();
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
-    m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
 }
 
 void superMarioBros::BaseBlock::Bump()
@@ -59,12 +59,12 @@ void superMarioBros::BaseBlock::CreateTimeline()
     auto &track = m_TimelinePtr->AddFloatTrack("MoveVertically");
     track.keys = { { .time= 0.f, .value= 0.f }, { .time= 0.1f, .value= -20.f }, { .time= 0.2f, .value= 0.f } };
     
-    diji::Transform* transformPtr = GetOwner()->GetComponent<diji::Transform>();
-    sf::Vector2f originalPos = transformPtr->GetPosition();
+    diji::Transform* transformPtr = GetOwner()->GetRootComponent();
+    sf::Vector2f originalPos = transformPtr->GetWorldPosition();
     
     track.onValue = [transformPtr, originalPos](const float y)
     {
-        transformPtr->SetPosition(originalPos.x, originalPos.y + y);
+        transformPtr->SetWorldPosition(sf::Vector2f{ originalPos.x, originalPos.y + y });
     };
 
     auto& [eventName, eventKeysVec] = m_TimelinePtr->AddEventTrack("OnAnimationEnd");
@@ -75,7 +75,7 @@ void superMarioBros::BaseBlock::CreateTimeline()
                 OnAnimationEnd();
                 
                 if (m_ItemTemplateUPtr)
-                    (void)diji::SceneManager::GetInstance().SpawnGameObject("C_PowerUp", m_ItemTemplateUPtr.get(), m_TransformCompPtr->GetPosition());
+                    (void)diji::SceneManager::GetInstance().SpawnGameObject("C_PowerUp", m_ItemTemplateUPtr.get(), m_TransformCompPtr->GetWorldPosition());
             }
         }
     };

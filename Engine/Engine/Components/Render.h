@@ -1,8 +1,7 @@
 ﻿#pragma once
-#include <SFML/Graphics/Shader.hpp>
-
 #include "Component.h"
 
+#include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
 namespace diji
@@ -27,7 +26,7 @@ namespace diji
 
         void Init() override;
         void OnEnable() override {}
-        void Start() override;
+        void Start() override {}
         
         void Update() override {}
         void FixedUpdate() override {}
@@ -50,7 +49,6 @@ namespace diji
         virtual void SetScale(float scale);
         
     protected:
-        float m_Scale = 1;
         bool m_Render = true;
         bool m_RenderWithShader = false;
         sf::Shader* m_ShaderPtr = nullptr;

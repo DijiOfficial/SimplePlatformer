@@ -8,6 +8,12 @@ void diji::TimerManager::Init()
 
 void diji::TimerManager::Update()
 {
+    for (auto& callback : m_NextTickCallbacksVec)
+    {
+        callback();
+    }
+    m_NextTickCallbacksVec.clear();
+    
     if (!m_PendingTimers.empty())
     {
         m_Timers.insert(m_Timers.end(), m_PendingTimers.begin(), m_PendingTimers.end());
@@ -77,4 +83,10 @@ void diji::TimerManager::ClearAllTimers()
 {
     m_Timers = std::vector<Timer>();
     m_PendingTimers = std::vector<Timer>();
+    m_NextTickCallbacksVec = std::vector<std::function<void()>>();
+}
+
+void diji::TimerManager::DelayUntilNextTick(std::function<void()> callback)
+{
+    m_NextTickCallbacksVec.emplace_back(std::move(callback));
 }

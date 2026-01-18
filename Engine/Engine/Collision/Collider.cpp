@@ -12,23 +12,16 @@ void diji::Collider::Start()
     if (m_IsInitialized) return;
     m_IsInitialized = true;
     
-    m_TransformCompPtr = GetOwner()->GetComponent<Transform>();
-    m_LastPosition = m_TransformCompPtr->GetPosition();
-    m_NewPosition = m_TransformCompPtr->GetPosition();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
+    m_LastPosition = m_TransformCompPtr->GetWorldPosition();
+    m_NewPosition = m_LastPosition;
 
-    m_Shape->UpdateAABB(m_TransformCompPtr->GetPosition());
+    m_Shape->UpdateAABB(m_NewPosition);
     
     SceneManager::GetInstance().GetPhysicsWorld()->AddCollider(this);
 
     if (m_IsActive && !GetOwner()->IsActive())
         SetActive(false);
-}
-
-void diji::Collider::FixedUpdate()
-{
-    if (m_IsStatic) return;
-
-    m_LastPosition = m_NewPosition;
 }
 
 void diji::Collider::Update()
@@ -37,8 +30,13 @@ void diji::Collider::Update()
 
     // todo: I don't like having to do this duplicate position update. it should be done once and the rest updated properly
     const auto pos = Helpers::lerp(m_LastPosition, m_NewPosition, m_TimeSingletonInstance.GetFixedTimeAlpha());
-    m_TransformCompPtr->SetPosition(pos);
+    m_TransformCompPtr->SetWorldPosition(pos);
     m_Shape->SetPosition(pos);
+}
+
+void diji::Collider::SyncTransform()
+{
+    SetNewPosition(m_TransformCompPtr->GetWorldPosition());
 }
 
 void diji::Collider::OnDestroy()
@@ -54,7 +52,7 @@ void diji::Collider::SetVelocity(const sf::Vector2f& vel)
 
 sf::Vector2f diji::Collider::GetPosition() const
 {
-    return m_TransformCompPtr->GetPosition(); // null check? fuck no if you have no transform comp wtf did you do
+    return m_TransformCompPtr->GetWorldPosition();
 }
 
 sf::FloatRect diji::Collider::GetAABB() const
@@ -117,7 +115,7 @@ void diji::Collider::ResizeCollider(const sf::Vector2f& size) const
     else
         throw std::logic_error("ResizeCollider with sf::Vector2f argument is only valid for RECT shape type.");
 
-    m_Shape->UpdateAABB(m_TransformCompPtr->GetPosition());
+    m_Shape->UpdateAABB(m_TransformCompPtr->GetWorldPosition());
 }
 
 void diji::Collider::ResizeCollider(const float radius) const
@@ -127,7 +125,7 @@ void diji::Collider::ResizeCollider(const float radius) const
     else
         throw std::logic_error("ResizeCollider with float argument is only valid for CIRCLE shape type.");
 
-    m_Shape->UpdateAABB(m_TransformCompPtr->GetPosition());
+    m_Shape->UpdateAABB(m_TransformCompPtr->GetWorldPosition());
 }
 
 sf::Vector2f diji::Collider::GetSurfaceNormalAt(const sf::Vector2f& point) const

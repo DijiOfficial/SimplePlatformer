@@ -6,8 +6,6 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Graphics/ConvexShape.hpp>
 #include <SFML/Graphics/Shape.hpp>
 
 void diji::Renderer::Init(sf::RenderWindow* window)

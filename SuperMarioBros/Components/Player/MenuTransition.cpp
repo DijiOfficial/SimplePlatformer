@@ -10,16 +10,16 @@ void superMarioBros::MenuTransition::Start()
     GetOwner()->GetComponent<PlayerCharacter>()->SetTransitionState();
 
     // create timeline for moving down the pole
-    m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
     const auto timeline = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
-    sf::Vector2f originalPos = m_TransformCompPtr->GetPosition();
+    sf::Vector2f originalPos = m_TransformCompPtr->GetWorldPosition();
 
     auto &track = timeline->AddFloatTrack("MoveVertically");
     track.keys = { { .time= 0.f, .value= 0.f }, { .time= 3.f, .value= 1450 } };
         
     track.onValue = [&, originalPos](const float x)
     {
-        m_TransformCompPtr->SetPosition(originalPos.x + x, m_TransformCompPtr->GetPosition().y);
+        m_TransformCompPtr->SetWorldPosition(sf::Vector2f{ originalPos.x + x, m_TransformCompPtr->GetWorldPosition().y });
     };
 
     auto& [eventName, eventKeysVec] = timeline->GetEventTrack("OnAnimationEnd");

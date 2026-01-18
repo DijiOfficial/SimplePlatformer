@@ -156,7 +156,6 @@ std::vector<diji::QuadTree::QuadTreeNodeCluster> diji::QuadTree::Query(const std
 {
     Clear();
     
-    // Insert colliders (both dynamic and static)
     for (auto* collider : dynamicColliders)
         Insert(collider, false);
 
@@ -164,7 +163,7 @@ std::vector<diji::QuadTree::QuadTreeNodeCluster> diji::QuadTree::Query(const std
         Insert(collider, true, aabb);
 
     std::vector<QuadTreeNodeCluster> clusters;
-    clusters.reserve(64); // heuristic; tune as needed
+    clusters.reserve(64); // tune as needed
     QueryNode(clusters);
     return clusters;
 }
@@ -186,11 +185,9 @@ void diji::QuadTree::QueryNode(std::vector<QuadTreeNodeCluster>& clusters) const
 
 void diji::QuadTree::Clear()
 {
-    // Clear colliders in this node
     m_Dynamic.clear();
     m_Static.clear();
 
-    // Recursively clear children
     for (auto& child : m_Children)
     {
         if (child)

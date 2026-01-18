@@ -1,6 +1,5 @@
 ﻿#include "ISoundSystem.h"
 #include "../Singleton/ResourceManager.h"
-// #include "Music.h"
 #include <SFML/Audio/Sound.hpp>
 
 #include <iostream>
@@ -9,7 +8,7 @@ namespace diji
 {
 	std::unique_ptr<ISoundSystem> ServiceLocator::_ss_instance{ std::make_unique<NullSoundSystem>() };
 
-	void SFMLISoundSystem::PlayAudio(const std::string& audio, const bool isMusic, const int volume)
+	void ISFMLSoundSystem::PlayAudio(const std::string& audio, const bool isMusic, const int volume)
 	{
 		if (audio == "invalid")
 			return;
@@ -37,7 +36,7 @@ namespace diji
         soundEffect.play();
 	}
 
-	SFMLISoundSystem::SFMLISoundSystem()
+	ISFMLSoundSystem::ISFMLSoundSystem()
 	{
 		if (!m_IsRunning)
 		{
@@ -46,7 +45,7 @@ namespace diji
 		}
 	}
 
-	SFMLISoundSystem::~SFMLISoundSystem() noexcept
+	ISFMLSoundSystem::~ISFMLSoundSystem() noexcept
 	{
 		if (m_IsRunning)
 		{
@@ -55,7 +54,7 @@ namespace diji
 		}
 	}
 
-	void SFMLISoundSystem::AddSoundRequest(const std::string& audio, bool isMusic, int volume)
+	void ISFMLSoundSystem::AddSoundRequest(const std::string& audio, bool isMusic, int volume)
 	{
 		std::lock_guard<std::mutex> lock(soundMutex_);
 
@@ -73,7 +72,7 @@ namespace diji
 		condition_.notify_one();
 	}
 
-	void SFMLISoundSystem::Pause()
+	void ISFMLSoundSystem::Pause()
 	{
 		m_IsPaused = true;
 
@@ -84,7 +83,7 @@ namespace diji
 		}
 	}
 
-	void SFMLISoundSystem::Resume()
+	void ISFMLSoundSystem::Resume()
 	{
 		m_IsPaused = false;
 
@@ -95,7 +94,7 @@ namespace diji
 		}
 	}
 
-	void SFMLISoundSystem::StopMusic()
+	void ISFMLSoundSystem::StopMusic()
 	{
 		if (!m_LastMusicPlayed.empty())
 		{
@@ -104,7 +103,7 @@ namespace diji
 		}
 	}
 
-	std::pair<std::pair<bool, int>, std::string> SFMLISoundSystem::GetNextSoundRequest()
+	std::pair<std::pair<bool, int>, std::string> ISFMLSoundSystem::GetNextSoundRequest()
 	{
 		std::unique_lock<std::mutex> lock(soundMutex_);
 
@@ -119,7 +118,7 @@ namespace diji
 		return request;
 	}
 
-	void SFMLISoundSystem::ProcessSounds()
+	void ISFMLSoundSystem::ProcessSounds()
 	{
 		while (m_IsRunning)
 		{

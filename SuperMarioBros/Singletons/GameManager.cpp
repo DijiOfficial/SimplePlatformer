@@ -1,6 +1,5 @@
 ﻿#include "GameManager.h"
 #include "Engine/Singleton/SceneManager.h"
-#include "Engine/Components/Transform.h"
 #include "Engine/Components/TextComp.h"
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Components/Render.h"
@@ -27,6 +26,7 @@
 #include <fstream>
 
 #include "../Components/Blocks/BaseBlock.h"
+#include "Engine/Components/ShapeRender.h"
 
 namespace superMarioBros
 {
@@ -125,14 +125,14 @@ void superMarioBros::GameManager::SavePlayerState()
 
 void superMarioBros::GameManager::SpawnPointsText(const sf::Vector2f& position, const std::string& score)
 {
-    sf::Vector2f screenPos = diji::SceneManager::GetInstance().GetScreenPosition(position);
+    const sf::Vector2f screenPos = diji::SceneManager::GetInstance().GetScreenPosition(position);
     // screenPos.y += static_cast<float>(window::VIEWPORT.y) * 0.5f;
     auto pointsText = std::make_unique<diji::GameObject>();
-    pointsText->AddComponents<diji::Transform>(screenPos);
-    pointsText->AddComponents<diji::TextComp>(score, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    pointsText->SetObjectPosition(screenPos);
+    pointsText->AddComponent<diji::TextComp>(score, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     pointsText->GetComponent<diji::TextComp>()->GetText().setCharacterSize(18);
-    pointsText->AddComponents<diji::Render>();
-    pointsText->AddComponents<PointsBehaviour>();
+    pointsText->AddComponent<diji::Render>();
+    pointsText->AddComponent<PointsBehaviour>();
 
     diji::SceneManager::GetInstance().OverwriteCanvasObject("ZZ_pointsText", std::move(pointsText), screenPos);
 }
@@ -255,8 +255,6 @@ void superMarioBros::GameManager::ReadLevelInfo(const std::string& filepath)
 // todo: rename, it also creates enemies
 void superMarioBros::GameManager::CreateWorldCollision()
 {
-    constexpr float kTileSize = 50.0f;
-
     // Clear previously created tagged colliders for tiles 2/3/4
     // m_TileColliders = std::vector<std::unique_ptr<diji::Collider>>();
     
@@ -265,6 +263,7 @@ void superMarioBros::GameManager::CreateWorldCollision()
         int col = 0;
         while (col < m_Cols)
         {
+            constexpr float kTileSize = 50.0f;
             const int idx = row * m_Cols + col;
             const char tile = m_LevelInfo[idx];
 
@@ -284,11 +283,11 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 sf::Vector2f center{ left + width * 0.5f, bottom + height * 0.5f };
 
                 auto tempBound = std::make_unique<diji::GameObject>();
-                tempBound->AddComponents<diji::Transform>(center);
-                tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ static_cast<float>(len) * kTileSize, kTileSize });
+                tempBound->SetObjectPosition(center);
+                tempBound->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ static_cast<float>(len) * kTileSize, kTileSize });
                 const auto collider = tempBound->GetComponent<diji::Collider>();
                 collider->SetStatic(true);
-                // tempBound->AddComponents<diji::ShapeRender>();
+                tempBound->AddComponent<diji::ShapeRender>();
                 collider->SetTag("ground");
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(tempBound), center);
@@ -300,21 +299,21 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 sf::Vector2f center{ left + 25.f, bottom + + 25.f };
 
                 auto luckyBlock = std::make_unique<diji::GameObject>();
-                luckyBlock->AddComponents<diji::Transform>(500, 200);
-                luckyBlock->AddComponents<diji::SpriteRenderComponent>("graphics/luckyBlock.png", sf::Vector2i{ 50,50 }, 6, 0.135f);
+                luckyBlock->SetObjectPosition({500, 200 });
+                luckyBlock->AddComponent<diji::SpriteRenderComponent>("graphics/luckyBlock.png", sf::Vector2i{ 50,50 }, 6, 0.135f);
                 luckyBlock->GetComponent<diji::SpriteRenderComponent>()->SetStartingFrameX(1);
-                luckyBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                luckyBlock->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
                 const auto collider = luckyBlock->GetComponent<diji::Collider>();
                 collider->SetTag("luckyBlock");
                 collider->SetAffectedByGravity(false);
                 collider->SetIsMoveable(false);
                 
                 if (tile == 'e')
-                    luckyBlock->AddComponents<BaseBlock>(BaseBlock::ItemSpawnType::Coin);
+                    luckyBlock->AddComponent<BaseBlock>(BaseBlock::ItemSpawnType::Coin);
                 if (tile == 'y')
-                    luckyBlock->AddComponents<PowerUpBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
+                    luckyBlock->AddComponent<PowerUpBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
                 if (tile == 'x')
-                    luckyBlock->AddComponents<PowerUpBlock>(BaseBlock::ItemSpawnType::PowerUp);
+                    luckyBlock->AddComponent<PowerUpBlock>(BaseBlock::ItemSpawnType::PowerUp);
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_luckyBlock", std::move(luckyBlock), center);
 
@@ -327,40 +326,40 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 sf::Vector2f center{ left + 25.f, bottom + + 25.f };
             
                 auto breakableBlock = std::make_unique<diji::GameObject>();
-                breakableBlock->AddComponents<diji::Transform>(600, 300);
-                breakableBlock->AddComponents<diji::SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50, 50 }, 1, 0.0f);
+                breakableBlock->SetObjectPosition({600, 300 });
+                breakableBlock->AddComponent<diji::SpriteRenderComponent>("graphics/breakableBlock.png", sf::Vector2i{ 50, 50 }, 1, 0.0f);
                 breakableBlock->GetComponent<diji::SpriteRenderComponent>()->SetStartingFrameX(1);
                 breakableBlock->GetComponent<diji::SpriteRenderComponent>()->SetLooping(false);
                 breakableBlock->GetComponent<diji::SpriteRenderComponent>()->SkipStart();
                 breakableBlock->GetComponent<diji::SpriteRenderComponent>()->UpdateFrame();
-                breakableBlock->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                breakableBlock->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
                 const auto collider = breakableBlock->GetComponent<diji::Collider>();
                 collider->SetTag("breakBlock");
                 collider->SetAffectedByGravity(false);
                 collider->SetIsMoveable(false);
 
                 if (tile == 'd')
-                    breakableBlock->AddComponents<BreakableBlock>(BaseBlock::ItemSpawnType::None);
+                    breakableBlock->AddComponent<BreakableBlock>(BaseBlock::ItemSpawnType::None);
                 else if (tile == 'i')
-                    breakableBlock->AddComponents<StarBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
+                    breakableBlock->AddComponent<StarBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
                 else if (tile == 'f')
-                    breakableBlock->AddComponents<MultiCoinBlock>(BaseBlock::ItemSpawnType::Coin);
+                    breakableBlock->AddComponent<MultiCoinBlock>(BaseBlock::ItemSpawnType::Coin);
                 else if (tile == 'n')
                 {
                     breakableBlock->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
                     breakableBlock->GetComponent<diji::Collider>()->SetTag("HiddenBlock");
-                    breakableBlock->AddComponents<OneUpBlock>(BaseBlock::ItemSpawnType::OneUpMushroom);
+                    breakableBlock->AddComponent<OneUpBlock>(BaseBlock::ItemSpawnType::OneUpMushroom);
                 }
                 else if (tile == 't')
                 {
-                    breakableBlock->AddComponents<HiddenBlock>(BaseBlock::ItemSpawnType::None);
+                    breakableBlock->AddComponent<HiddenBlock>(BaseBlock::ItemSpawnType::None);
                     breakableBlock->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
                     breakableBlock->GetComponent<diji::Collider>()->SetTag("HiddenBlock");
                 }
                 else if (tile == 'u')
-                    breakableBlock->AddComponents<StarBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
+                    breakableBlock->AddComponent<BreakableBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
                 else if (tile == 'v')
-                    breakableBlock->AddComponents<PowerUpBlock>(BaseBlock::ItemSpawnType::PowerUp);
+                    breakableBlock->AddComponent<PowerUpBlock>(BaseBlock::ItemSpawnType::PowerUp);
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_breakableBlock", std::move(breakableBlock), center);
                 
@@ -373,18 +372,18 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 sf::Vector2f center{ left + 25.f, bottom + 25.f };
 
                 auto goomba = std::make_unique<diji::GameObject>();
-                goomba->AddComponents<diji::Transform>(2000, 0);
-                goomba->AddComponents<diji::SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
-                goomba->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                goomba->SetObjectPosition({2000, 0 });
+                goomba->AddComponent<diji::SpriteRenderComponent>("graphics/goomba.png", sf::Vector2i{ 50,50 }, 2, 0.15f);
+                goomba->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
                 const auto collider = goomba->GetComponent<diji::Collider>();
                 collider->SetRestitution(0.f);
                 collider->SetMass(0.89f);
                 collider->SetStaticFriction(0.25f);
                 collider->SetKineticFriction(0.15f);
-                collider->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
+                collider->SetMaxVelocity(sf::Vector2f{ 400.f, 10000.f });
                 collider->SetGenerateHitEvents(true);
                 collider->SetTag("enemy");
-                goomba->AddComponents<GoombaAI>();
+                goomba->AddComponent<GoombaAI>();
                 goomba->GetComponent<GoombaAI>()->SetActivationMilestone(col - 20);
                 goomba->SetActive(false);
 
@@ -407,8 +406,8 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 sf::Vector2f center{ left + 25.f, bottom + 25.f };
             
                 auto pole = std::make_unique<diji::GameObject>();
-                pole->AddComponents<diji::Transform>(600, 300);
-                pole->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 24,  16 * 50 });
+                pole->SetObjectPosition({600, 300 });
+                pole->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 24,  16 * 50 });
                 const auto collider = pole->GetComponent<diji::Collider>();
                 collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
                 collider->SetTag("flagPole");
@@ -419,18 +418,18 @@ void superMarioBros::GameManager::CreateWorldCollision()
 
                 // create the flag
                 auto flag = std::make_unique<diji::GameObject>();
-                flag->AddComponents<diji::Transform>(600, 300);
-                flag->AddComponents<diji::TextureComp>("graphics/flag.png");
-                flag->AddComponents<diji::Render>();
-                flag->AddComponents<Flag>();
+                flag->SetObjectPosition({600, 300 });
+                flag->AddComponent<diji::TextureComp>("graphics/flag.png");
+                flag->AddComponent<diji::Render>();
+                flag->AddComponent<Flag>();
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_flag", std::move(flag), center - sf::Vector2f{ 25, 100 });
 
                 // create the poleEnd
                 auto poleTop = std::make_unique<diji::GameObject>();
-                poleTop->AddComponents<diji::Transform>(600, 300);
-                poleTop->AddComponents<diji::TextureComp>("graphics/poleTop.png");
-                poleTop->AddComponents<diji::Render>();
+                poleTop->SetObjectPosition({600, 300 });
+                poleTop->AddComponent<diji::TextureComp>("graphics/poleTop.png");
+                poleTop->AddComponent<diji::Render>();
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_poleTop", std::move(poleTop), center - sf::Vector2f{ 0, 75.f });
                 
@@ -443,17 +442,17 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 sf::Vector2f center{ left + 25.f, bottom + 25.f - 100.f };
             
                 auto castle = std::make_unique<diji::GameObject>();
-                castle->AddComponents<diji::Transform>(600, 300);
-                castle->AddComponents<diji::TextureComp>("graphics/smallCastle.png");
-                castle->AddComponents<diji::Render>();
+                castle->SetObjectPosition({600, 300 });
+                castle->AddComponent<diji::TextureComp>("graphics/smallCastle.png");
+                castle->AddComponent<diji::Render>();
             
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("D_castle", std::move(castle), center);
 
                 auto castleFlag = std::make_unique<diji::GameObject>();
-                castleFlag->AddComponents<diji::Transform>(11000, 250);
-                castleFlag->AddComponents<diji::TextureComp>("graphics/castleFlag.png");
-                castleFlag->AddComponents<diji::Render>();
-                castleFlag->AddComponents<CastleFlag>();
+                castleFlag->SetObjectPosition({11000, 250 });
+                castleFlag->AddComponent<diji::TextureComp>("graphics/castleFlag.png");
+                castleFlag->AddComponent<diji::Render>();
+                castleFlag->AddComponent<CastleFlag>();
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("C_castleFlag", std::move(castleFlag), center + sf::Vector2f{ 0.f, -75.f });
                 
@@ -466,9 +465,9 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 sf::Vector2f center{ left + 25.f, bottom + 25.f };
 
                 auto koopa = std::make_unique<diji::GameObject>();
-                koopa->AddComponents<diji::Transform>(2200, 200);
-                koopa->AddComponents<diji::SpriteRenderComponent>("graphics/koopaTroopa.png", sf::Vector2i{ 50,75 }, 2, 0.15f);
-                koopa->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
+                koopa->SetObjectPosition({2200, 200 });
+                koopa->AddComponent<diji::SpriteRenderComponent>("graphics/koopaTroopa.png", sf::Vector2i{ 50,75 }, 2, 0.15f);
+                koopa->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
                 const auto koopaCollider = koopa->GetComponent<diji::Collider>();
                 koopaCollider->SetRestitution(0.f);
                 koopaCollider->SetMass(0.89f);
@@ -477,7 +476,7 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 koopaCollider->SetMaxVelocity(sf::Vector2f{ 400.f, 800.f });
                 koopaCollider->SetGenerateHitEvents(true);
                 koopaCollider->SetTag("koopa");
-                koopa->AddComponents<KoopaTroopa>();
+                koopa->AddComponent<KoopaTroopa>();
                 koopa->GetComponent<KoopaTroopa>()->SetActivationMilestone(col - 20);
                 koopa->SetActive(false);
 
@@ -512,8 +511,8 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 }
 
                 auto foregroundTexture = std::make_unique<diji::GameObject>();
-                foregroundTexture->AddComponents<diji::Transform>(600, 300);
-                foregroundTexture->AddComponents<diji::SpriteRenderComponent>("graphics/tiles_sheet.png", sf::Vector2i{50, 50}, 1, 0.05f);
+                foregroundTexture->SetObjectPosition({600, 300 });
+                foregroundTexture->AddComponent<diji::SpriteRenderComponent>("graphics/tiles_sheet.png", sf::Vector2i{50, 50}, 1, 0.05f);
                 foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetFrameSize(sf::Vector2i{50, 50});
                 foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetStartingFrame(x, y);
                 foregroundTexture->GetComponent<diji::SpriteRenderComponent>()->SetTotalAnimationFrames(1);
@@ -534,16 +533,16 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 sf::Vector2f center{ left + 25.f, bottom + 25.f };
                 
                 auto staticCoin = std::make_unique<diji::GameObject>();
-                staticCoin->AddComponents<diji::Transform>(975, 275);
-                staticCoin->AddComponents<diji::SpriteRenderComponent>("graphics/staticCoin.png", sf::Vector2i{ 50, 50 }, 6, 0.135f);
-                staticCoin->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
+                staticCoin->SetObjectPosition({975, 275 });
+                staticCoin->AddComponent<diji::SpriteRenderComponent>("graphics/staticCoin.png", sf::Vector2i{ 50, 50 }, 6, 0.135f);
+                staticCoin->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 50 });
                 const auto collider = staticCoin->GetComponent<diji::Collider>();
                 // collider->SetStatic(true); // todo: I have no idea why this causes crash at runtime when collected
                 collider->SetTag("coin");
                 collider->SetAffectedByGravity(false);
                 collider->SetIsMoveable(false);
                 collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
-                staticCoin->AddComponents<StaticCoin>();
+                staticCoin->AddComponent<StaticCoin>();
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("K_StaticCoin", std::move(staticCoin), center);
 
@@ -556,8 +555,8 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 sf::Vector2f center{ left + 25.f, bottom + 25.f };
                 
                 auto checkPoint = std::make_unique<diji::GameObject>();
-                checkPoint->AddComponents<diji::Transform>(1000, 275);
-                checkPoint->AddComponents<CheckPoint>();
+                checkPoint->SetObjectPosition({ 1000, 275 });
+                checkPoint->AddComponent<CheckPoint>();
                 checkPoint->GetComponent<CheckPoint>()->SetActivationMilestone(col);
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("E_checkPoint", std::move(checkPoint), center);
@@ -571,23 +570,23 @@ void superMarioBros::GameManager::CreateWorldCollision()
                 sf::Vector2f center{ left + 50.f, bottom + 45.f };
 
                 auto piranhaPlant = std::make_unique<diji::GameObject>();
-                piranhaPlant->AddComponents<diji::Transform>(6000, 400);
-                piranhaPlant->AddComponents<diji::SpriteRenderComponent>("graphics/piranhaPlant.png", sf::Vector2i{ 50, 75 }, 2, 0.135f);
-                piranhaPlant->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
+                piranhaPlant->SetObjectPosition({ 6000, 400 });
+                piranhaPlant->AddComponent<diji::SpriteRenderComponent>("graphics/piranhaPlant.png", sf::Vector2i{ 50, 75 }, 2, 0.135f);
+                piranhaPlant->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
                 const auto collider = piranhaPlant->GetComponent<diji::Collider>();
                 collider->SetIsMoveable(false);
                 collider->SetTag("plant");
                 collider->SetAffectedByGravity(false);
                 collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
-                piranhaPlant->AddComponents<PiranhaPlant>();
+                piranhaPlant->AddComponent<PiranhaPlant>();
                 piranhaPlant->GetComponent<PiranhaPlant>()->SetActivationMilestone(col - 20);
                 piranhaPlant->SetActive(false);
 
                 (void)diji::SceneManager::GetInstance().SpawnGameObject("BA_PiranhaPlant", std::move(piranhaPlant), center);
 
                 auto tempBound = std::make_unique<diji::GameObject>();
-                tempBound->AddComponents<diji::Transform>(center);
-                tempBound->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ kTileSize, kTileSize });
+                tempBound->SetObjectPosition(center);
+                tempBound->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ kTileSize, kTileSize });
                 tempBound->GetComponent<diji::Collider>()->SetStatic(true);
                 tempBound->GetComponent<diji::Collider>()->SetTag("ground");
 

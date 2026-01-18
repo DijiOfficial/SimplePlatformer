@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../Components/Component.h"
+#include "../Components/Transform.h"
 #include "../Collision/CollisionStructs.h"
 
 #include <algorithm>
@@ -15,11 +16,13 @@ namespace diji
 	class Transform;
 
 	// todo: Give GameObjects a default component to write custom code in. (equivalent of the Blueprint of an actor).
-	// todo: Every GameObject should have a Transform component and should have a Getter here in the parent.
 	class GameObject final
 	{
 	public:
-		GameObject() = default;
+		GameObject();
+		explicit GameObject(const sf::Vector2f& position);
+		explicit GameObject(const float x, const float y);
+		explicit GameObject(const int x, const int y);
 		~GameObject() noexcept = default;
 
 		GameObject(const GameObject& other) = delete;
@@ -40,6 +43,7 @@ namespace diji
 		void OnDestroy() const;
 		void SetActive(const bool isActive);
 		[[nodiscard]] bool IsActive() const { return m_IsActive; }
+		[[nodiscard]] bool SimulatesPhysics() const { return m_SimulatesPhysics; }
 
 		void Destroy() const;
 		void CreateDuplicate(GameObject* duplicate) const;
@@ -48,7 +52,7 @@ namespace diji
 		
 #pragma region Components
 		template<typename T, typename... Args>
-		void AddComponents(Args&&... args)
+		void AddComponent(Args&&... args)
 		{
 			static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
@@ -58,25 +62,21 @@ namespace diji
 					{
 						std::apply([&]<typename... T0>(T0&&... unpackedArgs)
 						{
-							target->AddComponents<T>(std::forward<T0>(unpackedArgs)...);
+							target->AddComponent<T>(std::forward<T0>(unpackedArgs)...);
 						}, storedArgs);
 					}
 				});
 
 			m_ComponentsPtrVec.push_back(std::make_unique<T>(this, std::forward<Args>(args)...));
 
-			if constexpr (std::is_same_v<T, Transform>)
-			{
-				m_TransformCompPtr = dynamic_cast<Transform*>(m_ComponentsPtrVec.back().get());
-				m_LocalPosition = GetWorldPosition();
-			}
-			else if constexpr (std::is_base_of_v<diji::Render, T>)
+			if constexpr (std::is_base_of_v<diji::Render, T>)
 			{
 				m_RenderCompPtr = dynamic_cast<diji::Render*>(m_ComponentsPtrVec.back().get());
 			}
 			else if constexpr (std::is_same_v<T, Collider>)
 			{
 				m_ColliderCompPtr = dynamic_cast<Collider*>(m_ComponentsPtrVec.back().get());
+				m_SimulatesPhysics = true;
 			}
 		}
 
@@ -84,6 +84,9 @@ namespace diji
 		void RemoveComponent()
 		{
 			static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
+
+			if constexpr (std::is_same_v<T, Collider>)
+				m_SimulatesPhysics = false;
 
 			auto it = std::remove_if(m_ComponentsPtrVec.begin(), m_ComponentsPtrVec.end(),
 				[](const std::unique_ptr<Component>& comp)
@@ -93,9 +96,7 @@ namespace diji
 
 			if (it != m_ComponentsPtrVec.end())
 			{
-				if constexpr (std::is_same_v<T, Transform>)
-					m_TransformCompPtr = nullptr;
-				else if constexpr (std::is_base_of_v<diji::Render, T>)
+				if constexpr (std::is_base_of_v<diji::Render, T>)
 					m_RenderCompPtr = nullptr;
 
 				m_ComponentsPtrVec.erase(it, m_ComponentsPtrVec.end());
@@ -142,47 +143,49 @@ namespace diji
 			return nullptr;
 		}
 #pragma endregion Components
-		
-		//SceneGraph
-		[[nodiscard]] GameObject* GetParent() const { return m_ParentPtr; }
-		[[nodiscard]] GameObject* GetChild(const int index) const { return m_ChildrenPtrVec[index]; }
-		[[nodiscard]] int GetChildCount() const { return static_cast<int>(m_ChildrenPtrVec.size()); }
-		sf::Vector2f GetWorldPosition();
+#pragma region Tranform
+		[[nodiscard]] sf::Vector2f GetObjectPosition() const;
+		void SetObjectPosition(const sf::Vector2f& position) const;
 
-		void SetParent(GameObject* parent, bool keepWorldPosition);
-		void SetLocalPosition(const sf::Vector2f& pos);
+		[[nodiscard]] sf::Angle GetObjectRotation() const;
+		void SetObjectRotation(const sf::Angle& rotation) const;
+
+		[[nodiscard]] sf::Vector2f GetObjectScale2D() const;
+		void SetObjectScale2D(const sf::Vector2f& scale) const;
+
+		// todo: add Transform struct containing location, rotation, scale?
+		// [[nodiscard]] transform GetObjectTransform();
+		// void SetObjectTransform(const transform& scale);
+
+		void AddObjectWorldOffset(const sf::Vector2f& pos) const;
+		void AddObjectWorldRotation(const sf::Angle& rot) const;
+		void AddObjectLocalOffset(const sf::Vector2f& offset) const;
+		void AddObjectLocalRotation(const sf::Angle& rotOffset) const;
+
+		[[nodiscard]] Transform* GetRootComponent() const { return m_RootTransform.get(); }
+		void AttachToObject(const GameObject* parent, bool keepWorldPosition) const;
+		void DetachFromObject(bool keepWorldPosition) const;
+		// [[nodiscard]] GameObject* GetParentObject() const;
+		// [[nodiscard]] const std::vector<GameObject*>& GetChildObjects() const;
 		
 	private:
-		bool m_PositionIsDirty = false;
+		std::unique_ptr<Transform> m_RootTransform = nullptr;
+#pragma endregion
+
+	private:
 		bool m_IsActive = true;
 		bool m_IsInitialized = false;
+		bool m_SimulatesPhysics = false;
 		
 		diji::Render* m_RenderCompPtr = nullptr;
-		GameObject* m_ParentPtr = nullptr;
-		Transform* m_TransformCompPtr = nullptr;
 		Collider* m_ColliderCompPtr = nullptr;
 		
-		sf::Vector2f m_LocalPosition = { 0 ,0 };
-		
 		std::vector<std::unique_ptr<Component>> m_ComponentsPtrVec;
-		std::vector<GameObject*> m_ChildrenPtrVec;
-
-
 
 		struct ComponentStorage
 		{
 			std::function<void(GameObject*)> DuplicateComponents;
 		};
 		std::vector<ComponentStorage> m_ComponentStorage;
-
-
-
-		
-		bool IsChildOf(GameObject* potentialChild) const;
-		void AddChild(GameObject* child);
-		void RemoveChild(GameObject* child);
-
-		void SetPositionDirty();
-		void UpdateWorldPosition();
 	};
 }

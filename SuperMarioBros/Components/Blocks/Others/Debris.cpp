@@ -6,7 +6,7 @@
 
 void superMarioBros::Debris::Init()
 {
-    m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
 
     sf::Vector2f impulse;
     switch (m_Direction)
@@ -32,6 +32,6 @@ void superMarioBros::Debris::Init()
 
 void superMarioBros::Debris::Update()
 {
-    if (m_TransformCompPtr->GetPosition().y > 600.f)
+    if (m_TransformCompPtr->GetWorldPosition().y > 600.f)
         Destroy();
 }

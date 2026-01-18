@@ -1,35 +1,105 @@
 ﻿#include "Transform.h"
-
 #include "../Collision/Collider.h"
 #include "../Core/GameObject.h"
-#include "../Singleton/Helpers.h"
 
-void diji::Transform::Init()
+#include <stdexcept>
+
+sf::Vector2f diji::Transform::GetWorldPosition()
 {
-    m_ColliderCompPtr = GetOwner()->GetComponent<Collider>();
+    return GetWorld(m_WorldPosition, m_IsPositionDirty, &Transform::UpdateWorldPosition);
 }
 
-void diji::Transform::Seek(const float speed)
+void diji::Transform::SetWorldPosition(const sf::Vector2f& pos)
 {
-    sf::Vector2f direction =  m_Target->GetPosition() - m_Position;
+    m_LocalPosition = m_IsParented ? pos - m_ParentTransformCompPtr->GetWorldPosition() : pos;
+    UpdateWorldPosition();
+    MarkPositionDirty();
+    m_IsPositionDirty = false;
+}
 
-    if (direction == sf::Vector2f{ 0, 0 })
+sf::Angle diji::Transform::GetWorldRotation()
+{
+    return GetWorld(m_WorldRotation, m_IsRotationDirty, &Transform::UpdateWorldRotation);
+}
+
+void diji::Transform::SetWorldRotation(const sf::Angle& rotation)
+{
+    m_Rotation = m_IsParented ? rotation - m_ParentTransformCompPtr->GetWorldRotation() : rotation;
+    UpdateWorldRotation();
+    MarkRotationDirty();
+    m_IsRotationDirty = false;
+}
+
+sf::Vector2f diji::Transform::GetWorldScale2D()
+{
+    return GetWorld(m_WorldScale2D, m_IsScaleDirty, &Transform::UpdateWorldScale2D);
+}
+
+void diji::Transform::SetWorldScale2D(const sf::Vector2f& scale)
+{
+    m_Scale2D = m_IsParented ? scale / m_ParentTransformCompPtr->GetWorldScale2D() : scale;
+    UpdateWorldScale2D();
+    MarkScaleDirty();
+    m_IsScaleDirty = false;
+}
+
+void diji::Transform::AttachToObject(Transform* parent, const bool keepWorldPosition)
+{
+    if (!parent || parent == this)
+        throw std::invalid_argument("Invalid parent.");
+
+    for (const Transform* p = parent; p; p = p->m_ParentTransformCompPtr)
+        if (p == this)
+            throw std::logic_error("Cycle detected.");
+
+    if (m_IsParented)
+        DetachFromObject(keepWorldPosition);
+
+    m_ParentTransformCompPtr = parent;
+    m_IsParented = true;
+    m_ParentTransformCompPtr->m_ChildrenTransformCompPtrVec.push_back(this);
+
+    if (keepWorldPosition)
+    {
+        m_LocalPosition = GetWorldPosition() - m_ParentTransformCompPtr->GetWorldPosition();
+        m_Rotation = GetWorldRotation() - m_ParentTransformCompPtr->GetWorldRotation();
+        m_Scale2D = GetWorldScale2D() / m_ParentTransformCompPtr->GetWorldScale2D();
+    }
+
+    MarkPositionDirty();
+    MarkRotationDirty();
+    MarkScaleDirty();
+}
+
+void diji::Transform::DetachFromObject(bool keepWorldPosition)
+{
+    if (!m_IsParented || !m_ParentTransformCompPtr)
         return;
 
-    direction =  Helpers::Normalize(direction);
-    const sf::Vector2f newPosition = m_Position + direction * speed * m_TimeSingleton.GetDeltaTime();
+    if (keepWorldPosition)
+    {
+        m_LocalPosition = GetWorldPosition();
+        m_Rotation = GetWorldRotation();
+        m_Scale2D = GetWorldScale2D();
+    }
 
-    SetPosition(newPosition);
+    auto& siblings = m_ParentTransformCompPtr->m_ChildrenTransformCompPtrVec;
+    std::erase(siblings, this);
+
+    m_ParentTransformCompPtr = nullptr;
+    m_IsParented = false;
+
+    MarkPositionDirty();
+    MarkRotationDirty();
+    MarkScaleDirty();
 }
 
-void diji::Transform::SetTarget(const GameObject* target)
+void diji::Transform::MarkDirtyMember(bool Transform::* dirtyMember)
 {
-    m_Target = target->GetComponent<Transform>();
-}
+    if (this->*dirtyMember) return;
+    this->*dirtyMember = true;
 
-
-void diji::Transform::UpdateColliderPosition() const
-{
-    if (m_ColliderCompPtr)
-        m_ColliderCompPtr->SetNewPosition(m_Position);
+    for (Transform* child : m_ChildrenTransformCompPtrVec)
+        if (child)
+            child->MarkDirtyMember(dirtyMember);
 }

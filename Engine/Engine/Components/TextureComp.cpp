@@ -18,24 +18,22 @@ diji::TextureComp::TextureComp(GameObject* ownerPtr, std::string filename)
 diji::TextureComp::TextureComp(GameObject* ownerPtr, std::string filename, const float scaleX, const float scaleY)
 	: Component(ownerPtr)
 	, m_FilePath{ std::move(filename) }
-	, m_ScaleX{ scaleX }
-	, m_ScaleY{ scaleY }
 {
+	ownerPtr->SetObjectScale2D(sf::Vector2f{ scaleX, scaleY });
 }
 
 diji::TextureComp::TextureComp(GameObject* ownerPtr, std::string filename, const float scale)
 	: Component(ownerPtr)
 	, m_FilePath{ std::move(filename) }
-	, m_ScaleX{ scale }
-	, m_ScaleY{ scale }
 {
+	ownerPtr->SetObjectScale2D(sf::Vector2f{ scale, scale });
 }
 
 void diji::TextureComp::Init()
 {
 	if (not m_FilePath.empty())
 		SetTexture(m_FilePath);
-	// else console log warning path not set or something
+	// else log warning path not set or something
 }
 
 void diji::TextureComp::SetTexture(const std::string& filename)
@@ -48,28 +46,29 @@ void diji::TextureComp::SetTexture(const std::string& filename)
 		SetOriginToCenter();
 }
 
-void diji::TextureComp::SetScaleX(const float scaleX)
+void diji::TextureComp::SetScaleX(const float scaleX) const
 {
-	m_ScaleX = scaleX;
+	const auto* ownerPtr = GetOwner();
+	ownerPtr->SetObjectScale2D(sf::Vector2f{ scaleX, ownerPtr->GetObjectScale2D().y });
 }
 
-void diji::TextureComp::SetScaleY(const float scaleY)
+void diji::TextureComp::SetScaleY(const float scaleY) const
 {
-	m_ScaleY = scaleY;
+	const auto* ownerPtr = GetOwner();
+	ownerPtr->SetObjectScale2D(sf::Vector2f{ ownerPtr->GetObjectScale2D().x, scaleY });
 }
 
-void diji::TextureComp::SetScale(const float scale)
+void diji::TextureComp::SetScale(const float scale) const
 {
-	m_ScaleX = scale;
-	m_ScaleY = scale;
+	GetOwner()->SetObjectScale2D(sf::Vector2f{ scale, scale });
 }
 
-void diji::TextureComp::SetWidth(const int width)
+void diji::TextureComp::SetWidth(const int width) const
 {
 	SetScaleX(static_cast<float>(width) / static_cast<float>(m_SFMLTexture.getSize().x));
 }
 
-void diji::TextureComp::SetHeight(const int height)
+void diji::TextureComp::SetHeight(const int height) const
 {
 	SetScaleY(static_cast<float>(height) / static_cast<float>(m_SFMLTexture.getSize().y));
 }
@@ -90,12 +89,22 @@ void diji::TextureComp::SetOriginToCenter()
 // todo: consider whether I should use float for sizes?
 int diji::TextureComp::GetWidth() const
 {
-	return static_cast<int>(static_cast<float>(m_SFMLTexture.getSize().x) * m_ScaleX);
+	return static_cast<int>(static_cast<float>(m_SFMLTexture.getSize().x) * GetOwner()->GetObjectScale2D().x);
 }
 
 int diji::TextureComp::GetHeight() const
 {
-	return static_cast<int>(static_cast<float>(m_SFMLTexture.getSize().y) * m_ScaleY);
+	return static_cast<int>(static_cast<float>(m_SFMLTexture.getSize().y) * GetOwner()->GetObjectScale2D().y);
+}
+
+float diji::TextureComp::GetScaleX() const
+{
+	return GetOwner()->GetObjectScale2D().x;
+}
+
+float diji::TextureComp::GetScaleY() const
+{
+	return GetOwner()->GetObjectScale2D().y;
 }
 
 sf::Vector2u diji::TextureComp::GetSize() const

@@ -14,7 +14,7 @@ diji::ShapeRender::ShapeRender(GameObject* ownerPtr, const bool isDebug)
 
 void diji::ShapeRender::Init()
 {
-    m_TransformCompPtr = GetOwner()->GetComponent<Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
     m_ColliderPtr = GetOwner()->GetComponent<Collider>();
 }
 
@@ -66,7 +66,7 @@ void diji::ShapeRender::Update()
 
     std::visit([this](auto& shape)
     {
-        shape.setPosition(m_TransformCompPtr->GetPosition());
+        shape.setPosition(m_TransformCompPtr->GetWorldPosition());
     }, m_Shape);
 }
 
@@ -90,7 +90,7 @@ void diji::ShapeRender::SetDrawCollision()
     case CollisionShape::ShapeType::TRIANGLE:
         m_Shape = *dynamic_cast<const sf::ConvexShape*>(&shape);
         break;
-    default:
+    default:  // NOLINT(clang-diagnostic-covered-switch-default)
         throw std::invalid_argument("Unknown shape type in ShapeRender::SetDrawCollision");
     }
 

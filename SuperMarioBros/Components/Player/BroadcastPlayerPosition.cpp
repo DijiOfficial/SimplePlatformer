@@ -4,12 +4,12 @@
 
 void superMarioBros::BroadcastPlayerPosition::Init()
 {
-    m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
 }
 
 void superMarioBros::BroadcastPlayerPosition::LateUpdate()
 {
-    const int currentXMilestone = m_IsFirstUpdate ? 20 : static_cast<int>(std::floor(m_TransformCompPtr->GetPosition().x / static_cast<float>(BLOCK_SIZE)));
+    const int currentXMilestone = m_IsFirstUpdate ? 20 : static_cast<int>(std::floor(m_TransformCompPtr->GetWorldPosition().x / static_cast<float>(BLOCK_SIZE)));
     m_IsFirstUpdate = false;
     
     if (currentXMilestone >= m_LastBroadcastedMileStone)

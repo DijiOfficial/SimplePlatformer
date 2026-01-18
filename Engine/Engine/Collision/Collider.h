@@ -46,9 +46,10 @@ namespace diji
         void OnEnable() override {}
         void Start() override;
 
-        void FixedUpdate() override;
+        void FixedUpdate() override {}
         void Update() override;
         void LateUpdate() override {}
+        void SyncTransform();
 
         void OnDisable() override {}
         void OnDestroy() override;
@@ -69,7 +70,6 @@ namespace diji
         void SetAffectedByGravity(const bool isAffected) { m_AffectedByGravity = isAffected; }
         [[nodiscard]] bool IsAffectedByGravity() const { return m_AffectedByGravity; }
         
-        // void SetColliderPosition(const sf::Vector2f& pos);
         [[nodiscard]] sf::Vector2f GetPosition() const;
 
         void SetKineticFriction(const float friction) { m_KineticFriction = std::clamp(friction, 0.f, 1.f); }
@@ -80,9 +80,6 @@ namespace diji
         
         [[nodiscard]] sf::FloatRect GetAABB() const;
         [[nodiscard]] sf::FloatRect GetAABBAt(const sf::Vector2f& pos) const;
-
-        void SetNewPosition(const sf::Vector2f& pos) { m_LastPosition = m_NewPosition; m_NewPosition = pos; }
-        [[nodiscard]] sf::Vector2f GetNewPosition() const { return m_NewPosition; }
 
         void ClearNetForce() { m_NetForce = sf::Vector2f{ 0, 0 }; }
         [[nodiscard]] sf::Vector2f GetNetForce() const { return m_NetForce; }
@@ -147,8 +144,6 @@ namespace diji
     private:
         // todo: if velocity is zero for a certain amount of time, set similar to static to save calculations
         Transform* m_TransformCompPtr = nullptr;
-        // todo: use unordered_set for faster lookup
-        
         std::unordered_set<const Collider*> m_IgnoredColliders;
         std::unordered_set<const Collider*> m_CollidersToOverlap;
         CollisionShape::ShapeType m_Type;
@@ -178,6 +173,8 @@ namespace diji
         bool m_IsInitialized = false;
   
         std::string m_Tag = "Untagged";
+
+        void SetNewPosition(const sf::Vector2f& pos) { m_LastPosition = m_NewPosition; m_NewPosition = pos; }
     };
 }
 

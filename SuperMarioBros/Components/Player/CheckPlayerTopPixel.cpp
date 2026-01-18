@@ -8,7 +8,7 @@
 
 void superMarioBros::CheckPlayerTopPixel::Init()
 {
-    m_TransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
+    m_TransformCompPtr = GetOwner()->GetRootComponent();
     m_PlayerCharacterCompPtr = GetOwner()->GetComponent<PlayerCharacter>();
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
 }
@@ -18,8 +18,8 @@ void superMarioBros::CheckPlayerTopPixel::Update()
     if (m_PlayerCharacterCompPtr->IsDead() || m_PlayerCharacterCompPtr->IsPaused()) return;
     
     const float offset = m_PlayerCharacterCompPtr->GetPowerUpState() == 0 ? 22.f : 44.f;
-    const sf::Vector2f origin = m_TransformCompPtr->GetPosition();
-    const sf::Vector2f dir = { 0, -1 };
+    const sf::Vector2f origin = m_TransformCompPtr->GetWorldPosition();
+    constexpr sf::Vector2f dir = { 0, -1 };
     const sf::Vector2f top = { origin.x, origin.y - offset };
     
     if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(top, dir, 10.f, m_ColliderCompPtr))

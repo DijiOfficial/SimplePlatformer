@@ -1,11 +1,9 @@
 ﻿#include "Scene.h"
-
-#include <format>
-
 #include "Engine.h"
 #include "../Collision/Collider.h"
 #include "../Components/Camera.h"
 
+#include <format>
 #include <ranges>
 #include <stdexcept>
 
@@ -53,10 +51,6 @@ void diji::Scene::Start()
 
 void diji::Scene::FixedUpdate()
 {
-    // update all colliders here
-
-
-    
     for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
     {
         gameObject->FixedUpdate();
@@ -294,7 +288,7 @@ void diji::Scene::Remove(const GameObject* object)
 
 void diji::Scene::Remove(const std::string& name)
 {
-    auto it = m_ObjectsUPtrMap.find(name);
+    const auto it = m_ObjectsUPtrMap.find(name);
     if (it != m_ObjectsUPtrMap.end())
     {
         m_ObjectsUPtrMap.erase(it);
@@ -330,7 +324,7 @@ void diji::Scene::ChangeViewCenter(const int idx, const sf::Vector2f& newCenter)
     m_MultiplayerViews.at(idx).SetCenter(newCenter);
 }
 
-void diji::Scene::SetViewParameters(const int idx, const Transform* target, const bool isFollowing, const sf::Vector2f& offset)
+void diji::Scene::SetViewParameters(const int idx, Transform* target, const bool isFollowing, const sf::Vector2f& offset)
 {
     m_MultiplayerViews.at(idx).SetTargetTransform(target);
     m_MultiplayerViews.at(idx).SetIsFollowing(isFollowing);
@@ -465,8 +459,17 @@ void diji::Scene::ValidateCollidersAfterDestroy()
 
 void diji::Scene::DrawGameObjects() const
 {
-    for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
+    // for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
+    // {
+    //     if (gameObject == "D_castle" )
+    //     gameObject->Render();
+    // }
+    for (const auto& [key, gameObject] : m_ObjectsUPtrMap)
     {
+        if (key == "D_castle")
+        {
+            gameObject->Render();
+        }
         gameObject->Render();
     }
 }
@@ -478,7 +481,7 @@ std::string diji::Scene::GenerateUniqueName(const std::map<std::string, std::uni
         --pos;
 
     const std::string strippedName = baseName.substr(0, pos);
-    bool baseHasNumber = pos < baseName.size();
+    const bool baseHasNumber = pos < baseName.size();
     unsigned long long parsedSuffix = 0;
 
     if (baseHasNumber)

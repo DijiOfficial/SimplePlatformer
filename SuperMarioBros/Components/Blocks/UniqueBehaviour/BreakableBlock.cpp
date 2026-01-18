@@ -20,10 +20,10 @@ void superMarioBros::BreakableBlock::OnAnimationStart()
 {
     if (GameManager::GetInstance().GetCurrentPlayerState() == PlayerHealthState::Small) return;
     
-    const sf::Vector2f& center = GetOwner()->GetComponent<diji::Transform>()->GetPosition();
+    const sf::Vector2f& center = GetOwner()->GetRootComponent()->GetWorldPosition();
     constexpr float offset = 15.f;
 
-    const std::array offsets =
+    constexpr std::array offsets =
     {
         sf::Vector2f{-offset, -offset},
         sf::Vector2f{+offset, -offset},
@@ -34,12 +34,11 @@ void superMarioBros::BreakableBlock::OnAnimationStart()
     auto makeDebris = [] (int debrisIndex) -> std::unique_ptr<diji::GameObject>
     {
         auto obj = std::make_unique<diji::GameObject>();
-        obj->AddComponents<diji::Transform>(0, 0);
-        obj->AddComponents<diji::SpriteRenderComponent>("graphics/blockDebris.png", sf::Vector2i{24, 24}, 2, 0.13f);
-        obj->AddComponents<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{24, 24});
+        obj->AddComponent<diji::SpriteRenderComponent>("graphics/blockDebris.png", sf::Vector2i{24, 24}, 2, 0.13f);
+        obj->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{24, 24});
         obj->GetComponent<diji::Collider>()->SetTag("debris");
         obj->GetComponent<diji::Collider>()->SetCollisionResponse(diji::Collider::CollisionResponse::Ignore);
-        obj->AddComponents<Debris>(debrisIndex);
+        obj->AddComponent<Debris>(debrisIndex);
         return obj;
     };
 

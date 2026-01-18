@@ -18,7 +18,7 @@ namespace diji
 
         void Update();
 
-        void SetTargetTransform(const Transform* transform) { m_TargetTransform = transform; }
+        void SetTargetTransform(Transform* transform) { m_TargetTransform = transform; }
         void ClearTargetTransform() { m_TargetTransform = nullptr; m_IsFollowing = false; }
 
         void SetOffset(const sf::Vector2f& offset) { m_Offset = offset; }
@@ -36,7 +36,7 @@ namespace diji
         sf::View m_View;
         sf::Vector2f m_Offset;
 
-        const Transform* m_TargetTransform = nullptr;
+        Transform* m_TargetTransform = nullptr;
         bool m_IsFollowing = false;
     };
 }

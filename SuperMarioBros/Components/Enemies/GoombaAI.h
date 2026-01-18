@@ -1,6 +1,4 @@
 ﻿#pragma once
-#include <SFML/Graphics/Glsl.hpp>
-
 #include "BaseEnemy.h"
 
 namespace superMarioBros

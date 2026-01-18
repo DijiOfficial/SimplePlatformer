@@ -52,7 +52,7 @@ namespace diji
         
 
         void ChangePlayerViewCenter(int currPlayer, const sf::Vector2f& newCenter) const;
-        void SetViewParameters(int idx, const Transform* target, bool isFollowing = false, const sf::Vector2f& offset = {}) const;
+        void SetViewParameters(int idx, Transform* target, bool isFollowing = false, const sf::Vector2f& offset = {}) const;
         [[nodiscard]] sf::Vector2f GetScreenPosition(const sf::Vector2f& mapCoords) const;
 
         using SceneLoaderFunc = std::function<void()>;
@@ -84,7 +84,7 @@ namespace diji
             auto* scene = m_ScenesUPtrMap.at(m_ActiveSceneId).get();
             GameObject* gameObject = std::forward<Function>(func)(scene);
 
-            gameObject->GetComponent<Transform>()->SetPosition(spawnLocation);
+            gameObject->SetObjectPosition(spawnLocation);
             gameObject->Init();
             gameObject->Start();
 

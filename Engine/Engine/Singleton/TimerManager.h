@@ -7,7 +7,6 @@ namespace diji
 {
     class TimeSingleton;
 
-    // todo: add a delay until next tick
     // todo: Link every callback to an id linked to a GameObject and destroy all timers linked to that object when it gets destroyed!
     // Ideally would be managed by the Scene/SceneManager
     class TimerManager final : public Singleton<TimerManager>
@@ -26,6 +25,7 @@ namespace diji
         [[nodiscard]] TimerHandle SetTimer(std::function<void()> callback, float interval, bool isLooping = false, float initialDelay = 0.0f);
         void ClearTimer(const TimerHandle& handle);
         void ClearAllTimers();
+        void DelayUntilNextTick(std::function<void()> callback);
 
     private:
         TimeSingleton* m_TimeSingleton = nullptr;
@@ -42,5 +42,7 @@ namespace diji
         std::vector<Timer> m_Timers;
         std::vector<Timer> m_PendingTimers;
         size_t m_NextId = 1;
+
+        std::vector<std::function<void()>> m_NextTickCallbacksVec;
     };
 }

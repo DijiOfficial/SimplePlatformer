@@ -42,21 +42,19 @@ namespace diji
 		void SetTexture(const std::string& filename);
 		sf::Texture GetTexture() const { return m_SFMLTexture; }
 
-		void SetScaleX(float scaleX);
-		void SetScaleY(float scaleY);
-		void SetScale(float scale);
-		void SetWidth(int width);
-		void SetHeight(int height);
-		void SetRotationAngle(const sf::Angle& angle) { m_RotationAngle = angle; }
+		void SetScaleX(float scaleX) const;
+		void SetScaleY(float scaleY) const;
+		void SetScale(float scale) const;
+		void SetWidth(int width) const;
+		void SetHeight(int height) const;
 		void SetOrigin(const sf::Vector2f& origin) { m_Origin = origin; }
 		void SetOrigin(float x, float y) { m_Origin = { x, y }; }
 		void SetOriginToCenter();
 
 		int GetWidth() const;
 		int GetHeight() const;
-		float GetScaleX() const { return m_ScaleX; }
-		float GetScaleY() const { return m_ScaleY; }
-		sf::Angle GetRotationAngle() const { return m_RotationAngle; }
+		float GetScaleX() const;
+		float GetScaleY() const;
 		sf::Vector2f GetOrigin() const { return m_Origin; }
 		sf::Vector2u GetSize() const;
 		bool IsCentered() const { return m_IsCentered; }
@@ -66,10 +64,6 @@ namespace diji
 		std::string m_FilePath;
 		sf::Vector2f m_Origin = { 0.f, 0.f };
 		
-		sf::Angle m_RotationAngle = sf::degrees(0.0f);
-		float m_ScaleX = 1;
-		float m_ScaleY = 1;
-
 		bool m_NeedsCentering = true;
 		bool m_IsCentered = false;
 	};

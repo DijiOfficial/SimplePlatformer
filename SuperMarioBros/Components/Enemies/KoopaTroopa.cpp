@@ -42,7 +42,7 @@ void superMarioBros::KoopaTroopa::OnHitEvent(const diji::Collider* other, const 
 {
     if (m_Paused) return;
     if (other->GetTag() == "fireBall")
-        return Kill(other->GetPosition().x > m_TransformCompPtr->GetPosition().x);
+        return Kill(other->GetPosition().x > m_TransformCompPtr->GetWorldPosition().x);
 
     if (diji::Helpers::isZero(hitInfo.normal.x))
         return;
@@ -64,14 +64,14 @@ void superMarioBros::KoopaTroopa::OnTriggerExit(const diji::Collider* other, con
 void superMarioBros::KoopaTroopa::OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&)
 {
     if (other->GetTag() == "fireBall")
-        return Kill(other->GetPosition().x < m_TransformCompPtr->GetPosition().x);
+        return Kill(other->GetPosition().x < m_TransformCompPtr->GetWorldPosition().x);
 
     if (m_KoopaTroopaState != KoopaTroopaState::Bumped) return;
     
     if (other->GetTag() == "enemy" || other->GetTag() == "koopa")
     {
         const auto enemyInterface = diji::InterfaceRegistry::GetInterface<IKillable>(other->GetParent());
-        enemyInterface->Kill(m_TransformCompPtr->GetPosition().x > other->GetPosition().x, false);
+        enemyInterface->Kill(m_TransformCompPtr->GetWorldPosition().x > other->GetPosition().x, false);
 
         SpawnPointsText(MarioHelpers::GetStompPointsAsString(m_CurrentComboIndex));
         ++m_CurrentComboIndex;
@@ -101,7 +101,7 @@ void superMarioBros::KoopaTroopa::Kill(const bool isBumpingLeft, const bool)
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_kick.wav", false);
     
     diji::TimerManager::GetInstance().ClearTimer(m_TimerHandle);
-    m_TransformCompPtr->SetRotation(sf::degrees(180.f));
+    m_TransformCompPtr->SetWorldRotation(sf::degrees(180.f));
     m_SpriteRenderCompPtr->SetStartingFrame(4, 0);
     m_SpriteRenderCompPtr->SetTotalAnimationFrames(0);
     m_SpriteRenderCompPtr->SetFrameDuration(0.1f);
@@ -117,7 +117,7 @@ void superMarioBros::KoopaTroopa::Kill(const bool isBumpingLeft, const bool)
     m_ColliderCompPtr->SetCollisionResponse(diji::Collider::CollisionResponse::Ignore);
     m_Paused = true;
     
-    GameManager::SpawnPointsText(m_TransformCompPtr->GetPosition(), "200");
+    GameManager::SpawnPointsText(m_TransformCompPtr->GetWorldPosition(), "200");
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(200);
 
     diji::TimerManager::GetInstance().ClearTimer(m_TimerHandle);
@@ -138,6 +138,7 @@ void superMarioBros::KoopaTroopa::HandleBumped()
     
     m_ColliderCompPtr->SetIsMoveable(true);
     m_KoopaTroopaState = KoopaTroopaState::Bumped;
+    m_ColliderCompPtr->SetStatic(false);
 
     for (const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
     {
@@ -200,6 +201,7 @@ void superMarioBros::KoopaTroopa::HandleStomp()
     m_CurrentComboIndex = BASE_COMBO_INDEX;
     m_ColliderCompPtr->OverlapCollider(m_EnemyColliderCompPtr);
     m_ColliderCompPtr->SetIsMoveable(false);
+    m_ColliderCompPtr->SetStatic(true);
     m_KoopaTroopaState = KoopaTroopaState::Stomped;
     
     SetShellAppearance();
@@ -215,6 +217,7 @@ void superMarioBros::KoopaTroopa::HandleStopBumpMovement()
     
     m_ColliderCompPtr->OverlapCollider(m_EnemyColliderCompPtr);
     m_ColliderCompPtr->SetIsMoveable(false);
+    m_ColliderCompPtr->SetStatic(true);
     m_KoopaTroopaState = KoopaTroopaState::Stomped;
     m_Speed = 0.f;
 }

@@ -1,11 +1,10 @@
 ﻿#include "Sprite.h"
-
-#include <future>
-#include <thread>
-
 #include "../Core/Renderer.h"
 #include "../Singleton/RandNumber.h"
 #include "../Singleton/ResourceManager.h"
+
+#include <future>
+#include <thread>
 
 diji::Sprite::Sprite(GameObject* ownerPtr)
     : Component(ownerPtr)
@@ -64,6 +63,7 @@ void diji::Sprite::Render() const
     Renderer::GetInstance().RenderVertexArray(m_SFMLTexture, m_VertexArray); 
 }
 
+// todo: this is not engine code
 void diji::Sprite::GenerateMap()
 {
     const int tilesX = m_MaxWidth / m_TileSize;

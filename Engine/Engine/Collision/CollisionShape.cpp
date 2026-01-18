@@ -1,15 +1,15 @@
 ﻿#include "CollisionShape.h"
-
-#include <algorithm>
-
 #include "Collider.h"
 #include "../Singleton/Helpers.h"
+
+#include <algorithm>
 
 std::vector<sf::Vector2f> diji::CollisionShape::GetCorners(const sf::RectangleShape& rect)
 {
     std::vector<sf::Vector2f> corners;
     const sf::Transform& transform = rect.getTransform();
 
+    corners.reserve(rect.getPointCount());
     for (size_t i = 0; i < rect.getPointCount(); ++i)
     {
         corners.push_back(transform.transformPoint(rect.getPoint(i)) + rect.getOrigin());
@@ -24,8 +24,8 @@ std::vector<sf::Vector2f> diji::CollisionShape::GetAxes(const std::vector<sf::Ve
     std::vector<sf::Vector2f> axes;
     for (size_t i = 0; i < corners.size(); ++i)
     {
-        sf::Vector2f p1 = corners[i];
-        sf::Vector2f p2 = corners[(i + 1) % corners.size()];
+        const sf::Vector2f p1 = corners[i];
+        const sf::Vector2f p2 = corners[(i + 1) % corners.size()];
         const sf::Vector2f edge = p2 - p1;
 
         // todo: fast inverse sqrt?
@@ -138,12 +138,12 @@ void diji::Rect::HandleStaticCollisionWithRect(std::vector<CollisionInfo>& colli
     // Apply predicted position to moving shape transform
     sf::RectangleShape movedShape = movingShape;
     movedShape.setPosition(predictedPos);
-    
-    auto cornersA = GetCorners(movedShape);
-    auto cornersB = GetCorners(staticShape);
-    
-    auto axesA = GetAxes(cornersA);
-    auto axesB = GetAxes(cornersB);
+
+    const auto cornersA = GetCorners(movedShape);
+    const auto cornersB = GetCorners(staticShape);
+
+    const auto axesA = GetAxes(cornersA);
+    const auto axesB = GetAxes(cornersB);
     
     float minOverlap = std::numeric_limits<float>::max();
     sf::Vector2f smallestAxis;
@@ -161,8 +161,8 @@ void diji::Rect::HandleStaticCollisionWithRect(std::vector<CollisionInfo>& colli
             foundSeparation = true;
             break; // No collision
         }
-    
-        float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+
+        const float overlap = std::min(maxA, maxB) - std::max(minA, minB);
         if (overlap < minOverlap)
         {
             minOverlap = overlap;
@@ -183,8 +183,8 @@ void diji::Rect::HandleStaticCollisionWithRect(std::vector<CollisionInfo>& colli
                 foundSeparation = true;
                 break; // No collision
             }
-    
-            float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+
+            const float overlap = std::min(maxA, maxB) - std::max(minA, minB);
             if (overlap < minOverlap)
             {
                 minOverlap = overlap;

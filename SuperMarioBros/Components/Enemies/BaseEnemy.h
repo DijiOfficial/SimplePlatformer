@@ -39,7 +39,7 @@ namespace superMarioBros
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
-        const float BASE_SPEED = -400.f;
+        const float BASE_SPEED = -200.f;
         float m_Speed = BASE_SPEED;
         int m_ActivationMilestone = -1;
         bool m_Paused = false;

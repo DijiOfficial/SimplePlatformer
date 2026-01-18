@@ -16,7 +16,7 @@ void superMarioBros::CheckPoint::CheckActivation(const int milestone) const
 {
     if (m_ActivationMilestone != milestone) return;
 
-    GameManager::GetInstance().TriggerCheckPoint(GetOwner()->GetComponent<diji::Transform>()->GetPosition());
+    GameManager::GetInstance().TriggerCheckPoint(GetOwner()->GetRootComponent()->GetWorldPosition());
     Destroy();
 }
 

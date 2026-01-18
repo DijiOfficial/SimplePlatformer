@@ -10,7 +10,7 @@
 
 void superMarioBros::CameraClamping::Init()
 {
-    m_PlayerTransformCompPtr = GetOwner()->GetComponent<diji::Transform>();
+    m_PlayerTransformCompPtr = GetOwner()->GetRootComponent();
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
     m_PlayerCharacterCompPtr = GetOwner()->GetComponent<PlayerCharacter>();
     m_CameraPtr = diji::SceneManager::GetInstance().GetMainCamera()->GetComponent<diji::Camera>();
@@ -20,12 +20,12 @@ void superMarioBros::CameraClamping::Start()
 {
     m_Arena = m_CameraPtr->GetLevelBoundaries();
     m_LastArenaPosX = m_Arena.position.x;
-    m_PlayerHalfWidth = GetOwner()->GetComponent<diji::Collider>()->GetShape()->GetAABB().size.x * 0.5f;
+    m_PlayerHalfWidth = m_ColliderCompPtr->GetShape()->GetShape().getOrigin().x;
 }
 
 void superMarioBros::CameraClamping::LateUpdate()
 {
-    const auto playerPos = m_PlayerTransformCompPtr->GetPosition();
+    const auto playerPos = m_PlayerTransformCompPtr->GetWorldPosition();
     const float playerX = playerPos.x;
     const float viewWidth = m_CameraPtr->GetCameraView().getSize().x;
     const float viewHalf = viewWidth * 0.5f;
@@ -43,14 +43,14 @@ void superMarioBros::CameraClamping::LateUpdate()
     const sf::FloatRect newBounds{ sf::Vector2f{ m_LastArenaPosX, m_Arena.position.y }, sf::Vector2f{ remainingWidth, m_Arena.size.y } };
     m_CameraPtr->SetLevelBoundaries(newBounds);
 
-    // Clamp player X so it stays inside the view
+    // Clamp player X so it stays inside the 
     const float playerMinX = m_LastArenaPosX + m_PlayerHalfWidth;
     const float playerMaxX = m_LastArenaPosX + viewWidth - m_PlayerHalfWidth;
     const float clampedPlayerX = std::clamp(playerX, playerMinX, playerMaxX);
 
     if (!diji::Helpers::AreFloatEqual(clampedPlayerX, playerX))
     {
-        m_PlayerTransformCompPtr->SetPosition(clampedPlayerX, playerPos.y);
+        m_PlayerTransformCompPtr->SetWorldPosition(sf::Vector2f{ clampedPlayerX, playerPos.y });
         m_ColliderCompPtr->SetVelocity(sf::Vector2f{0.00f, m_ColliderCompPtr->GetVelocity().y});
         m_PlayerCharacterCompPtr->SetAgainstCameraEdge(true);
         return;

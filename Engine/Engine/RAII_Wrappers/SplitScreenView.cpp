@@ -10,5 +10,5 @@ diji::SplitScreenView::SplitScreenView(const sf::FloatRect& viewport)
 void diji::SplitScreenView::Update()
 {
     if (m_IsFollowing)
-        m_View.setCenter(m_TargetTransform->GetPosition() + m_Offset);
+        m_View.setCenter(m_TargetTransform->GetWorldPosition() + m_Offset);
 }

@@ -1,10 +1,10 @@
 ﻿#pragma once
+#include "Render.h"
+
 #include <variant>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/ConvexShape.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
-
-#include "Render.h"
 
 namespace diji
 {

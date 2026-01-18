@@ -37,12 +37,11 @@ namespace diji
 		static std::unique_ptr<ISoundSystem> _ss_instance;
 	};
 
-	// todo: rename to ISFMLSoundSystem
-	class SFMLISoundSystem final : public ISoundSystem
+	class ISFMLSoundSystem final : public ISoundSystem
 	{		
 	public:
-		SFMLISoundSystem();
-		~SFMLISoundSystem() noexcept override;
+		ISFMLSoundSystem();
+		~ISFMLSoundSystem() noexcept override;
 		void AddSoundRequest(const std::string& audio, bool isMusic, int volume = 100) override;
 		void Pause() override;
 		void Resume() override;

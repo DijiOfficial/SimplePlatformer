@@ -1,8 +1,8 @@
 ﻿#pragma once
+#include "../Singleton/Singleton.h"
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
-
-#include "../Singleton/Singleton.h"
 
 namespace sf
 {
@@ -45,7 +45,7 @@ namespace diji
 		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, const sf::Angle& angle, float scale = 1) const;
 		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, int width, int height, const sf::Angle& angle) const;
 		
-		// todo: unecessary fucntions?
+		// todo: unnecessary functions?
 		void DrawRect(const sf::RectangleShape& shape, const sf::Color& outline, const sf::Color& fill, float outlineWidth = 1.f) const;
 		void DrawRect(const sf::RectangleShape& shape) const;
 		void DrawFilledRect(const sf::RectangleShape& shape, const sf::Color& color) const;

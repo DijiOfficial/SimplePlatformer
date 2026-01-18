@@ -74,19 +74,19 @@ std::string superMarioBros::MarioHelpers::GetStompPointsAsString(const int bounc
     
     if (index < 0 || index >= static_cast<int>(s_StompPointsTable.size()))
     {
-        superMarioBros::GameManager::GetInstance().AddLife();
+        GameManager::GetInstance().AddLife();
         return "1UP";
     }
 
-    superMarioBros::GameManager::GetInstance().OnScoreAddedEvent.Broadcast(s_StompPointsTable[index]);
+    GameManager::GetInstance().OnScoreAddedEvent.Broadcast(s_StompPointsTable[index]);
     return std::to_string(s_StompPointsTable[index]);
 }
 
 void superMarioBros::MarioHelpers::SpawnCoinAboveBlock(const sf::Vector2f& colliderCenterPos)
 {
     auto coinTest = std::make_unique<diji::GameObject>();
-    coinTest->AddComponents<diji::Transform>(600, 0);
-    coinTest->AddComponents<diji::SpriteRenderComponent>("graphics/smallCoins.png", sf::Vector2i{ 25,50 }, 4, 0.03f);
-    coinTest->AddComponents<superMarioBros::SmallCoinScript>();
+    coinTest->SetObjectPosition(sf::Vector2f{ 600,0 });
+    coinTest->AddComponent<diji::SpriteRenderComponent>("graphics/smallCoins.png", sf::Vector2i{ 25,50 }, 4, 0.03f);
+    coinTest->AddComponent<SmallCoinScript>();
     diji::SceneManager::GetInstance().SpawnGameObject("G_SmallCoin", std::move(coinTest), { colliderCenterPos.x, colliderCenterPos.y - 50.f });
 }

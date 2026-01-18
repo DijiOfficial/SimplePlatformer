@@ -16,12 +16,12 @@ void superMarioBros::Flag::StartAnimation()
     auto &track = m_TimelinePtr->AddFloatTrack("MoveVertically");
     track.keys = { { .time= 0.f, .value= 0.f }, { .time= 1.31f, .value= 490.f }, };
     
-    diji::Transform* transformPtr = GetOwner()->GetComponent<diji::Transform>();
-    sf::Vector2f originalPos = transformPtr->GetPosition();
+    diji::Transform* transformPtr = GetOwner()->GetRootComponent();
+    sf::Vector2f originalPos = transformPtr->GetWorldPosition();
     
     track.onValue = [transformPtr, originalPos](const float y)
     {
-        transformPtr->SetPosition(originalPos.x, originalPos.y + y);
+        transformPtr->SetWorldPosition(sf::Vector2f{ originalPos.x, originalPos.y + y });
     };
 
     auto& [eventName, eventKeysVec] = m_TimelinePtr->AddEventTrack("OnAnimationEnd");

@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Singleton.h"
-// #include "Music.h"
 
 #include <map>
 #include <memory>
@@ -26,7 +25,6 @@ namespace diji
         [[nodiscard]] sf::Font& LoadFont(const std::string& file);
         [[nodiscard]] sf::Sound& LoadSoundEffect(const std::string& file);
         [[nodiscard]] sf::Shader& LoadShader(const std::string& vertexFile, const std::string& shaderFile);
-        // Music* LoadMusic(const std::string& file);
 
     private:
         std::string m_DataPath;
@@ -37,6 +35,5 @@ namespace diji
         std::unordered_map<std::string, sf::Sound> m_SoundEffectsUMap;
         std::unordered_map<std::string, sf::SoundBuffer> m_SoundBuffersUMap;
         std::map<std::pair<std::string, std::string>, std::unique_ptr<sf::Shader>> m_ShaderBuffersUMap;
-        // std::unordered_map<std::string, std::unique_ptr<Music>> m_MusicUPtrUMap;
     };
 }

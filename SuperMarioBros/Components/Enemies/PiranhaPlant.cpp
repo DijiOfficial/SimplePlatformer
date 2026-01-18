@@ -14,7 +14,7 @@ void superMarioBros::PiranhaPlant::Start()
 
     if (const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar"))
     {
-        m_PlayerTransformCompPtr = player->GetComponent<diji::Transform>();
+        m_PlayerTransformCompPtr = player->GetRootComponent();
         player->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener(this, &PiranhaPlant::PauseTimeline);
         player->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener(this, &PiranhaPlant::PauseTimeline);
     }
@@ -29,7 +29,7 @@ void superMarioBros::PiranhaPlant::Update()
     if (!m_CanAttack) return;
 
     constexpr float triggerDistance = 100.f * 100.f;
-    const float distance = m_TransformCompPtr->GetPosition().x - m_PlayerTransformCompPtr->GetPosition().x;
+    const float distance = m_TransformCompPtr->GetWorldPosition().x - m_PlayerTransformCompPtr->GetWorldPosition().x;
     if (distance * distance <= triggerDistance) return;
     
     m_TimelinePtr->PlayFromStart();
@@ -59,7 +59,7 @@ void superMarioBros::PiranhaPlant::Kill(const bool, const bool addPoints)
     m_Paused = true;
 
     if (!addPoints) return;
-    GameManager::SpawnPointsText(m_TransformCompPtr->GetPosition(), "200");
+    GameManager::SpawnPointsText(m_TransformCompPtr->GetWorldPosition(), "200");
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(200);
 
     Destroy();
@@ -72,11 +72,11 @@ void superMarioBros::PiranhaPlant::CreateTimeLine()
     auto &track = m_TimelinePtr->AddFloatTrack("MoveVertically");
     track.keys = { { .time= 0.f, .value= 0.f }, { .time= 0.9f, .value= -80.f }, { .time= 1.9f, .value= -80.f }, { .time= 2.8f, .value= 0.f }, };
 
-    const sf::Vector2f originalPos = m_TransformCompPtr->GetPosition();
+    const sf::Vector2f originalPos = m_TransformCompPtr->GetWorldPosition();
     const auto transformPtr = m_TransformCompPtr;
     track.onValue = [originalPos, transformPtr](const float y)
     {
-        transformPtr->SetPosition(originalPos.x, originalPos.y + y);
+        transformPtr->SetWorldPosition(sf::Vector2f{ originalPos.x, originalPos.y + y });
     };
 
     auto& [eventName, eventKeysVec] = m_TimelinePtr->AddEventTrack("OnAnimationEnd");
