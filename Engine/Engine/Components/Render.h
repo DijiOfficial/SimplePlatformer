@@ -47,6 +47,7 @@ namespace diji
         [[nodiscard]] virtual sf::Vector2f GetScaledSize() const;
 
         virtual void SetScale(float scale);
+        virtual sf::FloatRect GetBoundingBox() const;
         
     protected:
         bool m_Render = true;

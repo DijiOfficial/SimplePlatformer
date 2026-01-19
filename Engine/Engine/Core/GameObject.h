@@ -49,6 +49,7 @@ namespace diji
 		void CreateDuplicate(GameObject* duplicate) const;
 
 		void NotifyTriggerEvent(const Collider* other, const EventType& eventType, const CollisionInfo& hitInfo) const;
+		std::optional<sf::FloatRect> GetBoundingBox() const;
 		
 #pragma region Components
 		template<typename T, typename... Args>

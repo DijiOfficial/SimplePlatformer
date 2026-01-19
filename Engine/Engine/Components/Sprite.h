@@ -5,6 +5,7 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 
+// todo: not engine relevant
 namespace diji
 {
     class Sprite final : public Component

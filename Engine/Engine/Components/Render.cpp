@@ -81,3 +81,34 @@ void diji::Render::SetScale(const float scale)
 {
     GetOwner()->SetObjectScale2D(sf::Vector2f{ scale, scale });
 }
+
+sf::FloatRect diji::Render::GetBoundingBox() const
+{
+    if (!m_TextureCompPtr && !m_SpriteCompPtr && !m_TextCompPtr)
+        return sf::Rect{ sf::Vector2f{ 0.f, 0.f }, sf::Vector2f{ 0.f, 0.f } };
+
+    const sf::Vector2f pos = m_TransformCompPtr ? m_TransformCompPtr->GetWorldPosition() : sf::Vector2f{0.f, 0.f};
+    sf::Vector2f size{ 0.f, 0.f };
+
+    if (m_TextureCompPtr)
+    {
+        const sf::Vector2u texSize = m_TextureCompPtr->GetTexture().getSize();
+        size.x = static_cast<float>(texSize.x) * m_TextureCompPtr->GetScaleX();
+        size.y = static_cast<float>(texSize.y) * m_TextureCompPtr->GetScaleY();
+    }
+    else if (m_SpriteCompPtr)
+    {
+        // const auto bounds = m_SpriteCompPtr->GetGlobalBounds(); // sf::Rect<float>
+        size.x = 0;
+        size.y = 0;
+    }
+    else if (m_TextCompPtr)
+    {
+        const auto bounds = m_TextCompPtr->GetText().getLocalBounds();
+        size.x = bounds.size.x;
+        size.y = bounds.size.y;
+    }
+
+    return { pos, size };
+}
+

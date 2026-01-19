@@ -20,6 +20,7 @@ void superMarioBros::CustomBackgroundRenderer::Init()
     m_Width = static_cast<float>(m_SFMLTexture.getSize().x) * scale;
     m_WidthCenter = m_Width * 0.5f;
 }
+
 void superMarioBros::CustomBackgroundRenderer::RenderFrame() const
 {
     // not very efficient but works for now

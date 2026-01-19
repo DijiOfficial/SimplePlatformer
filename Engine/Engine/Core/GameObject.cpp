@@ -173,6 +173,14 @@ void diji::GameObject::NotifyTriggerEvent(const Collider* other, const EventType
     }
 }
 
+std::optional<sf::FloatRect> diji::GameObject::GetBoundingBox() const
+{
+    if (m_RenderCompPtr)
+        return m_RenderCompPtr->GetBoundingBox();
+
+    return std::nullopt;
+}
+
 sf::Vector2f diji::GameObject::GetObjectPosition() const
 {
     return m_RootTransform->GetWorldPosition();

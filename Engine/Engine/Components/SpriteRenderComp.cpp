@@ -172,3 +172,8 @@ void diji::SpriteRenderComponent::UpdateFrame()
 {
     m_Sprite.setTextureRect(sf::IntRect{ sf::Vector2i{ (m_StartingFrameX + m_CurrentFrame) * m_FrameSize.x, m_StartingFrameY * m_FrameSize.y }, sf::Vector2i{ m_FrameSize.x, m_FrameSize.y } });
 }
+
+sf::FloatRect diji::SpriteRenderComponent::GetBoundingBox() const
+{
+    return static_cast<sf::FloatRect>(m_Sprite.getTextureRect());
+}

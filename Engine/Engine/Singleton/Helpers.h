@@ -2,6 +2,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <cmath>
 #include <numbers>
+#include <SFML/Graphics/Rect.hpp>
 
 namespace diji
 {
@@ -102,5 +103,14 @@ namespace diji
         {
             return v < 0.f ? 0.f : v > 1.f ? 1.f : v;
         }
+
+        static bool RectsOverlap(const sf::FloatRect& a, const sf::FloatRect& b)
+        {
+            return (a.position.x < b.position.x + b.size.x) &&
+                   (a.position.x + a.size.x > b.position.x) &&
+                   (a.position.y < b.position.y + b.size.y) &&
+                   (a.position.y + a.size.y > b.position.y);
+        }
+
     };
 }

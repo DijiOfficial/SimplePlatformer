@@ -54,6 +54,7 @@ namespace diji
         void SkipStart() { m_SkipStart = true; }
 
         void UpdateFrame();
+        sf::FloatRect GetBoundingBox() const override;
 
     private:
         const TimeSingleton& m_TimeSingletonInstance = TimeSingleton::GetInstance();

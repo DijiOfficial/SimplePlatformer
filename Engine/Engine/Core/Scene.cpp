@@ -7,6 +7,8 @@
 #include <ranges>
 #include <stdexcept>
 
+#include "../Singleton/Helpers.h"
+
 diji::Scene::~Scene() noexcept
 {
     m_ObjectsUPtrMap.clear();
@@ -459,20 +461,27 @@ void diji::Scene::ValidateCollidersAfterDestroy()
 
 void diji::Scene::DrawGameObjects() const
 {
-    // for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
-    // {
-    //     if (gameObject == "D_castle" )
-    //     gameObject->Render();
-    // }
-    for (const auto& [key, gameObject] : m_ObjectsUPtrMap)
+    for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
     {
-        if (key == "D_castle")
-        {
-            gameObject->Render();
-        }
         gameObject->Render();
     }
 }
+
+//// Attempt at frustum culling is in fact not faster.
+// void diji::Scene::DrawGameObjects() const
+// {
+//     if (!m_MainCameraCompPtr) return;
+//
+//     const sf::View& camView = m_MainCameraCompPtr->GetCameraView();
+//     const sf::FloatRect cameraRect(sf::Vector2f{ camView.getCenter().x - camView.getSize().x * 0.5f, camView.getCenter().y - camView.getSize().y * 0.5f }, sf::Vector2f{ camView.getSize().x, camView.getSize().y });
+//
+//     for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
+//     {
+//         if (auto bounds = gameObject->GetBoundingBox())
+//             if (Helpers::RectsOverlap(cameraRect, *bounds))
+//                 gameObject->Render();
+//     }
+// }
 
 std::string diji::Scene::GenerateUniqueName(const std::map<std::string, std::unique_ptr<GameObject>>& objectMap, const std::string& baseName)
 {
