@@ -7,6 +7,8 @@
 
 #include <stdexcept>
 
+#include "CollisionsHelper.h"
+
 void diji::PhysicsWorld::Reset()
 {
     m_DynamicColliders = std::vector<Collider*>();
@@ -64,23 +66,23 @@ void diji::PhysicsWorld::FixedUpdate()
     std::vector<Prediction> predictionsVec;
     PredictMovement(predictionsVec);
 
-    // todo: Massive issue with rect colliders and composed ground colliders, where colliders moving along the ground get stopped on seams because the collider is getting pushed back instead of up
     // Phase 2: Detect collisions using predicted positions
     DetectCollisions(predictionsVec);
+
+    // Phase 2.5: Filter aligned boxes
+    for (Prediction& prediction : predictionsVec)
+        CollisionsHelper::FilterAlignedBoxCollisions(prediction);
 
     // Phase 3: Resolve collisions and apply friction
     for (Prediction& prediction : predictionsVec)
     {
+        if (!prediction.collider->IsMoveable()) continue;
+
         for (const CollisionInfo& collision : prediction.collisionInfoVec)
         {
-            if (!collision.hasCollision)
-                continue;
-
-            if (!prediction.collider->IsMoveable())
-                continue;
-
+            if (!collision.hasCollision) continue;
+            
             ResolveCollision(prediction, collision);
-            // ApplyFriction(prediction, collision);
         }
 
         ApplyFrictionOnce(prediction);

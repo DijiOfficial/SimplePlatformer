@@ -27,15 +27,6 @@ namespace diji
 		void FixedUpdate();
 		void SetGravity(const sf::Vector2f& gravity) { m_Gravity = gravity; }
 		[[nodiscard]] sf::Vector2f GetGravity() const { return m_Gravity; }
-		
-		struct Prediction
-		{
-			Collider* collider;
-			sf::FloatRect AABB;
-			sf::Vector2f pos;
-			sf::Vector2f vel;
-			std::vector<CollisionInfo> collisionInfoVec;
-		};
 
 		struct CollisionDetectionResult
 		{
@@ -92,7 +83,7 @@ namespace diji
 		void PredictMovement(std::vector<Prediction>& predictionsVec) const;
 		void DetectCollisions(std::vector<Prediction>& predictionsVec);
 		static void ResolveCollision(Prediction& prediction, const CollisionInfo& collision);
-		
+
 		static void UpdateFinalPosition(const Prediction& prediction);
 		static CollisionDetectionResult HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider);
 		static CollisionDetectionResult HandleDynamicCollisions(Prediction& dynamicColliderA, Prediction& dynamicColliderB);

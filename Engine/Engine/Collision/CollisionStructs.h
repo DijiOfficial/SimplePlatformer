@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <vector>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -22,6 +23,17 @@ namespace diji
         mutable float normalImpulse;    // Impulse magnitude (calculated during resolution)
         sf::Vector2f tangent;           // Tangent vector for friction calculation
         bool hasCollision;              // Whether collision occurred
+
+        sf::FloatRect otherAABB;
+    };
+
+    struct Prediction
+    {
+        Collider* collider;
+        sf::FloatRect AABB;
+        sf::Vector2f pos;
+        sf::Vector2f vel;
+        std::vector<CollisionInfo> collisionInfoVec;
     };
 
     struct RaycastHit

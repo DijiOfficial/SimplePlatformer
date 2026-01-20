@@ -18,23 +18,23 @@ namespace diji
         CollisionDispatcher(CollisionDispatcher&&) noexcept = default;
         CollisionDispatcher& operator=(CollisionDispatcher&&) noexcept = default;
         
-        PhysicsWorld::CollisionDetectionResult Dispatch(PhysicsWorld::Prediction& predictionA, PhysicsWorld::Prediction& predictionB, const Collider* colliderA, const Collider* colliderB) const;
+        PhysicsWorld::CollisionDetectionResult Dispatch(Prediction& predictionA, Prediction& predictionB, const Collider* colliderA, const Collider* colliderB) const;
 
     private:
-        using CollisionFunc = std::function<PhysicsWorld::CollisionDetectionResult(PhysicsWorld::Prediction&, PhysicsWorld::Prediction&, const Collider*, const Collider*)>;
+        using CollisionFunc = std::function<PhysicsWorld::CollisionDetectionResult(Prediction&, Prediction&, const Collider*, const Collider*)>;
             
         // 2D lookup table indexed by shape types
         std::array<std::array<CollisionFunc, 3>, 3> collisionTable_;
             
-        static PhysicsWorld::CollisionDetectionResult HandleCircleCircle(   PhysicsWorld::Prediction& predA, PhysicsWorld::Prediction& predB, const Collider* colliderA, const Collider* colliderB);
-        static PhysicsWorld::CollisionDetectionResult HandleCircleRect(     PhysicsWorld::Prediction& predA, PhysicsWorld::Prediction& predB, const Collider* colliderA, const Collider* colliderB);
-        static PhysicsWorld::CollisionDetectionResult HandleRectRect(       PhysicsWorld::Prediction& predA, PhysicsWorld::Prediction& predB, const Collider* colliderA, const Collider* colliderB);
+        static PhysicsWorld::CollisionDetectionResult HandleCircleCircle(   Prediction& predA, Prediction& predB, const Collider* colliderA, const Collider* colliderB);
+        static PhysicsWorld::CollisionDetectionResult HandleCircleRect(     Prediction& predA, Prediction& predB, const Collider* colliderA, const Collider* colliderB);
+        static PhysicsWorld::CollisionDetectionResult HandleRectRect(       Prediction& predA, Prediction& predB, const Collider* colliderA, const Collider* colliderB);
 
         template<typename ShapeA, typename ShapeB>
         static PhysicsWorld::CollisionDetectionResult DispatchCollision
         (
-            PhysicsWorld::Prediction& predA,
-            PhysicsWorld::Prediction& predB,
+            Prediction& predA,
+            Prediction& predB,
             const Collider* colliderA,
             const Collider* colliderB,
             PhysicsWorld::CollisionDetectionResult (*collisionFunc)

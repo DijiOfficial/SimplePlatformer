@@ -163,7 +163,8 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessBoxT
     collision.normal = smallestAxis;
     collision.penetration = minOverlap;
     collision.tangent = sf::Vector2f(-smallestAxis.y, smallestAxis.x);
-
+    collision.otherAABB = rectB.getGlobalBounds();
+    
     collisionInfoVecA.push_back(collision);
 
     // Flip normal/tangent for B
@@ -174,6 +175,89 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessBoxT
     collisionResult.Overlap = isCheckingOverlap;
     collisionResult.Hit = !isCheckingOverlap;
     return collisionResult;
+}
+
+void diji::CollisionsHelper::FilterAlignedBoxCollisions(Prediction& pred)
+{
+    constexpr float moveDeadzone = 0.05f;
+
+    const float xAxis = std::abs(pred.vel.x);
+    const float yAxis = std::abs(pred.vel.y);
+    const bool preferHorizontal = xAxis > yAxis + moveDeadzone;
+    const bool preferVertical = yAxis > xAxis + moveDeadzone;
+
+    std::vector<char> keep(pred.collisionInfoVec.size(), 1);
+    for (size_t i = 0; i < pred.collisionInfoVec.size(); ++i)
+    {
+        if (!pred.collisionInfoVec[i].hasCollision)
+        {
+            keep[i] = 0;
+            continue;
+        }
+
+        const sf::FloatRect& rectA = pred.collisionInfoVec[i].otherAABB;
+        for (size_t j = i + 1; j < pred.collisionInfoVec.size(); ++j)
+        {
+            if (!pred.collisionInfoVec[j].hasCollision)
+            {
+                keep[j] = 0;
+                continue;
+            }
+
+            const sf::FloatRect& rectB = pred.collisionInfoVec[j].otherAABB;
+            if (!BoxesAreAxisAligned(rectA, rectB, Helpers::EPSILON))
+                continue;
+
+            const auto& collisionInfoI = pred.collisionInfoVec[i];
+            const auto& collisionInfoJ = pred.collisionInfoVec[j];
+
+            const bool iHorizontal = std::abs(collisionInfoI.normal.x) > std::abs(collisionInfoI.normal.y);
+            const bool jHorizontal = std::abs(collisionInfoJ.normal.x) > std::abs(collisionInfoJ.normal.y);
+
+            // Prioritize floor collisions
+            if (collisionInfoI.normal.y < 0.0f)
+            {
+                keep[j] = 0;
+                continue;
+            }
+            if (collisionInfoJ.normal.y < 0.0f)
+            {
+                keep[i] = 0;
+                continue;
+            }
+
+            if (preferHorizontal)
+            {
+                if (iHorizontal && !jHorizontal)
+                    keep[j] = 0;
+                else if (jHorizontal && !iHorizontal)
+                    keep[i] = 0;
+            }
+            else if (preferVertical)
+            {
+                if (!iHorizontal && jHorizontal)
+                    keep[j] = 0;
+                else if (!jHorizontal && iHorizontal)
+                    keep[i] = 0;
+            }
+            else
+            {
+                // Standing still
+                if (collisionInfoI.penetration >= collisionInfoJ.penetration)
+                    keep[j] = 0;
+                else
+                    keep[i] = 0;
+            }
+        }
+    }
+
+    std::vector<CollisionInfo> filtered;
+    filtered.reserve(pred.collisionInfoVec.size());
+    for (size_t k = 0; k < pred.collisionInfoVec.size(); ++k)
+        if (keep[k])
+            filtered.push_back(pred.collisionInfoVec[k]);
+
+    pred.collisionInfoVec.swap(filtered);
 }
 
 std::vector<sf::Vector2f> diji::CollisionsHelper::GetBoxCorners(const sf::RectangleShape& rect)
@@ -262,4 +346,13 @@ sf::Vector2f diji::CollisionsHelper::GetCenterOfMass(const std::vector<sf::Vecto
     }
 
     return { sumX / static_cast<float>(points.size()), sumY / static_cast<float>(points.size()) };
+}
+
+bool diji::CollisionsHelper::BoxesAreAxisAligned(const sf::FloatRect& rectA, const sf::FloatRect& rectB, const float minOverlap)
+{
+    const float xOverlap = std::min(rectA.position.x + rectA.size.x, rectB.position.x + rectB.size.x) - std::max(rectA.position.x, rectB.position.x);
+    const float yOverlap = std::min(rectA.position.y + rectA.size.y, rectB.position.y + rectB.size.y) - std::max(rectA.position.y, rectB.position.y);
+
+    if (xOverlap <= 0.f || yOverlap <= 0.f) return false;
+    return (xOverlap > minOverlap && yOverlap > minOverlap);
 }

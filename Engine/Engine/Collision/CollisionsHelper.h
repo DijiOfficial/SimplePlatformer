@@ -15,7 +15,8 @@ namespace diji
         static PhysicsWorld::CollisionDetectionResult ProcessCircleToCircleCollision(const sf::CircleShape& circleA, const sf::CircleShape& circleB, std::vector<CollisionInfo>& collisionInfoVecA, std::vector<CollisionInfo>& collisionInfoVecB, bool isCheckingOverlap);
         static PhysicsWorld::CollisionDetectionResult ProcessCircleToBoxCollision(const sf::CircleShape& circleA, const sf::RectangleShape& rect, std::vector<CollisionInfo>& collisionInfoVecA, std::vector<CollisionInfo>& collisionInfoVecB, bool isCheckingOverlap);
         static PhysicsWorld::CollisionDetectionResult ProcessBoxToBoxCollision(const sf::RectangleShape& rectA, const sf::RectangleShape& rectB, std::vector<CollisionInfo>& collisionInfoVecA, std::vector<CollisionInfo>& collisionInfoVecB, bool isCheckingOverlap);
-        
+        static void FilterAlignedBoxCollisions(Prediction& pred);
+
     private:
         static std::vector<sf::Vector2f> GetBoxCorners(const sf::RectangleShape& rect);
         static std::vector<sf::Vector2f> GetBoxAxes(const std::vector<sf::Vector2f>& corners);
@@ -23,5 +24,6 @@ namespace diji
         static void ProjectOntoAxis(const std::vector<sf::Vector2f>& points, const sf::Vector2f& axis, float& min, float& max);
         static void ProjectCircleOntoAxis(const sf::CircleShape& circle, const sf::Vector2f& axis, float& min, float& max);
         static sf::Vector2f GetCenterOfMass(const std::vector<sf::Vector2f>& points);
+        static bool BoxesAreAxisAligned(const sf::FloatRect& rectA, const sf::FloatRect& rectB, float minOverlap = 0.01f);
     };
 }
