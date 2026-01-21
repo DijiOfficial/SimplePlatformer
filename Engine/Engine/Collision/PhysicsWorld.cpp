@@ -4,10 +4,9 @@
 #include "../Singleton/Helpers.h"
 #include "../Core/GameObject.h"
 #include "QuadTree.h"
+#include "CollisionsHelper.h"
 
 #include <stdexcept>
-
-#include "CollisionsHelper.h"
 
 void diji::PhysicsWorld::Reset()
 {
@@ -69,9 +68,12 @@ void diji::PhysicsWorld::FixedUpdate()
     // Phase 2: Detect collisions using predicted positions
     DetectCollisions(predictionsVec);
 
-    // Phase 2.5: Filter aligned boxes
+    // Phase 2.1: Filter aligned boxes
     for (Prediction& prediction : predictionsVec)
         CollisionsHelper::FilterAlignedBoxCollisions(prediction);
+    
+    // Phase 2.2: Generate new events list
+    GenerateEvents(predictionsVec);
 
     // Phase 3: Resolve collisions and apply friction
     for (Prediction& prediction : predictionsVec)
@@ -153,6 +155,8 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
         hit.info.penetration    = 0.0f;
         hit.info.tangent        = sf::Vector2f{0.0f, 0.0f};
         hit.info.normalImpulse  = 0.0f;
+        hit.info.trigger        = collider;
+        hit.info.other          = col;
         
         closestDist = actualDistance;
         closestHit = hit;
@@ -178,6 +182,16 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
     }
 
     return closestHit;
+}
+
+void diji::PhysicsWorld::GenerateEvents(const std::vector<Prediction>& predictionsVec)
+{
+    for (const Prediction& prediction : predictionsVec)
+        for (const CollisionInfo& info : prediction.collisionInfoVec)
+        {
+            if (info.hasHitEvent)
+                m_HitEventTriggers.push_back({ .trigger= info.trigger, .other= info.other, .hitInfo= info });
+        }
 }
 
 void diji::PhysicsWorld::RemoveFromTriggerLists(Collider* collider)
@@ -287,12 +301,17 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             if (!AABBOverlap(predictedAABB, aabb)) continue;
             
             const auto [Overlap, Hit] = HandleStaticCollisions(predictionsVec[i], staticCollider);
-            
+
             if (Overlap)
                 m_ActiveTriggers.push_back({.trigger = colliderPtr, .other = staticCollider, .hitInfo = collisionsVec.back()});
 
-            if (Hit && colliderPtr->IsGenerateHitEvents())
-                m_HitEventTriggers.push_back({.trigger = colliderPtr, .other = staticCollider, .hitInfo = collisionsVec.back()});
+            if (!Hit || !colliderPtr->IsGenerateHitEvents())
+                continue;
+            
+            auto& info = collisionsVec.back();
+            info.trigger = colliderPtr;
+            info.other = staticCollider;
+            info.hasHitEvent = Hit;
         }
 
         // DYNAMIC COLLISIONS: Check against remaining dynamic colliders (avoid duplicates)
@@ -306,17 +325,27 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             if (!AABBOverlap(predictedAABB, otherPrediction.AABB)) continue;
             
             const auto [Overlap, Hit] = HandleDynamicCollisions(predictionsVec[i], otherPrediction);
-            
-            if (Overlap)
-                m_ActiveTriggers.push_back({.trigger = colliderPtr, .other = otherPrediction.collider, .hitInfo = collisionsVec.back()});
 
-            if (Hit)
+            if (Overlap)
+                m_ActiveTriggers.push_back({.trigger= colliderPtr, .other= otherPrediction.collider, .hitInfo= collisionsVec.back()});
+            
+            if (!Hit)
+                continue;
+            
+            if (colliderPtr->IsGenerateHitEvents())
             {
-                if (colliderPtr->IsGenerateHitEvents())
-                    m_HitEventTriggers.push_back({.trigger = colliderPtr, .other = otherPrediction.collider, .hitInfo = collisionsVec.back()});
-                
-                if (otherPrediction.collider->IsGenerateHitEvents())
-                    m_HitEventTriggers.push_back({.trigger = otherPrediction.collider, .other = colliderPtr, .hitInfo = otherPrediction.collisionInfoVec.back()});
+                auto& info = collisionsVec.back();
+                info.trigger = colliderPtr;
+                info.other = otherPrediction.collider;
+                info.hasHitEvent = Hit;
+            }
+            
+            if (otherPrediction.collider->IsGenerateHitEvents())
+            {
+                auto& otherInfo = otherPrediction.collisionInfoVec.back();
+                otherInfo.trigger = otherPrediction.collider;
+                otherInfo.other = colliderPtr;
+                otherInfo.hasHitEvent = Hit;
             }
         }
     }

@@ -354,5 +354,5 @@ bool diji::CollisionsHelper::BoxesAreAxisAligned(const sf::FloatRect& rectA, con
     const float yOverlap = std::min(rectA.position.y + rectA.size.y, rectB.position.y + rectB.size.y) - std::max(rectA.position.y, rectB.position.y);
 
     if (xOverlap <= 0.f || yOverlap <= 0.f) return false;
-    return (xOverlap > minOverlap && yOverlap > minOverlap);
+    return (xOverlap > minOverlap && Helpers::AreFloatEqual(rectA.position.y, rectB.position.y)) || (yOverlap > minOverlap && Helpers::AreFloatEqual(rectA.position.x, rectB.position.x));
 }

@@ -25,6 +25,10 @@ namespace diji
         bool hasCollision;              // Whether collision occurred
 
         sf::FloatRect otherAABB;
+
+        bool hasHitEvent = false;
+        const Collider* trigger;
+        const Collider* other;
     };
 
     struct Prediction
