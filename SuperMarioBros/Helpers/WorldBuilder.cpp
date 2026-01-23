@@ -391,7 +391,7 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         const auto groundCollider = ground->GetComponent<diji::Collider>();
         groundCollider->SetStatic(true);
         groundCollider->SetTag("ground");
-        diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(ground), center - sf::Vector2f{25.f, 25.f});
+        diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(ground), center - sf::Vector2f{ 25.f, 20.f });
 
         return 1;
     };
