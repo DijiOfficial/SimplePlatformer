@@ -315,13 +315,7 @@ void superMarioBros::PlayerCharacter::OnHitEvent(const diji::Collider* other, co
     
     if (otherTag != "enemy" && otherTag != "koopa") return;
     
-    const sf::Vector2f playerCenter = m_TransformCompPtr->GetWorldPosition();
-    const sf::Vector2f enemyCenter = other->GetPosition();
-    
-    // Calculate vector from enemy to player
-    const sf::Vector2f enemyToPlayer = diji::Helpers::Normalize(playerCenter - enemyCenter);
-    const float dotProduct =  diji::Helpers::DotProduct(enemyToPlayer, UP_VECTOR);
-    if (dotProduct > STOMP_THRESHOLD)
+    if (m_CurrSpeed.y > 0.f)
     {
         diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_stomp.wav", false);
 
