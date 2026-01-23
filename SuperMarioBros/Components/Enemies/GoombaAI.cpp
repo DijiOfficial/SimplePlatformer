@@ -54,7 +54,7 @@ void superMarioBros::GoombaAI::HandleBumpedBehavior(const bool isBumpingLeft, co
     m_TransformCompPtr->SetWorldRotation(sf::degrees(180.f));
     GetOwner()->GetComponent<diji::SpriteRenderComponent>()->Pause();
     
-    const sf::Vector2f impulse = isBumpingLeft ? sf::Vector2f{-300.f, -1200.f} : sf::Vector2f{300.f, -1200.f};
+    const sf::Vector2f impulse = isBumpingLeft ? sf::Vector2f{-100.f, -800.f} : sf::Vector2f{100.f, -800.f};
     m_ColliderCompPtr->ApplyImpulse(impulse);
     m_ColliderCompPtr->SetCollisionResponse(diji::Collider::CollisionResponse::Ignore);
     m_Paused = true;

@@ -13,7 +13,7 @@ void superMarioBros::MushroomScript::HandleBumpedBehavior(const bool IsBumpingLe
     }, 0.067f, false);
     
     m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0, 0 });
-    const sf::Vector2f impulse = IsBumpingLeft ? sf::Vector2f{-200.f, -1000.f} : sf::Vector2f{200.f, -1000.f};
+    const sf::Vector2f impulse = IsBumpingLeft ? sf::Vector2f{-200.f, -800.f} : sf::Vector2f{200.f, -800.f};
     m_ColliderCompPtr->ApplyImpulse(impulse);
     m_Speed = IsBumpingLeft ? -std::abs(m_Speed) : std::abs(m_Speed);
 }
