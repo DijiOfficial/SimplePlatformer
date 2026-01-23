@@ -56,3 +56,9 @@ void superMarioBros::BaseEnemy::SpawnPointsText(const std::string& score) const
     const auto& scorePos = sf::Vector2f{ pos.x, pos.y - yOffset };
     GameManager::SpawnPointsText(scorePos, score);
 }
+
+void superMarioBros::BaseEnemy::Pause()
+{
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.f, 0.f });
+    m_Paused = true;
+}

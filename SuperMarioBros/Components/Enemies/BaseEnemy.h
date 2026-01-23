@@ -48,6 +48,6 @@ namespace superMarioBros
         void SetPauseState(const bool isPause) { m_Paused = isPause; }
         void CheckActivation(int milestone) const;
         void SpawnPointsText(const std::string& score) const;
-        void Pause() { m_Paused = true; }
+        void Pause();
     };
 }
