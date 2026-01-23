@@ -30,7 +30,7 @@ namespace superMarioBros
         void OnDestroy() override {}
 
         void OnTriggerEnter(const diji::Collider*, const diji::CollisionInfo&) override;
-        void OnHitEvent(const diji::Collider*, const diji::CollisionInfo&) override;
+        void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&) override;
 
     protected:
         diji::Timeline* m_TimelinePtr = nullptr;

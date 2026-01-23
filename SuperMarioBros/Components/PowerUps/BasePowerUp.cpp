@@ -70,10 +70,13 @@ void superMarioBros::BasePowerUp::OnTriggerEnter(const diji::Collider* other, co
     OnPickup(other);
 }
 
-void superMarioBros::BasePowerUp::OnHitEvent(const diji::Collider*, const diji::CollisionInfo& hitInfo)
+void superMarioBros::BasePowerUp::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo& hitInfo)
 {
     // todo: use directions
     if (diji::Helpers::isZero(hitInfo.normal.x))
+        return;
+
+    if (std::abs(other->GetPosition().y - m_ColliderCompPtr->GetPosition().y) > 2.5f)
         return;
 
     m_Speed = -m_Speed;
