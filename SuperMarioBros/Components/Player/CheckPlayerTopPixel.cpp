@@ -16,6 +16,7 @@ void superMarioBros::CheckPlayerTopPixel::Init()
 void superMarioBros::CheckPlayerTopPixel::Update()
 {
     if (m_PlayerCharacterCompPtr->IsDead() || m_PlayerCharacterCompPtr->IsPaused()) return;
+    if (m_ColliderCompPtr->GetVelocity().y >= 0) return;
     
     const float offset = m_PlayerCharacterCompPtr->GetPowerUpState() == 0 ? 22.f : 44.f;
     const sf::Vector2f origin = m_TransformCompPtr->GetWorldPosition();
@@ -30,7 +31,7 @@ void superMarioBros::CheckPlayerTopPixel::Update()
 
         const auto playerBumpableInterface = diji::InterfaceRegistry::GetInterface<IPlayerBumpable>(hit->collider->GetParent());
         if (!playerBumpableInterface) return;
-        
+
         playerBumpableInterface->Bump();
     }
 }
