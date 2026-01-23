@@ -26,7 +26,7 @@ void superMarioBros::MultiCoinBlock::OnAnimationStart()
     (void)diji::TimerManager::GetInstance().SetTimer([&]
     {
         m_CanBeHit = true;
-    }, 0.067f, false);
+    }, 0.1f, false);
 }
 
 void superMarioBros::MultiCoinBlock::OnAnimationEnd()
