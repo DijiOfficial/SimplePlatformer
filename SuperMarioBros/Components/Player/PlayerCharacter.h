@@ -67,7 +67,7 @@ namespace superMarioBros
         diji::Event<bool> OnPoweringUpEvent;
         diji::Event<> OnLevelFinishedEvent;
         diji::Event<> OnCastleReachedEvent;
-        
+
     private:
         const std::set<std::string> GROUND_TAGS = { "ground", "luckyBlock", "breakBlock", "HiddenBlock" };
         diji::Timeline* m_FlagPoleTimelinePtr = nullptr;
@@ -80,7 +80,6 @@ namespace superMarioBros
         const sf::Vector2f UP_VECTOR = { 0.f, -1.f };
 
         sf::Vector2f m_CurrSpeed = { 0.f, 0.f };
-        sf::Vector2f m_PreviousFrameSpeed = { 0.f, 0.f };
 
         sf::Vector2f m_BaseMaxVelocity = { 350.f, 1000.f };
         sf::Vector2f m_SprintMaxVelocity = { 500.f, 1000.f };
