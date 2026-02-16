@@ -12,7 +12,7 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
     std::vector<CollisionInfo>& collisionInfoVecB,
     const bool isCheckingOverlap)
 {
-    PhysicsWorld::CollisionDetectionResult result = { .Overlap = false, .Hit = false };
+    PhysicsWorld::CollisionDetectionResult result = { .overlap = false, .hit = false };
         
     const sf::Vector2f centerA = circleA.getPosition() + circleA.getOrigin();
     const sf::Vector2f centerB = circleB.getPosition() + circleB.getOrigin();
@@ -38,8 +38,8 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
     collision.normal *= -1.f;
     collisionInfoVecB.push_back(collision);
 
-    result.Overlap = isCheckingOverlap;
-    result.Hit = !isCheckingOverlap;
+    result.overlap = isCheckingOverlap;
+    result.hit = !isCheckingOverlap;
     
     return result;
 }
@@ -51,7 +51,7 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
     std::vector<CollisionInfo>& collisionInfoVecB,
     const bool isCheckingOverlap)
 {
-    PhysicsWorld::CollisionDetectionResult collisionResult = { .Overlap = false, .Hit = false };
+    PhysicsWorld::CollisionDetectionResult collisionResult = { .overlap = false, .hit = false };
 
     const auto cornersA = GetBoxCorners(rect);
     const sf::Vector2f closestPoint = FindClosestPointToCircle(circleA, cornersA);
@@ -101,8 +101,8 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
     collision.tangent *= -1.0f;
     collisionInfoVecB.push_back(collision);
 
-    collisionResult.Overlap = isCheckingOverlap;
-    collisionResult.Hit = !isCheckingOverlap;
+    collisionResult.overlap = isCheckingOverlap;
+    collisionResult.hit = !isCheckingOverlap;
     
     return collisionResult;
 }
@@ -113,7 +113,7 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessBoxT
     std::vector<CollisionInfo>& collisionInfoVecB,
     const bool isCheckingOverlap)
 {
-    PhysicsWorld::CollisionDetectionResult collisionResult = { .Overlap = false, .Hit = false };
+    PhysicsWorld::CollisionDetectionResult collisionResult = { .overlap = false, .hit = false };
 
     const auto cornersA = GetBoxCorners(rectA);
     const auto cornersB = GetBoxCorners(rectB);
@@ -172,8 +172,8 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessBoxT
     collision.tangent *= -1.0f;
     collisionInfoVecB.push_back(collision);
     
-    collisionResult.Overlap = isCheckingOverlap;
-    collisionResult.Hit = !isCheckingOverlap;
+    collisionResult.overlap = isCheckingOverlap;
+    collisionResult.hit = !isCheckingOverlap;
     return collisionResult;
 }
 

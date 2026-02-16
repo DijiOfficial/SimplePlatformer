@@ -55,9 +55,9 @@ void diji::BVHTree::BuildFromAABBs(const std::vector<sf::FloatRect>& aabbs)
     // We will create nodes and assign leaves as we go
     // To make life easy, use a lambda that builds a subtree for [start,end) and returns node index
     std::function<int(int,int)> buildSubtree;
-    buildSubtree = [&](int start, int end) -> int
+    buildSubtree = [&](const int start, const int end) -> int
     {
-        int count = end - start;
+        const int count = end - start;
         if (count <= 0) return -1;
 
         Node node;
@@ -75,9 +75,9 @@ void diji::BVHTree::BuildFromAABBs(const std::vector<sf::FloatRect>& aabbs)
         for (int i = start + 1; i < end; ++i)
             bounds = MergeAABB(bounds, localItems[i].aabb);
 
-        float width = bounds.size.x;
-        float height = bounds.size.y;
-        int axis = (width >= height) ? 0 : 1; // 0 = x, 1 = y
+        const float width = bounds.size.x;
+        const float height = bounds.size.y;
+        const int axis = (width >= height) ? 0 : 1; // 0 = x, 1 = y
 
         // Partition by median of centers
         const int mid = start + count / 2;
@@ -97,14 +97,14 @@ void diji::BVHTree::BuildFromAABBs(const std::vector<sf::FloatRect>& aabbs)
         internal.isLeaf = false;
         // left and right will be filled after recursive calls
         m_nodes.push_back(internal);
-        int nodeIndex = static_cast<int>(m_nodes.size()) - 1;
+        const int nodeIndex = static_cast<int>(m_nodes.size()) - 1;
 
-        int left = buildSubtree(start, mid);
-        int right = buildSubtree(mid, end);
+        const int left = buildSubtree(start, mid);
+        const int right = buildSubtree(mid, end);
 
         // compute AABB
-        sf::FloatRect leftAABB = (left >= 0) ? m_nodes[left].aabb : sf::FloatRect();
-        sf::FloatRect rightAABB = (right >= 0) ? m_nodes[right].aabb : sf::FloatRect();
+        const sf::FloatRect leftAABB = (left >= 0) ? m_nodes[left].aabb : sf::FloatRect();
+        const sf::FloatRect rightAABB = (right >= 0) ? m_nodes[right].aabb : sf::FloatRect();
         m_nodes[nodeIndex].left = left;
         m_nodes[nodeIndex].right = right;
         m_nodes[nodeIndex].aabb = MergeAABB(leftAABB, rightAABB);
@@ -113,7 +113,7 @@ void diji::BVHTree::BuildFromAABBs(const std::vector<sf::FloatRect>& aabbs)
     };
 
     // Build entire tree
-    int root = buildSubtree(0, static_cast<int>(localItems.size()));
+    const int root = buildSubtree(0, static_cast<int>(localItems.size()));
     (void)root;
 }
 
@@ -127,7 +127,7 @@ void diji::BVHTree::QueryOverlap(const sf::FloatRect& query, std::vector<int>& o
 
     while (!stack.empty())
     {
-        int ni = stack.top(); stack.pop();
+        const int ni = stack.top(); stack.pop();
         if (ni < 0) continue;
         const Node& n = m_nodes[ni];
         if (!Overlap(n.aabb, query)) continue;
@@ -177,7 +177,7 @@ int diji::BVHTree::RaycastFirst(const sf::Vector2f& origin, const sf::Vector2f& 
 
     while (!stack.empty())
     {
-        int ni = stack.top(); stack.pop();
+        const int ni = stack.top(); stack.pop();
         if (ni < 0) continue;
         const Node& n = m_nodes[ni];
         if (!slabTest(n.aabb)) continue;

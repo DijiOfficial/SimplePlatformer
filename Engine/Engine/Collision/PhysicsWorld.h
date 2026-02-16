@@ -30,8 +30,8 @@ namespace diji
 
 		struct CollisionDetectionResult
 		{
-			bool Overlap;
-			bool Hit;
+			bool overlap;
+			bool hit;
 		};
 
 		static float Right(const sf::FloatRect& r)  { return r.position.x + r.size.x; }
