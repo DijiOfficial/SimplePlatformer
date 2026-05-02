@@ -69,6 +69,9 @@ void diji::GameObject::Update() const
 {
     if (!m_IsActive) return;
 
+    if (m_SimulatesPhysics)
+        m_ColliderCompPtr->SyncTransform();
+    
     for (const auto& component : m_ComponentsPtrVec)
     {
         component->Update();
