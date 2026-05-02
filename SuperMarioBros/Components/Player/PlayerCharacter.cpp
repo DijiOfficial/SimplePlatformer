@@ -309,13 +309,7 @@ void superMarioBros::PlayerCharacter::OnTriggerEnter(const diji::Collider* other
         return;
     }
     
-    const sf::Vector2f playerCenter = m_TransformCompPtr->GetWorldPosition();
-    const sf::Vector2f enemyCenter = other->GetPosition();
-    
-    // Calculate vector from enemy to player
-    const sf::Vector2f enemyToPlayer = diji::Helpers::Normalize(playerCenter - enemyCenter);
-    const float dotProduct =  diji::Helpers::DotProduct(enemyToPlayer, UP_VECTOR);
-    if (dotProduct > STOMP_THRESHOLD)
+    if (IsValidStomp(other))
     {
         diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_stomp.wav", false);
 
@@ -333,6 +327,17 @@ void superMarioBros::PlayerCharacter::OnTriggerEnter(const diji::Collider* other
         }
         HitByEnemy();
     }
+}
+
+bool superMarioBros::PlayerCharacter::IsValidStomp(const diji::Collider* other) const
+{
+    const bool isAbove = m_TransformCompPtr->GetWorldPosition().y <= other->GetPosition().y;
+
+    bool isValid = m_ColliderCompPtr->GetVelocity().y > 0.f;
+    if (!isValid)
+        isValid = other->GetVelocity().y < 0.0f;
+
+    return isAbove && isValid;
 }
 
 void superMarioBros::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)

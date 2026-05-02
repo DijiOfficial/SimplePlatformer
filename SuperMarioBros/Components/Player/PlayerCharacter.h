@@ -148,5 +148,6 @@ namespace superMarioBros
         void StopFlagAnimAndMoveToCastle();
         void CheckForSavedState();
         void HitByEnemy();
+        bool IsValidStomp(const diji::Collider* other) const;
     };
 }
