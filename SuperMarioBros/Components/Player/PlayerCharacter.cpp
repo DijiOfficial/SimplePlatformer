@@ -10,6 +10,7 @@
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Collision/Collider.h"
 #include "../../Singletons/GameManager.h"
+#include "../Enemies/KoopaTroopa.h"
 #include "../Other/LevelObjects/Flag.h"
 #include "../Other/HUD/PointsBehaviour.h"
 #include "Engine/Components/Camera.h"
@@ -41,6 +42,9 @@ void superMarioBros::PlayerCharacter::Init()
     m_SpriteRenderCompPtr = GetOwner()->GetComponent<diji::SpriteRenderComponent>();
 
     m_ColliderCompPtr->SetMaxVelocity(m_BaseMaxVelocity);
+
+    for(const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
+        m_ColliderCompPtr->OverlapCollider(enemyCollider);
 
     LoadPosition();
 
@@ -288,32 +292,22 @@ void superMarioBros::PlayerCharacter::OnTriggerEnter(const diji::Collider* other
     }
 
     if (m_IsInvincible) return;
-    if (otherTag == "koopa")
+    if (otherTag == "plant")
+    {
+        HitByEnemy();
+        return;
+    }
+
+    const bool isKoopa = otherTag == "koopa";
+    if (isKoopa && other->GetParent()->GetComponent<KoopaTroopa>()->IsStomped())
     {
         const auto enemyInterface = diji::InterfaceRegistry::GetInterface<IShoveable>(other->GetParent());
         enemyInterface->Shove(m_TransformCompPtr->GetWorldPosition().x > other->GetPosition().x);
         
         const std::string& pointsString = MarioHelpers::GetStompPointsAsString(m_BounceScoreMultiplier + 3);
         OnEnemyStompedEvent.Broadcast(other, pointsString);
-    }
-
-    if (otherTag == "plant")
-        HitByEnemy();
-}
-
-void superMarioBros::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)
-{
-    if (m_IsDead || m_IsPaused || m_IsInvincible) return;
-    const std::string& otherTag = other->GetTag();
-
-    if (GROUND_TAGS.contains(otherTag))
-    {
-        m_KoopaStompToggle = false;
-        m_BounceScoreMultiplier = 0;
         return;
     }
-    
-    if (otherTag != "enemy" && otherTag != "koopa") return;
     
     const sf::Vector2f playerCenter = m_TransformCompPtr->GetWorldPosition();
     const sf::Vector2f enemyCenter = other->GetPosition();
@@ -325,13 +319,31 @@ void superMarioBros::PlayerCharacter::OnHitEvent(const diji::Collider* other, co
     {
         diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_stomp.wav", false);
 
-        if (otherTag == "koopa")
+        if (isKoopa)
             StompKoopa(other);
         else
             StompEnemy(other);
     }
     else
+    {
+        if (isKoopa)
+        {
+            const auto enemyInterface = diji::InterfaceRegistry::GetInterface<IShoveable>(other->GetParent());
+            enemyInterface->Shove(m_TransformCompPtr->GetWorldPosition().x > other->GetPosition().x);
+        }
         HitByEnemy();
+    }
+}
+
+void superMarioBros::PlayerCharacter::OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&)
+{
+    const std::string& otherTag = other->GetTag();
+
+    if (!GROUND_TAGS.contains(otherTag))
+        return;
+    
+    m_KoopaStompToggle = false;
+    m_BounceScoreMultiplier = 0;
 }
 
 void superMarioBros::PlayerCharacter::Move(const sf::Vector2f& direction)
@@ -701,7 +713,7 @@ void superMarioBros::PlayerCharacter::InvisibilityFlash()
     if (m_InvincibilityTimer <= 0.f)
     {
         m_InvincibilityRenderTimer = 0.f;
-        m_ColliderCompPtr->ClearAllOverlappedCollider();
+        // m_ColliderCompPtr->ClearAllOverlappedCollider();
         m_SpriteRenderCompPtr->EnableRender();
         m_IsInvincible = false;
     }
@@ -726,6 +738,8 @@ void superMarioBros::PlayerCharacter::CheckEnemyStomp()
         else
             StompEnemy(other);
         // StompEnemy(other);
+
+        m_ColliderCompPtr->SetVelocity(m_CurrSpeed);
     };
     
     if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopLeft, dir, 10.f, m_ColliderCompPtr))
@@ -744,6 +758,7 @@ void superMarioBros::PlayerCharacter::CheckEnemyStomp()
 void superMarioBros::PlayerCharacter::StompEnemy(const diji::Collider* other)
 {
     // I'm capping vertical velocity so max it out to ensure the bounce is same height as normal jump
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_CurrSpeed.x, 0.f });
     m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -m_JumpForce));
     
     ++m_BounceScoreMultiplier;
@@ -755,6 +770,7 @@ void superMarioBros::PlayerCharacter::StompEnemy(const diji::Collider* other)
 
 void superMarioBros::PlayerCharacter::StompKoopa(const diji::Collider* other)
 {
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_CurrSpeed.x, 0.f });
     m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -m_JumpForce));
 
     m_KoopaStompToggle = !m_KoopaStompToggle;
@@ -815,7 +831,7 @@ void superMarioBros::PlayerCharacter::UpdateStarPowerShader()
     {
         m_IsStartPoweredUp = false;
         m_SpriteRenderCompPtr->SetRenderWithShader(false);
-        m_ColliderCompPtr->ClearAllOverlappedCollider();
+        // m_ColliderCompPtr->ClearAllOverlappedCollider();
         diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/LevelMusic.mp3", true);
     }
 }

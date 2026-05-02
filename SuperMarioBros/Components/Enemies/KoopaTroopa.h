@@ -22,6 +22,7 @@ namespace superMarioBros
         void Kill(bool isBumpingLeft, const bool addPoints = true) override;
         void Shove(bool isShovingLeft) override;
 
+        bool IsStomped() const { return m_KoopaTroopaState == KoopaTroopaState::Stomped; }
     private:
         diji::TimerManager::TimerHandle m_TimerHandle{ std::numeric_limits<std::size_t>::max() };
         diji::Collider* m_EnemyColliderCompPtr = nullptr;
