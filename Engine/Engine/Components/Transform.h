@@ -68,6 +68,8 @@ namespace diji
 		// [[nodiscard]] GameObject* GetParentObject() const;
 		// [[nodiscard]] const std::vector<Transform*>& GetChildObjects() const;
 
+		static constexpr sf::Vector2f UP{ 0.f, -1.f };
+		static constexpr sf::Vector2f RIGHT{ 1.f, 0.f };
 	private:
 		Transform* m_ParentTransformCompPtr = nullptr;
 		std::vector<Transform*> m_ChildrenTransformCompPtrVec;
