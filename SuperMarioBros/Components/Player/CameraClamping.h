@@ -11,7 +11,8 @@ namespace diji
 
 namespace superMarioBros
 {
-    class PlayerCharacter;
+    class PlayerInputManager;
+
     class CameraClamping final : public diji::Component
     {
     public:
@@ -30,7 +31,7 @@ namespace superMarioBros
         void OnDestroy() override {}
 
     private:
-        PlayerCharacter* m_PlayerCharacterCompPtr = nullptr;
+        PlayerInputManager* m_PlayerInputManagerCompPtr = nullptr;
         diji::Transform* m_PlayerTransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
         diji::Camera* m_CameraPtr = nullptr;

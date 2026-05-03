@@ -13,7 +13,7 @@ namespace diji
 
 namespace superMarioBros
 {
-    class PlayerCharacter;
+    class PlayerInputManager;
 
     class MoveCharacter final : public diji::GameActorCommands
     {
@@ -25,7 +25,7 @@ namespace superMarioBros
 
     private:
         const sf::Vector2f m_Direction;
-        PlayerCharacter* m_Character = nullptr;
+        PlayerInputManager* m_CharacterInput = nullptr;
         bool m_IsMoving = false;
     };
 
@@ -38,7 +38,7 @@ namespace superMarioBros
         void Execute() override;
 
     private:
-        PlayerCharacter* m_Character = nullptr;
+        PlayerInputManager* m_CharacterInput = nullptr;
         bool m_IsJumping = false;
     };
 
@@ -64,7 +64,7 @@ namespace superMarioBros
         void Execute() override;
         
     private:
-        PlayerCharacter* m_Character = nullptr;
+        PlayerInputManager* m_CharacterInput = nullptr;
         bool m_IsSprinting = false;
     };
 
@@ -77,7 +77,7 @@ namespace superMarioBros
         void Execute() override;
         
     private:
-        PlayerCharacter* m_Character = nullptr;
+        PlayerInputManager* m_CharacterInput = nullptr;
     };
 
     class StartGame final : public diji::GameActorCommands
@@ -107,7 +107,7 @@ namespace superMarioBros
         void Execute() override;
         
     private:
-        PlayerCharacter* m_Character = nullptr;
+        PlayerInputManager* m_CharacterInput = nullptr;
         bool m_IsStart = false;
     };
 }

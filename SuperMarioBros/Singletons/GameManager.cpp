@@ -91,21 +91,21 @@ void superMarioBros::GameManager::SwitchCurrentPlayerState()
 
 void superMarioBros::GameManager::SavePlayerState()
 {
-    switch (diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->GetPowerUpState())
+    const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>();
+
+    if (player->IsSmallMario())
     {
-    case 0:
         m_LastPlayerState = PlayerHealthState::Small;
-        break;
-    case 1:
-        m_LastPlayerState = PlayerHealthState::Big;
-        break;
-    case 2:
-        m_LastPlayerState = PlayerHealthState::Fire;
-        break;
-    default:
-        m_LastPlayerState = PlayerHealthState::Small;
-        break;
+        return;
     }
+
+    if (player->IsFireMario())
+    {
+        m_LastPlayerState = PlayerHealthState::Fire;
+        return;
+    }
+
+    m_LastPlayerState = PlayerHealthState::Big;
 }
 
 void superMarioBros::GameManager::SpawnPointsText(const sf::Vector2f& position, const std::string& score)

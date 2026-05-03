@@ -3,6 +3,7 @@
 #include "../Components/Backgrounds/BackgroundHandler.h"
 #include "../Components/Backgrounds/CustomBackgroundRenderer.h"
 #include "../Components/Player/CameraClamping.h"
+#include "../Components/Player/PlayerInputManager.h"
 #include "../Components/Other/HUD/HudManager.h"
 #include "../Components/Player/PlayerCharacter.h"
 #include "../Components/Other/HUD/TimerScript.h"
@@ -15,7 +16,6 @@
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Input/InputManager.h"
 #include "Engine/Interfaces/ISoundSystem.h"
-#include "Engine/Components/Transform.h"
 #include "Engine/Components/Render.h"
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/FPSCounter.h"
@@ -466,7 +466,7 @@ void SceneLoader::TransitionToNextLevel()
     collider->SetCollisionResponse(Collider::CollisionResponse::Ignore);
     collider->SetActive(false);
     collider->SetAffectedByGravity(false);
-    player->AddComponent<superMarioBros::PlayerCharacter>(0.5f);
+    player->AddComponent<superMarioBros::PlayerCharacter>();
     player->GetComponent<superMarioBros::PlayerCharacter>()->PausePlayer();
     player->AddComponent<superMarioBros::MenuTransition>();
     
@@ -593,7 +593,8 @@ void SceneLoader::Level()
     player->GetComponent<Collider>()->SetIsOnlyApplyingGroundFriction(true);
     player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.f, 1000.f });
     player->GetComponent<Collider>()->SetTag("player");
-    player->AddComponent<superMarioBros::PlayerCharacter>(0.5f);
+    player->AddComponent<superMarioBros::PlayerCharacter>();
+    player->AddComponent<superMarioBros::PlayerInputManager>(0.5f);
     player->AddComponent<superMarioBros::CameraClamping>();
     player->AddComponent<superMarioBros::BroadcastPlayerPosition>();
     player->AddComponent<superMarioBros::CheckPlayerTopPixel>();

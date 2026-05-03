@@ -1,6 +1,6 @@
 ﻿#include "CustomCommands.h"
 #include "Engine/Singleton/SceneManager.h"
-#include "../Components/Player/PlayerCharacter.h"
+#include "../Components/Player/PlayerInputManager.h"
 #include "../Core/GameState.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Interfaces/ISoundSystem.h"
@@ -13,30 +13,30 @@ superMarioBros::MoveCharacter::MoveCharacter(diji::GameObject* actor, const sf::
     , m_Direction { direction }
     , m_IsMoving { isMoving }
 {
-    m_Character = actor->GetComponent<PlayerCharacter>();
+    m_CharacterInput = actor->GetComponent<PlayerInputManager>();
 }
 
 void superMarioBros::MoveCharacter::Execute()
 {
     if (m_IsMoving)
-        m_Character->Move(m_Direction);
+        m_CharacterInput->Move(m_Direction);
     else
-        m_Character->StopMove();
+        m_CharacterInput->StopMove();
 }
 
 superMarioBros::CharacterJump::CharacterJump(diji::GameObject* actor, const bool isJumping)
     : GameActorCommands { actor }
     , m_IsJumping { isJumping }
 {
-    m_Character = actor->GetComponent<PlayerCharacter>();
+    m_CharacterInput = actor->GetComponent<PlayerInputManager>();
 }
 
 void superMarioBros::CharacterJump::Execute()
 {
     if (m_IsJumping)
-        m_Character->Jump();
+        m_CharacterInput->Jump();
     else
-        m_Character->ClearJump();
+        m_CharacterInput->ClearJump();
 }
 
 superMarioBros::TempAddImpulse::TempAddImpulse(diji::GameObject* actor)
@@ -50,27 +50,27 @@ void superMarioBros::TempAddImpulse::Execute()
     m_Collider->ApplyImpulse({ diji::RandNumber::GetRandomRangeFloat(-m_RandomForce, m_RandomForce), diji::RandNumber::GetRandomRangeFloat(-m_RandomForce, m_RandomForce) });
 }
 
-superMarioBros::Sprint::Sprint(diji::GameObject* actor, bool isSprinting)
+superMarioBros::Sprint::Sprint(diji::GameObject* actor, const bool isSprinting)
     : GameActorCommands { actor }
     , m_IsSprinting { isSprinting }
 {
-    m_Character = actor->GetComponent<PlayerCharacter>();
+    m_CharacterInput = actor->GetComponent<PlayerInputManager>();
 }
 
 void superMarioBros::Sprint::Execute()
 {
-    m_IsSprinting ? m_Character->Sprint() : m_Character->StopSprint();
+    m_IsSprinting ? m_CharacterInput->Sprint() : m_CharacterInput->StopSprint();
 }
 
 superMarioBros::Attack::Attack(diji::GameObject* actor)
     : GameActorCommands { actor }
 {
-    m_Character = actor->GetComponent<PlayerCharacter>();
+    m_CharacterInput = actor->GetComponent<PlayerInputManager>();
 }
 
 void superMarioBros::Attack::Execute()
 {
-    m_Character->Attack();
+    m_CharacterInput->Attack();
 }
 
 void superMarioBros::StartGame::Execute()
@@ -89,10 +89,10 @@ superMarioBros::Crouch::Crouch(diji::GameObject* actor, const bool isStart)
     : GameActorCommands { actor }
     , m_IsStart { isStart }
 {
-    m_Character = actor->GetComponent<PlayerCharacter>();
+    m_CharacterInput = actor->GetComponent<PlayerInputManager>();
 }
 
 void superMarioBros::Crouch::Execute()
 {
-    m_Character->Crouch(m_IsStart);
+    m_CharacterInput->Crouch(m_IsStart);
 }

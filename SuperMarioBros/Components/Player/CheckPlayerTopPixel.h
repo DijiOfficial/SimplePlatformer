@@ -9,6 +9,7 @@ namespace diji
 namespace superMarioBros
 {
     class PlayerCharacter;
+    class PlayerInputManager;
 
     class CheckPlayerTopPixel final : public diji::Component
     {
@@ -28,8 +29,9 @@ namespace superMarioBros
         void OnDestroy() override {}
 
     private:
-        diji::Transform* m_TransformCompPtr = nullptr;
+        PlayerInputManager* m_PlayerInputManagerCompPtr = nullptr;
         PlayerCharacter* m_PlayerCharacterCompPtr = nullptr;
+        diji::Transform* m_TransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
     };
 }

@@ -1,6 +1,4 @@
 ﻿#pragma once
-#include <memory>
-#include <set>
 #include <string>
 #include <SFML/System/Vector2.hpp>
 
@@ -25,7 +23,7 @@ namespace superMarioBros
     class PlayerCharacter final : public diji::Component, public IPowerUp
     {
     public:
-        explicit PlayerCharacter(diji::GameObject* ownerPtr, float jumpTime);
+        explicit PlayerCharacter(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
         ~PlayerCharacter() noexcept override = default;
 
         void Init() override;
@@ -33,7 +31,7 @@ namespace superMarioBros
         void Start() override;
         
         void Update() override;
-        void FixedUpdate() override;
+        void FixedUpdate() override {}
         void LateUpdate() override;
 
         void OnDisable() override {}
@@ -42,24 +40,26 @@ namespace superMarioBros
         void OnTriggerEnter(const diji::Collider* other, const diji::CollisionInfo&) override;
         void OnHitEvent(const diji::Collider* other, const diji::CollisionInfo&) override;
 
-        void Move(const sf::Vector2f& direction);
-        void StopMove();
-        void Jump();
-        void ClearJump();
-        void Sprint();
-        void StopSprint();
-        void Attack();
-        void Crouch(bool isStart);
-        
-        void SetAgainstCameraEdge(const bool isAgainst) { m_IsAgainstCameraEdge = isAgainst; }
         void PausePlayer() { m_IsPaused = true; }
         void SetTransitionState();
         void KillPlayer() { OnFallingInHoleEvent.Broadcast(); HandleDeathSequence(); }
-        [[nodiscard]] int GetPowerUpState() const { return static_cast<int>(m_PowerUpState); }
         void OnPowerUpCollected(PowerUpType power) override;
+
+        template <typename T, typename... Args>
+        void ChangeState(Args&&... args)
+        {
+            static_assert(std::is_base_of_v<PlayerStates, T>,"T must derive from PlayerStates");
+
+            m_CurrentStateUPtr = std::make_unique<T>(std::forward<Args>(args)...);
+            m_CurrentStateUPtr->OnEnter(GetOwner());
+        }
+
+        [[nodiscard]] PlayerStates::PlayerState GetCurrentState() const { return m_CurrentStateUPtr->GetState(); }
         [[nodiscard]] bool IsDead() const { return m_IsDead; }
         [[nodiscard]] bool IsPaused() const { return m_IsPaused; }
-        void Bump();
+        [[nodiscard]] bool IsDeadOrPaused() const { return m_IsDead || m_IsPaused; }
+        [[nodiscard]] bool IsSmallMario() const { return m_PowerUpState == PowerUpState::Small; }
+        [[nodiscard]] bool IsFireMario() const { return m_PowerUpState == PowerUpState::Fire; }
 
         diji::Event<> OnHitByEnemyEvent;
         diji::Event<> OnFallingInHoleEvent;
@@ -69,29 +69,15 @@ namespace superMarioBros
         diji::Event<> OnCastleReachedEvent;
 
     private:
-        const std::set<std::string> GROUND_TAGS = { "ground", "luckyBlock", "breakBlock", "HiddenBlock" };
-        diji::Timeline* m_FlagPoleTimelinePtr = nullptr;
+        const diji::TimeSingleton& m_TimeSingletonInstance = diji::TimeSingleton::GetInstance();
         std::unique_ptr<PlayerStates> m_CurrentStateUPtr = nullptr;
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;
+        diji::Timeline* m_FlagPoleTimelinePtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
+
         sf::Vector2f m_FlagCenter = { 0.f, 0.f };
-        const diji::TimeSingleton& m_TimeSingletonInstance = diji::TimeSingleton::GetInstance();
         const sf::Vector2f UP_VECTOR = { 0.f, -1.f };
-
-        sf::Vector2f m_CurrSpeed = { 0.f, 0.f };
-
-        sf::Vector2f m_BaseMaxVelocity = { 350.f, 1000.f };
-        sf::Vector2f m_SprintMaxVelocity = { 500.f, 1000.f };
-
-        enum class MovementDirection : uint8_t
-        {
-            Left,
-            Right,
-            None,
-        };
-        MovementDirection m_MovementDirection = MovementDirection::None;
-        MovementDirection m_LookDirection = MovementDirection::Right;
 
         enum class PowerUpState : uint8_t
         {
@@ -103,37 +89,21 @@ namespace superMarioBros
         
         int m_BounceScoreMultiplier = 1;
         const float STOMP_THRESHOLD = 0.5f;
-        float m_JumpForce = 950.f;
-        float m_BaseAcceleration = 1000.f;
-        float m_Acceleration = m_BaseAcceleration;
-        float m_SprintAcceleration = 1500.f;
-        float m_JumpTime = 0.0f;
-        float m_MaxJumpTime = 0.25f;
-        float m_MinJumpTime = 0.25f;
-        float m_SprintDecelerationTimer = 0.f;
+        const float DEATH_BUMP_STRENGTH = 950.f;
+        
         float m_InvincibilityTimer = 0.f;
         float m_InvincibilityRenderTimer = 0.f;
-        float m_AttackFireballCooldownTimer = 0.1f;
         float m_StarPowerTimer = 0.0f;
-        bool m_IsOnGround = false;
-        bool m_IsJumping = false;
-        bool m_IsCrouched = false;
-        bool m_StoppedSprinting = false;
         bool m_IsDead = false;
-        bool m_CanJump = true;
         bool m_IsPaused = false;
         bool m_IsInvincible = true;
-        bool m_CanAttack = true;
         bool m_IsStartPoweredUp = false;
         bool m_IsFlagTriggered = false;
         bool m_KoopaStompToggle = false;
-        bool m_IsAgainstCameraEdge = false;
 
         void HandleDeathSequence();
         void PlayDeathSequence() const;
         void LoadPosition() const;
-        void DecelerateAfterSprint();
-        void CheckIfPlayerIsGrounded();
         void PlayGrowthAnimation();
         void PlayShrinkAnimation();
         void HandlePowerUpCollision();

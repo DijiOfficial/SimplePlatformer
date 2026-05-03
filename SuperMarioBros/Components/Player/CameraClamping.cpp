@@ -7,13 +7,14 @@
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "PlayerCharacter.h"
+#include "PlayerInputManager.h"
 
 void superMarioBros::CameraClamping::Init()
 {
-    m_PlayerTransformCompPtr = GetOwner()->GetRootComponent();
-    m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
-    m_PlayerCharacterCompPtr = GetOwner()->GetComponent<PlayerCharacter>();
     m_CameraPtr = diji::SceneManager::GetInstance().GetMainCamera()->GetComponent<diji::Camera>();
+    m_PlayerInputManagerCompPtr = GetOwner()->GetComponent<PlayerInputManager>();
+    m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
+    m_PlayerTransformCompPtr = GetOwner()->GetRootComponent();
 }
 
 void superMarioBros::CameraClamping::Start()
@@ -52,8 +53,8 @@ void superMarioBros::CameraClamping::LateUpdate()
     {
         m_PlayerTransformCompPtr->SetWorldPosition(sf::Vector2f{ clampedPlayerX, playerPos.y });
         m_ColliderCompPtr->SetVelocity(sf::Vector2f{0.00f, m_ColliderCompPtr->GetVelocity().y});
-        m_PlayerCharacterCompPtr->SetAgainstCameraEdge(true);
+        m_PlayerInputManagerCompPtr->SetAgainstCameraEdge(true);
         return;
     }
-    m_PlayerCharacterCompPtr->SetAgainstCameraEdge(false);
+    m_PlayerInputManagerCompPtr->SetAgainstCameraEdge(false);
 }
