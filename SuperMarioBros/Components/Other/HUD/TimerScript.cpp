@@ -28,6 +28,11 @@ void superMarioBros::TimerScript::Init()
         m_Paused = true;
         m_ScoreCounterCompPtr->OnGivenScoreReachedEvent.ClearAllListeners();
     });
+    
+    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener([this](const bool isPoweringUp)
+    {
+        m_Paused = isPoweringUp;
+    });
 }
 
 void superMarioBros::TimerScript::Update()
