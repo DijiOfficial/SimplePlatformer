@@ -64,6 +64,7 @@ namespace diji
 
 		void AttachToObject(Transform* parent, bool keepWorldPosition);
 		void DetachFromObject(bool keepWorldPosition);
+		void AddWorldOffset(const sf::Vector2f& offset) { SetWorldPosition(GetWorldPosition() + offset); }
 		// todo: complete GetPArent and Children
 		// [[nodiscard]] GameObject* GetParentObject() const;
 		// [[nodiscard]] const std::vector<Transform*>& GetChildObjects() const;

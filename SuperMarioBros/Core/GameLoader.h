@@ -8,4 +8,5 @@ namespace SceneLoader
     void LivesDisplayMenu();
     void GameOverMenu();
     void TransitionToNextLevel();
+    void  LevelEditor();
 }

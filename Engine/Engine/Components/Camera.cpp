@@ -87,7 +87,6 @@ sf::FloatRect diji::Camera::GetViewBounds() const
     };
 }
 
-
 void diji::Camera::Clamp(sf::Vector2f& pos) const
 {
     const float halfWidth = m_Width * 0.5f;

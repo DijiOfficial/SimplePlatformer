@@ -186,6 +186,7 @@
     <ClCompile Include="Components\Enemies\GoombaAI.cpp" />
     <ClCompile Include="Components\Enemies\KoopaTroopa.cpp" />
     <ClCompile Include="Components\Enemies\PiranhaPlant.cpp" />
+    <ClCompile Include="Components\LevelEditor\Selector.cpp" />
     <ClCompile Include="Components\Other\Coins\SmallCoinScript.cpp" />
     <ClCompile Include="Components\Other\Coins\StaticCoin.cpp" />
     <ClCompile Include="Components\Other\HUD\HudManager.cpp" />
@@ -206,9 +207,11 @@
     <ClCompile Include="Components\PowerUps\MushroomScript.cpp" />
     <ClCompile Include="Components\PowerUps\StarPower.cpp" />
     <ClCompile Include="Core\GameLoader.cpp" />
+    <ClCompile Include="Core\Scenes\LevelEditor.cpp" />
     <ClCompile Include="Helpers\MarioHelpers.cpp" />
     <ClCompile Include="Helpers\WorldBuilder.cpp" />
     <ClCompile Include="Input\CustomCommands.cpp" />
+    <ClCompile Include="Input\LevelEditorCommands.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Singletons\GameManager.cpp" />
   </ItemGroup>
@@ -227,6 +230,7 @@
     <ClInclude Include="Components\Enemies\GoombaAI.h" />
     <ClInclude Include="Components\Enemies\KoopaTroopa.h" />
     <ClInclude Include="Components\Enemies\PiranhaPlant.h" />
+    <ClInclude Include="Components\LevelEditor\Selector.h" />
     <ClInclude Include="Components\Other\Coins\SmallCoinScript.h" />
     <ClInclude Include="Components\Other\Coins\StaticCoin.h" />
     <ClInclude Include="Components\Other\HUD\HudManager.h" />
@@ -252,6 +256,7 @@
     <ClInclude Include="Helpers\MarioHelpers.h" />
     <ClInclude Include="Helpers\WorldBuilder.h" />
     <ClInclude Include="Input\CustomCommands.h" />
+    <ClInclude Include="Input\LevelEditorCommands.h" />
     <ClInclude Include="Interfaces\IBumpable.h" />
     <ClInclude Include="Interfaces\IKillable.h" />
     <ClInclude Include="Interfaces\IPlayerBumpable.h" />

@@ -10,6 +10,7 @@ namespace superMarioBros
         Level,
         GameOver,
         LivesDisplayMenu,
-        TransitionToNextLevel
+        TransitionToNextLevel,
+        LevelEditor,
     };
 }
