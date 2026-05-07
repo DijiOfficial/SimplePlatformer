@@ -27,6 +27,11 @@ void diji::Scene::Init()
         gameObject->Init();
     }
 
+    for (const auto& gameObject : m_RenderOnTopObjectsUPtrMap | std::views::values)
+    {
+        gameObject->Init();
+    }
+
     if (m_StaticBackgroundObjUPtr)
         m_StaticBackgroundObjUPtr->Init();
 }
@@ -39,6 +44,11 @@ void diji::Scene::Start()
     }
 
     for (const auto& gameObject : m_CanvasObjectsUPtrMap | std::views::values)
+    {
+        gameObject->Start();
+    }
+
+    for (const auto& gameObject : m_RenderOnTopObjectsUPtrMap | std::views::values)
     {
         gameObject->Start();
     }
@@ -62,6 +72,11 @@ void diji::Scene::FixedUpdate()
     {
         gameObject->FixedUpdate();
     }
+
+    for (const auto& gameObject : m_RenderOnTopObjectsUPtrMap | std::views::values)
+    {
+        gameObject->FixedUpdate();
+    }
 }
 
 void diji::Scene::Update()
@@ -75,6 +90,11 @@ void diji::Scene::Update()
     {
         gameObject->Update();
     }
+
+    for (const auto& gameObject : m_RenderOnTopObjectsUPtrMap | std::views::values)
+    {
+        gameObject->Update();
+    }
 }
 
 void diji::Scene::LateUpdate()
@@ -85,6 +105,11 @@ void diji::Scene::LateUpdate()
     }
 
     for (const auto& gameObject : m_CanvasObjectsUPtrMap | std::views::values)
+    {
+        gameObject->LateUpdate();
+    }
+
+    for (const auto& gameObject : m_RenderOnTopObjectsUPtrMap | std::views::values)
     {
         gameObject->LateUpdate();
     }
@@ -120,6 +145,19 @@ void diji::Scene::Render() const
     {
         gameObject->Render();
     }
+
+    if (m_IsUsingMultiplayerViews)
+    {
+        RenderObjectOnTopMultiplayerViews();
+    }
+    else
+    {
+        window::g_window_ptr->setView(m_MainCameraCompPtr->GetCameraView());
+        for (const auto& gameObject : m_RenderOnTopObjectsUPtrMap | std::views::values)
+        {
+            gameObject->Render();
+        }
+    }
 }
 
 void diji::Scene::RenderMultiplayerViews() const
@@ -139,6 +177,19 @@ void diji::Scene::RenderMultiplayerViews() const
     }
 }
 
+void diji::Scene::RenderObjectOnTopMultiplayerViews() const
+{
+    for (size_t i = 0; i < m_MultiplayerViews.size(); ++i)
+    {
+        window::g_window_ptr->setView(m_MultiplayerViews[i].GetView());
+        for (const auto& gameObject : m_RenderOnTopObjectsUPtrMap | std::views::values)
+        {
+            gameObject->Render();
+        }
+    }
+}
+
+
 void diji::Scene::OnDestroy()
 {
     // Clear listeners from objects in this scene and free the memory used by the events
@@ -154,8 +205,14 @@ void diji::Scene::OnDestroy()
         gameObject->OnDestroy();
     }
 
+    for (const auto& gameObject : m_RenderOnTopObjectsUPtrMap | std::views::values)
+    {
+        gameObject->OnDestroy();
+    }
+
     m_ObjectsUPtrMap = std::map<std::string, std::unique_ptr<GameObject>>();
     m_CanvasObjectsUPtrMap = std::map<std::string, std::unique_ptr<GameObject>>();
+    m_RenderOnTopObjectsUPtrMap = std::map<std::string, std::unique_ptr<GameObject>>();
 }
 
 diji::GameObject* diji::Scene::CreateCameraObject(const std::string& name)
@@ -271,7 +328,7 @@ void diji::Scene::Remove(const GameObject* object)
             m_ObjectsUPtrMap.erase(it);
 
             localUp->OnDestroy();
-            break;
+            return;
         }
     }
 
@@ -283,12 +340,24 @@ void diji::Scene::Remove(const GameObject* object)
             m_CanvasObjectsUPtrMap.erase(it);
 
             localUp->OnDestroy();
-            break;
+            return;
+        }
+    }
+
+    for (auto it = m_RenderOnTopObjectsUPtrMap.begin(); it != m_RenderOnTopObjectsUPtrMap.end(); ++it)
+    {
+        if (it->second.get() == object)
+        {
+            const std::unique_ptr<GameObject> localUp = std::move(it->second);
+            m_RenderOnTopObjectsUPtrMap.erase(it);
+
+            localUp->OnDestroy();
+            return;
         }
     }
 }
 
-void diji::Scene::Remove(const std::string& name)
+void diji::Scene::Remove(const std::string& name) // todo: add canvas and render on top versions ?
 {
     const auto it = m_ObjectsUPtrMap.find(name);
     if (it != m_ObjectsUPtrMap.end())
@@ -300,9 +369,10 @@ void diji::Scene::Remove(const std::string& name)
 void diji::Scene::RemoveAll()
 {
     m_ObjectsUPtrMap = std::map<std::string, std::unique_ptr<GameObject>>();
+    m_RenderOnTopObjectsUPtrMap = std::map<std::string, std::unique_ptr<GameObject>>();
 }
 
-diji::GameObject* diji::Scene::GetGameObject(const std::string& name) const
+diji::GameObject* diji::Scene::GetGameObject(const std::string& name) const // todo: add canvas and render on top versions ?
 {
     const auto it = m_ObjectsUPtrMap.find(name);
 	
@@ -356,9 +426,18 @@ void diji::Scene::SetGameObjectAsCanvasObject(const std::string& name)
     {
         m_CanvasObjectsUPtrMap[name] = std::move(it->second);
         m_ObjectsUPtrMap.erase(it);
+        return;
     }
-    else
-        throw std::runtime_error("GameObject with the given name does not exist in the scene.");
+
+    const auto it2 = m_RenderOnTopObjectsUPtrMap.find(name);
+    if (it2 != m_RenderOnTopObjectsUPtrMap.end())
+    {
+        m_CanvasObjectsUPtrMap[name] = std::move(it2->second);
+        m_RenderOnTopObjectsUPtrMap.erase(it2);
+        return;
+    }
+    
+    throw std::runtime_error("GameObject with the given name does not exist in the scene.");
 }
 
 void diji::Scene::SetGameObjectAsCanvasObject(const GameObject* object)
@@ -373,7 +452,42 @@ void diji::Scene::SetGameObjectAsCanvasObject(const GameObject* object)
         }
     }
 
+    for (auto it = m_RenderOnTopObjectsUPtrMap.begin(); it != m_RenderOnTopObjectsUPtrMap.end(); ++it)
+    {
+        if (it->second.get() == object)
+        {
+            m_CanvasObjectsUPtrMap[it->first] = std::move(it->second);
+            m_RenderOnTopObjectsUPtrMap.erase(it);
+            return;
+        }
+    }
+
     throw std::runtime_error("GameObject does not exist in the scene.");
+}
+
+void diji::Scene::SetGameObjectToRenderOnTop(const std::string& name)
+{
+    const auto it = m_ObjectsUPtrMap.find(name);
+    if (it != m_ObjectsUPtrMap.end())
+    {
+        m_RenderOnTopObjectsUPtrMap[name] = std::move(it->second);
+        m_ObjectsUPtrMap.erase(it);
+    }
+    else
+        throw std::runtime_error("GameObject with the given name does not exist in the scene.");
+}
+
+void diji::Scene::SetGameObjectToRenderOnTop(const GameObject* object)
+{
+    for (auto it = m_ObjectsUPtrMap.begin(); it != m_ObjectsUPtrMap.end(); ++it)
+    {
+        if (it->second.get() == object)
+        {
+            m_RenderOnTopObjectsUPtrMap[it->first] = std::move(it->second);
+            m_ObjectsUPtrMap.erase(it);
+            return;
+        }
+    }
 }
 
 void diji::Scene::SetMultiplayerSplitScreen(const int numPlayers)
@@ -460,6 +574,13 @@ void diji::Scene::ValidateCollidersAfterDestroy()
 {
     // todo: multi-thread?
     for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
+    {
+        if (!gameObject->HasComponent<Collider>()) continue;
+
+        gameObject->GetComponent<Collider>()->ValidateColliderLists();
+    }
+
+    for (const auto& gameObject : m_RenderOnTopObjectsUPtrMap | std::views::values)
     {
         if (!gameObject->HasComponent<Collider>()) continue;
 

@@ -30,6 +30,7 @@ namespace diji
         void LateUpdate();
         void Render() const;
         void RenderMultiplayerViews() const;
+        void RenderObjectOnTopMultiplayerViews() const;
         
         void OnDestroy();
 		
@@ -54,9 +55,11 @@ namespace diji
         void SetViewParameters(int idx, Transform* target, bool isFollowing = false, const sf::Vector2f& offset = {});
         [[nodiscard]] sf::Vector2i GetScreenPosition(const sf::Vector2f& worldCoords) const;
         [[nodiscard]] sf::Vector2f GetWorldPositionFromScreen(const sf::Vector2i& screenCoords) const;
-
+        
         void SetGameObjectAsCanvasObject(const std::string& name);
         void SetGameObjectAsCanvasObject(const GameObject* object);
+        void SetGameObjectToRenderOnTop(const std::string& name);
+        void SetGameObjectToRenderOnTop(const GameObject* object);
         void SetCanvasView(const sf::View& view) { m_CanvasView = view; }
 
         void SetMultiplayerSplitScreen(int numPlayers);
@@ -69,6 +72,7 @@ namespace diji
         std::unordered_map<std::string, unsigned long long int> m_NameIndexUMap;
         std::map<std::string, std::unique_ptr<GameObject>> m_ObjectsUPtrMap;
         std::map<std::string, std::unique_ptr<GameObject>> m_CanvasObjectsUPtrMap;
+        std::map<std::string, std::unique_ptr<GameObject>> m_RenderOnTopObjectsUPtrMap;
         std::vector<SplitScreenView> m_MultiplayerViews;
         std::vector<SplitScreenView> m_MultiplayerViewsCopy;
         std::unique_ptr<GameObject> m_StaticBackgroundObjUPtr = nullptr;
