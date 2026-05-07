@@ -53,6 +53,7 @@ namespace diji
         void ChangeViewCenter(int idx, const sf::Vector2f& newCenter);
         void SetViewParameters(int idx, Transform* target, bool isFollowing = false, const sf::Vector2f& offset = {});
         [[nodiscard]] sf::Vector2i GetScreenPosition(const sf::Vector2f& worldCoords) const;
+        [[nodiscard]] sf::Vector2f GetWorldPositionFromScreen(const sf::Vector2i& screenCoords) const;
 
         void SetGameObjectAsCanvasObject(const std::string& name);
         void SetGameObjectAsCanvasObject(const GameObject* object);

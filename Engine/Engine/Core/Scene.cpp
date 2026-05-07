@@ -341,6 +341,14 @@ sf::Vector2i diji::Scene::GetScreenPosition(const sf::Vector2f& worldCoords) con
     return window::g_window_ptr->mapCoordsToPixel(worldCoords); // Use default view
 }
 
+sf::Vector2f diji::Scene::GetWorldPositionFromScreen(const sf::Vector2i& screenCoords) const
+{
+    if (m_MainCameraCompPtr)
+        return window::g_window_ptr->mapPixelToCoords(screenCoords, m_MainCameraCompPtr->GetCameraView());
+
+    return window::g_window_ptr->mapPixelToCoords(screenCoords); // Use default view
+}
+
 void diji::Scene::SetGameObjectAsCanvasObject(const std::string& name)
 {
     const auto it = m_ObjectsUPtrMap.find(name);

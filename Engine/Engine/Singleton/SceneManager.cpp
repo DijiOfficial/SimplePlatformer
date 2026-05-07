@@ -243,6 +243,11 @@ sf::Vector2f diji::SceneManager::GetScreenPosition(const sf::Vector2f& mapCoords
     return static_cast<sf::Vector2f>(m_ScenesUPtrMap.at(m_ActiveSceneId)->GetScreenPosition(mapCoords));
 }
 
+sf::Vector2f diji::SceneManager::GetWorldPositionFromScreen(const sf::Vector2f& mapCoords) const
+{
+    return m_ScenesUPtrMap.at(m_ActiveSceneId)->GetWorldPositionFromScreen(static_cast<sf::Vector2i>(mapCoords));
+}
+
 void diji::SceneManager::SetMultiplayerSplitScreen(const int numPlayers)
 {
     m_IsMultiplayer = true;
