@@ -3,7 +3,7 @@
 
 namespace superMarioBros
 {
-    class Selector;
+    class SelectorMovement;
 }
 
 namespace superMarioBros
@@ -19,7 +19,7 @@ namespace superMarioBros
         void Execute() override;
 
     private:
-        Selector* m_Selector = nullptr;
+        SelectorMovement* m_Selector = nullptr;
         const sf::Vector2f m_Direction;
         bool m_IsStart;
     };

@@ -1,7 +1,7 @@
 ﻿#include "../GameLoader.h"
 #include "../GameState.h"
 #include "../../Components/Backgrounds/CustomBackgroundRenderer.h"
-#include "../../Components/LevelEditor/Selector.h"
+#include "../../Components/LevelEditor/SelectorMovement.h"
 #include "../../Components/Player/CameraClamping.h"
 #include "../../Input/LevelEditorCommands.h"
 #include "Engine/Components/TextureComp.h"
@@ -33,9 +33,10 @@ void SceneLoader::LevelEditor()
     selector->SetObjectPosition({ 525, 25 });
     selector->AddComponent<TextureComp>("graphics/squareWhiteSmaller50.png");
     selector->AddComponent<Render>();
-    selector->AddComponent<superMarioBros::Selector>();
+    selector->AddComponent<superMarioBros::SelectorMovement>();
     selector->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
     selector->GetComponent<Camera>()->SetLevelBoundaries(arena);
+    scene->SetGameObjectToRenderOnTop(selector);
 
     // selector->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 450 });
     // const auto collider = selector->GetComponent<Collider>();
@@ -78,12 +79,25 @@ void SceneLoader::LevelEditor()
     // SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
 
 #pragma region HUD
-    // Create the HUD
+    float menuYPosition = static_cast<float>(window::VIEWPORT.y) * 0.15f;
+    std::vector<Transform*> menuTransforms;
+    const float renderRatio = static_cast<float>(window::g_window_ptr->getSize().y) / 1080.0f;
+
     const auto firstItem = scene->CreateGameObject("Z_UI_Item1");
-    firstItem->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f, static_cast<float>(window::VIEWPORT.y) * 0.95f });
+    firstItem->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f, menuYPosition });
     firstItem->AddComponent<TextureComp>("graphics/level_editor_item1.png");
-    firstItem->AddComponent<Render>();
+    firstItem->AddComponent<Render>(renderRatio);
     scene->SetGameObjectAsCanvasObject(firstItem);
+
+    const auto secondItem = scene->CreateGameObject("Z_UI_Item2");
+    secondItem->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.20f, menuYPosition });
+    secondItem->AddComponent<TextureComp>("graphics/level_editor_item1.png");
+    secondItem->AddComponent<Render>(renderRatio);
+    scene->SetGameObjectAsCanvasObject(secondItem);
+
+    menuTransforms.push_back(firstItem->GetRootComponent());
+    menuTransforms.push_back(secondItem->GetRootComponent());
+    selector->GetComponent<superMarioBros::SelectorMovement>()->SetMenuTransform(menuTransforms);
 #pragma endregion
     
 #pragma region Commands

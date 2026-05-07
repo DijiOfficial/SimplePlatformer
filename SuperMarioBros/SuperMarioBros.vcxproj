@@ -186,7 +186,7 @@
     <ClCompile Include="Components\Enemies\GoombaAI.cpp" />
     <ClCompile Include="Components\Enemies\KoopaTroopa.cpp" />
     <ClCompile Include="Components\Enemies\PiranhaPlant.cpp" />
-    <ClCompile Include="Components\LevelEditor\Selector.cpp" />
+    <ClCompile Include="Components\LevelEditor\SelectorMovement.cpp" />
     <ClCompile Include="Components\Other\Coins\SmallCoinScript.cpp" />
     <ClCompile Include="Components\Other\Coins\StaticCoin.cpp" />
     <ClCompile Include="Components\Other\HUD\HudManager.cpp" />
@@ -230,7 +230,7 @@
     <ClInclude Include="Components\Enemies\GoombaAI.h" />
     <ClInclude Include="Components\Enemies\KoopaTroopa.h" />
     <ClInclude Include="Components\Enemies\PiranhaPlant.h" />
-    <ClInclude Include="Components\LevelEditor\Selector.h" />
+    <ClInclude Include="Components\LevelEditor\SelectorMovement.h" />
     <ClInclude Include="Components\Other\Coins\SmallCoinScript.h" />
     <ClInclude Include="Components\Other\Coins\StaticCoin.h" />
     <ClInclude Include="Components\Other\HUD\HudManager.h" />

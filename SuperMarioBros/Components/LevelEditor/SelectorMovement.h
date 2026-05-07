@@ -9,15 +9,15 @@ namespace diji
 
 namespace superMarioBros
 {
-    class Selector final : public diji::Component
+    class SelectorMovement final : public diji::Component
     {
     public:
-        explicit Selector(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
-        ~Selector() noexcept override = default;
+        explicit SelectorMovement(diji::GameObject* ownerPtr) : Component{ ownerPtr } {}
+        ~SelectorMovement() noexcept override = default;
 
         void Init() override;
         void OnEnable() override {}
-        void Start() override {}
+        void Start() override;
             
         void Update() override {}
         void FixedUpdate() override {}
@@ -27,21 +27,23 @@ namespace superMarioBros
         void OnDestroy() override {}
 
         void Move(const sf::Vector2f& direction, bool isStart);
-        void SetMenuDate(std::vector<int> data) { m_MenuPositions = std::move(data); }
+        void SetMenuTransform(std::vector<diji::Transform*> data) { m_MenuItemTransforms = std::move(data); }
+        void SetMenuYPosition(const float pos) { m_MenuYPosition = pos; }
         
     private:
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::TimerManager::TimerHandle m_MoveTimerHandle;
         sf::Vector2f m_ArenaBoundsHorizontal{ 25.f, 12000.f };
-        sf::Vector2f m_ArenaBoundsVertical{ -25.f, 475.f };
+        sf::Vector2f m_ArenaBoundsVertical{ -25.f, 575.f };
         
         const float TILE_SIZE = 50.0f;
         const float INITIAL_DELAY_BEFORE_MOVE = 0.25f;
         const float DELAY_BETWEEN_MOVE = 0.03f;
-        const float MENU_Y_POSITION = -25.f;
+        float m_MenuYPosition = -25.f;
         bool m_IsInMenu = false;
         int m_CurrentMenuIndex = 0;
 
+        std::vector<diji::Transform*> m_MenuItemTransforms;
         std::vector<int> m_MenuPositions;
 
         [[nodiscard]] bool CanMove(const sf::Vector2f& dir);

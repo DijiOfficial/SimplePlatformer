@@ -1,6 +1,6 @@
 ﻿#include "LevelEditorCommands.h"
 
-#include "../Components/LevelEditor/Selector.h"
+#include "../Components/LevelEditor/SelectorMovement.h"
 #include "Engine/Core/GameObject.h"
 
 superMarioBros::MoveSelector::MoveSelector(diji::GameObject* actor, const sf::Vector2f& direction, const bool isStart)
@@ -8,7 +8,7 @@ superMarioBros::MoveSelector::MoveSelector(diji::GameObject* actor, const sf::Ve
     , m_Direction { direction }
     , m_IsStart { isStart }
 {
-    m_Selector = actor->GetComponent<Selector>();
+    m_Selector = actor->GetComponent<SelectorMovement>();
 }
 
 void superMarioBros::MoveSelector::Execute()
