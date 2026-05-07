@@ -13,6 +13,7 @@ diji::Scene::~Scene() noexcept
 {
     m_ObjectsUPtrMap.clear();
     m_CanvasObjectsUPtrMap.clear();
+    m_RenderOnTopObjectsUPtrMap.clear();
 }
 
 void diji::Scene::Init()
@@ -139,7 +140,8 @@ void diji::Scene::Render() const
         
         DrawGameObjects();
     }
-
+    const auto view = window::g_window_ptr->getView();
+    
     window::g_window_ptr->setView(m_CanvasView);
     for (const auto& gameObject : m_CanvasObjectsUPtrMap | std::views::values)
     {
@@ -152,7 +154,8 @@ void diji::Scene::Render() const
     }
     else
     {
-        window::g_window_ptr->setView(m_MainCameraCompPtr->GetCameraView());
+        window::g_window_ptr->setView(view);
+
         for (const auto& gameObject : m_RenderOnTopObjectsUPtrMap | std::views::values)
         {
             gameObject->Render();
@@ -188,7 +191,6 @@ void diji::Scene::RenderObjectOnTopMultiplayerViews() const
         }
     }
 }
-
 
 void diji::Scene::OnDestroy()
 {
@@ -372,14 +374,24 @@ void diji::Scene::RemoveAll()
     m_RenderOnTopObjectsUPtrMap = std::map<std::string, std::unique_ptr<GameObject>>();
 }
 
-diji::GameObject* diji::Scene::GetGameObject(const std::string& name) const // todo: add canvas and render on top versions ?
+diji::GameObject* diji::Scene::GetGameObject(const std::string& name) const
 {
-    const auto it = m_ObjectsUPtrMap.find(name);
-	
-    return it != m_ObjectsUPtrMap.end() ? it->second.get() : nullptr;
+    auto it = m_ObjectsUPtrMap.find(name);
+    if (it != m_ObjectsUPtrMap.end())
+        return it->second.get();
+
+    it = m_CanvasObjectsUPtrMap.find(name);
+    if (it != m_CanvasObjectsUPtrMap.end())
+        return it->second.get();
+
+    it = m_RenderOnTopObjectsUPtrMap.find(name);
+    if (it != m_RenderOnTopObjectsUPtrMap.end())
+        return it->second.get();
+    
+    return nullptr;
 }
 
-std::string diji::Scene::GetGameObjectName(const GameObject* object) const
+std::string diji::Scene::GetGameObjectName(const GameObject* object) const // todo: add canvas and render on top versions ?
 {
     for (const auto& [name, gameObject] : m_ObjectsUPtrMap)
     {
