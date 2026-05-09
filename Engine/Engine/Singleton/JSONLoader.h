@@ -32,23 +32,23 @@ namespace JSONLoader
         file << data.dump(indent);
     }
 
-    static bool IsValid(const std::string& filepath)
-    {
-        try
-        {
-            std::ifstream file(filepath);
-
-            if (!file.is_open())
-                return false;
-
-            json test;
-            file >> test;
-
-            return true;
-        }
-        catch (...)
-        {
-            return false;
-        }
-    }
+    // static bool IsValid(const std::string& filepath)
+    // {
+    //     try
+    //     {
+    //         std::ifstream file(filepath);
+    //
+    //         if (!file.is_open())
+    //             return false;
+    //
+    //         json test;
+    //         file >> test;
+    //
+    //         return true;
+    //     }
+    //     catch (...)
+    //     {
+    //         return false;
+    //     }
+    // }
 }
