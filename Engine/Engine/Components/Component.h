@@ -36,10 +36,10 @@ namespace diji
         virtual void OnTriggerExit(const Collider*, const CollisionInfo&) {}
 
         virtual void OnHitEvent(const Collider*, const CollisionInfo&) {}
+        [[nodiscard]] const GameObject* GetOwner() const { return m_OwnerPtr; }
 
     protected:
         explicit Component(GameObject* ownerPtr) : m_OwnerPtr{ ownerPtr } {}
-        [[nodiscard]] const GameObject* GetOwner() const { return m_OwnerPtr; }
 
         void SetActive(bool isActive) const;
         void Destroy() const;
