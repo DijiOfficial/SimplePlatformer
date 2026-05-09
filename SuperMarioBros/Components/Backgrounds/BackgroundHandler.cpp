@@ -10,6 +10,7 @@ void superMarioBros::BackgroundHandler::Init()
 
     GameManager::GetInstance().OnNewLevelLoadedEvent.AddListener(this, &BackgroundHandler::OnNewLevelLoaded);
 
+    // todo: this can probably be json now
     m_TileIDToAtlasPos =
     {
         { '0', {0, 4} }, // Empty tile
@@ -55,7 +56,9 @@ void superMarioBros::BackgroundHandler::Init()
         // ... etc.
     };
 
-    GameManager::GetInstance().LoadLevel();
+    // tbh this shouldn't call load level in the first place
+    if (m_ShouldLoadFirstLevel)
+        GameManager::GetInstance().LoadLevel();
 }
 
 void superMarioBros::BackgroundHandler::OnNewLevelLoaded() const

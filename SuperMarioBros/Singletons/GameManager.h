@@ -15,6 +15,8 @@ namespace superMarioBros
         Big = 1,
         Fire = 2
     };
+
+    static const std::string MAPS_PATH = "../SuperMarioBros/Resources/levels/";
     
     class GameManager final : public diji::Singleton<GameManager>
     {
@@ -29,6 +31,7 @@ namespace superMarioBros
         diji::Event<> OnLevelClearedEvent;
 
         void LoadLevel();
+        void LoadLevel(const std::string& levelFilePath);
         void ClearLevelInfo() { m_LevelInfo = std::vector<char>(); }
         void SwitchToNextScene();
         [[nodiscard]] const std::vector<char>& GetLevelInfo() const { return m_LevelInfo; }

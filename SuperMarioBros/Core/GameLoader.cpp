@@ -448,10 +448,11 @@ void SceneLoader::TransitionToNextLevel()
     camera->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
     camera->GetComponent<Camera>()->SetLevelBoundaries(arena);
 
+    const auto player = scene->CreateGameObject("X_PlayerChar");
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
     staticBackground->SetObjectPosition({ 0, 178 });
     staticBackground->AddComponent<TextureComp>("graphics/background.png");
-    staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>();
+    staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>(player->GetRootComponent());
 
     const auto background = scene->CreateGameObject("B_Background");
     background->SetObjectPosition({ 0, 0 });
@@ -459,7 +460,6 @@ void SceneLoader::TransitionToNextLevel()
     background->AddComponent<Render>();
     background->AddComponent<superMarioBros::BackgroundHandler>();
     
-    const auto player = scene->CreateGameObject("X_PlayerChar");
     player->SetObjectPosition({ 200, 475 });
     player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
     player->GetComponent<SpriteRenderComponent>()->SetScale(3);
@@ -565,10 +565,11 @@ void SceneLoader::Level()
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::Level));
     Renderer::GetInstance().SetBackgroundColor(sf::Color(92, 148, 252));
 
+    const auto player = scene->CreateGameObject("X_PlayerChar");
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
     staticBackground->SetObjectPosition({ 0, 178 });
     staticBackground->AddComponent<TextureComp>("graphics/background.png");
-    staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>();
+    staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>(player->GetRootComponent());
 
     const auto background = scene->CreateGameObject("B_Background");
     background->SetObjectPosition({ 0, 0 });
@@ -582,7 +583,6 @@ void SceneLoader::Level()
     camera->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
     camera->GetComponent<Camera>()->SetLevelBoundaries(arena);
 
-    const auto player = scene->CreateGameObject("X_PlayerChar");
     player->SetObjectPosition({ 200, 0 });
     player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
     player->GetComponent<SpriteRenderComponent>()->SetScale(3);

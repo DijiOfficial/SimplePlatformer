@@ -11,7 +11,9 @@
 
 void superMarioBros::CameraClamping::Init()
 {
-    m_CameraPtr = diji::SceneManager::GetInstance().GetMainCamera()->GetComponent<diji::Camera>();
+    if (const auto camera = diji::SceneManager::GetInstance().GetMainCamera())
+        m_CameraPtr = camera->GetComponent<diji::Camera>();
+    
     m_PlayerInputManagerCompPtr = GetOwner()->GetComponent<PlayerInputManager>();
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
     m_PlayerTransformCompPtr = GetOwner()->GetRootComponent();

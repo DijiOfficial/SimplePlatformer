@@ -30,6 +30,13 @@ void superMarioBros::GameManager::LoadLevel()
     OnNewLevelLoadedEvent.Broadcast();
 }
 
+void superMarioBros::GameManager::LoadLevel(const std::string& levelFilePath)
+{
+    ReadLevelInfo(std::format("../SuperMarioBros/Resources/levels/{}", levelFilePath));
+    WorldBuilder::CreateWorld(m_LevelInfo, m_Rows, m_Cols);
+    OnNewLevelLoadedEvent.Broadcast();
+}
+
 void superMarioBros::GameManager::SwitchToNextScene()
 {
     ClearListeners();
@@ -176,8 +183,7 @@ std::string superMarioBros::GameManager::LoadInformation()
         m_StartPosition.x = 100;
         m_StartPosition.y = 100;
 
-        //todo: remove string literal
-        return "../SuperMarioBros/Resources/levels/transitionLevel.txt";
+        return MAPS_PATH + "transitionLevel.txt"; //todo: save file name
     }
     
     switch (m_PlayerInfo.currentLevel) // if you're going to read from a file put this information in the fucking file
@@ -202,8 +208,7 @@ std::string superMarioBros::GameManager::LoadInformation()
         throw std::runtime_error("Invalid Level.");
     }
 
-    // todo: remove string literal
-    return std::format("../SuperMarioBros/Resources/levels/level{}.txt", m_PlayerInfo.currentLevel);
+    return std::format("{}level{}.txt", MAPS_PATH, m_PlayerInfo.currentLevel);
 }
 
 void superMarioBros::GameManager::ReadLevelInfo(const std::string& filepath)

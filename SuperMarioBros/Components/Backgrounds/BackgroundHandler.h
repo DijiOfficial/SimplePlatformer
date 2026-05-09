@@ -27,10 +27,13 @@ namespace superMarioBros
         void OnDisable() override {}
         void OnDestroy() override {}
 
+        void DisableLevelLoadingOnStart() { m_ShouldLoadFirstLevel = false; }
+
     private:
         diji::Sprite* m_BackgroundSprite = nullptr;
         std::unordered_map<char, sf::Vector2i> m_TileIDToAtlasPos;
 
+        bool m_ShouldLoadFirstLevel = true;
         void OnNewLevelLoaded() const;
     };
 }

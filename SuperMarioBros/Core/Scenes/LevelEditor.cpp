@@ -1,16 +1,28 @@
 ﻿#include "../GameLoader.h"
 #include "../GameState.h"
 #include "../../Components/Backgrounds/CustomBackgroundRenderer.h"
-#include "../../Components/LevelEditor/SelectorMovement.h"
+#include "../../Components/Backgrounds/BackgroundHandler.h"
+#include "../../Components/LevelEditor/MenuItems/LoadMenu.h"
+#include "../../Components/LevelEditor/MenuItems/SaveMenu.h"
+#include "../../Components/LevelEditor/SelectorControls.h"
+#include "../../Components/LevelEditor/Selector.h"
 #include "../../Components/Player/CameraClamping.h"
+#include "../../Components/Player/PlayerInputManager.h"
+#include "../../Components/Player/BroadcastPlayerPosition.h"
+#include "../../Components/Player/CheckPlayerTopPixel.h"
+#include "../../Components/Player/PlayerCharacter.h"
 #include "../../Input/LevelEditorCommands.h"
+#include "Engine/Collision/Collider.h"
+#include "Engine/Collision/CollisionShape.h"
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Core/Renderer.h"
 #include "Engine/Input/InputManager.h"
 #include "Engine/Components/Camera.h"
+#include "Engine/Components/ShapeRender.h"
+#include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Singleton/GameStateManager.h"
-#include "Engine/Collision/Collider.h"
+#include "Engine/Components/Sprite.h"
 
 using namespace diji;
 
@@ -23,81 +35,97 @@ void SceneLoader::LevelEditor()
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::LevelEditor));
     Renderer::GetInstance().SetBackgroundColor(sf::Color(92, 148, 252));
 
+    const auto selector = scene->CreateGameObject("X_SelectorPlayer");
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
     staticBackground->SetObjectPosition({ 0, 178 });
     staticBackground->AddComponent<TextureComp>("graphics/background.png");
-    staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>();
+    staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>(selector->GetRootComponent());
 
     constexpr sf::FloatRect arena{ sf::Vector2f{ 0, -(115 * 4.5) }, sf::Vector2f{ 12000.f, 1080.f } };
-    const auto selector = scene->CreateGameObject("X_PlayerChar");
     selector->SetObjectPosition({ 525, 25 });
     selector->AddComponent<TextureComp>("graphics/squareWhiteSmaller50.png");
     selector->AddComponent<Render>();
-    selector->AddComponent<superMarioBros::SelectorMovement>();
+    selector->AddComponent<superMarioBros::SelectorControls>();
+    selector->AddComponent<superMarioBros::Selector>();
     selector->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
     selector->GetComponent<Camera>()->SetLevelBoundaries(arena);
     scene->SetGameObjectToRenderOnTop(selector);
 
-    // selector->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 450 });
-    // const auto collider = selector->GetComponent<Collider>();
-    // collider->SetTag("player");
-    // collider->SetCollisionResponse(Collider::CollisionResponse::Ignore);
-    // collider->SetAffectedByGravity(false);
+    const auto background = scene->CreateGameObject("B_Background");
+    background->SetObjectPosition({ 0, 0 });
+    background->AddComponent<Sprite>("graphics/tiles_sheet.png");
+    background->AddComponent<Render>();
+    background->AddComponent<superMarioBros::BackgroundHandler>();
+    background->GetComponent<superMarioBros::BackgroundHandler>()->DisableLevelLoadingOnStart();
 
-    // const auto background = scene->CreateGameObject("B_Background");
-    // background->SetObjectPosition({ 0, 0 });
-    // background->AddComponent<Sprite>("graphics/tiles_sheet.png");
-    // background->AddComponent<Render>();
-    // background->AddComponent<superMarioBros::BackgroundHandler>();
-    //
-    // const sf::FloatRect arena{ sf::Vector2f{ 0, -(115 * 4.5) }, sf::Vector2f{ 12000.f, 1080.f } };
-    // const auto camera = scene->CreateCameraObject("A_Camera");
-    // camera->SetObjectPosition({ 0, 0 });
-    // camera->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
-    // camera->GetComponent<Camera>()->SetLevelBoundaries(arena);
-    //
-    // const auto player = scene->CreateGameObject("X_PlayerChar");
-    // player->SetObjectPosition({ 200, 0 });
-    // player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
-    // player->GetComponent<SpriteRenderComponent>()->SetScale(3);
-    // player->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
-    // player->GetComponent<Collider>()->SetRestitution(0.f);
-    // player->GetComponent<Collider>()->SetMass(0.89f);
-    // player->GetComponent<Collider>()->SetStaticFriction(0.25f);
-    // player->GetComponent<Collider>()->SetKineticFriction(0.15f);
-    // player->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    // player->GetComponent<Collider>()->SetIsOnlyApplyingGroundFriction(true);
-    // player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.f, 1000.f });
-    // player->GetComponent<Collider>()->SetTag("player");
-    // player->AddComponent<superMarioBros::PlayerCharacter>();
-    // player->AddComponent<superMarioBros::PlayerInputManager>(0.5f);
-    // player->AddComponent<superMarioBros::CameraClamping>();
-    // player->AddComponent<superMarioBros::BroadcastPlayerPosition>();
-    // player->AddComponent<superMarioBros::CheckPlayerTopPixel>();
-    // player->AddComponent<ShapeRender>(true);
-    //
-    // SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
+    const auto player = scene->CreateGameObject("X_PlayerChar");
+    player->SetObjectPosition({ 200, 0 });
+    player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
+    player->GetComponent<SpriteRenderComponent>()->SetScale(3);
+    player->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
+    player->GetComponent<Collider>()->SetRestitution(0.f);
+    player->GetComponent<Collider>()->SetMass(0.89f);
+    player->GetComponent<Collider>()->SetStaticFriction(0.25f);
+    player->GetComponent<Collider>()->SetKineticFriction(0.15f);
+    player->GetComponent<Collider>()->SetGenerateHitEvents(true);
+    player->GetComponent<Collider>()->SetIsOnlyApplyingGroundFriction(true);
+    player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.f, 1000.f });
+    player->GetComponent<Collider>()->SetTag("player");
+    player->AddComponent<superMarioBros::PlayerCharacter>();
+    player->AddComponent<superMarioBros::PlayerInputManager>(0.5f);
+    player->AddComponent<superMarioBros::CameraClamping>();
+    player->AddComponent<superMarioBros::BroadcastPlayerPosition>();
+    player->AddComponent<superMarioBros::CheckPlayerTopPixel>();
+    player->AddComponent<ShapeRender>(true);
+    player->SetActive(false);
 
 #pragma region HUD
     float menuYPosition = static_cast<float>(window::VIEWPORT.y) * 0.15f;
-    std::vector<Transform*> menuTransforms;
+    std::vector<superMarioBros::MenuItem*> menuTransforms;
     const float renderRatio = static_cast<float>(window::g_window_ptr->getSize().y) / 1080.0f;
 
-    const auto firstItem = scene->CreateGameObject("Z_UI_Item1");
-    firstItem->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f, menuYPosition });
-    firstItem->AddComponent<TextureComp>("graphics/level_editor_item1.png");
-    firstItem->AddComponent<Render>(renderRatio);
-    scene->SetGameObjectAsCanvasObject(firstItem);
+    const auto download = scene->CreateGameObject("Z_UI_Download");
+    download->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.1f, menuYPosition });
+    download->AddComponent<TextureComp>("graphics/level_editor_download.png");
+    download->AddComponent<Render>(renderRatio);
+    download->AddComponent<superMarioBros::LoadMenu>();
+    scene->SetGameObjectAsCanvasObject(download);
+    
+    const auto save = scene->CreateGameObject("Z_UI_Save");
+    save->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.125f, menuYPosition });
+    save->AddComponent<TextureComp>("graphics/level_editor_save.png");
+    save->AddComponent<Render>(renderRatio);
+    save->AddComponent<superMarioBros::SaveMenu>();
+    scene->SetGameObjectAsCanvasObject(save);
 
-    const auto secondItem = scene->CreateGameObject("Z_UI_Item2");
-    secondItem->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.20f, menuYPosition });
-    secondItem->AddComponent<TextureComp>("graphics/level_editor_item1.png");
-    secondItem->AddComponent<Render>(renderRatio);
-    scene->SetGameObjectAsCanvasObject(secondItem);
+    const auto selection = scene->CreateGameObject("Z_UI_Selection");
+    selection->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.09f, menuYPosition * 2 });
+    selection->AddComponent<TextureComp>("graphics/level_editor_selection.png");
+    selection->AddComponent<Render>(renderRatio);
+    selection->SetActive(false);
+    scene->SetGameObjectAsCanvasObject(selection);
 
-    menuTransforms.push_back(firstItem->GetRootComponent());
-    menuTransforms.push_back(secondItem->GetRootComponent());
-    selector->GetComponent<superMarioBros::SelectorMovement>()->SetMenuTransform(menuTransforms);
+    // const auto play = scene->CreateGameObject("Z_UI_Play");
+    // play->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f, menuYPosition });
+    // play->AddComponent<TextureComp>("graphics/level_editor_play.png");
+    // play->AddComponent<Render>(renderRatio);
+    // play->AddComponent<superMarioBros::MenuItem>();
+    // scene->SetGameObjectAsCanvasObject(play);
+    //
+    // const auto secondItem = scene->CreateGameObject("Z_UI_Item2");
+    // secondItem->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.20f, menuYPosition });
+    // secondItem->AddComponent<TextureComp>("graphics/level_editor_item1.png");
+    // secondItem->AddComponent<Render>(renderRatio);
+    // secondItem->AddComponent<superMarioBros::MenuItem>();
+    // scene->SetGameObjectAsCanvasObject(secondItem);
+
+    menuTransforms.push_back(download->GetComponent<superMarioBros::MenuItem>());
+    menuTransforms.push_back(save->GetComponent<superMarioBros::MenuItem>());
+    // menuTransforms.push_back(play->GetComponent<superMarioBros::MenuItem>());
+    // menuTransforms.push_back(secondItem->GetComponent<superMarioBros::MenuItem>());
+    selector->GetComponent<superMarioBros::SelectorControls>()->SetMenuTransform(menuTransforms);
+    selector->GetComponent<superMarioBros::SelectorControls>()->SetMenuArrow(selection);
+
 #pragma endregion
     
 #pragma region Commands
@@ -134,6 +162,12 @@ void SceneLoader::LevelEditor()
     input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::S, selector, sf::Vector2f{ 0.f, 1.f }, false);
     input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Down, selector, sf::Vector2f{ 0.f, 1.f }, false);
     input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadDown, selector, sf::Vector2f{ 0.f, 1.f }, false);
+
+    input.BindCommand<superMarioBros::SelectMenuItem>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Enter, selector);
+    input.BindCommand<superMarioBros::SelectMenuItem>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::A, selector);
+
+    input.BindCommand<superMarioBros::ClearSpecialMenu>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Escape, selector);
+    input.BindCommand<superMarioBros::ClearSpecialMenu>(PlayerIdx::PLAYER1, KeyState::PRESSED, sf::Keyboard::Scancode::B, selector);
 #pragma endregion
 
 #pragma region Events

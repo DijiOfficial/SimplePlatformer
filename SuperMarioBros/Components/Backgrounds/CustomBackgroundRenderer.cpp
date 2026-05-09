@@ -3,7 +3,6 @@
 #include "Engine/Components/Transform.h"
 #include "Engine/Core/Renderer.h"
 #include "Engine/Core/GameObject.h"
-#include "Engine/Singleton/SceneManager.h"
 
 void superMarioBros::CustomBackgroundRenderer::Init()
 {
@@ -15,7 +14,7 @@ void superMarioBros::CustomBackgroundRenderer::Init()
     m_TextureCompPtr->SetOriginToCenter();
     m_TransformCompPtr = m_OwnerPtr->GetRootComponent();
 
-    m_PlayerTransformPtr = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetRootComponent();
+    // m_PlayerTransformPtr = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetRootComponent();
     m_SFMLTexture = m_TextureCompPtr->GetTexture();
     m_Width = static_cast<float>(m_SFMLTexture.getSize().x) * scale;
     m_WidthCenter = m_Width * 0.5f;

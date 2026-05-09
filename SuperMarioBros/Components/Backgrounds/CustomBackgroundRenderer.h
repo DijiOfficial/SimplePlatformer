@@ -6,7 +6,7 @@ namespace superMarioBros
     class CustomBackgroundRenderer final : public diji::Render
     {
     public:
-        explicit CustomBackgroundRenderer(diji::GameObject* ownerPtr) : Render(ownerPtr) {}
+        explicit CustomBackgroundRenderer(diji::GameObject* ownerPtr, diji::Transform* playerTransform) : Render(ownerPtr), m_PlayerTransformPtr{ playerTransform } {}
         ~CustomBackgroundRenderer() noexcept override = default;
         
         CustomBackgroundRenderer(const CustomBackgroundRenderer& other) = delete;

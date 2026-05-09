@@ -40,7 +40,9 @@ void superMarioBros::PlayerCharacter::Init()
 
     LoadPosition();
 
-    diji::SceneManager::GetInstance().GetMainCamera()->GetComponent<diji::Camera>()->SetFollow(GetOwner());
+    if (const auto camera = diji::SceneManager::GetInstance().GetMainCamera())
+        camera->GetComponent<diji::Camera>()->SetFollow(GetOwner());
+    // todo introduce error logging system
 }
 
 void superMarioBros::PlayerCharacter::Start()
