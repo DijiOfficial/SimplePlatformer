@@ -53,7 +53,7 @@ namespace diji
 		
 #pragma region Components
 		template<typename T, typename... Args>
-		void AddComponent(Args&&... args)
+		void AddComponent(Args&&... args) // todo: this should return the component pointer
 		{
 			static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
