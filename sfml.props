@@ -10,7 +10,7 @@
 			<AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-network-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
 		</Link>
 		<ClCompile>
-			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\SFML_x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\JSON\;$(SolutionDir)3rdParty\SFML_x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 		</ClCompile>
 		<PostBuildEvent>
 			<Command>
@@ -26,7 +26,7 @@
 			<AdditionalDependencies>sfml-graphics.lib;sfml-window.lib;sfml-system.lib;sfml-network.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
 		</Link>
 		<ClCompile>
-			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\SFML_x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\JSON\;$(SolutionDir)3rdParty\SFML_x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 		</ClCompile>
 		<PostBuildEvent>
 			<Command>
@@ -42,7 +42,7 @@
 			<AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-network-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
 		</Link>
 		<ClCompile>
-			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\SFML_x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\JSON\;$(SolutionDir)3rdParty\SFML_x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 		</ClCompile>
 		<PostBuildEvent>
 			<Command>
@@ -58,7 +58,7 @@
 			<AdditionalDependencies>sfml-graphics.lib;sfml-window.lib;sfml-system.lib;sfml-network.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
 		</Link>
 		<ClCompile>
-			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\SFML_x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>$(SolutionDir)3rdParty\JSON\;$(SolutionDir)3rdParty\SFML_x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 		</ClCompile>
 		<PostBuildEvent>
 			<Command>

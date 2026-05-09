@@ -57,6 +57,7 @@
     <ClInclude Include="Engine\RAII_Wrappers\SplitScreenView.h" />
     <ClInclude Include="Engine\Singleton\GameStateManager.h" />
     <ClInclude Include="Engine\Singleton\Helpers.h" />
+    <ClInclude Include="Engine\Singleton\JSONLoader.h" />
     <ClInclude Include="Engine\Singleton\PauseSingleton.h" />
     <ClInclude Include="Engine\Singleton\RandNumber.h" />
     <ClInclude Include="Engine\Singleton\ResourceManager.h" />
