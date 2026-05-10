@@ -167,7 +167,7 @@ void SceneLoader::LevelEditor()
     input.BindCommand<superMarioBros::SelectMenuItem>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::A, selector);
 
     input.BindCommand<superMarioBros::ClearSpecialMenu>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Escape, selector);
-    input.BindCommand<superMarioBros::ClearSpecialMenu>(PlayerIdx::PLAYER1, KeyState::PRESSED, sf::Keyboard::Scancode::B, selector);
+    input.BindCommand<superMarioBros::ClearSpecialMenu>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::B, selector);
 #pragma endregion
 
 #pragma region Events
