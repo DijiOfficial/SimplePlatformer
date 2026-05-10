@@ -105,8 +105,8 @@ namespace diji
         void ClearOverlappedCollider(const Collider* collider);
         void ClearAllOverlappedCollider();
 
-        void SetActive(const bool isActive) { m_IsActive = isActive; }
-        [[nodiscard]] bool IsActive() const { return m_IsActive; }
+        void SetColliderActive(const bool isActive) { m_IsActive = isActive; }
+        [[nodiscard]] bool IsColliderActive() const { return m_IsActive; }
 
         [[nodiscard]] CollisionShape::ShapeType GetShapeType() const { return m_Type; }
         [[nodiscard]] const GameObject* GetParent() const { return GetOwner(); }

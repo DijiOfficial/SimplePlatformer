@@ -134,7 +134,7 @@ void diji::GameObject::SetActive(const bool isActive)
         OnDisable();
 
     if (m_ColliderCompPtr)
-        m_ColliderCompPtr->SetActive(isActive);
+        m_ColliderCompPtr->SetColliderActive(isActive);
 }
 
 void diji::GameObject::Destroy() const

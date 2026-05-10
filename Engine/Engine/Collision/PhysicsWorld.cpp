@@ -267,7 +267,7 @@ void diji::PhysicsWorld::PredictMovement(std::vector<Prediction>& predictionsVec
     for (auto* collider : m_DynamicColliders)
     {
         if (!collider) continue;
-        if (!collider->IsActive()) continue;
+        if (!collider->IsColliderActive()) continue;
 
         sf::Vector2f forcesApplied = collider->GetNetForce() / collider->GetMass();
         sf::Vector2f vel = collider->GetVelocity();
@@ -290,12 +290,12 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
     for (size_t i = 0; i < size; ++i)
     {
         auto& [colliderPtr, predictedAABB, pos, vel, collisionsVec] = predictionsVec[i];
-        if (!colliderPtr->IsActive()) continue;
+        if (!colliderPtr->IsColliderActive()) continue;
 
         // STATIC COLLISIONS: Check against all static colliders
         for (const auto& [aabb, staticCollider] : m_StaticInfos)
         {
-            if (!staticCollider->IsActive()) continue;
+            if (!staticCollider->IsColliderActive()) continue;
             if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
             if (colliderPtr->IsIgnoringCollider(staticCollider) || staticCollider->IsIgnoringCollider(colliderPtr)) continue;
             if (!AABBOverlap(predictedAABB, aabb)) continue;
@@ -318,7 +318,7 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         for (size_t j = i + 1; j < size; ++j)
         {
             Prediction& otherPrediction = predictionsVec[j];
-            if (!otherPrediction.collider->IsActive()) continue;
+            if (!otherPrediction.collider->IsColliderActive()) continue;
             if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore || otherPrediction.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
             if (colliderPtr->IsIgnoringAllDynamicColliders() || otherPrediction.collider->IsIgnoringAllDynamicColliders()) continue;
             if (colliderPtr->IsIgnoringCollider(otherPrediction.collider) || otherPrediction.collider->IsIgnoringCollider(colliderPtr)) continue;
