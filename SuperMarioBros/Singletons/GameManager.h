@@ -64,16 +64,16 @@ namespace superMarioBros
         void SaveScore(const int score) { m_PlayerInfo.totalScore = score; }
         void SaveCoins(const int coins) { m_PlayerInfo.totalCoins = coins; }
         void ResetPlayerInfo();
-        [[nodiscard]] std::unordered_set<const diji::Collider*> GetEnemyColliders() const { return m_EnemyColliders; }
+        [[nodiscard]] std::unordered_set<diji::Collider*> GetEnemyColliders() const { return m_EnemyColliders; }
         [[nodiscard]] bool IsCheckPointActivated() const { return m_PlayerInfo.checkPointActivated; }
         [[nodiscard]] const sf::Vector2f& GetCheckPointPosition() const { return m_PlayerInfo.checkPointPosition; }
 
         [[nodiscard]] int GetHighScoreFromFile() const;
         void SaveHighScoreToFile() const;
-        void AddEnemyCollider(const diji::Collider* collider) { m_EnemyColliders.insert(collider); }
+        void AddEnemyCollider(diji::Collider* collider) { m_EnemyColliders.insert(collider); }
 
     private:
-        std::unordered_set<const diji::Collider*> m_EnemyColliders;
+        std::unordered_set<diji::Collider*> m_EnemyColliders;
         std::vector<std::unique_ptr<diji::Collider>> m_TileColliders;
         PlayerHealthState m_CurrentPlayerState = PlayerHealthState::Small;
         PlayerHealthState m_LastPlayerState = PlayerHealthState::Small;

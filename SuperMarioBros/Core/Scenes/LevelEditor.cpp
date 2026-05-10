@@ -18,11 +18,13 @@
 #include "Engine/Core/Renderer.h"
 #include "Engine/Input/InputManager.h"
 #include "Engine/Components/Camera.h"
+#include "Engine/Components/FPSCounter.h"
 #include "Engine/Components/ShapeRender.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Singleton/GameStateManager.h"
 #include "Engine/Components/Sprite.h"
+#include "Engine/Components/TextComp.h"
 
 using namespace diji;
 
@@ -126,6 +128,13 @@ void SceneLoader::LevelEditor()
     selector->GetComponent<superMarioBros::SelectorControls>()->SetMenuTransform(menuTransforms);
     selector->GetComponent<superMarioBros::SelectorControls>()->SetMenuArrow(selection);
 
+    const auto fpsCounter = scene->CreateGameObject("Z_FPSCounter");
+    fpsCounter->AddComponent<TextComp>("0 FPS", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
+    fpsCounter->GetComponent<TextComp>()->GetText().setCharacterSize(10);
+    fpsCounter->AddComponent<FPSCounter>();
+    fpsCounter->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x - 100), 40 });
+    fpsCounter->AddComponent<Render>();
+    scene->SetGameObjectAsCanvasObject(fpsCounter);
 #pragma endregion
     
 #pragma region Commands

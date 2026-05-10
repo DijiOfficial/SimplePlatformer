@@ -466,7 +466,7 @@ void SceneLoader::TransitionToNextLevel()
     player->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
     const auto collider = player->GetComponent<Collider>();
     collider->SetCollisionResponse(Collider::CollisionResponse::Ignore);
-    collider->SetActive(false);
+    collider->SetColliderActive(false);
     collider->SetAffectedByGravity(false);
     player->AddComponent<superMarioBros::PlayerCharacter>();
     player->GetComponent<superMarioBros::PlayerCharacter>()->PausePlayer();

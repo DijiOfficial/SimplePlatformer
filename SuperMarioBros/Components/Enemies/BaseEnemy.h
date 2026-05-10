@@ -34,6 +34,7 @@ namespace superMarioBros
         void HandleBumpedBehavior(bool isBumpingLeft, const bool addPoints = true) override = 0;
         void Kill(bool isBumpingLeft, const bool addPoints = true) override = 0;
         void SetActivationMilestone(const int milestone) { m_ActivationMilestone = milestone; }
+        void Pause();
 
     protected:
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;
@@ -48,6 +49,5 @@ namespace superMarioBros
         void SetPauseState(const bool isPause) { m_Paused = isPause; }
         void CheckActivation(int milestone) const;
         void SpawnPointsText(const std::string& score) const;
-        void Pause();
     };
 }
