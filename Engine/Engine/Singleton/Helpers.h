@@ -18,6 +18,11 @@ namespace diji
             return std::fabs(value) < EPSILON;
         }
 
+        static bool AreVectorsEqual(const sf::Vector2f& a, const sf::Vector2f& b)
+        {
+            return AreFloatEqual(a.x, b.x) && AreFloatEqual(a.y, b.y);
+        }
+
         static bool AreFloatEqual(const float a, const float b)
         {
             return std::fabs(a - b) < EPSILON;

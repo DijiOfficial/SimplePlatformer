@@ -14,6 +14,7 @@ namespace diji
     public:
         void Init();
         void Update();
+        void UpdateNextTickCallbacks();
 
         // Timer handle (for canceling or checking)
         struct TimerHandle
@@ -44,5 +45,6 @@ namespace diji
         size_t m_NextId = 1;
 
         std::vector<std::function<void()>> m_NextTickCallbacksVec;
+        std::vector<std::function<void()>> m_PendingNextTickCallbacksVec;
     };
 }

@@ -7,13 +7,7 @@ void diji::TimerManager::Init()
 }
 
 void diji::TimerManager::Update()
-{
-    for (auto& callback : m_NextTickCallbacksVec)
-    {
-        callback();
-    }
-    m_NextTickCallbacksVec.clear();
-    
+{    
     if (!m_PendingTimers.empty())
     {
         m_Timers.insert(m_Timers.end(), m_PendingTimers.begin(), m_PendingTimers.end());
@@ -44,6 +38,20 @@ void diji::TimerManager::Update()
             ++it;
         }
     }
+}
+
+void diji::TimerManager::UpdateNextTickCallbacks()
+{
+    if (m_NextTickCallbacksVec.empty() && m_PendingNextTickCallbacksVec.empty())
+        return;
+    
+    for (auto& callback : m_NextTickCallbacksVec)
+    {
+        callback();
+    }
+    m_NextTickCallbacksVec.clear();
+
+    m_NextTickCallbacksVec.swap(m_PendingNextTickCallbacksVec);
 }
 
 diji::TimerManager::TimerHandle diji::TimerManager::SetTimer(std::function<void()> callback, const float interval, const bool isLooping, const float initialDelay)
@@ -84,9 +92,10 @@ void diji::TimerManager::ClearAllTimers()
     m_Timers = std::vector<Timer>();
     m_PendingTimers = std::vector<Timer>();
     m_NextTickCallbacksVec = std::vector<std::function<void()>>();
+    m_PendingNextTickCallbacksVec = std::vector<std::function<void()>>();
 }
 
 void diji::TimerManager::DelayUntilNextTick(std::function<void()> callback)
 {
-    m_NextTickCallbacksVec.emplace_back(std::move(callback));
+    m_PendingNextTickCallbacksVec.emplace_back(std::move(callback));
 }

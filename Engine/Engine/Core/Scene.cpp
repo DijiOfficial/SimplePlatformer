@@ -319,44 +319,16 @@ diji::GameObject* diji::Scene::OverwriteObjectInCanvas(std::unique_ptr<GameObjec
     return m_CanvasObjectsUPtrMap[name].get();
 }
 
+// todo: use unordered_map for O(1) lookup
 void diji::Scene::Remove(const GameObject* object)
 {
-    for (auto it = m_ObjectsUPtrMap.begin(); it != m_ObjectsUPtrMap.end(); ++it)
-    {
-        // Safe destruction pattern to avoid double deletion
-        if (it->second.get() == object)
-        {
-            const std::unique_ptr<GameObject> localUp = std::move(it->second);
-            m_ObjectsUPtrMap.erase(it);
+    if (RemoveFromContainer(m_ObjectsUPtrMap, object)) return;
+    if (RemoveFromContainer(m_CanvasObjectsUPtrMap, object)) return;
+    if (RemoveFromContainer(m_RenderOnTopObjectsUPtrMap, object)) return;
 
-            localUp->OnDestroy();
-            return;
-        }
-    }
-
-    for (auto it = m_CanvasObjectsUPtrMap.begin(); it != m_CanvasObjectsUPtrMap.end(); ++it)
-    {
-        if (it->second.get() == object)
-        {
-            const std::unique_ptr<GameObject> localUp = std::move(it->second);
-            m_CanvasObjectsUPtrMap.erase(it);
-
-            localUp->OnDestroy();
-            return;
-        }
-    }
-
-    for (auto it = m_RenderOnTopObjectsUPtrMap.begin(); it != m_RenderOnTopObjectsUPtrMap.end(); ++it)
-    {
-        if (it->second.get() == object)
-        {
-            const std::unique_ptr<GameObject> localUp = std::move(it->second);
-            m_RenderOnTopObjectsUPtrMap.erase(it);
-
-            localUp->OnDestroy();
-            return;
-        }
-    }
+#ifdef _DEBUG
+    assert(false && "Attempted to remove unknown GameObject");
+#endif
 }
 
 void diji::Scene::Remove(const std::string& name) // todo: add canvas and render on top versions ?

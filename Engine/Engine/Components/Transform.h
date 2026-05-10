@@ -36,7 +36,7 @@ namespace diji
 	class Transform final
 	{
 	public:
-		explicit Transform(const sf::Vector2f& pos) { SetLocalPosition(pos); m_WorldPosition = pos; }
+		explicit Transform(const sf::Vector2f& pos, GameObject* owner) : m_OwnerPtr{ owner } { SetLocalPosition(pos); m_WorldPosition = pos; }
 		~Transform() noexcept = default;
 
 		Transform(const Transform& other) = delete;
@@ -65,13 +65,16 @@ namespace diji
 		void AttachToObject(Transform* parent, bool keepWorldPosition);
 		void DetachFromObject(bool keepWorldPosition);
 		void AddWorldOffset(const sf::Vector2f& offset) { SetWorldPosition(GetWorldPosition() + offset); }
-		// todo: complete GetPArent and Children
-		// [[nodiscard]] GameObject* GetParentObject() const;
-		// [[nodiscard]] const std::vector<Transform*>& GetChildObjects() const;
+
+		[[nodiscard]] const std::vector<Transform*>& GetChildren() const { return m_ChildrenTransformCompPtrVec; }
+		[[nodiscard]] Transform* GetParent() const { return m_ParentTransformCompPtr; }
+		[[nodiscard]] GameObject* GetGameObject() const { return m_OwnerPtr; }
 
 		static constexpr sf::Vector2f UP{ 0.f, -1.f };
 		static constexpr sf::Vector2f RIGHT{ 1.f, 0.f };
+		
 	private:
+		GameObject* m_OwnerPtr = nullptr;
 		Transform* m_ParentTransformCompPtr = nullptr;
 		std::vector<Transform*> m_ChildrenTransformCompPtrVec;
 		

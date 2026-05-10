@@ -8,6 +8,6 @@ void diji::AutoDestroy::Init()
 {
     (void)TimerManager::GetInstance().SetTimer([&]
     {
-        SceneManager::GetInstance().SetPendingDestroy(GetOwner());
+        GetOwner()->Destroy();
     }, m_LifeTime, false);
 }

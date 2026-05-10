@@ -58,16 +58,18 @@ void diji::SceneManager::FixedUpdate() const
 
 void diji::SceneManager::Update() const
 {
+    TimerManager::GetInstance().Update();
+
     m_ScenesUPtrMap.at(m_ActiveSceneId)->Update();
 
     m_TimelineManagerUPtr->UpdateAll();
+
+    TimerManager::GetInstance().UpdateNextTickCallbacks(); // todo: cache the timer manager
 }
 
 void diji::SceneManager::LateUpdate() const
 {
     m_ScenesUPtrMap.at(m_ActiveSceneId)->LateUpdate();
-
-    TimerManager::GetInstance().Update();
 }
 
 void diji::SceneManager::Render() const
@@ -126,16 +128,22 @@ void diji::SceneManager::EndFrameUpdate()
         m_TimelineManagerUPtr->ClearGameObjectTimelines(gameObject);
     }
 
-    m_PendingDestroyVec = std::vector<const GameObject*>();
+    m_PendingDestroyVec = std::unordered_set<const GameObject*>();
     m_HasPendingDestroy = false;
 
     m_ScenesUPtrMap.at(m_ActiveSceneId)->ValidateCollidersAfterDestroy();
 }
 
+void diji::SceneManager::ReloadScene()
+{
+    m_NextScene = m_ActiveSceneId;
+    m_IsSceneChange = true;
+}
+
 void diji::SceneManager::SetPendingDestroy(const GameObject* gameObject)
 {
     m_HasPendingDestroy = true;
-    m_PendingDestroyVec.push_back(gameObject);
+    m_PendingDestroyVec.insert(gameObject);
 }
 
 diji::GameObject* diji::SceneManager::GetMainCamera() const

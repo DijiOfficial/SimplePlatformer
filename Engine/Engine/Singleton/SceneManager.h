@@ -11,6 +11,8 @@ namespace diji
 
     class SceneManager final : public Singleton<SceneManager>
     {
+        friend class GameObject;
+        
     public:
         Scene* CreateScene(int id);
 
@@ -31,11 +33,11 @@ namespace diji
         // Handle End of Frame tasks
         void EndFrameUpdate();
 
+        void ReloadScene();
         void SetActiveScene(const int id) { m_ActiveSceneId = id; m_NextScene = id; }
         //todo: better name would be ChangeScene
         void SetNextSceneToActivate(const int id) { m_NextScene = id; m_IsSceneChange = true; }
         [[nodiscard]] int GetActiveSceneId() const { return m_ActiveSceneId; }
-        void SetPendingDestroy(const GameObject* gameObject);
 
         [[nodiscard]] GameObject* GetMainCamera() const;
         [[nodiscard]] GameObject* GetGameObject(const std::string& name) const;
@@ -67,7 +69,7 @@ namespace diji
     private:
         // todo: replace int with SceneId enum class??
         std::map<int, std::unique_ptr<Scene>> m_ScenesUPtrMap;
-        std::vector<const GameObject*> m_PendingDestroyVec;
+        std::unordered_set<const GameObject*> m_PendingDestroyVec;
         std::unordered_map<int, SceneLoaderFunc> m_SceneLoaders;
         std::unique_ptr<PhysicsWorld> m_PhysicsWorldUPtr = nullptr;
         std::unique_ptr<TimelineManager> m_TimelineManagerUPtr = nullptr;
@@ -91,5 +93,7 @@ namespace diji
 
             return gameObject;
         }
+
+        void SetPendingDestroy(const GameObject* gameObject);
     };
 }

@@ -11,7 +11,7 @@ diji::GameObject::GameObject()
 
 diji::GameObject::GameObject(const sf::Vector2f& position)
 {
-    m_RootTransform = std::make_unique<Transform>(position);
+    m_RootTransform = std::make_unique<Transform>(position, this);
 }
 
 diji::GameObject::GameObject(const float x, const float y)
@@ -139,7 +139,13 @@ void diji::GameObject::SetActive(const bool isActive)
 
 void diji::GameObject::Destroy() const
 {
+    if (m_IsPendingDestroy)
+        return;
+    
+    m_IsPendingDestroy = true;
+    
     SceneManager::GetInstance().SetPendingDestroy(this);
+    SetChildrenPendingDestroy();
 }
 
 void diji::GameObject::CreateDuplicate(GameObject* duplicate) const
@@ -245,4 +251,16 @@ void diji::GameObject::AttachToObject(const GameObject* parent, const bool keepW
 void diji::GameObject::DetachFromObject(const bool keepWorldPosition) const
 {
     m_RootTransform->DetachFromObject(keepWorldPosition);
+}
+
+void diji::GameObject::SetChildrenPendingDestroy() const
+{
+    const auto children = std::vector(m_RootTransform->GetChildren());
+
+    for (const Transform* childTransform : children)
+    {
+        childTransform->GetGameObject()->Destroy();
+    }
+
+    DetachFromObject(false);
 }

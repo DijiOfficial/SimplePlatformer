@@ -11,7 +11,7 @@ void diji::Component::SetActive(const bool isActive) const
 
 void diji::Component::Destroy() const
 {
-    SceneManager::GetInstance().SetPendingDestroy(m_OwnerPtr);
+    GetOwner()->Destroy();
 }
 
 void diji::Component::Destroy(const float lifeTime) const

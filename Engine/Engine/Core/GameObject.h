@@ -166,8 +166,6 @@ namespace diji
 		[[nodiscard]] Transform* GetRootComponent() const { return m_RootTransform.get(); }
 		void AttachToObject(const GameObject* parent, bool keepWorldPosition) const;
 		void DetachFromObject(bool keepWorldPosition) const;
-		// [[nodiscard]] GameObject* GetParentObject() const;
-		// [[nodiscard]] const std::vector<GameObject*>& GetChildObjects() const;
 		
 	private:
 		std::unique_ptr<Transform> m_RootTransform = nullptr;
@@ -177,6 +175,7 @@ namespace diji
 		bool m_IsActive = true;
 		bool m_IsInitialized = false;
 		bool m_SimulatesPhysics = false;
+		mutable bool m_IsPendingDestroy = false;
 		
 		diji::Render* m_RenderCompPtr = nullptr;
 		Collider* m_ColliderCompPtr = nullptr;
@@ -188,5 +187,7 @@ namespace diji
 			std::function<void(GameObject*)> DuplicateComponents;
 		};
 		std::vector<ComponentStorage> m_ComponentStorage;
+
+		void SetChildrenPendingDestroy() const;
 	};
 }

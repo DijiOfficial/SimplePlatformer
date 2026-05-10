@@ -71,7 +71,7 @@ void diji::Transform::AttachToObject(Transform* parent, const bool keepWorldPosi
     MarkScaleDirty();
 }
 
-void diji::Transform::DetachFromObject(bool keepWorldPosition)
+void diji::Transform::DetachFromObject(const bool keepWorldPosition)
 {
     if (!m_IsParented || !m_ParentTransformCompPtr)
         return;
