@@ -20,8 +20,8 @@ void superMarioBros::LoadMenu::Init()
 void superMarioBros::LoadMenu::Start()
 {
     m_LevelNames = LevelEditorManager::GetInstance().GetLevelNames();
-    m_LevelNameObjects.reserve(m_LevelNames.size());
-    m_LevelData.reserve(m_LevelNames.size());
+    m_LevelNameObjects.reserve(m_LevelNames.size() + 1);
+    m_LevelData.reserve(m_LevelNames.size() + 1);
 }
 
 superMarioBros::MenuItem::MenuInfo superMarioBros::LoadMenu::ActivateMenu()
@@ -49,20 +49,27 @@ superMarioBros::MenuItem::MenuInfo superMarioBros::LoadMenu::LoadMenuItems()
     const float xPos = m_TransformCompPtr->GetWorldPosition().x + INITIAL_SPACING;
     float yPos = m_TransformCompPtr->GetWorldPosition().y + INITIAL_SPACING;
 
+    yPos += ITEM_SPACING;
+    CreateMenuItem("New Level", xPos, yPos);
+    
     for (const std::string& levelName : m_LevelNames)
     {
         yPos += ITEM_SPACING;
-
-        const auto& levelNameObject = diji::SceneManager::GetInstance().AddGameObjectToCanvas("ZZ_LevelName", m_ItemTemplateUPtr.get(), sf::Vector2f{ xPos, yPos });
-        m_LevelNameObjects.emplace_back(levelNameObject);
-
-        auto& textComp = levelNameObject->GetComponent<diji::TextComp>()->GetText();
-        textComp.setString(levelName);
-
-        const sf::FloatRect bounds = textComp.getGlobalBounds();
-        const sf::Vector2f pos = sf::Vector2f{ levelNameObject->GetRootComponent()->GetWorldPosition().x - bounds.size.x * 0.5f - SELECTOR_SPACING, yPos };
-        m_LevelData.emplace_back(LoadingLevelData{ .Position= pos, .Name= levelName });
+        CreateMenuItem(levelName, xPos, yPos);
     }
     
     return MenuInfo{ .ShouldLockControls= true, .MenuType= eMenuType::Load ,.Data= m_LevelData };
+}
+
+void superMarioBros::LoadMenu::CreateMenuItem(const std::string& levelName, const float xPos, const float yPos)
+{
+    const auto& levelNameObject = diji::SceneManager::GetInstance().AddGameObjectToCanvas("ZZ_LevelName", m_ItemTemplateUPtr.get(), sf::Vector2f{ xPos, yPos });
+    m_LevelNameObjects.emplace_back(levelNameObject);
+
+    auto& textComp = levelNameObject->GetComponent<diji::TextComp>()->GetText();
+    textComp.setString(levelName);
+
+    const sf::FloatRect bounds = textComp.getGlobalBounds();
+    const sf::Vector2f pos = sf::Vector2f{ levelNameObject->GetRootComponent()->GetWorldPosition().x - bounds.size.x * 0.5f - SELECTOR_SPACING, yPos };
+    m_LevelData.emplace_back(LoadingLevelData{ .Position= pos, .Name= levelName });
 }

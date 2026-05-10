@@ -36,5 +36,6 @@ namespace superMarioBros
         bool m_MenuWasLoadedOnce = false;
 
         [[nodiscard]] MenuInfo LoadMenuItems();
+        void CreateMenuItem(const std::string& levelName, float xPos, float yPos);
     };
 }

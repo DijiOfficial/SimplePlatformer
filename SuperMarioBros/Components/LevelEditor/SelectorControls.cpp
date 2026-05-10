@@ -81,7 +81,11 @@ void superMarioBros::SelectorControls::SelectCurrentMenuItem()
 
     if (m_DisableMovement)
     {
-        LevelEditorManager::GetInstance().LoadLevel(m_LoadedLevelsPositions[m_SpecialMenuIndex].Name);
+        if (m_SpecialMenuIndex == 0)
+            LevelEditorManager::GetInstance().LoadNewLevel();
+        else
+            LevelEditorManager::GetInstance().LoadLevel(m_LoadedLevelsPositions[m_SpecialMenuIndex].Name);
+
         ResetSpecialMenu();
         return;
     }

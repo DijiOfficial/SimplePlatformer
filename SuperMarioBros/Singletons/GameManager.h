@@ -32,6 +32,7 @@ namespace superMarioBros
 
         void LoadLevel();
         void LoadLevel(const std::string& levelFilePath);
+        void EmptyLevel();
         void ClearLevelInfo() { m_LevelInfo = std::vector<char>(); }
         void SwitchToNextScene();
         [[nodiscard]] const std::vector<char>& GetLevelInfo() const { return m_LevelInfo; }

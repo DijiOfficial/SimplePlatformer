@@ -12,6 +12,7 @@ namespace superMarioBros
     public:
         void Init();
         void LoadLevel(const std::string& levelName);
+        void LoadNewLevel();
         void SaveNewMap(const std::string& levelName, const std::string& levelPath);
         void SaveMap(const std::string& levelName) ;
         std::vector<std::string> GetLevelNames() const;

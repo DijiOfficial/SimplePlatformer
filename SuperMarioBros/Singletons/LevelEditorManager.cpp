@@ -27,6 +27,12 @@ void superMarioBros::LevelEditorManager::LoadLevel(const std::string& levelName)
     m_LevelInfo = std::vector(GameManager::GetInstance().GetLevelInfo());
 }
 
+void superMarioBros::LevelEditorManager::LoadNewLevel()
+{
+    GameManager::GetInstance().EmptyLevel();
+    m_LevelInfo = std::vector<char>();
+}
+
 void superMarioBros::LevelEditorManager::SaveNewMap(const std::string& levelName, const std::string& levelPath)
 {
     JSONLoader::json data;
