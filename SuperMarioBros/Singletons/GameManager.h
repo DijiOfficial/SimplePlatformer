@@ -73,6 +73,7 @@ namespace superMarioBros
         void AddEnemyCollider(diji::Collider* collider) { m_EnemyColliders.insert(collider); }
 
     private:
+        diji::GameObject* m_WorldGameObject = nullptr;
         std::unordered_set<diji::Collider*> m_EnemyColliders;
         std::vector<std::unique_ptr<diji::Collider>> m_TileColliders;
         PlayerHealthState m_CurrentPlayerState = PlayerHealthState::Small;

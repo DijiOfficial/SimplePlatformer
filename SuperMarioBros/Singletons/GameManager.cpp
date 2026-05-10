@@ -13,6 +13,7 @@
 
 #include "../Components/Enemies/BaseEnemy.h"
 #include "../Helpers/WorldBuilder.h"
+#include "Engine/Singleton/TimerManager.h"
 
 namespace superMarioBros
 {
@@ -33,14 +34,23 @@ void superMarioBros::GameManager::LoadLevel()
 
 void superMarioBros::GameManager::LoadLevel(const std::string& levelFilePath)
 {
-    ReadLevelInfo(std::format("../SuperMarioBros/Resources/levels/{}", levelFilePath));
-    WorldBuilder::CreateWorld(m_LevelInfo, m_Rows, m_Cols);
-    for (const auto enemyCol : m_EnemyColliders)
+    if (m_WorldGameObject)
     {
-        enemyCol->SetActive(true);  
-        enemyCol->GetOwner()->GetComponent<BaseEnemy>()->Pause();
+        m_WorldGameObject->Destroy();
+        m_EnemyColliders = std::unordered_set<diji::Collider*>();
     }
-    OnNewLevelLoadedEvent.Broadcast();
+
+    diji::TimerManager::GetInstance().DelayUntilNextTick([&]
+    {
+        ReadLevelInfo(std::format("../SuperMarioBros/Resources/levels/{}", levelFilePath));
+        m_WorldGameObject = WorldBuilder::CreateWorld(m_LevelInfo, m_Rows, m_Cols);
+        for (const auto enemyCol : m_EnemyColliders)
+        {
+            enemyCol->SetActive(true);  
+            enemyCol->GetOwner()->GetComponent<BaseEnemy>()->Pause();
+        }
+        OnNewLevelLoadedEvent.Broadcast();
+    });
 }
 
 void superMarioBros::GameManager::SwitchToNextScene()
@@ -69,6 +79,8 @@ void superMarioBros::GameManager::SetLevelCleared()
 
 void superMarioBros::GameManager::ResetLevel(const bool playerDied)
 {
+    m_EnemyColliders = std::unordered_set<diji::Collider*>();
+
     if (playerDied)
     {
         m_CurrentPlayerState = PlayerHealthState::Small;

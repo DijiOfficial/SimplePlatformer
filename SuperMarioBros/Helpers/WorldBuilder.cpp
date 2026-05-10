@@ -28,14 +28,21 @@
 #include <string>
 #include <memory>
 
-void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInfo, const int& rows, const int& cols)
+diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInfo, const int& rows, const int& cols)
 {
+    const auto world = diji::SceneManager::GetInstance().SpawnGameObject("WorldLevel", std::make_unique<diji::GameObject>(), sf::Vector2f{ 0.f, 0.f });
+    
     constexpr float kTileSize = 50.0f;
     const std::string specialTiles = "0edxyfghijklmnopqrstuvABCDEF"; //todo: consider inverting this system
 
     using Handler = std::function<int(int row, int col, char tile)>;
     std::unordered_map<char, Handler> handlers;
-
+    
+    auto attachToWorldObject = [&](const diji::GameObject* object) -> void
+    {
+        object->AttachToObject(world, true);
+    };
+    
     // 1) Create Ground
     handlers['#'] = [&](const int row, const int col, char) -> int
     {
@@ -61,7 +68,8 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         collider->SetTag("ground");
         go->AddComponent<diji::ShapeRender>();
 
-        diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(go), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(go), center);
+        attachToWorldObject(object);
         return len;
     };
 
@@ -87,7 +95,8 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         else if (tile == 'y') go->AddComponent<PowerUpBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
         else if (tile == 'x') go->AddComponent<PowerUpBlock>(BaseBlock::ItemSpawnType::PowerUp);
 
-        diji::SceneManager::GetInstance().SpawnGameObject("E_luckyBlock", std::move(go), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("E_luckyBlock", std::move(go), center);
+        attachToWorldObject(object);
         return 1;
     };
     
@@ -143,7 +152,8 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         else if (tile == 'v')
             go->AddComponent<PowerUpBlock>(BaseBlock::ItemSpawnType::PowerUp);
 
-        diji::SceneManager::GetInstance().SpawnGameObject("E_breakableBlock", std::move(go), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("E_breakableBlock", std::move(go), center);
+        attachToWorldObject(object);
         return 1;
     };
 
@@ -179,7 +189,8 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
             go->GetComponent<GoombaAI>()->SetActivationMilestone(col - 21);
         }
 
-        diji::SceneManager::GetInstance().SpawnGameObject("E_Goomba", std::move(go), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("E_Goomba", std::move(go), center);
+        attachToWorldObject(object);
         return 1;
     };
     
@@ -203,7 +214,8 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         poleCollider->SetTag("flagPole");
         poleCollider->SetAffectedByGravity(false);
         poleCollider->SetStatic(true);
-        diji::SceneManager::GetInstance().SpawnGameObject("E_endPole", std::move(pole), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("E_endPole", std::move(pole), center);
+        attachToWorldObject(object);
 
         // flag
         auto flag = std::make_unique<diji::GameObject>();
@@ -211,14 +223,16 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         flag->AddComponent<diji::TextureComp>("graphics/flag.png");
         flag->AddComponent<diji::Render>();
         flag->AddComponent<Flag>();
-        diji::SceneManager::GetInstance().SpawnGameObject("E_flag", std::move(flag), center - sf::Vector2f{25, 100});
+        const auto object2 = diji::SceneManager::GetInstance().SpawnGameObject("E_flag", std::move(flag), center - sf::Vector2f{25, 100});
+        attachToWorldObject(object2);
 
         // pole top
         auto poleTop = std::make_unique<diji::GameObject>();
         poleTop->SetObjectPosition(center);
         poleTop->AddComponent<diji::TextureComp>("graphics/poleTop.png");
         poleTop->AddComponent<diji::Render>();
-        diji::SceneManager::GetInstance().SpawnGameObject("E_poleTop", std::move(poleTop), center - sf::Vector2f{0, 75.f});
+        const auto object3 = diji::SceneManager::GetInstance().SpawnGameObject("E_poleTop", std::move(poleTop), center - sf::Vector2f{0, 75.f});
+        attachToWorldObject(object3);
 
         return 1;
     };
@@ -234,14 +248,16 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         castle->SetObjectPosition(center);
         castle->AddComponent<diji::TextureComp>("graphics/smallCastle.png");
         castle->AddComponent<diji::Render>();
-        diji::SceneManager::GetInstance().SpawnGameObject("D_castle", std::move(castle), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("D_castle", std::move(castle), center);
+        attachToWorldObject(object);
 
         auto castleFlag = std::make_unique<diji::GameObject>();
         castleFlag->SetObjectPosition(center + sf::Vector2f{0.f, -75.f});
         castleFlag->AddComponent<diji::TextureComp>("graphics/castleFlag.png");
         castleFlag->AddComponent<diji::Render>();
         castleFlag->AddComponent<CastleFlag>();
-        diji::SceneManager::GetInstance().SpawnGameObject("C_castleFlag", std::move(castleFlag), center + sf::Vector2f{0.f, -75.f});
+        const auto object2 = diji::SceneManager::GetInstance().SpawnGameObject("C_castleFlag", std::move(castleFlag), center + sf::Vector2f{0.f, -75.f});
+        attachToWorldObject(object2);
 
         return 1;
     };
@@ -277,7 +293,8 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         }
 
         GameManager::GetInstance().AddEnemyCollider(colComp);
-        diji::SceneManager::GetInstance().SpawnGameObject("E_Koopa", std::move(go), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("E_Koopa", std::move(go), center);
+        attachToWorldObject(object);
         return 1;
     };
 
@@ -317,7 +334,8 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         spr->UpdateFrame();
         spr->SkipStart();
 
-        diji::SceneManager::GetInstance().SpawnGameObject("ZZ_foregroundTexture", std::move(go), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("ZZ_foregroundTexture", std::move(go), center);
+        attachToWorldObject(object);
         return 1;
     };
 
@@ -340,7 +358,8 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         collider->SetIsMoveable(false);
         collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
 
-        diji::SceneManager::GetInstance().SpawnGameObject("K_StaticCoin", std::move(go), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("K_StaticCoin", std::move(go), center);
+        attachToWorldObject(object);
         return 1;
     };
 
@@ -356,7 +375,8 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         go->AddComponent<CheckPoint>();
         go->GetComponent<CheckPoint>()->SetActivationMilestone(col);
 
-        diji::SceneManager::GetInstance().SpawnGameObject("E_checkPoint", std::move(go), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("E_checkPoint", std::move(go), center);
+        attachToWorldObject(object);
         return 1;
     };
 
@@ -381,7 +401,8 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         collider->SetAffectedByGravity(false);
         collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
 
-        diji::SceneManager::GetInstance().SpawnGameObject("BA_PiranhaPlant", std::move(plant), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("BA_PiranhaPlant", std::move(plant), center);
+        attachToWorldObject(object);
 
         // spawn a ground collider under the plant (mirrors original)
         auto ground = std::make_unique<diji::GameObject>();
@@ -391,7 +412,8 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
         const auto groundCollider = ground->GetComponent<diji::Collider>();
         groundCollider->SetStatic(true);
         groundCollider->SetTag("ground");
-        diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(ground), center - sf::Vector2f{ 25.f, 20.f });
+        const auto object2 = diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(ground), center - sf::Vector2f{ 25.f, 20.f });
+        attachToWorldObject(object2);
 
         return 1;
     };
@@ -417,4 +439,6 @@ void superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInf
                 ++col;
         }
     }
+    
+    return world;
 }
