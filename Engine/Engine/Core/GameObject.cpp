@@ -121,6 +121,9 @@ void diji::GameObject::OnDestroy() const
 
 void diji::GameObject::SetActive(const bool isActive)
 {
+    if (m_IsActive == isActive)
+        return;
+    
     m_IsActive = isActive;
 
     if (isActive)
@@ -135,6 +138,9 @@ void diji::GameObject::SetActive(const bool isActive)
 
     if (m_ColliderCompPtr)
         m_ColliderCompPtr->SetColliderActive(isActive);
+
+    for (const Transform* childTransform : m_RootTransform->GetChildren())
+        childTransform->GetGameObject()->SetActive(isActive);
 }
 
 void diji::GameObject::Destroy() const
