@@ -45,6 +45,7 @@ namespace diji
         void SetShader(sf::Shader* shader) { m_ShaderPtr = shader; }
         [[nodiscard]] sf::Shader* GetShader() const { return m_ShaderPtr; }
         [[nodiscard]] virtual sf::Vector2f GetScaledSize() const;
+        [[nodiscard]] bool IsRendering() const { return m_Render; }
 
         virtual void SetScale(float scale);
         virtual sf::FloatRect GetBoundingBox() const;
