@@ -17,3 +17,8 @@ void diji::Blinking::Update()
     m_ElapsedTime = m_RenderCompPtr->IsRendering() ? m_OnScreenTime : m_OffScreenTime;
     m_RenderCompPtr->ToggleRendering();
 }
+
+void diji::Blinking::InitializeRenderComp()
+{
+    Init();
+}

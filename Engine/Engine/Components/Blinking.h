@@ -24,7 +24,8 @@ namespace diji
         void OnDestroy() override {}
         void SetOffScreenTime(const float time) { m_OffScreenTime = time; }
         void SetOnScreenTime(const float time) { m_OnScreenTime = time; }
-
+        void InitializeRenderComp();
+        
     private:
         Render* m_RenderCompPtr = nullptr;
         float m_OffScreenTime = 0.5f;
