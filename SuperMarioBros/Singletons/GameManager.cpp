@@ -37,6 +37,7 @@ void superMarioBros::GameManager::LoadLevel(const std::string& levelFilePath)
     if (m_WorldGameObject)
     {
         m_WorldGameObject->Destroy();
+        m_WorldGameObject = nullptr;
         m_EnemyColliders = std::unordered_set<diji::Collider*>();
     }
 
@@ -58,6 +59,7 @@ void superMarioBros::GameManager::EmptyLevel()
     if (m_WorldGameObject)
     {
         m_WorldGameObject->Destroy();
+        m_WorldGameObject = nullptr;
         m_EnemyColliders = std::unordered_set<diji::Collider*>();
     }
     m_Rows = 0;
