@@ -29,6 +29,7 @@
     <ClInclude Include="Engine\Collision\PhysicsWorldQuadTree.h" />
     <ClInclude Include="Engine\Collision\QuadTree.h" />
     <ClInclude Include="Engine\Components\AutoDestroy.h" />
+    <ClInclude Include="Engine\Components\Blinking.h" />
     <ClInclude Include="Engine\Components\Camera.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\FPSCounter.h" />
@@ -76,6 +77,7 @@
     <ClCompile Include="Engine\Collision\PhysicsWorldQuadTree.cpp" />
     <ClCompile Include="Engine\Collision\QuadTree.cpp" />
     <ClCompile Include="Engine\Components\AutoDestroy.cpp" />
+    <ClCompile Include="Engine\Components\Blinking.cpp" />
     <ClCompile Include="Engine\Components\Camera.cpp" />
     <ClCompile Include="Engine\Components\Component.cpp" />
     <ClCompile Include="Engine\Components\FPSCounter.cpp" />
