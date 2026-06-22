@@ -53,7 +53,7 @@ namespace diji
 		
 #pragma region Components
 		template<typename T, typename... Args>
-		void AddComponent(Args&&... args) // todo: this should return the component pointer
+		T* AddComponent(Args&&... args) // todo: this should return the component pointer
 		{
 			static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
@@ -68,7 +68,9 @@ namespace diji
 					}
 				});
 
-			m_ComponentsPtrVec.push_back(std::make_unique<T>(this, std::forward<Args>(args)...));
+			auto component = std::make_unique<T>(this, std::forward<Args>(args)...);
+			T* ptr = component.get();
+			m_ComponentsPtrVec.push_back(std::move(component));
 
 			if constexpr (std::is_base_of_v<diji::Render, T>)
 			{
@@ -79,6 +81,8 @@ namespace diji
 				m_ColliderCompPtr = dynamic_cast<Collider*>(m_ComponentsPtrVec.back().get());
 				m_SimulatesPhysics = true;
 			}
+
+			return ptr;
 		}
 
 		template<typename T>
