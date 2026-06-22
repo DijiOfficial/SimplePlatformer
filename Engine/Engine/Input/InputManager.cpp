@@ -45,12 +45,6 @@ bool diji::InputManager::PollEvents()
         if (event.is<sf::Event::Closed>())
             return false;
 
-        if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>())
-        {
-            if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
-                return false;
-        }
-
         if (const auto* mouseMoved = event.getIf<sf::Event::MouseMoved>())
         {
             m_MousePosition = mouseMoved->position;
