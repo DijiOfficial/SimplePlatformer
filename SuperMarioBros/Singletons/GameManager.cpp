@@ -11,6 +11,7 @@
 #include <format>
 #include <fstream>
 
+#include "LevelEditorManager.h"
 #include "../Components/Enemies/BaseEnemy.h"
 #include "../Helpers/WorldBuilder.h"
 #include "Engine/Singleton/TimerManager.h"
@@ -43,13 +44,14 @@ void superMarioBros::GameManager::LoadLevel(const std::string& levelFilePath)
 
     diji::TimerManager::GetInstance().DelayUntilNextTick([&]
     {
-        ReadLevelInfo(std::format("../SuperMarioBros/Resources/levels/{}", levelFilePath));
+        ReadLevelInfo(std::format("../SuperMarioBros/Resources/levels/{}", levelFilePath));  //todo:  literal string
         m_WorldGameObject = WorldBuilder::CreateWorld(m_LevelInfo, m_Rows, m_Cols);
         for (const auto enemyCol : m_EnemyColliders)
         {
             enemyCol->SetActive(true);  
             enemyCol->GetOwner()->GetComponent<BaseEnemy>()->Pause();
         }
+        LevelEditorManager::GetInstance().SetLevelInfo(m_LevelInfo);
         OnNewLevelLoadedEvent.Broadcast();
     });
 }

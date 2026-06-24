@@ -9,6 +9,9 @@
 void superMarioBros::SelectorControls::Init()
 {
     m_TransformCompPtr = GetOwner()->GetRootComponent();
+
+    for (MenuItem* menuItem : m_MenuItems)
+        menuItem->SetMenuArrow(m_MenuArrowRef);
 }
 
 void superMarioBros::SelectorControls::Start()
@@ -38,14 +41,7 @@ void superMarioBros::SelectorControls::Move(const sf::Vector2f& direction, const
 {
     if  (m_DisableMovement)
     {
-        if (direction.y == 0.0f || !isStart)
-            return;
-
-        const int count = static_cast<int>(m_LoadedLevelsPositions.size());
-        const int delta = direction.y > 0.0f ? 1 : -1;
-        m_SpecialMenuIndex = (m_SpecialMenuIndex + delta + count) % count;
-    
-        m_MenuArrow->SetObjectPosition(m_LoadedLevelsPositions[m_SpecialMenuIndex].Position);
+        m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->Move(direction, isStart);
         return;
     }
     
@@ -81,39 +77,14 @@ void superMarioBros::SelectorControls::SelectCurrentMenuItem()
 
     if (m_DisableMovement)
     {
-        if (m_SpecialMenuIndex == 0)
-            LevelEditorManager::GetInstance().LoadNewLevel();
-        else
-            LevelEditorManager::GetInstance().LoadLevel(m_LoadedLevelsPositions[m_SpecialMenuIndex].Name);
+        if (m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->Select())
+            return;
 
         ResetSpecialMenu();
         return;
     }
 
-    auto [ShouldLockControls, menuType, data] = m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->ActivateMenu();
-    if (ShouldLockControls)
-    {
-        m_DisableMovement = true;
-        m_MenuArrow->SetActive(true);
-        m_SpecialMenuIndex = 0;
-    }
-    
-    switch (menuType)
-    {
-    case eMenuType::None:
-        break;
-    case eMenuType::Load:
-        if (const auto* levelData = GetMenuData<std::vector<LoadingLevelData>>(data))
-        {
-            m_LoadedLevelsPositions = *levelData;
-            m_MenuArrow->SetObjectPosition(sf::Vector2f{ m_LoadedLevelsPositions[m_SpecialMenuIndex].Position });
-        }
-        break;
-    case eMenuType::Save:
-        break;
-    default:
-        break;
-    }
+    m_DisableMovement = m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->ActivateMenu();
 }
 
 void superMarioBros::SelectorControls::ClearOutOfSpecialMenu()
@@ -121,6 +92,9 @@ void superMarioBros::SelectorControls::ClearOutOfSpecialMenu()
     if  (!m_DisableMovement)
         return;
 
+    if (m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->Return())
+        return;
+        
     ResetSpecialMenu();
 }
 
@@ -191,7 +165,6 @@ void superMarioBros::SelectorControls::EnterMenu()
 void superMarioBros::SelectorControls::ResetSpecialMenu()
 {
     m_DisableMovement = false;
-    m_MenuArrow->SetActive(false);
     m_IsInMenu = true;
     m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->CloseMenu();
 }

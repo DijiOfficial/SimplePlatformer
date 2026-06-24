@@ -20,8 +20,11 @@ namespace superMarioBros
         void Start() override;
         //todo: listen to save level to update level names data
         
-        [[nodiscard]] MenuInfo ActivateMenu() override;
+        [[nodiscard]] bool ActivateMenu() override;
         void CloseMenu() override;
+        void Move(const sf::Vector2f& direction, bool isStart) override;
+        [[nodiscard]] bool Select() override;
+        void AddNewName(const std::string& newLevelName);
 
     private:
         diji::Transform*  m_TransformCompPtr = nullptr;
@@ -29,13 +32,12 @@ namespace superMarioBros
         std::vector<std::string> m_LevelNames;
         std::vector<diji::GameObject*> m_LevelNameObjects;
         std::vector<LoadingLevelData> m_LevelData;
-        
+
         const int ITEM_SPACING = 60;
         const int INITIAL_SPACING = 150;
-        const int SELECTOR_SPACING = 20;
-        bool m_MenuWasLoadedOnce = false;
+        int m_SpecialMenuIndex = 0;
 
-        [[nodiscard]] MenuInfo LoadMenuItems();
+        void LoadMenuItems();
         void CreateMenuItem(const std::string& levelName, float xPos, float yPos);
     };
 }

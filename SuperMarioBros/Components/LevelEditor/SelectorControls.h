@@ -32,15 +32,16 @@ namespace superMarioBros
         void OnDisable() override {}
         void OnDestroy() override {}
 
+        void SetMenuArrow(diji::GameObject* menuArrow) { m_MenuArrowRef = menuArrow; }
+
         void Move(const sf::Vector2f& direction, bool isStart);
         void SelectCurrentMenuItem();
         void SetMenuTransform(std::vector<MenuItem*> data) { m_MenuItems = std::move(data); }
         void SetMenuYPosition(const float pos) { m_MenuYPosition = pos; }
-        void SetMenuArrow(diji::GameObject* menuArrow) { m_MenuArrow = menuArrow; }
         void ClearOutOfSpecialMenu();
         
     private:
-        diji::GameObject* m_MenuArrow = nullptr;
+        diji::GameObject* m_MenuArrowRef = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::TimerManager::TimerHandle m_MoveTimerHandle;
         sf::Vector2f m_ArenaBoundsHorizontal{ 25.f, 12000.f };
@@ -51,7 +52,6 @@ namespace superMarioBros
         const float DELAY_BETWEEN_MOVE = 0.03f;
         float m_MenuYPosition = -25.f;
         int m_CurrentMenuIndex = 0;
-        int m_SpecialMenuIndex = 0;
         bool m_IsInMenu = false;
         bool m_DisableMovement = false;
 
@@ -63,7 +63,6 @@ namespace superMarioBros
 
         std::vector<MenuEntry> m_MenuEntries;
         std::vector<MenuItem*> m_MenuItems;
-        std::vector<LoadingLevelData> m_LoadedLevelsPositions;
 
         template<typename T>
         [[nodiscard]] const T* GetMenuData(const std::any& data)

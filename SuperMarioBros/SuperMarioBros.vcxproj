@@ -188,6 +188,8 @@
     <ClCompile Include="Components\Enemies\PiranhaPlant.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\LoadMenu.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\SaveMenu.cpp" />
+    <ClCompile Include="Components\LevelEditor\OnScreenKeyboard\OnScreenKey.cpp" />
+    <ClCompile Include="Components\LevelEditor\OnScreenKeyboard\OnScreenKeyboardManager.cpp" />
     <ClCompile Include="Components\LevelEditor\Selector.cpp" />
     <ClCompile Include="Components\LevelEditor\SelectorControls.cpp" />
     <ClCompile Include="Components\Other\Coins\SmallCoinScript.cpp" />
@@ -238,6 +240,8 @@
     <ClInclude Include="Components\LevelEditor\MenuItems\MenuItem.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\MenuStructs.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\SaveMenu.h" />
+    <ClInclude Include="Components\LevelEditor\OnScreenKeyboard\OnScreenKey.h" />
+    <ClInclude Include="Components\LevelEditor\OnScreenKeyboard\OnScreenKeyboardManager.h" />
     <ClInclude Include="Components\LevelEditor\Selector.h" />
     <ClInclude Include="Components\LevelEditor\SelectorControls.h" />
     <ClInclude Include="Components\Other\Coins\SmallCoinScript.h" />

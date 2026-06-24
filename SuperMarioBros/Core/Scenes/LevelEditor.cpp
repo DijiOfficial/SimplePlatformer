@@ -6,6 +6,7 @@
 #include "../../Components/LevelEditor/MenuItems/SaveMenu.h"
 #include "../../Components/LevelEditor/SelectorControls.h"
 #include "../../Components/LevelEditor/Selector.h"
+#include "../../Components/LevelEditor/OnScreenKeyboard/OnScreenKeyboardManager.h"
 #include "../../Components/Player/CameraClamping.h"
 #include "../../Components/Player/PlayerInputManager.h"
 #include "../../Components/Player/BroadcastPlayerPosition.h"
@@ -81,6 +82,9 @@ void SceneLoader::LevelEditor()
     player->AddComponent<ShapeRender>(true);
     player->SetActive(false);
 
+    const auto tempKeyboard = scene->CreateGameObject("X_tempKeyboard");
+    tempKeyboard->AddComponent<onScreenKeyboard::OnScreenKeyboardManager>();
+
 #pragma region HUD
     float menuYPosition = static_cast<float>(window::VIEWPORT.y) * 0.15f;
     std::vector<superMarioBros::MenuItem*> menuTransforms;
@@ -90,14 +94,14 @@ void SceneLoader::LevelEditor()
     download->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.1f, menuYPosition });
     download->AddComponent<TextureComp>("graphics/level_editor_download.png");
     download->AddComponent<Render>(renderRatio);
-    download->AddComponent<superMarioBros::LoadMenu>();
+    const auto& loadMenuComp = download->AddComponent<superMarioBros::LoadMenu>();
     scene->SetGameObjectAsCanvasObject(download);
     
     const auto save = scene->CreateGameObject("Z_UI_Save");
     save->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.125f, menuYPosition });
     save->AddComponent<TextureComp>("graphics/level_editor_save.png");
     save->AddComponent<Render>(renderRatio);
-    save->AddComponent<superMarioBros::SaveMenu>();
+    const auto& saveMenuComp = save->AddComponent<superMarioBros::SaveMenu>();
     scene->SetGameObjectAsCanvasObject(save);
 
     const auto selection = scene->CreateGameObject("Z_UI_Selection");
@@ -181,6 +185,7 @@ void SceneLoader::LevelEditor()
 
 #pragma region Events
 
+    saveMenuComp->OnSaveLevelEvent.AddListener(loadMenuComp, &superMarioBros::LoadMenu::AddNewName);
     // superMarioBros::GameManager::GetInstance().OnScoreAddedEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
     // superMarioBros::GameManager::GetInstance().OnCoinCollectedEvent.AddListener(coinsCounterHud->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
     // timerHUD->GetComponent<ScoreCounter>()->OnGivenScoreReachedEvent.AddListener(player->GetComponent<superMarioBros::PlayerCharacter>(), &superMarioBros::PlayerCharacter::KillPlayer);

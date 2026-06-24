@@ -24,13 +24,14 @@ void superMarioBros::LevelEditorManager::Init()
 void superMarioBros::LevelEditorManager::LoadLevel(const std::string& levelName)
 {
     GameManager::GetInstance().LoadLevel(m_LevelNameToFileUMap[levelName]);
-    m_LevelInfo = std::vector(GameManager::GetInstance().GetLevelInfo());
+    m_CurrentLevelName = levelName;
 }
 
 void superMarioBros::LevelEditorManager::LoadNewLevel()
 {
     GameManager::GetInstance().EmptyLevel();
     m_LevelInfo = std::vector<char>();
+    m_CurrentLevelName = "New Level";
 }
 
 void superMarioBros::LevelEditorManager::SaveNewMap(const std::string& levelName, const std::string& levelPath)
@@ -38,7 +39,7 @@ void superMarioBros::LevelEditorManager::SaveNewMap(const std::string& levelName
     JSONLoader::json data;
 
     m_LevelNameToFileUMap[levelName] = levelPath;
-    for (const auto& [key, value] : m_LevelNameToFileUMap)
+    for (const auto& [key, value] : m_LevelNameToFileUMap) // todo: can I just add the new entry instead of rewriting the whole file?
     {
         data[key] = value;
     }
@@ -48,9 +49,9 @@ void superMarioBros::LevelEditorManager::SaveNewMap(const std::string& levelName
     SaveLevelInfo(MAPS_PATH + levelPath);
 }
 
-void superMarioBros::LevelEditorManager::SaveMap(const std::string& levelName)
+void superMarioBros::LevelEditorManager::SaveMap()
 {
-    SaveNewMap(levelName, m_LevelNameToFileUMap.contains(levelName) ? m_LevelNameToFileUMap[levelName] : levelName);
+    SaveNewMap(m_CurrentLevelName, m_LevelNameToFileUMap.contains(m_CurrentLevelName) ? m_LevelNameToFileUMap[m_CurrentLevelName] : m_CurrentLevelName); // todo: add .txt to failstate
 }
 
 std::vector<std::string> superMarioBros::LevelEditorManager::GetLevelNames() const
@@ -66,8 +67,8 @@ std::vector<std::string> superMarioBros::LevelEditorManager::GetLevelNames() con
 
 void superMarioBros::LevelEditorManager::SaveLevelInfo(const std::string& filepath) const
 {
-    if (m_LevelInfo.size() % 12 != 0)
-        throw std::runtime_error("Level data is not divisible by 12.");
+    if (m_LevelInfo.size() % MAX_LEVEL_HEIGHT != 0)
+        throw std::runtime_error("Level data is not divisible by 13.");
     
     const int rows = MAX_LEVEL_HEIGHT;
     const int cols = static_cast<int>(m_LevelInfo.size()) / rows;
