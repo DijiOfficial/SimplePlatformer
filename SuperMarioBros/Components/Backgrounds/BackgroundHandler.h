@@ -28,6 +28,8 @@ namespace superMarioBros
         void OnDestroy() override {}
 
         void DisableLevelLoadingOnStart() { m_ShouldLoadFirstLevel = false; }
+        void ApplyTile(int x, int y, int cols, char tileID);
+        void TempReload(const int cols, const std::vector<char>& levelData);
 
     private:
         diji::Sprite* m_BackgroundSprite = nullptr;

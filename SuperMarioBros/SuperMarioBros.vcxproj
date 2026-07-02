@@ -186,6 +186,7 @@
     <ClCompile Include="Components\Enemies\GoombaAI.cpp" />
     <ClCompile Include="Components\Enemies\KoopaTroopa.cpp" />
     <ClCompile Include="Components\Enemies\PiranhaPlant.cpp" />
+    <ClCompile Include="Components\LevelEditor\MenuItems\BlockSelector.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\LoadMenu.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\SaveMenu.cpp" />
     <ClCompile Include="Components\LevelEditor\OnScreenKeyboard\OnScreenKey.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="Components\Enemies\GoombaAI.h" />
     <ClInclude Include="Components\Enemies\KoopaTroopa.h" />
     <ClInclude Include="Components\Enemies\PiranhaPlant.h" />
+    <ClInclude Include="Components\LevelEditor\MenuItems\BlockSelector.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\LoadMenu.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\MenuItem.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\MenuStructs.h" />

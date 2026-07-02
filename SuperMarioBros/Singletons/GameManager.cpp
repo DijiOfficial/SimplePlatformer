@@ -16,12 +16,6 @@
 #include "../Helpers/WorldBuilder.h"
 #include "Engine/Singleton/TimerManager.h"
 
-namespace superMarioBros
-{
-    class GoombaAI;
-    class PointsBehaviour;
-}
-
 void superMarioBros::GameManager::LoadLevel()
 {
     m_IsLevelAlreadyCleared = false;
@@ -207,6 +201,16 @@ void superMarioBros::GameManager::SaveHighScoreToFile() const
 
     file << m_PlayerInfo.totalScore;
     file.close();
+}
+
+void superMarioBros::GameManager::CreateEmptyWorld()
+{
+    m_WorldGameObject = diji::SceneManager::GetInstance().SpawnGameObject("WorldLevel", std::make_unique<diji::GameObject>(), sf::Vector2f{ 0.f, 0.f });
+}
+
+void superMarioBros::GameManager::PlaceNewItem(const int x, const int y, const char itemID) const
+{
+    WorldBuilder::CreateTileObject(m_WorldGameObject, y, x, itemID);
 }
 
 std::string superMarioBros::GameManager::LoadInformation()

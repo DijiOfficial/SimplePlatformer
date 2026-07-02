@@ -3,7 +3,7 @@
 #include "../../Singletons/GameManager.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Sprite.h"
-
+#include "../../Singletons/LevelEditorManager.h"
 void superMarioBros::BackgroundHandler::Init()
 {
     m_BackgroundSprite = GetOwner()->GetComponent<diji::Sprite>();
@@ -26,10 +26,10 @@ void superMarioBros::BackgroundHandler::Init()
         { 'a', {0, 3} }, // TopLeft Side Pipe
         { 'b', {1, 3} }, // MiddleLeft Side Pipe
         { 'c', {2, 3} }, // BottomLeft Side Pipe
-        { 'd', {0, 4} }, // LuckyBlock (invisible tile because it's rendered by LuckyBlock component)
+        { 'd', {0, 4} }, // BreakableBlock (invisible tile because it's rendered by BreakableBlock component)
         { 'x', {0, 4} }, // LuckyBlock with a power up
         { 'y', {0, 4} }, // LuckyBlock with a star power up
-        { 'e', {0, 4} }, // BreakableBlock (invisible tile because it's rendered by BreakableBlock component)
+        { 'e', {0, 4} }, // LuckyBlock (invisible tile because it's rendered by LuckyBlock component)
         { 'f', {0, 4} }, // MultiCoinBlock (invisible tile because it's rendered by BreakableBlock component)
         { 'g', {0, 4} }, // Goomba (fitting isn't it?) (invisible tile because it's not a background tile)
         { 'h', {0, 4} }, // Goomba but offset by 25 (invisible tile because it's not a background tile)
@@ -53,6 +53,9 @@ void superMarioBros::BackgroundHandler::Init()
         { 'A', {0, 3} }, // TopLeft Side Pipe (Z priority)
         { 'B', {1, 3} }, // MiddleLeft Side Pipe (Z priority)
         { 'C', {2, 3} }, // BottomLeft Side Pipe (Z priority)
+        { 'w', {1, 4} }, // Ground Green
+        { 'G', {2, 4} }, // Floor Green
+        { 'H', {3, 4} }, // BreakableBlock Green
         // ... etc.
     };
 
@@ -127,4 +130,116 @@ void superMarioBros::BackgroundHandler::OnNewLevelLoaded() const
     }
 
     gameManager.ClearLevelInfo();
+}
+
+void superMarioBros::BackgroundHandler::ApplyTile(const int x, const int y, const int cols, const char tileID)
+{
+    constexpr int tileSize = 50;
+    auto& vertices = m_BackgroundSprite->GetVertexArray();
+
+    // safety
+    if (cols == -1 || x < 0 || y < 0 || x >= cols || y >= MAX_LEVEL_HEIGHT)
+        return;
+
+    const int vertexIndex = (y * cols + x) * 6;
+    sf::Vertex* quad = &vertices[vertexIndex];
+
+    // world position
+    const float left   = static_cast<float>(x * tileSize);
+    const float top    = static_cast<float>(y * tileSize);
+    const float right  = left + tileSize;
+    const float bottom = top + tileSize;
+
+    // triangle A
+    quad[0].position = { left,  top };
+    quad[1].position = { right, bottom };
+    quad[2].position = { left,  bottom };
+
+    // triangle B
+    quad[3].position = { left,  top };
+    quad[4].position = { right, top };
+    quad[5].position = { right, bottom };
+
+    // atlas lookup
+    const auto it = m_TileIDToAtlasPos.find(tileID);
+
+    sf::Vector2i atlasPos = {0, 4}; // fallback (empty tile)
+    if (it != m_TileIDToAtlasPos.end())
+        atlasPos = it->second;
+
+    const float texLeft   = static_cast<float>(atlasPos.x * tileSize);
+    const float texTop    = static_cast<float>(atlasPos.y * tileSize);
+    const float texRight  = texLeft + tileSize;
+    const float texBottom = texTop + tileSize;
+
+    // triangle A texcoords
+    quad[0].texCoords = { texLeft,  texTop };
+    quad[1].texCoords = { texRight, texBottom };
+    quad[2].texCoords = { texLeft,  texBottom };
+
+    // triangle B texcoords
+    quad[3].texCoords = { texLeft,  texTop };
+    quad[4].texCoords = { texRight, texTop };
+    quad[5].texCoords = { texRight, texBottom };
+}
+
+void superMarioBros::BackgroundHandler::TempReload(const int cols, const std::vector<char>& levelData)
+{
+    constexpr int tileSize = 50;
+
+    m_BackgroundSprite->SetTileSize(tileSize);
+    m_BackgroundSprite->SetTileCount(cols, MAX_LEVEL_HEIGHT);
+    m_BackgroundSprite->ResizeVertexArray();
+
+    auto& tempVertexArray = m_BackgroundSprite->GetVertexArray();
+
+    for (int y = 0; y < MAX_LEVEL_HEIGHT; ++y)
+    {
+        for (int x = 0; x < cols; ++x)
+        {
+            const char tileID = levelData[y * cols + x];
+            const int vertexIndex = (y * cols + x) * 6;
+            sf::Vertex* quad = &tempVertexArray[vertexIndex];
+
+            const float left   = static_cast<float>(x * tileSize);
+            const float top    = static_cast<float>(y * tileSize);
+            const float right  = left + tileSize;
+            const float bottom = top + tileSize;
+
+            // Triangle A
+            quad[0].position = { left,  top };
+            quad[1].position = { right, bottom };
+            quad[2].position = { left,  bottom };
+
+            // Triangle B
+            quad[3].position = { left,  top };
+            quad[4].position = { right, top };
+            quad[5].position = { right, bottom };
+
+            // Lookup tile position in texture atlas
+            const auto it = m_TileIDToAtlasPos.find(tileID);
+            if (it == m_TileIDToAtlasPos.end())
+            {
+                // Optional: fallback or skip if tile ID not mapped
+                continue;
+            }
+
+            const sf::Vector2i& atlasPos = it->second;
+
+            const float texLeft   = static_cast<float>(atlasPos.x * tileSize);
+            const float texTop    = static_cast<float>(atlasPos.y * tileSize);
+            const float texRight  = texLeft + tileSize;
+            const float texBottom = texTop + tileSize;
+
+            // Triangle A texCoords
+            quad[0].texCoords = { texLeft, texTop };
+            quad[1].texCoords = { texRight, texBottom };
+            quad[2].texCoords = { texLeft, texBottom };
+
+            // Triangle B texCoords
+            quad[3].texCoords = { texLeft, texTop };
+            quad[4].texCoords = { texRight, texTop };
+            quad[5].texCoords = { texRight, texBottom };
+        }
+    }
 }

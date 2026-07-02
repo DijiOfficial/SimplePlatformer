@@ -52,8 +52,8 @@ void SceneLoader::GameStartUp()
     SceneManager::GetInstance().RegisterScene(static_cast<int>(superMarioBros::superMarioBrosState::LevelEditor), LevelEditor);
 
     // StartMenu();
-    // Level();
-    LevelEditor();
+    Level();  // todo:  consistant crash on second coind destruction
+    // LevelEditor();
 }
 
 #pragma region Menus

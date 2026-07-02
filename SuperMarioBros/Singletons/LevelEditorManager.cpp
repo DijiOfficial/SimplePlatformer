@@ -1,6 +1,7 @@
 ﻿#include "LevelEditorManager.h"
 
 #include "GameManager.h"
+#include "../Helpers/WorldBuilder.h"
 #include "Engine/Singleton/JSONLoader.h"
 
 void superMarioBros::LevelEditorManager::Init()
@@ -19,6 +20,9 @@ void superMarioBros::LevelEditorManager::Init()
         else
             m_LevelNameToFileUMap[it.key()] = it.value().dump();
     }
+
+    GameManager::GetInstance().CreateEmptyWorld();
+    WorldBuilder::Init();
 }
 
 void superMarioBros::LevelEditorManager::LoadLevel(const std::string& levelName)
@@ -65,12 +69,42 @@ std::vector<std::string> superMarioBros::LevelEditorManager::GetLevelNames() con
     return levelNames;
 }
 
+int superMarioBros::LevelEditorManager::SetCharAtPosition(const int x, const int y, const char value)
+{
+    if (x < 0)
+        return -1;
+
+    if (y < 0 || y >= MAX_LEVEL_HEIGHT)
+        return -1;
+
+    if (x >= m_LevelWidth)
+    {
+        const int newWidth = x + 1;
+
+        std::vector newLevel(static_cast<size_t>(newWidth) * MAX_LEVEL_HEIGHT, '0');
+        for (int row = 0; row < MAX_LEVEL_HEIGHT; ++row)
+        {
+            for (int col = 0; col < m_LevelWidth; ++col)
+            {
+                newLevel[row * newWidth + col] = m_LevelInfo[row * m_LevelWidth + col];
+            }
+        }
+
+        m_LevelInfo = std::move(newLevel);
+        m_LevelWidth = newWidth;
+    }
+
+    m_LevelInfo[y * m_LevelWidth + x] = value;
+
+    return m_LevelWidth;
+}
+
 void superMarioBros::LevelEditorManager::SaveLevelInfo(const std::string& filepath) const
 {
     if (m_LevelInfo.size() % MAX_LEVEL_HEIGHT != 0)
         throw std::runtime_error("Level data is not divisible by 13.");
-    
-    const int rows = MAX_LEVEL_HEIGHT;
+
+    constexpr int rows = MAX_LEVEL_HEIGHT;
     const int cols = static_cast<int>(m_LevelInfo.size()) / rows;
     
     std::ofstream file(filepath);

@@ -7,6 +7,8 @@
 
 namespace superMarioBros
 {
+    static constexpr int MAX_LEVEL_HEIGHT = 13;
+
     class LevelEditorManager final : public diji::Singleton<LevelEditorManager>
     {
     public:
@@ -15,17 +17,19 @@ namespace superMarioBros
         void LoadNewLevel();
         void SaveNewMap(const std::string& levelName, const std::string& levelPath);
         void SaveMap() ;
-        std::vector<std::string> GetLevelNames() const;
-        sf::Vector2f m_SelectorPosition;
+        [[nodiscard]] std::vector<std::string> GetLevelNames() const;
+        [[nodiscard]] sf::Vector2f m_SelectorPosition;
 
-        const std::string& GetCurrentLevelName() const { return m_CurrentLevelName; }
-        bool DoesLevelExist(const std::string& levelName) const { return m_LevelNameToFileUMap.contains(levelName); }
+        [[nodiscard]] const std::string& GetCurrentLevelName() const { return m_CurrentLevelName; }
+        [[nodiscard]] bool DoesLevelExist(const std::string& levelName) const { return m_LevelNameToFileUMap.contains(levelName); }
         void SetLevelInfo(const std::vector<char>& levelInfo) { m_LevelInfo = levelInfo; }
+        [[nodiscard]] int SetCharAtPosition(int x, int y, char value);
+        [[nodiscard]] const std::vector<char>& GetLevelInfo() const { return m_LevelInfo; }
 
     private:
         const std::string LEVEL_EDITOR_INFO_PATH = "../SuperMarioBros/Resources/levels/levelEditorInfo.json";
         std::string m_CurrentLevelName = "New Level";
-        const int MAX_LEVEL_HEIGHT = 13;
+        int m_LevelWidth = -1; //todo: gotta  manage thjis noew
         std::unordered_map<std::string, std::string> m_LevelNameToFileUMap;
         std::vector<char> m_LevelInfo;
 

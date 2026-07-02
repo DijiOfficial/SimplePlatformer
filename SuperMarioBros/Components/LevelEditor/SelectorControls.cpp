@@ -1,5 +1,6 @@
 ﻿#include "SelectorControls.h"
 
+#include "Selector.h"
 #include "../../Singletons/LevelEditorManager.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Singleton/Helpers.h"
@@ -16,8 +17,9 @@ void superMarioBros::SelectorControls::Init()
 
 void superMarioBros::SelectorControls::Start()
 {
-    const auto& sceneManager = diji::SceneManager::GetInstance();
+    m_SelectorRef = GetOwner()->GetComponent<Selector>();
     
+    const auto& sceneManager = diji::SceneManager::GetInstance();
     diji::TimerManager::GetInstance().DelayUntilNextTick([&]
     {
         m_MenuYPosition = sceneManager.GetWorldPositionFromScreen(m_MenuItems[0]->GetOwner()->GetObjectPosition()).y;
@@ -72,7 +74,13 @@ void superMarioBros::SelectorControls::Move(const sf::Vector2f& direction, const
 
 void superMarioBros::SelectorControls::SelectCurrentMenuItem()
 {
-    if (!m_IsInMenu || m_MenuEntries.empty())
+    if (m_IsInMenu == false)
+    {
+        m_SelectorRef->TryPlaceItem();
+        return;
+    }
+    
+    if (m_MenuEntries.empty())
         return;
 
     if (m_DisableMovement)
@@ -167,6 +175,9 @@ void superMarioBros::SelectorControls::ResetSpecialMenu()
     m_DisableMovement = false;
     m_IsInMenu = true;
     m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->CloseMenu();
+
+    if (m_CurrentMenuIndex == 2)
+        Move(sf::Vector2f{ 0.0f, 1.0f } ,true);
 }
 
 int superMarioBros::SelectorControls::ClosestMenuItemPosition(const int x)

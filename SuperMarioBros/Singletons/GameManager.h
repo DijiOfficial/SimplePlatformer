@@ -72,6 +72,8 @@ namespace superMarioBros
         [[nodiscard]] int GetHighScoreFromFile() const;
         void SaveHighScoreToFile() const;
         void AddEnemyCollider(diji::Collider* collider) { m_EnemyColliders.insert(collider); }
+        void CreateEmptyWorld();
+        void PlaceNewItem(int x, int y, char itemID) const;
 
     private:
         diji::GameObject* m_WorldGameObject = nullptr;

@@ -41,11 +41,12 @@ namespace superMarioBros
         void ClearOutOfSpecialMenu();
         
     private:
+        Selector* m_SelectorRef = nullptr;
         diji::GameObject* m_MenuArrowRef = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::TimerManager::TimerHandle m_MoveTimerHandle;
         sf::Vector2f m_ArenaBoundsHorizontal{ 25.f, 12000.f };
-        sf::Vector2f m_ArenaBoundsVertical{ -25.f, 575.f };
+        sf::Vector2f m_ArenaBoundsVertical{ 25.f, 575.f };
 
         const float TILE_SIZE = 50.0f;
         const float INITIAL_DELAY_BEFORE_MOVE = 0.25f;

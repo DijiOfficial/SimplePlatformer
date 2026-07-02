@@ -6,6 +6,7 @@
 #include "../../Components/LevelEditor/MenuItems/SaveMenu.h"
 #include "../../Components/LevelEditor/SelectorControls.h"
 #include "../../Components/LevelEditor/Selector.h"
+#include "../../Components/LevelEditor/MenuItems/BlockSelector.h"
 #include "../../Components/LevelEditor/OnScreenKeyboard/OnScreenKeyboardManager.h"
 #include "../../Components/Player/CameraClamping.h"
 #include "../../Components/Player/PlayerInputManager.h"
@@ -49,7 +50,7 @@ void SceneLoader::LevelEditor()
     selector->AddComponent<TextureComp>("graphics/squareWhiteSmaller50.png");
     selector->AddComponent<Render>();
     selector->AddComponent<superMarioBros::SelectorControls>();
-    selector->AddComponent<superMarioBros::Selector>();
+    const auto& selectorComp = selector->AddComponent<superMarioBros::Selector>();
     selector->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
     selector->GetComponent<Camera>()->SetLevelBoundaries(arena);
     scene->SetGameObjectToRenderOnTop(selector);
@@ -58,8 +59,9 @@ void SceneLoader::LevelEditor()
     background->SetObjectPosition({ 0, 0 });
     background->AddComponent<Sprite>("graphics/tiles_sheet.png");
     background->AddComponent<Render>();
-    background->AddComponent<superMarioBros::BackgroundHandler>();
+    const auto& backgroundHandlerComp = background->AddComponent<superMarioBros::BackgroundHandler>();
     background->GetComponent<superMarioBros::BackgroundHandler>()->DisableLevelLoadingOnStart();
+    selectorComp->SetBackgroundHandlerRef(backgroundHandlerComp);
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     player->SetObjectPosition({ 200, 0 });
@@ -110,6 +112,22 @@ void SceneLoader::LevelEditor()
     selection->AddComponent<Render>(renderRatio);
     selection->SetActive(false);
     scene->SetGameObjectAsCanvasObject(selection);
+    
+    const auto items = scene->CreateGameObject("Z_UI_Items");
+    items->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.150f, menuYPosition });
+    items->AddComponent<TextureComp>("graphics/level_editor_item1.png");
+    items->AddComponent<Render>(renderRatio);
+    const auto& blockSelector = items->AddComponent<superMarioBros::BlockSelector>();
+    blockSelector->SetSelectorGO(selector);
+    blockSelector->SetSelector(selectorComp);
+    scene->SetGameObjectAsCanvasObject(items);
+
+    const auto itemChoices = scene->CreateGameObject("Z_UI_ItemsChoice");
+    itemChoices->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.150f, menuYPosition * 3 });
+    itemChoices->AddComponent<TextureComp>("graphics/tiles_sheet_selection.png");
+    itemChoices->AddComponent<Render>(renderRatio);
+    scene->SetGameObjectAsCanvasObject(itemChoices);
+    itemChoices->AttachToObject(items, true);
 
     // const auto play = scene->CreateGameObject("Z_UI_Play");
     // play->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f, menuYPosition });
@@ -127,6 +145,7 @@ void SceneLoader::LevelEditor()
 
     menuTransforms.push_back(download->GetComponent<superMarioBros::MenuItem>());
     menuTransforms.push_back(save->GetComponent<superMarioBros::MenuItem>());
+    menuTransforms.push_back(items->GetComponent<superMarioBros::MenuItem>());
     // menuTransforms.push_back(play->GetComponent<superMarioBros::MenuItem>());
     // menuTransforms.push_back(secondItem->GetComponent<superMarioBros::MenuItem>());
     selector->GetComponent<superMarioBros::SelectorControls>()->SetMenuTransform(menuTransforms);
