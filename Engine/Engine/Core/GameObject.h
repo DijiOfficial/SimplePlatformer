@@ -149,7 +149,7 @@ namespace diji
 		}
 #pragma endregion Components
 #pragma region Tranform
-		[[nodiscard]] sf::Vector2f GetObjectPosition() const;
+		[[nodiscard]] sf::Vector2f GetObjectPosition() const; // todo: get and set position should work implicitly with canvas objects so I don't have to manually handle canvas positions in the game code
 		void SetObjectPosition(const sf::Vector2f& position) const;
 
 		[[nodiscard]] sf::Angle GetObjectRotation() const;
