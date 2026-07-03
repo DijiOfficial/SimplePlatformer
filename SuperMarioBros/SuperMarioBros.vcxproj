@@ -201,6 +201,7 @@
     <ClCompile Include="Components\Other\LevelObjects\CastleFlag.cpp" />
     <ClCompile Include="Components\Other\LevelObjects\CheckPoint.cpp" />
     <ClCompile Include="Components\Other\LevelObjects\Flag.cpp" />
+    <ClCompile Include="Components\Other\SceneLoader.cpp" />
     <ClCompile Include="Components\Player\BroadcastPlayerPosition.cpp" />
     <ClCompile Include="Components\Player\CameraClamping.cpp" />
     <ClCompile Include="Components\Player\CheckPlayerTopPixel.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="Components\Other\LevelObjects\CastleFlag.h" />
     <ClInclude Include="Components\Other\LevelObjects\CheckPoint.h" />
     <ClInclude Include="Components\Other\LevelObjects\Flag.h" />
+    <ClInclude Include="Components\Other\SceneLoader.h" />
     <ClInclude Include="Components\Player\BroadcastPlayerPosition.h" />
     <ClInclude Include="Components\Player\CameraClamping.h" />
     <ClInclude Include="Components\Player\CheckPlayerTopPixel.h" />

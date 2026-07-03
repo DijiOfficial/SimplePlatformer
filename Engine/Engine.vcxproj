@@ -56,6 +56,7 @@
     <ClInclude Include="Engine\Interfaces\Timeline.h" />
     <ClInclude Include="Engine\Interfaces\TimelineManager.h" />
     <ClInclude Include="Engine\RAII_Wrappers\SplitScreenView.h" />
+    <ClInclude Include="Engine\RAII_Wrappers\Timer.h" />
     <ClInclude Include="Engine\Singleton\GameStateManager.h" />
     <ClInclude Include="Engine\Singleton\Helpers.h" />
     <ClInclude Include="Engine\Singleton\JSONLoader.h" />
@@ -101,6 +102,7 @@
     <ClCompile Include="Engine\Interfaces\Timeline.cpp" />
     <ClCompile Include="Engine\Interfaces\TimelineManager.cpp" />
     <ClCompile Include="Engine\RAII_Wrappers\SplitScreenView.cpp" />
+    <ClCompile Include="Engine\RAII_Wrappers\Timer.cpp" />
     <ClCompile Include="Engine\Singleton\ResourceManager.cpp" />
     <ClCompile Include="Engine\Singleton\SceneManager.cpp" />
     <ClCompile Include="Engine\Singleton\TimerManager.cpp" />

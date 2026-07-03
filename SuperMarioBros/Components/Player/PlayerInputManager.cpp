@@ -287,12 +287,12 @@ void superMarioBros::PlayerInputManager::Attack()
     diji::SceneManager::GetInstance().SpawnGameObject("Y_fireBall", std::move(fireBall), m_TransformCompPtr->GetWorldPosition() + sf::Vector2f{ m_LookDirection == MovementDirection::Left ? -30.f : 30.f, -10.f });
     m_PlayerCharacterCompPtr->ChangeState<ThrowingFireballState>();
 
-    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
         m_PlayerCharacterCompPtr->ChangeState<FireIdleState>();
     }, 0.14f, false);
 
-    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
         m_CanAttack = true;
     }, m_AttackFireballCooldownTimer, false);

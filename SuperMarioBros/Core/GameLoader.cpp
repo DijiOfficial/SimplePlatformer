@@ -29,6 +29,7 @@
 
 #include <format>
 
+#include "../Components/Other/SceneLoader.h"
 #include "../Components/Player/CheckPlayerTopPixel.h"
 #include "Engine/Components/ShapeRender.h"
 #include "Engine/Core/Renderer.h"
@@ -202,10 +203,12 @@ void SceneLoader::LivesDisplayMenu()
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::LivesDisplayMenu));
     Renderer::GetInstance().SetBackgroundColor(sf::Color::Black);
 
-    (void)TimerManager::GetInstance().SetTimer([]
+    const auto sceneChanger = scene->CreateCameraObject("A_sceneChanger");
+    const auto& loader = sceneChanger->AddComponent<superMarioBros::SceneLoader>(2.6f);
+    loader->SetCallback([]
     {
         superMarioBros::GameManager::GetInstance().SwitchToNextScene();
-    }, 2.6f, false);
+    });
     
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->SetObjectPosition({ 0, 0 });
@@ -328,12 +331,14 @@ void SceneLoader::GameOverMenu()
     Renderer::GetInstance().SetBackgroundColor(sf::Color::Black);
 
     superMarioBros::GameManager::GetInstance().SaveHighScoreToFile();
-    
-    (void)TimerManager::GetInstance().SetTimer([]
+
+    const auto sceneChanger = scene->CreateCameraObject("A_sceneChanger");
+    const auto& loader = sceneChanger->AddComponent<superMarioBros::SceneLoader>(7.0f);
+    loader->SetCallback([]
     {
         superMarioBros::GameManager::GetInstance().ResetPlayerInfo();
         SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(superMarioBros::superMarioBrosState::StartMenu));
-    }, 7.f, false);
+    });
     
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->SetObjectPosition({ 0, 0 });
@@ -437,11 +442,13 @@ void SceneLoader::TransitionToNextLevel()
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::TransitionToNextLevel));
     Renderer::GetInstance().SetBackgroundColor(sf::Color(92, 148, 252));
 
-    (void)TimerManager::GetInstance().SetTimer([]
+    const auto sceneChanger = scene->CreateCameraObject("A_sceneChanger");
+    const auto& loader = sceneChanger->AddComponent<superMarioBros::SceneLoader>(5.6f);
+    loader->SetCallback([]
     {
         superMarioBros::GameManager::GetInstance().SwitchToNextScene();
-    }, 5.6f, false);
-    
+    });
+  
     const sf::FloatRect arena{ sf::Vector2f{ 0, -(115 * 4.5) }, sf::Vector2f{ 1920.f, 1080.f } };
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->SetObjectPosition({ 0, 0 });

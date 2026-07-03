@@ -55,7 +55,7 @@ void superMarioBros::SelectorControls::Move(const sf::Vector2f& direction, const
             return;
 
         m_TransformCompPtr->AddWorldOffset(sf::Vector2f{ direction.x * TILE_SIZE, direction.y * TILE_SIZE });
-        m_MoveTimerHandle = diji::TimerManager::GetInstance().SetTimer(
+        m_MoveTimerHandle = diji::TimerManager::GetInstance().SetTimer(this, 
             [this, direction]()
             {
                 if (!CanMove(direction))

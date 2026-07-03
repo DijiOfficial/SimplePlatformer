@@ -7,7 +7,7 @@ void superMarioBros::MushroomScript::HandleBumpedBehavior(const bool IsBumpingLe
     if (m_HasBeenBumped) return;
     m_HasBeenBumped = true;
 
-    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
         m_HasBeenBumped = false;
     }, 0.067f, false);

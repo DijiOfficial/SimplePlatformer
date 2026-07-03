@@ -149,7 +149,7 @@ void superMarioBros::KoopaTroopa::HandleBumped()
 
 void superMarioBros::KoopaTroopa::SetRespawnTimer()
 {
-    m_TimerHandle = diji::TimerManager::GetInstance().SetTimer([&]()
+    m_TimerHandle = diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
         m_SpriteRenderCompPtr->SetStartingFrame(4, 0);
         m_SpriteRenderCompPtr->SetTotalAnimationFrames(2);
@@ -159,7 +159,7 @@ void superMarioBros::KoopaTroopa::SetRespawnTimer()
         m_SpriteRenderCompPtr->SetCurrentAnimationFrame(0);
         m_SpriteRenderCompPtr->UpdateFrame();
 
-        m_TimerHandle = diji::TimerManager::GetInstance().SetTimer([&]()
+        m_TimerHandle = diji::TimerManager::GetInstance().SetTimer(this, [&]()
         {
             m_ColliderCompPtr->ClearOverlappedCollider(m_EnemyColliderCompPtr);
             m_ColliderCompPtr->SetIsMoveable(true);

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "../Interfaces/EventSystem.h" // Included for all inherited classes
 #include "../Collision/CollisionStructs.h"
+#include "../Singleton/TimerManager.h"
 
 namespace diji 
 {
@@ -9,8 +10,9 @@ namespace diji
 
     class Component
     {
+        friend class Timer;
     public:
-        virtual ~Component() noexcept = default;
+        virtual ~Component();
 
         Component(const Component& other) = delete;
         Component(Component&& other) = delete;
@@ -46,5 +48,9 @@ namespace diji
 
     private:
         GameObject* m_OwnerPtr = {};
+        mutable std::unordered_set<TimerManager::TimerHandle> m_TimerHandles;
+
+        void RegisterTimerHandle(const TimerManager::TimerHandle& handle) const { m_TimerHandles.insert(handle); }
+        void DeregisterTimerHandle(const TimerManager::TimerHandle& handle) const { m_TimerHandles.erase(handle); }
     };
 }

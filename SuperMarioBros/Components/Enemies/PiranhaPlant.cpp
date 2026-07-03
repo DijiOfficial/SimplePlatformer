@@ -87,7 +87,7 @@ void superMarioBros::PiranhaPlant::CreateTimeLine()
                 if (m_IsEventTriggered) return;
                 m_IsEventTriggered = true;
 
-                m_TimerHandle = diji::TimerManager::GetInstance().SetTimer([&]()
+                m_TimerHandle = diji::TimerManager::GetInstance().SetTimer(this, [&]()
                 {
                     m_CanAttack = true;
                 }, 1.f, false);

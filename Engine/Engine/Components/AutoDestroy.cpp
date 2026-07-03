@@ -6,7 +6,7 @@
 
 void diji::AutoDestroy::Init()
 {
-    (void)TimerManager::GetInstance().SetTimer([&]
+    (void)TimerManager::GetInstance().SetTimer(this, [&]
     {
         GetOwner()->Destroy();
     }, m_LifeTime, false);

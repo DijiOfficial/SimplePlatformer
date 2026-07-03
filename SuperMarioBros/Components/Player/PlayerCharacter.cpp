@@ -215,7 +215,7 @@ void superMarioBros::PlayerCharacter::HandleDeathSequence()
     m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0, 0 });
     m_ColliderCompPtr->SetAffectedByGravity(false);
 
-    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
         PlayDeathSequence();
     }, 0.25f, false);
@@ -228,7 +228,7 @@ void superMarioBros::PlayerCharacter::PlayDeathSequence() const
 
     m_ColliderCompPtr->ApplyImpulse(sf::Vector2f{ 0, -DEATH_BUMP_STRENGTH });
 
-    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
         GameManager::GetInstance().LoseLife();
         GameManager::GetInstance().ResetLevel();
@@ -259,7 +259,7 @@ void superMarioBros::PlayerCharacter::PlayGrowthAnimation()
     m_ColliderCompPtr->ResizeCollider(sf::Vector2f{ 48, 96 });
     m_TransformCompPtr->SetWorldPosition(m_TransformCompPtr->GetWorldPosition() + sf::Vector2f{ 0.f, -24.f });
     
-    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
         std::unique_ptr<PlayerStates> newBigState = std::make_unique<BigIdleState>();
         m_CurrentStateUPtr = std::move(newBigState);
@@ -286,7 +286,7 @@ void superMarioBros::PlayerCharacter::PlayShrinkAnimation()
     m_ColliderCompPtr->SetAffectedByGravity(false);
     m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.f, 0.f });
     
-    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
         m_SpriteRenderCompPtr->SetStartingFrameX(2);
         m_SpriteRenderCompPtr->SetTotalAnimationFrames(8);
@@ -294,7 +294,7 @@ void superMarioBros::PlayerCharacter::PlayShrinkAnimation()
         m_SpriteRenderCompPtr->UpdateFrame();
     }, 0.32f, false);
 
-    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
         m_ColliderCompPtr->SetAffectedByGravity(true);
         m_ColliderCompPtr->ResizeCollider(sf::Vector2f{ 48, 48 });
@@ -426,7 +426,7 @@ void superMarioBros::PlayerCharacter::PlayFireTransitionAnimation()
     m_CurrentStateUPtr = std::move(newState);
     m_CurrentStateUPtr->OnEnter(GetOwner());
 
-    (void)diji::TimerManager::GetInstance().SetTimer([&]()
+    (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
         std::unique_ptr<PlayerStates> newBigState = std::make_unique<FireIdleState>();
         m_CurrentStateUPtr = std::move(newBigState);
@@ -537,7 +537,7 @@ void superMarioBros::PlayerCharacter::StopFlagAnimAndMoveToCastle()
     m_TransformCompPtr->SetWorldPosition(sf::Vector2f{ m_FlagCenter.x + 25, m_TransformCompPtr->GetWorldPosition().y });
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_stage_clear.wav", false);
 
-    (void)diji::TimerManager::GetInstance().SetTimer([&]
+    (void)diji::TimerManager::GetInstance().SetTimer(this, [&]
     {
         m_SpriteRenderCompPtr->InvertSprite();
         m_ColliderCompPtr->SetAffectedByGravity(true);

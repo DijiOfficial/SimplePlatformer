@@ -49,14 +49,14 @@ void superMarioBros::CastleFlag::StartAnimation(const int fireworksToSpawn)
             
                 if (m_FireworksToSpawn > 0)
                 {
-                    m_TimerHandle = diji::TimerManager::GetInstance().SetTimer([&]()
+                    m_TimerHandle = diji::TimerManager::GetInstance().SetTimer(this, [&]()
                     {
                         SpawnFirework();
                         --m_FireworksToSpawn;
                     }, 0.5f, true, -0.5f);
                 }
 
-                (void)diji::TimerManager::GetInstance().SetTimer([&]()
+                (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
                 {
                     GameManager::GetInstance().SetLevelCleared();
                 }, static_cast<float>(m_FireworksToSpawn) * 0.5f + 0.82f, false);

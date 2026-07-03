@@ -1,45 +1,26 @@
 ﻿#include "TimerManager.h"
 #include "TimeSingleton.h"
+#include "../Components/Component.h"
 
 void diji::TimerManager::Init()
 {
-    m_TimeSingleton = &diji::TimeSingleton::GetInstance();
+    m_TimeSingleton = &TimeSingleton::GetInstance();
 }
 
 void diji::TimerManager::Update()
-{    
-    if (!m_PendingTimers.empty())
-    {
-        m_Timers.insert(m_Timers.end(), m_PendingTimers.begin(), m_PendingTimers.end());
-        m_PendingTimers.clear(); // This might cause memory usage to spike if a lot of timers are created and destroyed frequently
-    }
-    
-    const float deltaTime = m_TimeSingleton->GetDeltaTime();
+{
     for (auto it = m_Timers.begin(); it != m_Timers.end();)
     {
-        it->timeRemaining -= deltaTime;
-        if (it->timeRemaining <= 0.0f)
-        {
-            if (it->callback)
-                it->callback();
+        Timer* timer = it->second.get();
 
-            if (it->looping)
-            {
-                it->timeRemaining += it->interval;
-                ++it;
-            }
-            else
-            {
-                it = m_Timers.erase(it);
-            }
-        }
+        if (timer->TryUpdate(m_TimeSingleton->GetDeltaTime()))
+            it = m_Timers.erase(it);
         else
-        {
             ++it;
-        }
     }
 }
 
+// todo: In theory this can cause an issue if the NextTickCallback is made during the frame the object is destroyed
 void diji::TimerManager::UpdateNextTickCallbacks()
 {
     if (m_NextTickCallbacksVec.empty() && m_PendingNextTickCallbacksVec.empty())
@@ -54,43 +35,23 @@ void diji::TimerManager::UpdateNextTickCallbacks()
     m_NextTickCallbacksVec.swap(m_PendingNextTickCallbacksVec);
 }
 
-diji::TimerManager::TimerHandle diji::TimerManager::SetTimer(std::function<void()> callback, const float interval, const bool isLooping, const float initialDelay)
+diji::TimerManager::TimerHandle diji::TimerManager::SetTimer(const Component* owner, std::function<void()> callback, const float interval, const bool isLooping, const float initialDelay)
 {
-    Timer timer;
-    timer.id = m_NextId++;
-    timer.callback = std::move(callback);
-    timer.timeRemaining = initialDelay + interval >= 0.f ? initialDelay + interval : 0.f;
-    timer.interval = interval;
-    timer.looping = isLooping;
+    const size_t id = ++m_NextId;
+    const float timeRemaining = initialDelay + interval >= 0.f ? initialDelay + interval : 0.f;
+    m_Timers.emplace(id,std::make_unique<Timer>(id, owner, std::move(callback), timeRemaining, interval, isLooping));
 
-    m_PendingTimers.push_back(timer);
-
-    return TimerHandle{ timer.id };
+    return id;
 }
 
-void diji::TimerManager::ClearTimer(const TimerHandle& handle) // Todo: consider using a map for efficiency (bigger number of timers) 
+void diji::TimerManager::ClearTimer(const TimerHandle& handle)
 {
-    const auto& it = std::ranges::find_if(m_Timers, [&](const Timer& timer)
-    {
-        return timer.id == handle.id;
-    });
-
-    if (it != m_Timers.end())
-        m_Timers.erase(it);
-
-    const auto& itPending = std::ranges::find_if(m_PendingTimers, [&](const Timer& timer)
-    {
-        return timer.id == handle.id;
-    });
-
-    if (itPending != m_PendingTimers.end())
-        m_PendingTimers.erase(itPending);
+    m_Timers.erase(handle);
 }
 
 void diji::TimerManager::ClearAllTimers()
 {
-    m_Timers = std::vector<Timer>();
-    m_PendingTimers = std::vector<Timer>();
+    m_Timers = std::unordered_map<TimerHandle, std::unique_ptr<Timer>>();
     m_NextTickCallbacksVec = std::vector<std::function<void()>>();
     m_PendingNextTickCallbacksVec = std::vector<std::function<void()>>();
 }
