@@ -54,6 +54,8 @@ void diji::SceneManager::FixedUpdate() const
     m_PhysicsWorldUPtr->FixedUpdate();
     
     m_ScenesUPtrMap.at(m_ActiveSceneId)->FixedUpdate();
+
+    m_PhysicsWorldUPtr->LateFixedUpdate();
 }
 
 void diji::SceneManager::Update() const
@@ -132,6 +134,8 @@ void diji::SceneManager::EndFrameUpdate()
     m_HasPendingDestroy = false;
 
     m_ScenesUPtrMap.at(m_ActiveSceneId)->ValidateCollidersAfterDestroy();
+
+    m_PhysicsWorldUPtr->EndFrameUpdate();
 }
 
 void diji::SceneManager::ReloadScene()

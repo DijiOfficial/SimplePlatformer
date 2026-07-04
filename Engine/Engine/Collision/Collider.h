@@ -12,6 +12,7 @@ namespace diji
     
     class Collider final : public Component
     {
+        friend class PhysicsWorld;
     public:
         explicit Collider(GameObject* ownerPtr) = delete;
         Collider() = delete;
@@ -137,9 +138,10 @@ namespace diji
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const;
 
         void ValidateColliderLists();
-
-        // temp
-        bool IsOverlapEmpty() const { return m_CollidersToOverlap.empty(); }
+        bool IsSleeping() const { return m_SleepState == SleepState::Sleeping; }
+        bool IsAwake() const { return m_SleepState == SleepState::Awake; }
+        void QueueSleep() const { if (m_SleepState == SleepState::Awake) { m_SleepState = SleepState::PendingSleep;} }
+        void QueueWake() const { if (m_SleepState == SleepState::Sleeping) { m_SleepState = SleepState::PendingWake; } }
         
     private:
         // todo: if velocity is zero for a certain amount of time, set similar to static to save calculations
@@ -152,13 +154,15 @@ namespace diji
 
         // physics settings
         CollisionResponse m_CollisionResponse = CollisionResponse::Block;
-        
+
         // physics state
         sf::Vector2f m_Velocity{0.f, 0.f};
         sf::Vector2f m_MaxVelocity{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
         sf::Vector2f m_NewPosition{ 0.f, 0.f };
         sf::Vector2f m_LastPosition{ 0.f, 0.f };
         sf::Vector2f m_NetForce{ 0.f, 0.f };
+        mutable SleepState m_SleepState = SleepState::Awake;
+        float m_SleepTimer = 0.f;
         float m_Mass = 1.f;
         float m_KineticFriction = 0.5f; // [0,1]
         float m_StaticFriction = 0.5f; // [0,1]

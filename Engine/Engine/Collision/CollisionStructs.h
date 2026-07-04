@@ -53,6 +53,13 @@ namespace diji
         Collider* collider; // perhaps this can be optimized for memory usage if needed
     };
 
+    enum class SleepState : uint8_t
+    {
+        Awake,
+        Sleeping,
+        PendingSleep,
+        PendingWake
+    };
 
     // Various optimizations and helper structs can go here
     struct PairHash // for quad tree collider pair hashing

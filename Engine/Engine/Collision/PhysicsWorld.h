@@ -25,6 +25,8 @@ namespace diji
 		void AddCollider(Collider* collider);
 		void RemoveCollider(Collider* collider);
 		void FixedUpdate();
+		void LateFixedUpdate() const;
+		void EndFrameUpdate() const;
 		void SetGravity(const sf::Vector2f& gravity) { m_Gravity = gravity; }
 		[[nodiscard]] sf::Vector2f GetGravity() const { return m_Gravity; }
 
@@ -42,15 +44,20 @@ namespace diji
 		std::optional<RaycastHit> Raycast(const sf::Vector2f& origin, const sf::Vector2f& direction, float maxDistance, const Collider* collider = nullptr) const;
 
 	private:
+		// todo: separate dynamic colliders into awake and sleeping.
 		std::vector<Collider*> m_DynamicColliders;
 		std::vector<StaticColliderInfo> m_StaticInfos;
-
+		std::vector<Prediction> m_Predictions;
 		std::unique_ptr<QuadTree> m_QuadTree = nullptr;
 		sf::FloatRect m_WorldBounds;
 		
 		sf::Vector2f m_Gravity{ 0.f, 980.f }; // This doesn't need to be a vector unless we want to simulate planets or some shit
 		const TimeSingleton& m_TimeSingletonInstance = TimeSingleton::GetInstance();
 
+		const float SLEEP_VELOCITY = 1.0f;
+		const float SLEEP_VELOCITY_SQUARED = SLEEP_VELOCITY * SLEEP_VELOCITY;
+		const float SLEEP_TIME = 5.0f;
+		
 		// physics trigger events
 		struct TriggerPair
 		{

@@ -62,27 +62,29 @@ void diji::PhysicsWorld::RemoveCollider(Collider* collider)
 void diji::PhysicsWorld::FixedUpdate()
 {
     // Phase 1: Predict movement
-    std::vector<Prediction> predictionsVec;
-    PredictMovement(predictionsVec);
+    m_Predictions.clear();
+    PredictMovement(m_Predictions);
 
     // Phase 2: Detect collisions using predicted positions
-    DetectCollisions(predictionsVec);
+    DetectCollisions(m_Predictions);
 
     // Phase 2.1: Filter aligned boxes
-    for (Prediction& prediction : predictionsVec)
+    for (Prediction& prediction : m_Predictions)
         CollisionsHelper::FilterAlignedBoxCollisions(prediction);
     
     // Phase 2.2: Generate new events list
-    GenerateEvents(predictionsVec);
+    GenerateEvents(m_Predictions);
 
     // Phase 3: Resolve collisions and apply friction
-    for (Prediction& prediction : predictionsVec)
+    for (Prediction& prediction : m_Predictions)
     {
-        if (!prediction.collider->IsMoveable()) continue;
+        if (prediction.collider->IsMoveable() == false) continue;
 
         for (const CollisionInfo& collision : prediction.collisionInfoVec)
         {
             if (!collision.hasCollision) continue;
+            if (collision.other->IsSleeping())
+                collision.other->QueueWake();
             
             ResolveCollision(prediction, collision);
         }
@@ -91,7 +93,7 @@ void diji::PhysicsWorld::FixedUpdate()
     }
 
     // Phase 4: Update final state
-    for (Prediction& prediction : predictionsVec)
+    for (Prediction& prediction : m_Predictions)
     {
         if (!prediction.collider->IsMoveable())
             continue;
@@ -100,6 +102,54 @@ void diji::PhysicsWorld::FixedUpdate()
     }
 
     ProcessTriggerEvents();
+}
+
+void diji::PhysicsWorld::LateFixedUpdate() const
+{
+    // todo: multi thread
+    const float dt = m_TimeSingletonInstance.GetFixedUpdateDeltaTime();
+    for (const auto& collider : m_DynamicColliders)
+    {
+        if (collider->IsSleeping())
+            continue;
+        
+        if (collider->GetVelocity().x * collider->GetVelocity().x + collider->GetVelocity().y * collider->GetVelocity().y < SLEEP_VELOCITY_SQUARED)
+        {
+            collider->m_SleepTimer += dt;
+
+            if (collider->m_SleepTimer >= SLEEP_TIME)
+                collider->QueueSleep();
+        }
+        else
+        {
+            collider->m_SleepTimer = 0.0f;
+        }
+    }
+}
+
+void diji::PhysicsWorld::EndFrameUpdate() const
+{
+    // todo: multihtread
+    for (Collider* collider : m_DynamicColliders)
+    {
+        switch (collider->m_SleepState)
+        {
+        case SleepState::PendingSleep:
+            collider->m_SleepState = SleepState::Sleeping;
+            collider->SetVelocity({0.f, 0.f});
+            collider->ClearNetForce();
+            break;
+
+        case SleepState::PendingWake:
+            collider->m_SleepState = SleepState::Awake;
+            collider->m_SleepTimer = 0.0f;
+            break;
+
+        case SleepState::Awake:
+        case SleepState::Sleeping:
+            break;
+        }
+    }
 }
 
 std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& origin, const sf::Vector2f& direction, const float maxDistance, const Collider* collider) const
@@ -268,6 +318,7 @@ void diji::PhysicsWorld::PredictMovement(std::vector<Prediction>& predictionsVec
     {
         if (!collider) continue;
         if (!collider->IsColliderActive()) continue;
+        if (collider->IsSleeping()) continue; // todo: ideally if sleeping it would check for gravity
 
         sf::Vector2f forcesApplied = collider->GetNetForce() / collider->GetMass();
         sf::Vector2f vel = collider->GetVelocity();
