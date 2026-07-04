@@ -144,7 +144,6 @@ namespace diji
         void QueueWake() const { if (m_SleepState == SleepState::Sleeping) { m_SleepState = SleepState::PendingWake; } }
         
     private:
-        // todo: if velocity is zero for a certain amount of time, set similar to static to save calculations
         Transform* m_TransformCompPtr = nullptr;
         std::unordered_set<const Collider*> m_IgnoredColliders;
         std::unordered_set<const Collider*> m_CollidersToOverlap;
