@@ -55,6 +55,7 @@ void superMarioBros::SelectorControls::Move(const sf::Vector2f& direction, const
             return;
 
         m_TransformCompPtr->AddWorldOffset(sf::Vector2f{ direction.x * TILE_SIZE, direction.y * TILE_SIZE });
+        m_SelectorRef->UpdatePreviewItems();
         m_MoveTimerHandle = diji::TimerManager::GetInstance().SetTimer(this, 
             [this, direction]()
             {
@@ -62,6 +63,7 @@ void superMarioBros::SelectorControls::Move(const sf::Vector2f& direction, const
                     return;
 
                 m_TransformCompPtr->AddWorldOffset(sf::Vector2f{ direction.x * TILE_SIZE, direction.y * TILE_SIZE });
+                m_SelectorRef->UpdatePreviewItems();
             },
             DELAY_BETWEEN_MOVE, true, INITIAL_DELAY_BEFORE_MOVE
         );
@@ -97,6 +99,12 @@ void superMarioBros::SelectorControls::SelectCurrentMenuItem()
 
 void superMarioBros::SelectorControls::ClearOutOfSpecialMenu()
 {
+    if (m_IsInMenu == false)
+    {
+        m_SelectorRef->TryHoldPlaceItem();
+        return;
+    }
+    
     if  (!m_DisableMovement)
         return;
 

@@ -44,7 +44,7 @@ namespace superMarioBros
         Selector* m_SelectorRef = nullptr;
         diji::GameObject* m_MenuArrowRef = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
-        diji::TimerManager::TimerHandle m_MoveTimerHandle;
+        diji::TimerManager::TimerHandle m_MoveTimerHandle = 0;
         sf::Vector2f m_ArenaBoundsHorizontal{ 25.f, 12000.f };
         sf::Vector2f m_ArenaBoundsVertical{ 25.f, 575.f };
 

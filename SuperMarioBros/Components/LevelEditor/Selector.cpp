@@ -1,5 +1,7 @@
 ﻿#include "Selector.h"
 
+#include <ranges>
+
 #include "../../Singletons/GameManager.h"
 #include "../../Singletons/LevelEditorManager.h"
 #include "../Backgrounds/BackgroundHandler.h"
@@ -19,6 +21,9 @@ void superMarioBros::Selector::Init()
     }
 
     CreateBackgroundTexture();
+    
+    m_ItemTemplateUPtr = std::make_unique<diji::GameObject>();
+    m_TemplateSpriteRenderComp = m_ItemTemplateUPtr->AddComponent<diji::SpriteRenderComponent>("graphics/tiles_sheet_selection.png", sf::Vector2i{ 50, 50 }, 1, 1.0f);
 }
 
 void superMarioBros::Selector::Start()
@@ -32,6 +37,9 @@ void superMarioBros::Selector::SetFramePosition(const int frameX, const int fram
     m_SpriteRenderComp->UpdateFrame();
     m_CurrentFramePos.x = frameX;
     m_CurrentFramePos.y = frameY;
+
+    m_TemplateSpriteRenderComp->SetStartingFrame(frameX, frameY);
+    m_TemplateSpriteRenderComp->UpdateFrame();
 }
 
 void superMarioBros::Selector::ActivateBackgroundTexture() const
@@ -52,7 +60,84 @@ void superMarioBros::Selector::TryPlaceItem()
     const int col = static_cast<int>(pos.x - 25.f) / 50;
     const int cols = LevelEditorManager::GetInstance().SetCharAtPosition(col, row, itemChar);
     GameManager::GetInstance().PlaceNewItem(col, row, itemChar);
+    m_BackgroundHandlerRef->TempReload(cols, LevelEditorManager::GetInstance().GetLevelInfo()); //todo: fix this  function
+}
+
+void superMarioBros::Selector::TryHoldPlaceItem()
+{
+    m_IsHolding = !m_IsHolding;
+    if (m_IsHolding)
+    {
+        m_StartingPos = m_TransformCompPtr->GetWorldPosition();
+        m_StartingRow = static_cast<int>(m_StartingPos.y - 25.f) / 50;
+        m_StartingCol = static_cast<int>(m_StartingPos.x - 25.f) / 50;
+        m_PreviewItemsMap[{ .row= m_StartingRow, .col= m_StartingCol }]= diji::SceneManager::GetInstance().SpawnGameObject("X_PreviewTexture", m_ItemTemplateUPtr.get(), m_StartingPos);
+        return;
+    }
+
+    const char itemChar = m_AtlasToPosMap[m_CurrentFramePos];
+    int cols = 0;
+
+    for (auto& [gridPos, preview] : m_PreviewItemsMap)
+    {
+        cols = LevelEditorManager::GetInstance().SetCharAtPosition(gridPos.col, gridPos.row, itemChar);
+        GameManager::GetInstance().PlaceNewItem(gridPos.col, gridPos.row, itemChar);
+        preview->Destroy();
+    }
+
+    m_PreviewItemsMap.clear();
     m_BackgroundHandlerRef->TempReload(cols, LevelEditorManager::GetInstance().GetLevelInfo());
+}
+
+void superMarioBros::Selector::UpdatePreviewItems()
+{
+    if (m_IsHolding == false)
+        return;
+    
+    const sf::Vector2f currentPos = m_TransformCompPtr->GetWorldPosition();
+
+    const int currentRow = static_cast<int>(currentPos.y - 25.f) / 50;
+    const int currentCol = static_cast<int>(currentPos.x - 25.f) / 50;
+
+    const int minRow = std::min(m_StartingRow, currentRow);
+    const int maxRow = std::max(m_StartingRow, currentRow);
+    const int minCol = std::min(m_StartingCol, currentCol);
+    const int maxCol = std::max(m_StartingCol, currentCol);
+
+    for (auto it = m_PreviewItemsMap.begin(); it != m_PreviewItemsMap.end();)
+    {
+        const auto& [row, col] = it->first;
+        const bool inside = row >= minRow && row <= maxRow && col >= minCol && col <= maxCol;
+        if (inside == false)
+        {
+            it->second->Destroy();
+            it = m_PreviewItemsMap.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    for (int row = minRow; row <= maxRow; ++row)
+    {
+        for (int col = minCol; col <= maxCol; ++col)
+        {
+            const GridPos cell{ .row= row, .col= col};
+            if (m_PreviewItemsMap.contains(cell))
+                continue;
+
+            sf::Vector2f worldPos{ col * 50.f + 25.f, row * 50.f + 25.f };
+            m_PreviewItemsMap[cell]= diji::SceneManager::GetInstance().SpawnGameObject("X_PreviewTexture", m_ItemTemplateUPtr.get(), worldPos);
+        }
+    }
+
+    for (const auto val : m_PreviewItemsMap | std::views::values)
+    {
+        const auto& sprite = val->GetComponent<diji::SpriteRenderComponent>();
+        sprite->SetStartingFrame(m_CurrentFramePos.x, m_CurrentFramePos.y);
+        sprite->UpdateFrame();
+    }
 }
 
 void superMarioBros::Selector::CreateBackgroundTexture()

@@ -33,17 +33,43 @@ namespace superMarioBros
         void DeactivateBackgroundTexture() const;
 
         void TryPlaceItem();
+        void TryHoldPlaceItem();
         void SetBackgroundHandlerRef(BackgroundHandler* backgroundHandler) { m_BackgroundHandlerRef = backgroundHandler; }
+        void UpdatePreviewItems();
 
     private:
         sf::Vector2i m_CurrentFramePos{ -1, -1 };
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::GameObject* m_TextureGO = nullptr;
         diji::SpriteRenderComponent* m_SpriteRenderComp = nullptr;
+        diji::SpriteRenderComponent* m_TemplateSpriteRenderComp = nullptr;
         BackgroundHandler* m_BackgroundHandlerRef = nullptr;
+        std::unique_ptr<diji::GameObject> m_ItemTemplateUPtr = nullptr;
+        bool m_IsHolding = false;
+        int m_StartingRow = 0;
+        int m_StartingCol = 0;
+        sf::Vector2f m_StartingPos{ 0.f, 0.f };
 
         void CreateBackgroundTexture();
 
+        struct GridPos
+        {
+            int row;
+            int col;
+
+            bool operator==(const GridPos&) const = default;
+        };
+        struct GridPosHasher
+        {
+            size_t operator()(const GridPos& pos) const noexcept
+            {
+                const size_t h1 = std::hash<int>{}(pos.row);
+                const size_t h2 = std::hash<int>{}(pos.col);
+                return h1 ^ (h2 << 1);
+            }
+        };
+        std::unordered_map<GridPos, diji::GameObject*, GridPosHasher> m_PreviewItemsMap;
+        
         struct Vector2iHash
         {
             std::size_t operator()(const sf::Vector2i& v) const noexcept
