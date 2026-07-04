@@ -36,6 +36,7 @@ void superMarioBros::LevelEditorManager::LoadNewLevel()
     GameManager::GetInstance().EmptyLevel();
     m_LevelInfo = std::vector<char>();
     m_CurrentLevelName = "New Level";
+    m_LevelWidth = -1;
 }
 
 void superMarioBros::LevelEditorManager::SaveNewMap(const std::string& levelName, const std::string& levelPath)
@@ -123,8 +124,41 @@ void superMarioBros::LevelEditorManager::SaveLevelInfo(const std::string& filepa
         file << '\n';
     }
 
-    for (int col = 0; col < cols; ++col)
-        file << '0';
-
     file.close();
+}
+
+void superMarioBros::LevelEditorManager::RecalculateLevelWidth()
+{
+    if (m_LevelInfo.empty())
+    {
+        m_LevelWidth = 0;
+        return;
+    }
+
+    const int rowWidth = static_cast<int>(m_LevelInfo.size()) / MAX_LEVEL_HEIGHT;
+
+    int maxWidth = 0;
+
+    for (int y = 0; y < MAX_LEVEL_HEIGHT; ++y)
+    {
+        const int rowStart = y * rowWidth;
+        if (m_LevelInfo[rowStart + rowWidth] != '0')
+        {
+            m_LevelWidth = rowWidth;
+            return;
+        }
+
+        int lastNonZero = -1;
+
+        for (int x = 0; x < rowWidth; ++x)
+        {
+            if (m_LevelInfo[rowStart + x] != '0')
+                lastNonZero = x;
+        }
+
+        if (lastNonZero != -1)
+            maxWidth = std::max(maxWidth, lastNonZero + 1);
+    }
+
+    m_LevelWidth = maxWidth;
 }
