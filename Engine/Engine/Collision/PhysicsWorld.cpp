@@ -17,6 +17,7 @@ void diji::PhysicsWorld::Reset()
     m_HitEventTriggers = std::vector<TriggerPair>();
     m_WorldBounds = sf::FloatRect();
     m_QuadTree = std::make_unique<QuadTree>(m_WorldBounds);
+    m_Predictions = std::vector<Prediction>();
 }
 
 void diji::PhysicsWorld::AddCollider(Collider* collider)
@@ -83,8 +84,6 @@ void diji::PhysicsWorld::FixedUpdate()
         for (const CollisionInfo& collision : prediction.collisionInfoVec)
         {
             if (!collision.hasCollision) continue;
-            if (collision.other->IsSleeping())
-                collision.other->QueueWake();
             
             ResolveCollision(prediction, collision);
         }
@@ -112,8 +111,11 @@ void diji::PhysicsWorld::LateFixedUpdate() const
     {
         if (collider->IsSleeping())
             continue;
-        
-        if (collider->GetVelocity().x * collider->GetVelocity().x + collider->GetVelocity().y * collider->GetVelocity().y < SLEEP_VELOCITY_SQUARED)
+
+        const auto velocity = collider->GetVelocity();
+        const float speedSquared = velocity.x * velocity.x + velocity.y * velocity.y;
+
+        if (speedSquared < SLEEP_VELOCITY_SQUARED)
         {
             collider->m_SleepTimer += dt;
 
@@ -127,7 +129,7 @@ void diji::PhysicsWorld::LateFixedUpdate() const
     }
 }
 
-void diji::PhysicsWorld::EndFrameUpdate() const
+void diji::PhysicsWorld::EndFrameUpdate()
 {
     // todo: multihtread
     for (Collider* collider : m_DynamicColliders)
@@ -135,14 +137,16 @@ void diji::PhysicsWorld::EndFrameUpdate() const
         switch (collider->m_SleepState)
         {
         case SleepState::PendingSleep:
-            collider->m_SleepState = SleepState::Sleeping;
             collider->SetVelocity({0.f, 0.f});
             collider->ClearNetForce();
+            collider->m_SleepState = SleepState::Sleeping;
+            m_SleepingColliders.insert(collider);
             break;
 
         case SleepState::PendingWake:
             collider->m_SleepState = SleepState::Awake;
             collider->m_SleepTimer = 0.0f;
+            m_SleepingColliders.erase(collider);
             break;
 
         case SleepState::Awake:
@@ -365,13 +369,16 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             info.hasHitEvent = Hit;
         }
 
+        if (colliderPtr->IsIgnoringAllDynamicColliders() || colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore)
+            continue;
+        
         // DYNAMIC COLLISIONS: Check against remaining dynamic colliders (avoid duplicates)
         for (size_t j = i + 1; j < size; ++j)
         {
             Prediction& otherPrediction = predictionsVec[j];
             if (!otherPrediction.collider->IsColliderActive()) continue;
-            if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore || otherPrediction.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
-            if (colliderPtr->IsIgnoringAllDynamicColliders() || otherPrediction.collider->IsIgnoringAllDynamicColliders()) continue;
+            if (otherPrediction.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
+            if (otherPrediction.collider->IsIgnoringAllDynamicColliders()) continue;
             if (colliderPtr->IsIgnoringCollider(otherPrediction.collider) || otherPrediction.collider->IsIgnoringCollider(colliderPtr)) continue;
             if (!AABBOverlap(predictedAABB, otherPrediction.AABB)) continue;
             
@@ -398,6 +405,23 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
                 otherInfo.other = colliderPtr;
                 otherInfo.hasHitEvent = Hit;
             }
+        }
+
+        // SLEEPING COLLISIONS: Check against sleeping colliders
+        for (const Collider* sleeping : m_SleepingColliders)
+        {
+            if (sleeping->IsColliderActive() == false) continue;
+            if (sleeping->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
+            if (sleeping->IsIgnoringAllDynamicColliders()) continue;
+            if (colliderPtr->IsIgnoringCollider(sleeping) || sleeping->IsIgnoringCollider(colliderPtr)) continue;
+            if (!AABBOverlap(predictedAABB, sleeping->GetAABB()))
+                continue;
+
+            // Option 1:
+            sleeping->QueueWake();
+
+            // Option 2:
+            // todo: create a temporary Prediction from the sleeping body and immediately call HandleDynamicCollisions().
         }
     }
 }
