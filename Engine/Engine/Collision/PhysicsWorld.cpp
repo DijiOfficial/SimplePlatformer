@@ -18,6 +18,7 @@ void diji::PhysicsWorld::Reset()
     m_WorldBounds = sf::FloatRect();
     m_QuadTree = std::make_unique<QuadTree>(m_WorldBounds);
     m_Predictions = std::vector<Prediction>();
+    m_SleepingColliders = std::unordered_set<Collider*>();
 }
 
 void diji::PhysicsWorld::AddCollider(Collider* collider)
@@ -56,6 +57,8 @@ void diji::PhysicsWorld::RemoveCollider(Collider* collider)
 
     if (it != m_StaticInfos.end())
         m_StaticInfos.erase(it);
+
+    m_SleepingColliders.erase(collider); 
         
     RemoveFromTriggerLists(collider);
 }
