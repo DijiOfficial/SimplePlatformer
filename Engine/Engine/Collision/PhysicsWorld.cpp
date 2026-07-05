@@ -18,7 +18,7 @@ void diji::PhysicsWorld::Reset()
     m_WorldBounds = sf::FloatRect();
     m_QuadTree = std::make_unique<QuadTree>(m_WorldBounds);
     m_Predictions = std::vector<Prediction>();
-    m_SleepingColliders = std::unordered_set<Collider*>();
+    m_SleepingColliders = std::unordered_set<SleepingCollider, SleepingColliderHash, SleepingColliderEqual>();
 }
 
 void diji::PhysicsWorld::AddCollider(Collider* collider)
@@ -58,7 +58,8 @@ void diji::PhysicsWorld::RemoveCollider(Collider* collider)
     if (it != m_StaticInfos.end())
         m_StaticInfos.erase(it);
 
-    m_SleepingColliders.erase(collider); 
+    if (const auto sleepingColliderIt = m_SleepingColliders.find(collider); sleepingColliderIt != m_SleepingColliders.end())
+        m_SleepingColliders.erase(sleepingColliderIt);
         
     RemoveFromTriggerLists(collider);
 }
@@ -143,13 +144,14 @@ void diji::PhysicsWorld::EndFrameUpdate()
             collider->SetVelocity({0.f, 0.f});
             collider->ClearNetForce();
             collider->m_SleepState = SleepState::Sleeping;
-            m_SleepingColliders.insert(collider);
+            m_SleepingColliders.insert({.collider = collider, .prediction = { .collider= collider, .AABB= collider->GetAABB(), .pos= collider->GetPosition(), .vel= sf::Vector2f{ 0.0f, 0.0f }, .collisionInfoVec={} } });
             break;
 
         case SleepState::PendingWake:
             collider->m_SleepState = SleepState::Awake;
             collider->m_SleepTimer = 0.0f;
-            m_SleepingColliders.erase(collider);
+            if (auto it = m_SleepingColliders.find(collider); it != m_SleepingColliders.end())
+                m_SleepingColliders.erase(it);
             break;
 
         case SleepState::Awake:
@@ -344,6 +346,7 @@ void diji::PhysicsWorld::PredictMovement(std::vector<Prediction>& predictionsVec
 void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVec)
 {
     // todo: I believe this can be multithreaded?
+    std::vector<Prediction> additionalPredictions;
     const size_t& size = predictionsVec.size(); 
     for (size_t i = 0; i < size; ++i)
     {
@@ -411,20 +414,54 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         }
 
         // SLEEPING COLLISIONS: Check against sleeping colliders
-        for (const Collider* sleeping : m_SleepingColliders)
+        for (auto& [collider, prediction] : m_SleepingColliders)
         {
-            if (sleeping->IsColliderActive() == false) continue;
-            if (sleeping->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
-            if (sleeping->IsIgnoringAllDynamicColliders()) continue;
-            if (colliderPtr->IsIgnoringCollider(sleeping) || sleeping->IsIgnoringCollider(colliderPtr)) continue;
-            if (!AABBOverlap(predictedAABB, sleeping->GetAABB()))
+            if (collider->IsColliderActive() == false) continue;
+            if (collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
+            if (collider->IsIgnoringAllDynamicColliders()) continue;
+            if (colliderPtr->IsIgnoringCollider(collider) || collider->IsIgnoringCollider(colliderPtr)) continue;
+            if (!AABBOverlap(predictedAABB, prediction.AABB))
                 continue;
 
-            // Option 1:
-            sleeping->QueueWake();
+            Prediction sleepingPrediction = prediction;
+            const auto [Overlap, Hit] = HandleDynamicCollisions(predictionsVec[i], sleepingPrediction);
 
-            // Option 2:
-            // todo: create a temporary Prediction from the sleeping body and immediately call HandleDynamicCollisions().
+            if (Overlap == false && Hit == false)
+                continue;
+            
+            if (Overlap)
+                m_ActiveTriggers.push_back({.trigger= colliderPtr, .other= collider, .hitInfo= collisionsVec.back()});
+            
+            if (Hit)
+            {
+                if (colliderPtr->IsGenerateHitEvents())
+                {
+                    auto& info = collisionsVec.back();
+                    info.trigger = colliderPtr;
+                    info.other = collider;
+                    info.hasHitEvent = Hit;
+                }
+                
+                if (collider->IsGenerateHitEvents())
+                {
+                    auto& otherInfo = sleepingPrediction.collisionInfoVec.back();
+                    otherInfo.trigger = collider;
+                    otherInfo.other = colliderPtr;
+                    otherInfo.hasHitEvent = Hit;
+                }
+            }
+
+            if (collider->IsPendingAwake()) // todo: handle this better. Sleeping colliders should deal with every hit like any other collider this frame
+                continue;
+            
+            collider->QueueWake(); // maybe not needed?
+            additionalPredictions.emplace_back(std::move(sleepingPrediction));
+        }
+
+        if (!additionalPredictions.empty())
+        {
+            predictionsVec.reserve(predictionsVec.size() + additionalPredictions.size());
+            predictionsVec.insert(predictionsVec.end(), std::make_move_iterator(additionalPredictions.begin()), std::make_move_iterator(additionalPredictions.end()));
         }
     }
 }

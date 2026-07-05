@@ -40,6 +40,52 @@ namespace diji
         std::vector<CollisionInfo> collisionInfoVec;
     };
 
+    struct SleepingCollider
+    {
+        Collider* collider;
+        Prediction prediction;
+    };
+
+    struct SleepingColliderHash
+    {
+        using is_transparent = void;
+
+        size_t operator()(const Collider* c) const noexcept
+        {
+            return std::hash<const Collider*>{}(c);
+        }
+
+        size_t operator()(const SleepingCollider& s) const noexcept
+        {
+            return std::hash<const Collider*>{}(s.collider);
+        }
+    };
+
+    struct SleepingColliderEqual
+    {
+        using is_transparent = void;
+
+        bool operator()(const Collider* a, const Collider* b) const noexcept
+        {
+            return a == b;
+        }
+
+        bool operator()(const SleepingCollider& a, const Collider* b) const noexcept
+        {
+            return a.collider == b;
+        }
+
+        bool operator()(const Collider* a, const SleepingCollider& b) const noexcept
+        {
+            return a == b.collider;
+        }
+
+        bool operator()(const SleepingCollider& a, const SleepingCollider& b) const noexcept
+        {
+            return a.collider == b.collider;
+        }
+    };
+
     struct RaycastHit
     {
         const Collider* collider = nullptr;

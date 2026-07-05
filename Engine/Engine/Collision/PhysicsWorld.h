@@ -47,7 +47,7 @@ namespace diji
 	private:
 		std::vector<Collider*> m_DynamicColliders;
 		std::vector<StaticColliderInfo> m_StaticInfos;
-		std::unordered_set<Collider*> m_SleepingColliders;
+		std::unordered_set<SleepingCollider, SleepingColliderHash, SleepingColliderEqual> m_SleepingColliders;
 		std::vector<Prediction> m_Predictions;
 		std::unique_ptr<QuadTree> m_QuadTree = nullptr;
 		sf::FloatRect m_WorldBounds;

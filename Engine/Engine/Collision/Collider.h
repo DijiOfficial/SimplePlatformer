@@ -140,6 +140,7 @@ namespace diji
         void ValidateColliderLists();
         bool IsSleeping() const { return m_SleepState == SleepState::Sleeping; }
         bool IsAwake() const { return m_SleepState == SleepState::Awake; }
+        bool IsPendingAwake() const { return m_SleepState == SleepState::PendingWake; }
         void QueueSleep() const { if (m_SleepState == SleepState::Awake) { m_SleepState = SleepState::PendingSleep;} }
         void QueueWake() const { if (m_SleepState == SleepState::Sleeping) { m_SleepState = SleepState::PendingWake; } }
         
