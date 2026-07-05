@@ -48,6 +48,7 @@ void diji::Collider::SetVelocity(const sf::Vector2f& vel)
 {
     m_Velocity.x = std::clamp(vel.x, -m_MaxVelocity.x, m_MaxVelocity.x);
     m_Velocity.y = std::clamp(vel.y, -m_MaxVelocity.y, m_MaxVelocity.y);
+    QueueWake(); 
 }
 
 sf::Vector2f diji::Collider::GetPosition() const

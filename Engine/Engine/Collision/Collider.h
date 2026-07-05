@@ -60,8 +60,8 @@ namespace diji
         void SetVelocity(const sf::Vector2f& vel);
         [[nodiscard]] sf::Vector2f GetVelocity() const { return m_Velocity; }
         
-        void ApplyImpulse(const sf::Vector2f& impulse) { m_Velocity += impulse; }
-        void ApplyForce(const sf::Vector2f& force) { m_NetForce += force; }
+        void ApplyImpulse(const sf::Vector2f& impulse) { m_Velocity += impulse; QueueWake(); }
+        void ApplyForce(const sf::Vector2f& force) { m_NetForce += force; QueueWake(); }
         void SetMass(const float mass) { m_Mass = mass; }
         [[nodiscard]] float GetMass() const { return m_Mass; }
         
