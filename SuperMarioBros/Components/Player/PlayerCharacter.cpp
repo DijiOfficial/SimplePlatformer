@@ -35,11 +35,6 @@ void superMarioBros::PlayerCharacter::Init()
     m_ColliderCompPtr = GetOwner()->GetComponent<diji::Collider>();
     m_SpriteRenderCompPtr = GetOwner()->GetComponent<diji::SpriteRenderComponent>();
 
-    for(const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
-        m_ColliderCompPtr->OverlapCollider(enemyCollider);
-
-    LoadPosition();
-
     if (const auto camera = diji::SceneManager::GetInstance().GetMainCamera())
         camera->GetComponent<diji::Camera>()->SetFollow(GetOwner());
     // todo introduce error logging system  like  unity debug.logerror
@@ -49,6 +44,11 @@ void superMarioBros::PlayerCharacter::Init()
 
 void superMarioBros::PlayerCharacter::Start()
 {
+    for(const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
+        m_ColliderCompPtr->OverlapCollider(enemyCollider);
+
+    LoadPosition();
+    
     sf::Shader& starShader = diji::ResourceManager::GetInstance().LoadShader("", "shaders/star.frag");
     m_SpriteRenderCompPtr->SetShader(&starShader);
 
