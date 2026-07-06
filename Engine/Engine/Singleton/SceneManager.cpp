@@ -236,11 +236,6 @@ diji::GameObject* diji::SceneManager::OverwriteCanvasObject(const std::string& n
         });
 }
 
-void diji::SceneManager::SetGameObjectToRenderOnTop(const GameObject* gameObject) const
-{
-    m_ScenesUPtrMap.at(m_ActiveSceneId)->SetGameObjectToRenderOnTop(gameObject);
-}
-
 void diji::SceneManager::ChangePlayerViewCenter(const int currPlayer, const sf::Vector2f& newCenter) const
 {
     m_ScenesUPtrMap.at(m_ActiveSceneId)->ChangeViewCenter(currPlayer, newCenter);

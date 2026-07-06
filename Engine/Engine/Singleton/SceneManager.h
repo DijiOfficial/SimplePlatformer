@@ -50,8 +50,6 @@ namespace diji
         GameObject* OverwriteGameObject(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const;
         GameObject* OverwriteCanvasObject(const std::string& name, const GameObject* original, const sf::Vector2f& spawnLocation) const;
         GameObject* OverwriteCanvasObject(const std::string& name, std::unique_ptr<GameObject> original, const sf::Vector2f& spawnLocation) const;
-        void SetGameObjectToRenderOnTop(const GameObject* gameObject) const;
-        
 
         void ChangePlayerViewCenter(int currPlayer, const sf::Vector2f& newCenter) const;
         void SetViewParameters(int idx, Transform* target, bool isFollowing = false, const sf::Vector2f& offset = {}) const;

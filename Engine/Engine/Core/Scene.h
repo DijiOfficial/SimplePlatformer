@@ -32,8 +32,6 @@ namespace diji
         void LateUpdate();
         void Render() const;
         void RenderMultiplayerViews() const;
-        void RenderObjectOnTopMultiplayerViews() const;
-        
         void OnDestroy();
 		
         [[nodiscard]] GameObject* CreateCameraObject(const std::string& name);
@@ -60,8 +58,6 @@ namespace diji
         
         void SetGameObjectAsCanvasObject(const std::string& name);
         void SetGameObjectAsCanvasObject(const GameObject* object);
-        void SetGameObjectToRenderOnTop(const std::string& name);
-        void SetGameObjectToRenderOnTop(const GameObject* object);
         void SetCanvasView(const sf::View& view) { m_CanvasView = view; }
 
         void SetMultiplayerSplitScreen(int numPlayers);
@@ -71,12 +67,10 @@ namespace diji
         void SetToAlwaysRender(const GameObject* object, bool shouldAlwaysRender);
     
     private:
-        // todo: use unordered_map for m_ObjectsUPtrMap and m_CanvasObjectsUPtrMap. Use Depth value instead for ordering during rendering.
         std::unordered_map<std::string, unsigned long long int> m_NameIndexUMap;
         std::unordered_set<const GameObject*> m_AlwaysRender;
-        std::map<std::string, std::unique_ptr<GameObject>> m_ObjectsUPtrMap;
-        std::map<std::string, std::unique_ptr<GameObject>> m_CanvasObjectsUPtrMap;
-        std::map<std::string, std::unique_ptr<GameObject>> m_RenderOnTopObjectsUPtrMap;
+        std::unordered_map<std::string, std::unique_ptr<GameObject>> m_ObjectsUPtrMap;
+        std::unordered_map<std::string, std::unique_ptr<GameObject>> m_CanvasObjectsUPtrMap;
         std::vector<SplitScreenView> m_MultiplayerViews;
         std::vector<SplitScreenView> m_MultiplayerViewsCopy;
         std::unique_ptr<GameObject> m_StaticBackgroundObjUPtr = nullptr;
@@ -88,7 +82,7 @@ namespace diji
         bool m_RenderBackground = false;
 
         void DrawGameObjects() const;
-        std::string GenerateUniqueName(const std::map<std::string, std::unique_ptr<GameObject>>& objectMap, const std::string& baseName);
+        std::string GenerateUniqueName(const std::unordered_map<std::string, std::unique_ptr<GameObject>>& objectMap, const std::string& baseName);
 
         template<typename TMap>
         bool RemoveFromContainer(TMap& container, const GameObject* object)
@@ -124,7 +118,7 @@ namespace diji
         GameObject::ChunkCoord WorldToChunk(const sf::Vector2f& pos) const { return GameObject::ChunkCoord{.x= static_cast<int>(std::floor(pos.x / CHUNK_SIZE)), .y= static_cast<int>(std::floor(pos.y / CHUNK_SIZE))};}
         void RegisterToChunk(const GameObject* object);
         std::pair<GameObject::ChunkCoord, GameObject::ChunkCoord> GetVisibleChunkRange(const sf::View& view) const;
-        void RemoveFromChunk(const std::map<std::string, std::unique_ptr<GameObject>>::iterator& it);
+        void RemoveFromChunk(const std::unordered_map<std::string, std::unique_ptr<GameObject>>::iterator& it);
         void UpdateGameObjectRenderLayerInChunk(const GameObject* gameObject, GameObject::RenderLayer oldLayer);
     };
 }

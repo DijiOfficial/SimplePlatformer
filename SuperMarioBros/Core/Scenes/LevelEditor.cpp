@@ -54,8 +54,8 @@ void SceneLoader::LevelEditor()
     const auto& selectorComp = selector->AddComponent<superMarioBros::Selector>();
     selector->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
     selector->GetComponent<Camera>()->SetLevelBoundaries(arena);
-    scene->SetGameObjectToRenderOnTop(selector);
-
+    selector->SetRenderLayer(10);
+    
     // todo: fix background to only parse the visible background
     const auto background = scene->CreateGameObject("B_Background");
     background->SetObjectPosition({ 0, 0 });
