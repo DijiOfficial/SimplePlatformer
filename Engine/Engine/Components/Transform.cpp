@@ -4,6 +4,8 @@
 
 #include <stdexcept>
 
+#include "../Singleton/SceneManager.h"
+
 sf::Vector2f diji::Transform::GetWorldPosition()
 {
     return GetWorld(m_WorldPosition, m_IsPositionDirty, &Transform::UpdateWorldPosition);
@@ -102,4 +104,9 @@ void diji::Transform::MarkDirtyMember(bool Transform::* dirtyMember)
     for (Transform* child : m_ChildrenTransformCompPtrVec)
         if (child)
             child->MarkDirtyMember(dirtyMember);
+}
+
+void diji::Transform::UpdateInSceneChunk() const
+{
+    SceneManager::GetInstance().UpdateGameObjectInChunk(m_OwnerPtr);
 }

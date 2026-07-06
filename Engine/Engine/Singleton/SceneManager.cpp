@@ -121,6 +121,7 @@ void diji::SceneManager::EndFrameUpdate()
         return;
     }
 
+    m_PhysicsWorldUPtr->EndFrameUpdate();
     // Handle pending destroy
     if (!m_HasPendingDestroy) return;
     // todo: Instead of iterating through all of them and removing them, pass it to the scene so I can use swap method to destroy all of them without having to iterate over all of the game objects multiple time.
@@ -134,8 +135,6 @@ void diji::SceneManager::EndFrameUpdate()
     m_HasPendingDestroy = false;
 
     m_ScenesUPtrMap.at(m_ActiveSceneId)->ValidateCollidersAfterDestroy();
-
-    m_PhysicsWorldUPtr->EndFrameUpdate();
 }
 
 void diji::SceneManager::ReloadScene()

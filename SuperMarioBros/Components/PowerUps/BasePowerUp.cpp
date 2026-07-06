@@ -34,6 +34,8 @@ void superMarioBros::BasePowerUp::Init()
     }
 
     PlayStartAnimation();
+
+    SetRenderLayer(-5);
 }
 
 void superMarioBros::BasePowerUp::Start()

@@ -230,6 +230,7 @@ diji::GameObject* diji::Scene::CreateGameObject(const std::string& name)
         throw std::runtime_error("A GameObject with the given name already exists.");
 	
     m_ObjectsUPtrMap[name] = std::make_unique<GameObject>();
+    m_ObjectsUPtrMap[name]->SetName(name);
     return m_ObjectsUPtrMap.at(name).get();
 }
 
@@ -240,6 +241,7 @@ diji::GameObject* diji::Scene::CreateGameObject(const std::string& name, const G
 
     m_ObjectsUPtrMap[name] = std::make_unique<GameObject>();
     original->CreateDuplicate(m_ObjectsUPtrMap.at(name).get());
+    m_ObjectsUPtrMap[name]->SetName(name);
     return m_ObjectsUPtrMap.at(name).get();
 }
 
@@ -249,6 +251,7 @@ diji::GameObject* diji::Scene::CreateGameObjectFromTemplate(const std::string& n
 
     m_ObjectsUPtrMap[finalName] = std::make_unique<GameObject>();
     original->CreateDuplicate(m_ObjectsUPtrMap[finalName].get());
+    m_ObjectsUPtrMap[finalName]->SetName(finalName);
 
     return m_ObjectsUPtrMap[finalName].get();
 }
@@ -259,6 +262,7 @@ diji::GameObject* diji::Scene::CreateCanvasObjectFromTemplate(const std::string&
 
     m_CanvasObjectsUPtrMap[finalName] = std::make_unique<GameObject>();
     original->CreateDuplicate(m_CanvasObjectsUPtrMap[finalName].get());
+    m_CanvasObjectsUPtrMap[finalName]->SetName(finalName);
 
     return m_CanvasObjectsUPtrMap[finalName].get();
 }
@@ -268,6 +272,7 @@ diji::GameObject* diji::Scene::AddObjectToScene(std::unique_ptr<GameObject> obje
     const std::string finalName = GenerateUniqueName(m_ObjectsUPtrMap, desiredName);
 
     m_ObjectsUPtrMap[finalName] = std::move(object);
+    m_ObjectsUPtrMap[finalName]->SetName(finalName);
     return m_ObjectsUPtrMap[finalName].get();
 }
 
@@ -276,6 +281,7 @@ diji::GameObject* diji::Scene::AddObjectToCanvas(std::unique_ptr<GameObject> obj
     const std::string finalName = GenerateUniqueName(m_CanvasObjectsUPtrMap, desiredName);
 
     m_CanvasObjectsUPtrMap[finalName] = std::move(object);
+    m_CanvasObjectsUPtrMap[finalName]->SetName(finalName);
     return m_CanvasObjectsUPtrMap[finalName].get();
 }
 
@@ -286,6 +292,7 @@ diji::GameObject* diji::Scene::OverwriteGameObjectFromTemplate(const std::string
     
     m_ObjectsUPtrMap[name] = std::make_unique<GameObject>();
     original->CreateDuplicate(m_ObjectsUPtrMap[name].get());
+    m_ObjectsUPtrMap[name]->SetName(name);
 
     return m_ObjectsUPtrMap[name].get();
 }
@@ -297,6 +304,7 @@ diji::GameObject* diji::Scene::OverwriteCanvasObjectFromTemplate(const std::stri
 
     m_CanvasObjectsUPtrMap[name] = std::make_unique<GameObject>();
     original->CreateDuplicate(m_CanvasObjectsUPtrMap[name].get());
+    m_CanvasObjectsUPtrMap[name]->SetName(name);
 
     return m_CanvasObjectsUPtrMap[name].get();
 }
@@ -307,6 +315,7 @@ diji::GameObject* diji::Scene::OverwriteObjectInScene(std::unique_ptr<GameObject
         m_ObjectsUPtrMap[name]->OnDestroy();
 
     m_ObjectsUPtrMap[name] = std::move(object);
+    m_ObjectsUPtrMap[name]->SetName(name);
     return m_ObjectsUPtrMap[name].get();
 }
 
@@ -316,6 +325,7 @@ diji::GameObject* diji::Scene::OverwriteObjectInCanvas(std::unique_ptr<GameObjec
         m_CanvasObjectsUPtrMap[name]->OnDestroy();
 
     m_CanvasObjectsUPtrMap[name] = std::move(object);
+    m_CanvasObjectsUPtrMap[name]->SetName(name);
     return m_CanvasObjectsUPtrMap[name].get();
 }
 
@@ -336,6 +346,7 @@ void diji::Scene::Remove(const std::string& name) // todo: add canvas and render
     const auto it = m_ObjectsUPtrMap.find(name);
     if (it != m_ObjectsUPtrMap.end())
     {
+        RemoveFromChunk(it);
         m_ObjectsUPtrMap.erase(it);
     }
 }
@@ -344,6 +355,7 @@ void diji::Scene::RemoveAll()
 {
     m_ObjectsUPtrMap = std::map<std::string, std::unique_ptr<GameObject>>();
     m_RenderOnTopObjectsUPtrMap = std::map<std::string, std::unique_ptr<GameObject>>();
+    m_RenderChunks = std::unordered_map<GameObject::ChunkCoord, RenderChunk, ChunkCoordHasher>();
 }
 
 diji::GameObject* diji::Scene::GetGameObject(const std::string& name) const
@@ -408,6 +420,7 @@ void diji::Scene::SetGameObjectAsCanvasObject(const std::string& name)
     const auto it = m_ObjectsUPtrMap.find(name);
     if (it != m_ObjectsUPtrMap.end())
     {
+        RemoveFromChunk(it);
         m_CanvasObjectsUPtrMap[name] = std::move(it->second);
         m_ObjectsUPtrMap.erase(it);
         return;
@@ -416,6 +429,7 @@ void diji::Scene::SetGameObjectAsCanvasObject(const std::string& name)
     const auto it2 = m_RenderOnTopObjectsUPtrMap.find(name);
     if (it2 != m_RenderOnTopObjectsUPtrMap.end())
     {
+        RemoveFromChunk(it);
         m_CanvasObjectsUPtrMap[name] = std::move(it2->second);
         m_RenderOnTopObjectsUPtrMap.erase(it2);
         return;
@@ -426,27 +440,7 @@ void diji::Scene::SetGameObjectAsCanvasObject(const std::string& name)
 
 void diji::Scene::SetGameObjectAsCanvasObject(const GameObject* object)
 {
-    for (auto it = m_ObjectsUPtrMap.begin(); it != m_ObjectsUPtrMap.end(); ++it)
-    {
-        if (it->second.get() == object)
-        {
-            m_CanvasObjectsUPtrMap[it->first] = std::move(it->second);
-            m_ObjectsUPtrMap.erase(it);
-            return;
-        }
-    }
-
-    for (auto it = m_RenderOnTopObjectsUPtrMap.begin(); it != m_RenderOnTopObjectsUPtrMap.end(); ++it)
-    {
-        if (it->second.get() == object)
-        {
-            m_CanvasObjectsUPtrMap[it->first] = std::move(it->second);
-            m_RenderOnTopObjectsUPtrMap.erase(it);
-            return;
-        }
-    }
-
-    throw std::runtime_error("GameObject does not exist in the scene.");
+    SetGameObjectAsCanvasObject(object->GetName());
 }
 
 void diji::Scene::SetGameObjectToRenderOnTop(const std::string& name)
@@ -454,6 +448,7 @@ void diji::Scene::SetGameObjectToRenderOnTop(const std::string& name)
     const auto it = m_ObjectsUPtrMap.find(name);
     if (it != m_ObjectsUPtrMap.end())
     {
+        RemoveFromChunk(it);
         m_RenderOnTopObjectsUPtrMap[name] = std::move(it->second);
         m_ObjectsUPtrMap.erase(it);
     }
@@ -463,15 +458,7 @@ void diji::Scene::SetGameObjectToRenderOnTop(const std::string& name)
 
 void diji::Scene::SetGameObjectToRenderOnTop(const GameObject* object)
 {
-    for (auto it = m_ObjectsUPtrMap.begin(); it != m_ObjectsUPtrMap.end(); ++it)
-    {
-        if (it->second.get() == object)
-        {
-            m_RenderOnTopObjectsUPtrMap[it->first] = std::move(it->second);
-            m_ObjectsUPtrMap.erase(it);
-            return;
-        }
-    }
+    SetGameObjectToRenderOnTop(object->GetName());
 }
 
 void diji::Scene::SetMultiplayerSplitScreen(const int numPlayers)
@@ -532,6 +519,7 @@ void diji::Scene::SetGameObjectAsStaticBackground(const std::string& name)
     const auto it = m_ObjectsUPtrMap.find(name);
     if (it != m_ObjectsUPtrMap.end())
     {
+        RemoveFromChunk(it);
         m_StaticBackgroundObjUPtr = std::move(it->second);
         m_ObjectsUPtrMap.erase(it);
     }
@@ -541,17 +529,7 @@ void diji::Scene::SetGameObjectAsStaticBackground(const std::string& name)
 
 void diji::Scene::SetGameObjectAsStaticBackground(const GameObject* object)
 {
-    for (auto it = m_ObjectsUPtrMap.begin(); it != m_ObjectsUPtrMap.end(); ++it)
-    {
-        if (it->second.get() == object)
-        {
-            m_StaticBackgroundObjUPtr = std::move(it->second);
-            m_ObjectsUPtrMap.erase(it);
-            return;
-        }
-    }
-
-    throw std::runtime_error("GameObject does not exist in the scene.");
+    SetGameObjectAsStaticBackground(object->GetName());
 }
 
 void diji::Scene::ValidateCollidersAfterDestroy()
@@ -572,29 +550,61 @@ void diji::Scene::ValidateCollidersAfterDestroy()
     }
 }
 
-void diji::Scene::DrawGameObjects() const
+void diji::Scene::SetToAlwaysRender(const GameObject* object, const bool shouldAlwaysRender)
 {
-    for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
+    if (shouldAlwaysRender)
     {
-        gameObject->Render();
+        const auto it = m_ObjectsUPtrMap.find(object->GetName());
+        if (it != m_ObjectsUPtrMap.end())
+        {
+            RemoveFromChunk(it);
+            m_AlwaysRender.insert(object);
+        }
+    }
+    else
+    {
+        const auto it = m_AlwaysRender.find(object);
+        if (it != m_AlwaysRender.end())
+        {
+            m_AlwaysRender.erase(object);
+            RegisterToChunk(object);
+        }
     }
 }
 
-//// Attempt at frustum culling is in fact not faster.
-// void diji::Scene::DrawGameObjects() const
-// {
-//     if (!m_MainCameraCompPtr) return;
-//
-//     const sf::View& camView = m_MainCameraCompPtr->GetCameraView();
-//     const sf::FloatRect cameraRect(sf::Vector2f{ camView.getCenter().x - camView.getSize().x * 0.5f, camView.getCenter().y - camView.getSize().y * 0.5f }, sf::Vector2f{ camView.getSize().x, camView.getSize().y });
-//
-//     for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
-//     {
-//         if (auto bounds = gameObject->GetBoundingBox())
-//             if (Helpers::RectsOverlap(cameraRect, *bounds))
-//                 gameObject->Render();
-//     }
-// }
+void diji::Scene::DrawGameObjects() const
+{
+    auto [min, max] = GetVisibleChunkRange(window::g_window_ptr->getView());
+    min.x -= 1;
+    min.y -= 1;
+    max.x += 1;
+    max.y += 1;
+
+    for (const GameObject* gameObject : m_AlwaysRender)
+    {
+        gameObject->Render();
+    }
+    
+    for (int y = min.y; y <= max.y; ++y)
+    {
+        for (int x = min.x; x <= max.x; ++x)
+        {
+            GameObject::ChunkCoord coord{ .x= x, .y= y};
+
+            auto it = m_RenderChunks.find(coord);
+            if (it == m_RenderChunks.end())
+                continue;
+
+            // Fucking rendering can update an object position and cause it to remove itself from the chunk
+            const auto renderLayers = it->second.objects;
+            for (const auto& objects : renderLayers | std::views::values)
+            {
+                for (const GameObject* obj : objects)
+                    obj->Render();
+            }
+        }
+    }
+}
 
 std::string diji::Scene::GenerateUniqueName(const std::map<std::string, std::unique_ptr<GameObject>>& objectMap, const std::string& baseName)
 {
@@ -642,4 +652,55 @@ std::string diji::Scene::GenerateUniqueName(const std::map<std::string, std::uni
             return finalName;
         }
     }
+}
+
+// todo: register using visual bounds and store in multiple chunks
+void diji::Scene::RegisterToChunk(const GameObject* object)
+{
+    if (!object) return;
+
+    const auto it = m_ObjectsUPtrMap.find(object->GetName());
+    if (it == m_ObjectsUPtrMap.end())
+        return;
+
+    const sf::Vector2f pos = object->GetRootComponent()->GetWorldPosition();
+    const GameObject::ChunkCoord coord = WorldToChunk(pos);
+
+    const auto layer = object->GetRenderLayer();
+    m_RenderChunks[object->GetChunkCoord()].objects[layer].erase(object);
+    
+    object->SetChunkCoord(coord);
+    m_RenderChunks[coord].objects[layer].insert(object);
+}
+
+std::pair<diji::GameObject::ChunkCoord, diji::GameObject::ChunkCoord> diji::Scene::GetVisibleChunkRange(const sf::View& view) const
+{
+    const sf::Vector2f center = view.getCenter();
+    const sf::Vector2f size = view.getSize();
+
+    const sf::Vector2f topLeft{ center.x - size.x * 0.5f, center.y - size.y * 0.5f };
+    const sf::Vector2f bottomRight{ center.x + size.x * 0.5f, center.y + size.y * 0.5f };
+
+    GameObject::ChunkCoord min = WorldToChunk(topLeft);
+    GameObject::ChunkCoord max = WorldToChunk(bottomRight);
+
+    return { min, max };
+}
+
+void diji::Scene::RemoveFromChunk(const std::map<std::string, std::unique_ptr<GameObject>>::iterator& it)
+{
+    if (const auto renderChunkIt = m_RenderChunks.find(it->second->GetChunkCoord()); renderChunkIt != m_RenderChunks.end())
+    {
+        renderChunkIt->second.objects[it->second->GetRenderLayer()].erase(it->second.get());
+
+        if (renderChunkIt->second.objects.empty())
+            m_RenderChunks.erase(renderChunkIt);
+    }
+}
+
+void diji::Scene::UpdateGameObjectRenderLayerInChunk(const GameObject* gameObject, const GameObject::RenderLayer oldLayer)
+{
+    const auto coords = gameObject->GetChunkCoord();
+    m_RenderChunks[coords].objects[oldLayer].erase(gameObject);
+    m_RenderChunks[coords].objects[gameObject->GetRenderLayer()].insert(gameObject);
 }

@@ -42,7 +42,8 @@ namespace diji
         void SetActive(bool isActive) const;
         void Destroy() const;
         void Destroy(float lifeTime) const;
-
+        void SetRenderLayer(int layer) const;
+        
     protected:
         explicit Component(GameObject* ownerPtr) : m_OwnerPtr{ ownerPtr } {}
 

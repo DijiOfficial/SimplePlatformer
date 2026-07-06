@@ -33,3 +33,8 @@ void diji::Component::Destroy(const float lifeTime) const
         Destroy();
     }, lifeTime, false);
 }
+
+void diji::Component::SetRenderLayer(const int layer) const
+{
+    m_OwnerPtr->SetRenderLayer(layer);
+}

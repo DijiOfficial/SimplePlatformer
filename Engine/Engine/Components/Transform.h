@@ -95,7 +95,7 @@ namespace diji
 		void MarkRotationDirty()	{ MarkDirtyMember(&Transform::m_IsRotationDirty);	}
 		void MarkScaleDirty	()		{ MarkDirtyMember(&Transform::m_IsScaleDirty);		}
 
-		void UpdateWorldPosition() { m_WorldPosition = m_IsParented ? m_ParentTransformCompPtr->GetWorldPosition() + m_LocalPosition : m_LocalPosition; }
+		void UpdateWorldPosition() { m_WorldPosition = m_IsParented ? m_ParentTransformCompPtr->GetWorldPosition() + m_LocalPosition : m_LocalPosition; UpdateInSceneChunk(); }
 		void UpdateWorldRotation() { m_WorldRotation = m_IsParented ? m_ParentTransformCompPtr->GetWorldRotation() + m_Rotation : m_Rotation; }
 		void UpdateWorldScale2D() { m_WorldScale2D = m_IsParented ? m_ParentTransformCompPtr->GetWorldScale2D() * m_Scale2D : m_Scale2D; }
 		
@@ -108,5 +108,7 @@ namespace diji
 			(this->*updateFunc)();
 			return worldValue;
 		}
+
+		void UpdateInSceneChunk() const;
 	};
 }

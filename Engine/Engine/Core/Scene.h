@@ -14,6 +14,8 @@ namespace diji
 
     class Scene final
     {
+        friend class SceneManager;
+        
     public:
         Scene() = default;
         ~Scene() noexcept;
@@ -66,10 +68,12 @@ namespace diji
         void SetGameObjectAsStaticBackground(const std::string& name);
         void SetGameObjectAsStaticBackground(const GameObject* object);
         void ValidateCollidersAfterDestroy();
+        void SetToAlwaysRender(const GameObject* object, bool shouldAlwaysRender);
     
     private:
         // todo: use unordered_map for m_ObjectsUPtrMap and m_CanvasObjectsUPtrMap. Use Depth value instead for ordering during rendering.
         std::unordered_map<std::string, unsigned long long int> m_NameIndexUMap;
+        std::unordered_set<const GameObject*> m_AlwaysRender;
         std::map<std::string, std::unique_ptr<GameObject>> m_ObjectsUPtrMap;
         std::map<std::string, std::unique_ptr<GameObject>> m_CanvasObjectsUPtrMap;
         std::map<std::string, std::unique_ptr<GameObject>> m_RenderOnTopObjectsUPtrMap;
@@ -89,19 +93,38 @@ namespace diji
         template<typename TMap>
         bool RemoveFromContainer(TMap& container, const GameObject* object)
         {
-            for (auto it = container.begin(); it != container.end(); ++it)
-            {
-                if (it->second.get() == object)
-                {
-                    auto localUp = std::move(it->second);
-                    container.erase(it);
+            const auto it = container.find(object->GetName());
+            if (it == container.end())
+                return false;
 
-                    localUp->OnDestroy();
-                    return true;
-                }
-            }
+            RemoveFromChunk(it);
+            auto localUp = std::move(it->second);
+            container.erase(it);
 
-            return false;
+            localUp->OnDestroy();
+            return true;
         }
+
+        // Frustum Culling
+        struct RenderChunk
+        {
+            std::map<int, std::unordered_set<const GameObject*>> objects;
+        };
+        struct ChunkCoordHasher
+        {
+            size_t operator()(const GameObject::ChunkCoord& c) const noexcept
+            {
+                const size_t h1 = std::hash<int>{}(c.x);
+                const size_t h2 = std::hash<int>{}(c.y);
+                return h1 ^ (h2 << 1);
+            }
+        };
+        static constexpr float CHUNK_SIZE = 512.f; // tune later
+        std::unordered_map<GameObject::ChunkCoord, RenderChunk, ChunkCoordHasher> m_RenderChunks;
+        GameObject::ChunkCoord WorldToChunk(const sf::Vector2f& pos) const { return GameObject::ChunkCoord{.x= static_cast<int>(std::floor(pos.x / CHUNK_SIZE)), .y= static_cast<int>(std::floor(pos.y / CHUNK_SIZE))};}
+        void RegisterToChunk(const GameObject* object);
+        std::pair<GameObject::ChunkCoord, GameObject::ChunkCoord> GetVisibleChunkRange(const sf::View& view) const;
+        void RemoveFromChunk(const std::map<std::string, std::unique_ptr<GameObject>>::iterator& it);
+        void UpdateGameObjectRenderLayerInChunk(const GameObject* gameObject, GameObject::RenderLayer oldLayer);
     };
 }

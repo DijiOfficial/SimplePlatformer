@@ -48,7 +48,7 @@ void superMarioBros::WorldBuilder::Init()
         const auto collider = go->GetComponent<diji::Collider>();
         collider->SetStatic(true);
         collider->SetTag("ground");
-        go->AddComponent<diji::ShapeRender>();
+        // go->AddComponent<diji::ShapeRender>();
 
         const auto object = diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(go), center);
         AttachToWorldObject(world, object);
@@ -235,6 +235,7 @@ void superMarioBros::WorldBuilder::Init()
         castleFlag->AddComponent<diji::TextureComp>("graphics/castleFlag.png");
         castleFlag->AddComponent<diji::Render>();
         castleFlag->AddComponent<CastleFlag>();
+        castleFlag->SetRenderLayer(-1);
         const auto object2 = diji::SceneManager::GetInstance().SpawnGameObject("C_castleFlag", std::move(castleFlag), center + sf::Vector2f{0.f, -75.f});
         AttachToWorldObject(world, object2);
 
@@ -301,6 +302,7 @@ void superMarioBros::WorldBuilder::Init()
         auto go = std::make_unique<diji::GameObject>();
         go->SetObjectPosition(center);
         go->AddComponent<diji::SpriteRenderComponent>("graphics/tiles_sheet.png", sf::Vector2i{50,50}, 1, 0.05f);
+        go->SetRenderLayer(5);
 
         const auto spr = go->GetComponent<diji::SpriteRenderComponent>();
         spr->SetFrameSize(sf::Vector2i{50,50});
@@ -432,7 +434,7 @@ diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<ch
         const auto collider = go->GetComponent<diji::Collider>();
         collider->SetStatic(true);
         collider->SetTag("ground");
-        go->AddComponent<diji::ShapeRender>();
+        // go->AddComponent<diji::ShapeRender>();
 
         const auto object = diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(go), center);
         attachToWorldObject(object);

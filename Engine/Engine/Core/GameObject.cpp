@@ -196,6 +196,13 @@ std::optional<sf::FloatRect> diji::GameObject::GetBoundingBox() const
     return std::nullopt;
 }
 
+void diji::GameObject::SetRenderLayer(const RenderLayer layer)
+{
+    const RenderLayer oldLayer = m_RenderLayer;
+    m_RenderLayer = layer;
+    SceneManager::GetInstance().UpdateGameObjectRenderLayerInChunk(this, oldLayer);
+}
+
 sf::Vector2f diji::GameObject::GetObjectPosition() const
 {
     return m_RootTransform->GetWorldPosition();

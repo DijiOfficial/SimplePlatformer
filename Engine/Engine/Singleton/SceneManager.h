@@ -66,6 +66,9 @@ namespace diji
         [[nodiscard]] PhysicsWorld* GetPhysicsWorld() const { return m_PhysicsWorldUPtr.get(); }
         Timeline* CreateTimeline(const GameObject* owner) const;
 
+        void UpdateGameObjectInChunk(const GameObject* gameObject) const { m_ScenesUPtrMap.at(m_ActiveSceneId)->RegisterToChunk(gameObject); }
+        void UpdateGameObjectRenderLayerInChunk(const GameObject* gameObject, const GameObject::RenderLayer oldLayer) const { m_ScenesUPtrMap.at(m_ActiveSceneId)->UpdateGameObjectRenderLayerInChunk(gameObject, oldLayer); }
+
     private:
         // todo: replace int with SceneId enum class??
         std::map<int, std::unique_ptr<Scene>> m_ScenesUPtrMap;
@@ -90,6 +93,8 @@ namespace diji
             gameObject->SetObjectPosition(spawnLocation);
             gameObject->Init();
             gameObject->Start();
+
+            scene->RegisterToChunk(gameObject);
 
             return gameObject;
         }

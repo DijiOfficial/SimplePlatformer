@@ -8,6 +8,7 @@
 #include <vector>
 #include <SFML/System/Vector2.hpp>
 #include <functional>
+#include <string>
 
 namespace diji
 {
@@ -18,6 +19,8 @@ namespace diji
 	// todo: Give GameObjects a default component to write custom code in. (equivalent of the Blueprint of an actor).
 	class GameObject final
 	{
+		friend class Scene;
+		
 	public:
 		GameObject();
 		explicit GameObject(const sf::Vector2f& position);
@@ -50,6 +53,11 @@ namespace diji
 
 		void NotifyTriggerEvent(const Collider* other, const EventType& eventType, const CollisionInfo& hitInfo) const;
 		std::optional<sf::FloatRect> GetBoundingBox() const;
+		[[nodiscard]] const std::string& GetName() const { return m_Name; }
+
+		using RenderLayer = int;
+		void SetRenderLayer(RenderLayer layer);
+        [[nodiscard]] RenderLayer GetRenderLayer() const { return m_RenderLayer; }
 		
 #pragma region Components
 		template<typename T, typename... Args>
@@ -180,6 +188,7 @@ namespace diji
 		bool m_IsInitialized = false;
 		bool m_SimulatesPhysics = false;
 		mutable bool m_IsPendingDestroy = false;
+		std::string m_Name = "GameObject";
 		
 		diji::Render* m_RenderCompPtr = nullptr;
 		Collider* m_ColliderCompPtr = nullptr;
@@ -192,6 +201,19 @@ namespace diji
 		};
 		std::vector<ComponentStorage> m_ComponentStorage;
 
+		RenderLayer m_RenderLayer = 0;
+		struct ChunkCoord
+		{
+			int x = -1;
+			int y = -1;
+
+			bool operator==(const ChunkCoord& other) const = default;
+		};
+		mutable ChunkCoord m_ChunkCoord;
+		void SetChunkCoord(const ChunkCoord& coord) const { m_ChunkCoord = coord; }
+		[[nodiscard]] const ChunkCoord& GetChunkCoord() const { return m_ChunkCoord; }
+
 		void SetChildrenPendingDestroy() const;
+		void SetName(const std::string& name) { m_Name = name; }
 	};
 }

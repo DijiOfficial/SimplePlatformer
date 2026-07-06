@@ -44,6 +44,7 @@ void SceneLoader::LevelEditor()
     staticBackground->SetObjectPosition({ 0, 178 });
     staticBackground->AddComponent<TextureComp>("graphics/background.png");
     staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>(selector->GetRootComponent());
+    scene->SetToAlwaysRender(staticBackground, true);
 
     constexpr sf::FloatRect arena{ sf::Vector2f{ 0, -(115 * 4.5) }, sf::Vector2f{ 12000.f, 1080.f } };
     selector->SetObjectPosition({ 525, 25 });
@@ -55,6 +56,7 @@ void SceneLoader::LevelEditor()
     selector->GetComponent<Camera>()->SetLevelBoundaries(arena);
     scene->SetGameObjectToRenderOnTop(selector);
 
+    // todo: fix background to only parse the visible background
     const auto background = scene->CreateGameObject("B_Background");
     background->SetObjectPosition({ 0, 0 });
     background->AddComponent<Sprite>("graphics/tiles_sheet.png");
@@ -62,6 +64,7 @@ void SceneLoader::LevelEditor()
     const auto& backgroundHandlerComp = background->AddComponent<superMarioBros::BackgroundHandler>();
     background->GetComponent<superMarioBros::BackgroundHandler>()->DisableLevelLoadingOnStart();
     selectorComp->SetBackgroundHandlerRef(backgroundHandlerComp);
+    scene->SetToAlwaysRender(background,  true);
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     player->SetObjectPosition({ 200, 0 });

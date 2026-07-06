@@ -53,8 +53,8 @@ void SceneLoader::GameStartUp()
     SceneManager::GetInstance().RegisterScene(static_cast<int>(superMarioBros::superMarioBrosState::LevelEditor), LevelEditor);
 
     // StartMenu();
-    // Level();
-    LevelEditor();
+    Level();
+    // LevelEditor();
 }
 
 #pragma region Menus
@@ -577,12 +577,14 @@ void SceneLoader::Level()
     staticBackground->SetObjectPosition({ 0, 178 });
     staticBackground->AddComponent<TextureComp>("graphics/background.png");
     staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>(player->GetRootComponent());
+    scene->SetToAlwaysRender(staticBackground, true);
 
     const auto background = scene->CreateGameObject("B_Background");
     background->SetObjectPosition({ 0, 0 });
     background->AddComponent<Sprite>("graphics/tiles_sheet.png");
     background->AddComponent<Render>();
     background->AddComponent<superMarioBros::BackgroundHandler>();
+    scene->SetToAlwaysRender(background, true);
 
     const sf::FloatRect arena{ sf::Vector2f{ 0, -(115 * 4.5) }, sf::Vector2f{ 12000.f, 1080.f } };
     const auto camera = scene->CreateCameraObject("A_Camera");
