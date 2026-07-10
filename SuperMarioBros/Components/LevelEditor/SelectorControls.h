@@ -39,10 +39,14 @@ namespace superMarioBros
         void SetMenuTransform(std::vector<MenuItem*> data) { m_MenuItems = std::move(data); }
         void SetMenuYPosition(const float pos) { m_MenuYPosition = pos; }
         void ClearOutOfSpecialMenu();
+        void SetMenuRenderRatio(const float ratio) { m_MenuRenderRatio = ratio; }
+        void TrySetCanvasSelector(const sf::Vector2f& pos) const;
         
     private:
         Selector* m_SelectorRef = nullptr;
+        diji::GameObject* m_CanvasSelector = nullptr;
         diji::GameObject* m_MenuArrowRef = nullptr;
+        diji::Render* m_RenderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::TimerManager::TimerHandle m_MoveTimerHandle = 0;
         sf::Vector2f m_ArenaBoundsHorizontal{ 25.f, 12000.f };
@@ -52,6 +56,7 @@ namespace superMarioBros
         const float INITIAL_DELAY_BEFORE_MOVE = 0.25f;
         const float DELAY_BETWEEN_MOVE = 0.03f;
         float m_MenuYPosition = -25.f;
+        float m_MenuRenderRatio = 1.0f;
         int m_CurrentMenuIndex = 0;
         bool m_IsInMenu = false;
         bool m_DisableMovement = false;

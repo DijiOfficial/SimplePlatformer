@@ -36,6 +36,8 @@ namespace superMarioBros
         void TryHoldPlaceItem();
         void SetBackgroundHandlerRef(BackgroundHandler* backgroundHandler) { m_BackgroundHandlerRef = backgroundHandler; }
         void UpdatePreviewItems();
+        void EnablePreview() const;
+        void DisablePreview() const;
 
     private:
         sf::Vector2i m_CurrentFramePos{ -1, -1 };

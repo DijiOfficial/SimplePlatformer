@@ -2,9 +2,11 @@
 
 #include <ranges>
 
+#include "SelectorControls.h"
 #include "../../Singletons/GameManager.h"
 #include "../../Singletons/LevelEditorManager.h"
 #include "../Backgrounds/BackgroundHandler.h"
+#include "Engine/Components/Camera.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Singleton/Helpers.h"
@@ -29,6 +31,9 @@ void superMarioBros::Selector::Init()
 void superMarioBros::Selector::Start()
 {
     m_TransformCompPtr = GetOwner()->GetRootComponent();
+
+    if (const auto camera = diji::SceneManager::GetInstance().GetMainCamera())
+        camera->GetComponent<diji::Camera>()->SetFollow(GetOwner());
 }
 
 void superMarioBros::Selector::SetFramePosition(const int frameX, const int frameY)
@@ -138,6 +143,16 @@ void superMarioBros::Selector::UpdatePreviewItems()
         sprite->SetStartingFrame(m_CurrentFramePos.x, m_CurrentFramePos.y);
         sprite->UpdateFrame();
     }
+}
+
+void superMarioBros::Selector::EnablePreview() const
+{
+    m_TextureGO->SetActive(true);
+}
+
+void superMarioBros::Selector::DisablePreview() const
+{
+    m_TextureGO->SetActive(false);
 }
 
 void superMarioBros::Selector::CreateBackgroundTexture()

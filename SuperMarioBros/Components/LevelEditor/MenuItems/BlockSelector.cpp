@@ -1,6 +1,7 @@
 ﻿#include "BlockSelector.h"
 
 #include "../Selector.h"
+#include "../SelectorControls.h"
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Singleton/SceneManager.h"
@@ -41,14 +42,16 @@ void superMarioBros::BlockSelector::Start()
 
     diji::TimerManager::GetInstance().DelayUntilNextTick([&]
     {
+        diji::TimerManager::GetInstance().DelayUntilNextTick([&]
+    {
         SetAllBlocksPositions();
+    });
     });
 }
 
 bool superMarioBros::BlockSelector::ActivateMenu()
 {
     m_ChildChoiceGO->SetActive(true);
-    m_SelectorPosition = m_SelectorGO->GetObjectPosition();
     UpdateSelectorPosition();
 
     return true;
@@ -57,7 +60,6 @@ bool superMarioBros::BlockSelector::ActivateMenu()
 void superMarioBros::BlockSelector::CloseMenu()
 {
     m_ChildChoiceGO->SetActive(false);
-    m_SelectorGO->SetObjectPosition(m_SelectorPosition);
 }
 
 void superMarioBros::BlockSelector::Move(const sf::Vector2f& direction, const bool isStart)
@@ -125,13 +127,13 @@ void superMarioBros::BlockSelector::SetAllBlocksPositions()
         for (int col = 0; col < m_GridWidth; ++col)
         {
             const sf::Vector2f logicalPos = topLeft + sf::Vector2f(col * tileSize + halfTileSize, row * tileSize + halfTileSize);
-            m_BlockTypePositionsMap[index++] = logicalPos;
+            m_BlockTypePositionsMap[index++] = sceneManager.GetScreenPosition(logicalPos);
         }
     }
 }
 
 void superMarioBros::BlockSelector::UpdateSelectorPosition()
 {
-    m_SelectorGO->SetObjectPosition(m_BlockTypePositionsMap[m_CurrentBlockIndex]);
+    m_SelectorControls->TrySetCanvasSelector(m_BlockTypePositionsMap[m_CurrentBlockIndex]);
 }
 

@@ -2,10 +2,12 @@
 
 #include "Selector.h"
 #include "../../Singletons/LevelEditorManager.h"
+#include "Engine/Components/Render.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Singleton/TimerManager.h"
+#include "Engine/Components/TextureComp.h"
 
 void superMarioBros::SelectorControls::Init()
 {
@@ -13,21 +15,30 @@ void superMarioBros::SelectorControls::Init()
 
     for (MenuItem* menuItem : m_MenuItems)
         menuItem->SetMenuArrow(m_MenuArrowRef);
+
+    m_RenderCompPtr = GetOwner()->GetComponent<diji::Render>();
+    
+    auto canvasSelector = std::make_unique<diji::GameObject>();
+    canvasSelector->AddComponent<diji::TextureComp>("graphics/squareWhiteSmaller50.png");
+    const auto& renderComp = canvasSelector->AddComponent<diji::Render>(m_MenuRenderRatio);
+    renderComp->SetRenderLayer(2);
+    m_CanvasSelector = diji::SceneManager::GetInstance().SpawnGameObject("CanvasSelector", std::move(canvasSelector), sf::Vector2f{ 0.f, 0.f });
+    diji::SceneManager::GetInstance().SetGameObjectAsCanvasObject(m_CanvasSelector);
+    m_CanvasSelector->SetActive(false);
 }
 
 void superMarioBros::SelectorControls::Start()
 {
     m_SelectorRef = GetOwner()->GetComponent<Selector>();
     
-    const auto& sceneManager = diji::SceneManager::GetInstance();
     diji::TimerManager::GetInstance().DelayUntilNextTick([&]
     {
-        m_MenuYPosition = sceneManager.GetWorldPositionFromScreen(m_MenuItems[0]->GetOwner()->GetObjectPosition()).y;
+        m_MenuYPosition = m_MenuItems[0]->GetOwner()->GetObjectPosition().y;
         m_MenuEntries.clear();
 
         for (MenuItem* menuItem : m_MenuItems)
         {
-            const int xPos = static_cast<int>(sceneManager.GetWorldPositionFromScreen(menuItem->GetOwner()->GetObjectPosition()).x);
+            const int xPos = static_cast<int>(menuItem->GetOwner()->GetObjectPosition().x);
             m_MenuEntries.push_back({ .xPosition= xPos, .menuItemPtr= menuItem });
         }
 
@@ -114,6 +125,11 @@ void superMarioBros::SelectorControls::ClearOutOfSpecialMenu()
     ResetSpecialMenu();
 }
 
+void superMarioBros::SelectorControls::TrySetCanvasSelector(const sf::Vector2f& pos) const
+{
+    m_CanvasSelector->SetObjectPosition(pos);
+}
+
 bool superMarioBros::SelectorControls::CanMove(const sf::Vector2f& dir)
 {
     const bool isMovingX = !diji::Helpers::AreFloatEqual(dir.x, 0.0f);
@@ -142,8 +158,8 @@ bool superMarioBros::SelectorControls::CheckForMenuMovementX(const sf::Vector2f&
 
     m_CurrentMenuIndex = (m_CurrentMenuIndex + delta + count) % count;
     
-    m_TransformCompPtr->SetWorldPosition(sf::Vector2f{ static_cast<float>(m_MenuEntries[m_CurrentMenuIndex].xPosition), m_TransformCompPtr->GetWorldPosition().y });
-    
+    m_CanvasSelector->SetObjectPosition(sf::Vector2f{ static_cast<float>(m_MenuEntries[m_CurrentMenuIndex].xPosition), m_MenuYPosition });
+
     return true;
 }
 
@@ -152,9 +168,10 @@ bool superMarioBros::SelectorControls::CheckForMenuMovementY(const sf::Vector2f&
     const sf::Vector2f pos = m_TransformCompPtr->GetWorldPosition();
     if (m_IsInMenu && dir.y > 0) // Exit Menu
     {
-        const float snappedX = 25.0f + std::round((pos.x - 25.0f) / 50.0f) * 50.0f;
-
-        m_TransformCompPtr->SetWorldPosition(sf::Vector2f{ snappedX, m_ArenaBoundsVertical.x });
+        m_CanvasSelector->SetActive(false);
+        m_RenderCompPtr->EnableRender();
+        m_SelectorRef->EnablePreview();
+        
         m_IsInMenu = false;
         return true;
     }
@@ -167,15 +184,18 @@ bool superMarioBros::SelectorControls::CheckForMenuMovementY(const sf::Vector2f&
         return true;
     }
     
-    return false;
+    return m_IsInMenu;
 }
 
 void superMarioBros::SelectorControls::EnterMenu()
 {
     const sf::Vector2f pos = m_TransformCompPtr->GetWorldPosition();
     const float menuXPos = static_cast<float>(ClosestMenuItemPosition(static_cast<int>(pos.x)));
-        
-    m_TransformCompPtr->SetWorldPosition(sf::Vector2f{ menuXPos, m_MenuYPosition });
+
+    m_CanvasSelector->SetObjectPosition(sf::Vector2f{ menuXPos, m_MenuYPosition });
+    m_CanvasSelector->SetActive(true);
+    m_RenderCompPtr->DisableRender();
+    m_SelectorRef->DisablePreview();
 }
 
 void superMarioBros::SelectorControls::ResetSpecialMenu()

@@ -3,6 +3,8 @@
 
 namespace superMarioBros
 {
+    class SelectorControls;
+    
     class BlockSelector final : public MenuItem
     {
     public:
@@ -16,12 +18,12 @@ namespace superMarioBros
         [[nodiscard]] bool Select() override;
         [[nodiscard]] bool Return() override;
 
-        void SetSelectorGO(diji::GameObject* selectorGO) { m_SelectorGO = selectorGO; }
+        void SetSelectorControls(SelectorControls* selectorControls) { m_SelectorControls = selectorControls; }
         void SetSelector(Selector* selector) { m_Selector = selector; }
         
     private:
         diji::GameObject* m_ChildChoiceGO = nullptr;
-        diji::GameObject* m_SelectorGO = nullptr;
+        SelectorControls* m_SelectorControls = nullptr;
         Selector* m_Selector = nullptr;
         sf::Vector2f m_SelectorPosition;
         int m_CurrentBlockIndex = 0;

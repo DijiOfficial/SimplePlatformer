@@ -50,7 +50,7 @@ void SceneLoader::LevelEditor()
     selector->SetObjectPosition({ 525, 25 });
     selector->AddComponent<TextureComp>("graphics/squareWhiteSmaller50.png");
     selector->AddComponent<Render>();
-    selector->AddComponent<superMarioBros::SelectorControls>();
+    const auto& selectorControlsComp = selector->AddComponent<superMarioBros::SelectorControls>();
     const auto& selectorComp = selector->AddComponent<superMarioBros::Selector>();
     selector->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
     selector->GetComponent<Camera>()->SetLevelBoundaries(arena);
@@ -94,7 +94,8 @@ void SceneLoader::LevelEditor()
     float menuYPosition = static_cast<float>(window::VIEWPORT.y) * 0.15f;
     std::vector<superMarioBros::MenuItem*> menuTransforms;
     const float renderRatio = static_cast<float>(window::g_window_ptr->getSize().y) / 1080.0f;
-
+    selectorControlsComp->SetMenuRenderRatio(renderRatio);
+    
     const auto download = scene->CreateGameObject("Z_UI_Download");
     download->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.1f, menuYPosition });
     download->AddComponent<TextureComp>("graphics/level_editor_download.png");
@@ -121,7 +122,7 @@ void SceneLoader::LevelEditor()
     items->AddComponent<TextureComp>("graphics/level_editor_item1.png");
     items->AddComponent<Render>(renderRatio);
     const auto& blockSelector = items->AddComponent<superMarioBros::BlockSelector>();
-    blockSelector->SetSelectorGO(selector);
+    blockSelector->SetSelectorControls(selectorControlsComp);
     blockSelector->SetSelector(selectorComp);
     scene->SetGameObjectAsCanvasObject(items);
 
