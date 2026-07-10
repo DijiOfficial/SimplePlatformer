@@ -208,9 +208,9 @@ void superMarioBros::GameManager::CreateEmptyWorld()
     m_WorldGameObject = diji::SceneManager::GetInstance().SpawnGameObject("WorldLevel", std::make_unique<diji::GameObject>(), sf::Vector2f{ 0.f, 0.f });
 }
 
-void superMarioBros::GameManager::PlaceNewItem(const int x, const int y, const char itemID) const
+const diji::GameObject* superMarioBros::GameManager::PlaceNewItem(const int x, const int y, const char itemID) const
 {
-    WorldBuilder::CreateTileObject(m_WorldGameObject, y, x, itemID);
+    return WorldBuilder::CreateTileObject(m_WorldGameObject, y, x, itemID);
 }
 
 std::string superMarioBros::GameManager::LoadInformation()

@@ -17,12 +17,13 @@ namespace superMarioBros
     public:
         static void Init();
         static diji::GameObject* CreateWorld(const std::vector<char>& levelInfo, const int& rows, const int& cols);
-        static void CreateTileObject(const diji::GameObject* world, int row, int col, char tile);
+        [[nodiscard]] static const diji::GameObject* CreateTileObject(const diji::GameObject* world, int row, int col, char tile);
 
     private:
         using TileHandler = std::function<int(const diji::GameObject* world, int row, int col, char tile)>;
         inline static std::unordered_map<char, TileHandler> m_Handlers;
 
         static void AttachToWorldObject(const diji::GameObject* world, const diji::GameObject* object);
+        inline static const diji::GameObject* m_LastGameObjectCreated = nullptr;
     };
 }

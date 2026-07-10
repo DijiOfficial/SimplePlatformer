@@ -8,7 +8,6 @@
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Components/Render.h"
 #include "Engine/Interfaces/ISoundSystem.h"
-#include "Engine/Components/ShapeRender.h"
 #include "../Components/Blocks/SharedBehaviour/PowerUpBlock.h"
 #include "../Components/Blocks/UniqueBehaviour/BreakableBlock.h"
 #include "../Components/Blocks/UniqueBehaviour/MultiCoinBlock.h"
@@ -410,6 +409,7 @@ diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<ch
     auto attachToWorldObject = [&](const diji::GameObject* object) -> void
     {
         object->AttachToObject(world, true);
+        m_LastGameObjectCreated = object;
     };
     
     // 1) Create Ground
@@ -466,16 +466,18 @@ diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<ch
     return world;
 }
 
-void superMarioBros::WorldBuilder::CreateTileObject(const diji::GameObject* world, const int row, const int col, const char tile)
+const diji::GameObject* superMarioBros::WorldBuilder::CreateTileObject(const diji::GameObject* world, const int row, const int col, const char tile)
 {
     const auto it = m_Handlers.find(tile);
     if (it == m_Handlers.end())
-        return;  // throw error?
+        return nullptr;  // throw error?
 
     (void)it->second(world, row, col, tile);
+    return m_LastGameObjectCreated;
 }
 
 void superMarioBros::WorldBuilder::AttachToWorldObject(const diji::GameObject* world, const diji::GameObject* object)
 {
     object->AttachToObject(world, true);
+    m_LastGameObjectCreated = object;
 }

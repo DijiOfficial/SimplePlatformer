@@ -54,6 +54,7 @@ namespace superMarioBros
 
         void CreateBackgroundTexture();
 
+
         struct GridPos
         {
             int row;
@@ -71,7 +72,8 @@ namespace superMarioBros
             }
         };
         std::unordered_map<GridPos, diji::GameObject*, GridPosHasher> m_PreviewItemsMap;
-        
+        std::unordered_map<GridPos, const diji::GameObject*, GridPosHasher> m_PlacedItemsMap;
+
         struct Vector2iHash
         {
             std::size_t operator()(const sf::Vector2i& v) const noexcept

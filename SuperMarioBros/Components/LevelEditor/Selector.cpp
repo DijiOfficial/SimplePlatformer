@@ -61,10 +61,24 @@ void superMarioBros::Selector::TryPlaceItem()
 {
     const sf::Vector2f& pos = m_TransformCompPtr->GetWorldPosition();
     const char itemChar = m_AtlasToPosMap[m_CurrentFramePos];
+    if (itemChar == '\0')
+        return;
+    
     const int row = static_cast<int>(pos.y - 25.f) / 50;
     const int col = static_cast<int>(pos.x - 25.f) / 50;
+    if (itemChar == '0')
+    {
+        if (m_PlacedItemsMap[{.row= row, .col= col }])
+        {
+            m_PlacedItemsMap[{.row= row, .col= col }]->Destroy();
+            m_PlacedItemsMap.erase({.row= row, .col= col });
+        }
+    }
+    
     const int cols = LevelEditorManager::GetInstance().SetCharAtPosition(col, row, itemChar);
-    GameManager::GetInstance().PlaceNewItem(col, row, itemChar);
+    if (const auto& placedObject = GameManager::GetInstance().PlaceNewItem(col, row, itemChar))
+        m_PlacedItemsMap[{.row= row, .col= col }] = placedObject;
+    
     m_BackgroundHandlerRef->TempReload(cols, LevelEditorManager::GetInstance().GetLevelInfo()); //todo: fix this  function
 }
 
@@ -85,8 +99,15 @@ void superMarioBros::Selector::TryHoldPlaceItem()
 
     for (auto& [gridPos, preview] : m_PreviewItemsMap)
     {
+        if (m_PlacedItemsMap[{.row= gridPos.row, .col= gridPos.col }])
+        {
+            m_PlacedItemsMap[{.row= gridPos.row, .col= gridPos.col }]->Destroy();
+            m_PlacedItemsMap.erase({.row= gridPos.row, .col= gridPos.col });
+        }
+        
         cols = LevelEditorManager::GetInstance().SetCharAtPosition(gridPos.col, gridPos.row, itemChar);
-        GameManager::GetInstance().PlaceNewItem(gridPos.col, gridPos.row, itemChar);
+        if (const auto& placedObject = GameManager::GetInstance().PlaceNewItem(gridPos.col, gridPos.row, itemChar))
+            m_PlacedItemsMap[{.row= gridPos.row, .col= gridPos.col }] = placedObject;
         preview->Destroy();
     }
 
