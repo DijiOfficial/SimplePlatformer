@@ -286,12 +286,9 @@ diji::GameObject* diji::Scene::OverwriteObjectInCanvas(std::unique_ptr<GameObjec
 
 void diji::Scene::Remove(const GameObject* object)
 {
+    m_CanvasRenderMap[object->GetRenderLayer()].erase(object);
     if (RemoveFromContainer(m_ObjectsUPtrMap, object)) return;
-    if (RemoveFromContainer(m_CanvasObjectsUPtrMap, object))
-    {
-        m_CanvasRenderMap[object->GetRenderLayer()].erase(object);
-        return;
-    }
+    if (RemoveFromContainer(m_CanvasObjectsUPtrMap, object)) return;
 
 #ifdef _DEBUG
     assert(false && "Attempted to remove unknown GameObject");

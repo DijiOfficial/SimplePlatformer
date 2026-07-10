@@ -87,7 +87,6 @@ namespace diji
 
         void DrawGameObjects() const;
         std::string GenerateUniqueName(const std::unordered_map<std::string, std::unique_ptr<GameObject>>& objectMap, const std::string& baseName);
-        std::string GenerateUniqueName(const std::map<int, std::unordered_set<std::unique_ptr<GameObject>>>& objectMap, const std::string& baseName);
 
         template<typename TMap>
         bool RemoveFromContainer(TMap& container, const GameObject* object)
