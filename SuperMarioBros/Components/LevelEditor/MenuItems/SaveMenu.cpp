@@ -210,7 +210,7 @@ bool superMarioBros::SaveMenu::Select()
         return true;
     }
 
-    if (m_IsSaveSelected)  // todo: link saving and loading
+    if (m_IsSaveSelected)
     {
         if (LevelEditorManager::GetInstance().DoesLevelExist(m_LevelNameText->GetText().getString()))
         {

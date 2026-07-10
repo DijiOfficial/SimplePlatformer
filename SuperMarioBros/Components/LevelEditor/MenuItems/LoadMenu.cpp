@@ -71,6 +71,9 @@ bool superMarioBros::LoadMenu::Select()
 
 void superMarioBros::LoadMenu::AddNewName(const std::string& newLevelName)
 {
+    if (std::ranges::find(m_LevelNames, newLevelName) != m_LevelNames.end())
+        return;
+    
     m_LevelNames.emplace_back(newLevelName);
 
     m_LevelNameObjects = std::vector<diji::GameObject*>();
