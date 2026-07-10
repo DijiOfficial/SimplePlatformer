@@ -217,3 +217,5 @@ namespace diji
 		void SetName(const std::string& name) { m_Name = name; }
 	};
 }
+
+#include "../Components/InlineFiles/Component.inl"

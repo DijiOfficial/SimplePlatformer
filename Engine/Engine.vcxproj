@@ -33,6 +33,7 @@
     <ClInclude Include="Engine\Components\Camera.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\FPSCounter.h" />
+    <ClInclude Include="Engine\Components\InlineFiles\Component.inl" />
     <ClInclude Include="Engine\Components\Render.h" />
     <ClInclude Include="Engine\Components\ScoreCounter.h" />
     <ClInclude Include="Engine\Components\ShapeRender.h" />

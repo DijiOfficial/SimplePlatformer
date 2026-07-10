@@ -46,6 +46,8 @@ namespace diji
         
     protected:
         explicit Component(GameObject* ownerPtr) : m_OwnerPtr{ ownerPtr } {}
+        template<typename T>
+        T* GetComponent() const;
 
     private:
         GameObject* m_OwnerPtr = {};
