@@ -66,6 +66,9 @@ namespace diji
 
         void UpdateGameObjectInChunk(const GameObject* gameObject) const { m_ScenesUPtrMap.at(m_ActiveSceneId)->RegisterToChunk(gameObject); }
         void UpdateGameObjectRenderLayerInChunk(const GameObject* gameObject, const GameObject::RenderLayer oldLayer) const { m_ScenesUPtrMap.at(m_ActiveSceneId)->UpdateGameObjectRenderLayerInChunk(gameObject, oldLayer); }
+        void SetMainCamera(const GameObject* cameraObject) const { m_ScenesUPtrMap.at(m_ActiveSceneId)->SetMainCamera(cameraObject); }
+        void SetGameObjectAsCanvasObject(const GameObject* object) const { m_ScenesUPtrMap.at(m_ActiveSceneId)->SetGameObjectAsCanvasObject(object); }
+        void SetCanvasObjectAsWorldObject(const GameObject* object) const { m_ScenesUPtrMap.at(m_ActiveSceneId)->SetCanvasObjectAsGameObject(object); }
 
     private:
         // todo: replace int with SceneId enum class??

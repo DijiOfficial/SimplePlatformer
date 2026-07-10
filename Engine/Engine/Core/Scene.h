@@ -58,6 +58,7 @@ namespace diji
         
         void SetGameObjectAsCanvasObject(const std::string& name);
         void SetGameObjectAsCanvasObject(const GameObject* object);
+        void SetCanvasObjectAsGameObject(const GameObject* object);
         void SetCanvasView(const sf::View& view) { m_CanvasView = view; }
 
         void SetMultiplayerSplitScreen(int numPlayers);
@@ -65,12 +66,15 @@ namespace diji
         void SetGameObjectAsStaticBackground(const GameObject* object);
         void ValidateCollidersAfterDestroy();
         void SetToAlwaysRender(const GameObject* object, bool shouldAlwaysRender);
+        void SetMainCamera(const GameObject* cameraObject);
     
     private:
+        //todo: unify removing anything from any container using a method
         std::unordered_map<std::string, unsigned long long int> m_NameIndexUMap;
         std::unordered_set<const GameObject*> m_AlwaysRender;
         std::unordered_map<std::string, std::unique_ptr<GameObject>> m_ObjectsUPtrMap;
         std::unordered_map<std::string, std::unique_ptr<GameObject>> m_CanvasObjectsUPtrMap;
+        std::map<int, std::unordered_set<const GameObject*>> m_CanvasRenderMap;
         std::vector<SplitScreenView> m_MultiplayerViews;
         std::vector<SplitScreenView> m_MultiplayerViewsCopy;
         std::unique_ptr<GameObject> m_StaticBackgroundObjUPtr = nullptr;
@@ -83,6 +87,7 @@ namespace diji
 
         void DrawGameObjects() const;
         std::string GenerateUniqueName(const std::unordered_map<std::string, std::unique_ptr<GameObject>>& objectMap, const std::string& baseName);
+        std::string GenerateUniqueName(const std::map<int, std::unordered_set<std::unique_ptr<GameObject>>>& objectMap, const std::string& baseName);
 
         template<typename TMap>
         bool RemoveFromContainer(TMap& container, const GameObject* object)

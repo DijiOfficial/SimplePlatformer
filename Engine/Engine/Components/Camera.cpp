@@ -2,6 +2,7 @@
 #include "../Core/Engine.h"
 #include "../Core/GameObject.h"
 #include "Transform.h"
+#include "../Singleton/SceneManager.h"
 
 diji::Camera::Camera(GameObject* ownerPtr, const float width, const float height)
     : Component(ownerPtr)
@@ -35,6 +36,7 @@ void diji::Camera::Init()
 {
     m_TransformCompPtr = GetOwner()->GetRootComponent();
     window::g_window_ptr->setView(m_CameraView);
+    SceneManager::GetInstance().SetMainCamera(GetOwner());
 }
 
 void diji::Camera::LateUpdate()

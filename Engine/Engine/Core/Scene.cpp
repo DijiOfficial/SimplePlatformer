@@ -116,9 +116,12 @@ void diji::Scene::Render() const
     }
     
     window::g_window_ptr->setView(m_CanvasView);
-    for (const auto& gameObject : m_CanvasObjectsUPtrMap | std::views::values)
+    for (const auto& gameObjects : m_CanvasRenderMap | std::views::values)
     {
-        gameObject->Render();
+        for (const auto& gameObject : gameObjects)
+        {
+            gameObject->Render();
+        }
     }
 }
 
@@ -156,6 +159,7 @@ void diji::Scene::OnDestroy()
 
     m_ObjectsUPtrMap = std::unordered_map<std::string, std::unique_ptr<GameObject>>();
     m_CanvasObjectsUPtrMap = std::unordered_map<std::string, std::unique_ptr<GameObject>>();
+    m_CanvasRenderMap = std::map<int, std::unordered_set<const GameObject*>>();
     m_RenderChunks = std::unordered_map<GameObject::ChunkCoord, RenderChunk, ChunkCoordHasher>();
 }
 
@@ -205,7 +209,7 @@ diji::GameObject* diji::Scene::CreateCanvasObjectFromTemplate(const std::string&
     m_CanvasObjectsUPtrMap[finalName] = std::make_unique<GameObject>();
     original->CreateDuplicate(m_CanvasObjectsUPtrMap[finalName].get());
     m_CanvasObjectsUPtrMap[finalName]->SetName(finalName);
-
+    m_CanvasRenderMap[0].insert(m_CanvasObjectsUPtrMap[finalName].get());
     return m_CanvasObjectsUPtrMap[finalName].get();
 }
 
@@ -224,6 +228,7 @@ diji::GameObject* diji::Scene::AddObjectToCanvas(std::unique_ptr<GameObject> obj
 
     m_CanvasObjectsUPtrMap[finalName] = std::move(object);
     m_CanvasObjectsUPtrMap[finalName]->SetName(finalName);
+    m_CanvasRenderMap[0].insert(m_CanvasObjectsUPtrMap[finalName].get());
     return m_CanvasObjectsUPtrMap[finalName].get();
 }
 
@@ -242,11 +247,15 @@ diji::GameObject* diji::Scene::OverwriteGameObjectFromTemplate(const std::string
 diji::GameObject* diji::Scene::OverwriteCanvasObjectFromTemplate(const std::string& name, const GameObject* original)
 {
     if (m_CanvasObjectsUPtrMap.contains(name))
+    {
+        m_CanvasRenderMap[m_CanvasObjectsUPtrMap[name]->GetRenderLayer()].erase(m_CanvasObjectsUPtrMap[name].get());
         m_CanvasObjectsUPtrMap[name]->OnDestroy();
+    }
 
     m_CanvasObjectsUPtrMap[name] = std::make_unique<GameObject>();
     original->CreateDuplicate(m_CanvasObjectsUPtrMap[name].get());
     m_CanvasObjectsUPtrMap[name]->SetName(name);
+    m_CanvasRenderMap[0].insert(m_CanvasObjectsUPtrMap[name].get());
 
     return m_CanvasObjectsUPtrMap[name].get();
 }
@@ -264,24 +273,32 @@ diji::GameObject* diji::Scene::OverwriteObjectInScene(std::unique_ptr<GameObject
 diji::GameObject* diji::Scene::OverwriteObjectInCanvas(std::unique_ptr<GameObject> object, const std::string& name)
 {
     if (m_CanvasObjectsUPtrMap.contains(name))
+    {
+        m_CanvasRenderMap[m_CanvasObjectsUPtrMap[name]->GetRenderLayer()].erase(m_CanvasObjectsUPtrMap[name].get());
         m_CanvasObjectsUPtrMap[name]->OnDestroy();
+    }
 
     m_CanvasObjectsUPtrMap[name] = std::move(object);
     m_CanvasObjectsUPtrMap[name]->SetName(name);
+    m_CanvasRenderMap[0].insert(m_CanvasObjectsUPtrMap[name].get());
     return m_CanvasObjectsUPtrMap[name].get();
 }
 
 void diji::Scene::Remove(const GameObject* object)
 {
     if (RemoveFromContainer(m_ObjectsUPtrMap, object)) return;
-    if (RemoveFromContainer(m_CanvasObjectsUPtrMap, object)) return;
+    if (RemoveFromContainer(m_CanvasObjectsUPtrMap, object))
+    {
+        m_CanvasRenderMap[object->GetRenderLayer()].erase(object);
+        return;
+    }
 
 #ifdef _DEBUG
     assert(false && "Attempted to remove unknown GameObject");
 #endif
 }
 
-void diji::Scene::Remove(const std::string& name) // todo: add canvas and render on top versions ?
+void diji::Scene::Remove(const std::string& name)
 {
     // todo: add unified remove from map
     const auto it = m_ObjectsUPtrMap.find(name);
@@ -296,6 +313,8 @@ void diji::Scene::RemoveAll()
 {
     m_ObjectsUPtrMap = std::unordered_map<std::string, std::unique_ptr<GameObject>>();
     m_RenderChunks = std::unordered_map<GameObject::ChunkCoord, RenderChunk, ChunkCoordHasher>();
+    m_CanvasObjectsUPtrMap = std::unordered_map<std::string, std::unique_ptr<GameObject>>();
+    m_CanvasRenderMap = std::map<int, std::unordered_set<const GameObject*>>();
 }
 
 diji::GameObject* diji::Scene::GetGameObject(const std::string& name) const
@@ -358,6 +377,7 @@ void diji::Scene::SetGameObjectAsCanvasObject(const std::string& name)
     {
         RemoveFromChunk(it);
         m_CanvasObjectsUPtrMap[name] = std::move(it->second);
+        m_CanvasRenderMap[m_CanvasObjectsUPtrMap[name]->GetRenderLayer()].insert(m_CanvasObjectsUPtrMap[name].get());
         m_ObjectsUPtrMap.erase(it);
         return;
     }
@@ -368,6 +388,22 @@ void diji::Scene::SetGameObjectAsCanvasObject(const std::string& name)
 void diji::Scene::SetGameObjectAsCanvasObject(const GameObject* object)
 {
     SetGameObjectAsCanvasObject(object->GetName());
+}
+
+void diji::Scene::SetCanvasObjectAsGameObject(const GameObject* object)
+{
+    const std::string& name = object->GetName();
+    const auto it = m_CanvasObjectsUPtrMap.find(name);
+    if (it != m_CanvasObjectsUPtrMap.end())
+    {
+        m_CanvasRenderMap[it->second->GetRenderLayer()].erase(it->second.get());
+        m_ObjectsUPtrMap[name] = std::move(it->second);
+        m_CanvasObjectsUPtrMap.erase(it);
+        RegisterToChunk(m_ObjectsUPtrMap[name].get());
+        return;
+    }
+    
+    throw std::runtime_error("GameObject with the given name does not exist in the scene.");
 }
 
 void diji::Scene::SetMultiplayerSplitScreen(const int numPlayers)
@@ -472,6 +508,12 @@ void diji::Scene::SetToAlwaysRender(const GameObject* object, const bool shouldA
             RegisterToChunk(object);
         }
     }
+}
+
+void diji::Scene::SetMainCamera(const GameObject* cameraObject)
+{
+    m_MainCameraObjPtr = const_cast<GameObject*>(cameraObject);
+    m_MainCameraCompPtr = m_MainCameraObjPtr->GetComponent<Camera>();
 }
 
 void diji::Scene::DrawGameObjects() const
