@@ -31,6 +31,14 @@ void superMarioBros::Selector::Init()
 
     LevelEditorManager::GetInstance().OnLevelLoadedEvent.AddListener(this, &Selector::CreateAllSpecialBlocks);
     SetRenderLayer(3);
+
+    for (const auto& [pos, value] : m_GridToCharMap)
+    {
+        if (m_CharToGridMap.contains(value))
+            continue;
+
+        m_CharToGridMap.emplace(value, pos);
+    }
 }
 
 void superMarioBros::Selector::Start()
@@ -65,7 +73,7 @@ void superMarioBros::Selector::DeactivateBackgroundTexture() const
 void superMarioBros::Selector::TryPlaceItem()
 {
     const sf::Vector2f& pos = m_TransformCompPtr->GetWorldPosition();
-    const char itemChar = m_AtlasToPosMap[m_CurrentFramePos];
+    const char itemChar = m_GridToCharMap[m_CurrentFramePos];
     if (itemChar == '\0')
         return;
     
@@ -93,7 +101,7 @@ void superMarioBros::Selector::TryHoldPlaceItem()
         return;
     }
 
-    const char itemChar = m_AtlasToPosMap[m_CurrentFramePos];
+    const char itemChar = m_GridToCharMap[m_CurrentFramePos];
     int cols = 0;
 
     for (auto& [gridPos, preview] : m_PreviewItemsMap)
@@ -193,6 +201,12 @@ bool superMarioBros::Selector::HandleSpecialItems(const char item, const GridPos
     const char currentItem = LevelEditorManager::GetInstance().GetLevelInfoAtPos(gridPos.col, gridPos.row);
     switch (item)
     {
+        case 'x':
+        {
+            CreateItemAtGridPos('x', gridPos);
+            HandleCreatingSpecialBlocks('x', gridPos);
+            return true;
+        }
         case '!': // mushroom
             if (m_PlacedItemsMap[gridPos].empty() == false)
             {
@@ -228,6 +242,10 @@ void superMarioBros::Selector::CreateItemAtGridPos(const char itemChar, const Gr
 void superMarioBros::Selector::CreateAllSpecialBlocks()
 {
     const auto& levelInfo = LevelEditorManager::GetInstance().GetLevelInfo();
+    m_PlacedItemsMap = std::unordered_map<GridPos, std::unordered_set<const diji::GameObject*>, GridPosHasher>();
+
+    if (levelInfo.empty())
+        return;
 
     const int cols = static_cast<int>(levelInfo.size()) / MAX_LEVEL_HEIGHT;
     for (int index = 0; index < static_cast<int>(levelInfo.size()); ++index)
@@ -242,24 +260,7 @@ void superMarioBros::Selector::CreateAllSpecialBlocks()
         const GridPos gridPos = { .row = row, .col = col };
 
         CreateItemAtGridPos(item, { .row = row, .col = col });
-
-        // todo swithc into method  or generalized
-        switch (item)
-        {
-            case 'x':
-                {
-                    const auto& gameObject = diji::SceneManager::GetInstance().SpawnGameObject("X_PreviewTexture", m_ItemTemplateUPtr.get(), sf::Vector2f{ col * 50 + 25.0f, row * 50 + 25.0f });
-                    gameObject->SetRenderLayer(2);
-                    const auto& sprite = gameObject->GetComponent<diji::SpriteRenderComponent>();
-                    sprite->SetStartingFrame(1, 4); // todo: invert keys/values in m_AtlasToPosMap or use a  different container.
-                    sprite->UpdateFrame();
-                    m_PlacedItemsMap[gridPos].insert(gameObject);
-
-                    break;
-                }
-            default:
-                break;
-        }
+        HandleCreatingSpecialBlocks(item, gridPos);
     }
 
     for (const auto enemyCol : GameManager::GetInstance().GetEnemyColliders())
@@ -277,4 +278,16 @@ void superMarioBros::Selector::TryDeletePlacedItem(const GridPos& gridPos)
             gameObject->Destroy();
         m_PlacedItemsMap.erase(gridPos);
     }
+}
+
+void superMarioBros::Selector::HandleCreatingSpecialBlocks(const char itemChar, const GridPos& gridPos)
+{
+    const auto& gameObject = diji::SceneManager::GetInstance().SpawnGameObject("X_PreviewTexture", m_ItemTemplateUPtr.get(), sf::Vector2f{ gridPos.col * 50 + 25.0f, gridPos.row * 50 + 25.0f });
+    gameObject->SetRenderLayer(2);
+    const auto& sprite = gameObject->GetComponent<diji::SpriteRenderComponent>();
+    const auto& spritePos = m_CharToGridMap[itemChar];
+    sprite->SetStartingFrame(spritePos.x, spritePos.y);
+    sprite->UpdateFrame();
+    m_PlacedItemsMap[gridPos].insert(gameObject);
+    GameManager::GetInstance().AttachToWorldObject(gameObject);
 }

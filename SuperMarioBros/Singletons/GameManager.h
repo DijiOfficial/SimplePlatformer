@@ -74,6 +74,7 @@ namespace superMarioBros
         void AddEnemyCollider(diji::Collider* collider) { m_EnemyColliders.insert(collider); }
         void CreateEmptyWorld();
         const diji::GameObject* PlaceNewItem(int x, int y, char itemID) const;
+        void AttachToWorldObject(const diji::GameObject* object) const;
 
     private:
         diji::GameObject* m_WorldGameObject = nullptr;

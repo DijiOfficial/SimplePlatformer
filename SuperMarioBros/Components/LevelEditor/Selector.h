@@ -76,6 +76,7 @@ namespace superMarioBros
         void CreateItemAtGridPos(char itemChar, const GridPos& gridPos);
         void CreateAllSpecialBlocks();
         void TryDeletePlacedItem(const GridPos& gridPos);
+        void HandleCreatingSpecialBlocks(const char itemChar, const GridPos& gridPos);
 
         struct Vector2iHash
         {
@@ -86,7 +87,8 @@ namespace superMarioBros
                 return h1 ^ (h2 << 1);
             }
         };
-        std::unordered_map<sf::Vector2i, char, Vector2iHash> m_AtlasToPosMap =
+        std::unordered_map<char, sf::Vector2i> m_CharToGridMap;
+        std::unordered_map<sf::Vector2i, char, Vector2iHash> m_GridToCharMap =
         {
             { {0, 0}, '0' },
             { {0, 1}, '0' },

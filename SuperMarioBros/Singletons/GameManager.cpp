@@ -12,7 +12,6 @@
 #include <fstream>
 
 #include "LevelEditorManager.h"
-#include "../Components/Enemies/BaseEnemy.h"
 #include "../Helpers/WorldBuilder.h"
 #include "Engine/Singleton/TimerManager.h"
 
@@ -206,6 +205,11 @@ void superMarioBros::GameManager::CreateEmptyWorld()
 const diji::GameObject* superMarioBros::GameManager::PlaceNewItem(const int x, const int y, const char itemID) const
 {
     return WorldBuilder::CreateTileObject(m_WorldGameObject, y, x, itemID);
+}
+
+void superMarioBros::GameManager::AttachToWorldObject(const diji::GameObject* object) const
+{
+    object->AttachToObject(m_WorldGameObject, true);
 }
 
 std::string superMarioBros::GameManager::LoadInformation()

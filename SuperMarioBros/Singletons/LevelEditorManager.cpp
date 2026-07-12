@@ -37,6 +37,7 @@ void superMarioBros::LevelEditorManager::LoadNewLevel()
     m_LevelInfo = std::vector<char>();
     m_CurrentLevelName = "New Level";
     m_LevelWidth = -1;
+    OnLevelLoadedEvent.Broadcast();
 }
 
 void superMarioBros::LevelEditorManager::SaveNewMap(const std::string& levelName, const std::string& levelPath)
