@@ -7,34 +7,6 @@
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Singleton/TimerManager.h"
 
-std::unordered_map<int, superMarioBros::BlockSelector::eBlockType> superMarioBros::BlockSelector::m_BlockTypeMap =
-{
-    { 0,  Floor },
-    { 1,  PipeTopLeft },
-    { 2,  PipeTopRight },
-    { 3,  FlagPoleTop },
-    
-    { 4,  Wall },
-    { 5,  PipeBottomLeft },
-    { 6,  PipeBottomRight },
-    { 7,  FlagPole },
-
-    { 8,  PipeSideTopLeft },
-    { 9,  PipeSideTopMiddle },
-    { 10, PipeSideTopRight },
-    { 11, PlaceHolder },
-
-    { 12, PipeSideBottomLeft },
-    { 13, PipeSideBottomMiddle },
-    { 14, PipeSideBottomRight },
-    { 15, PlaceHolder2 },
-
-    { 16, LuckyBlock },
-    { 17, BreakableBlock },
-    { 18, Coin },
-    { 19, PlaceHolder3 },
-};
-
 void superMarioBros::BlockSelector::Start()
 {
     m_ChildChoiceGO = GetOwner()->GetRootComponent()->GetChildren().at(0)->GetGameObject();
@@ -42,10 +14,7 @@ void superMarioBros::BlockSelector::Start()
 
     diji::TimerManager::GetInstance().DelayUntilNextTick([&]
     {
-        diji::TimerManager::GetInstance().DelayUntilNextTick([&]
-    {
         SetAllBlocksPositions();
-    });
     });
 }
 

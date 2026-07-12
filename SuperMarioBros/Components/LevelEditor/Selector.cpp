@@ -26,6 +26,9 @@ void superMarioBros::Selector::Init()
     
     m_ItemTemplateUPtr = std::make_unique<diji::GameObject>();
     m_TemplateSpriteRenderComp = m_ItemTemplateUPtr->AddComponent<diji::SpriteRenderComponent>("graphics/tiles_sheet_selection.png", sf::Vector2i{ 50, 50 }, 1, 1.0f);
+
+    LevelEditorManager::GetInstance().OnLevelLoadedEvent.AddListener(this, &Selector::CreateAllSpecialBlocks);
+    SetRenderLayer(3);
 }
 
 void superMarioBros::Selector::Start()
@@ -66,20 +69,14 @@ void superMarioBros::Selector::TryPlaceItem()
     
     const int row = static_cast<int>(pos.y - 25.f) / 50;
     const int col = static_cast<int>(pos.x - 25.f) / 50;
+    const GridPos gridPos{ .row= row, .col= col };
     if (itemChar == '0')
-    {
-        if (m_PlacedItemsMap[{.row= row, .col= col }])
-        {
-            m_PlacedItemsMap[{.row= row, .col= col }]->Destroy();
-            m_PlacedItemsMap.erase({.row= row, .col= col });
-        }
-    }
+        TryDeletePlacedItem(gridPos);
     
-    const int cols = LevelEditorManager::GetInstance().SetCharAtPosition(col, row, itemChar);
-    if (const auto& placedObject = GameManager::GetInstance().PlaceNewItem(col, row, itemChar))
-        m_PlacedItemsMap[{.row= row, .col= col }] = placedObject;
-    
-    m_BackgroundHandlerRef->TempReload(cols, LevelEditorManager::GetInstance().GetLevelInfo()); //todo: fix this  function
+    if (HandleSpecialItems(itemChar, gridPos))
+        return;
+
+    CreateItemAtGridPos(itemChar, gridPos);
 }
 
 void superMarioBros::Selector::TryHoldPlaceItem()
@@ -99,15 +96,12 @@ void superMarioBros::Selector::TryHoldPlaceItem()
 
     for (auto& [gridPos, preview] : m_PreviewItemsMap)
     {
-        if (m_PlacedItemsMap[{.row= gridPos.row, .col= gridPos.col }])
-        {
-            m_PlacedItemsMap[{.row= gridPos.row, .col= gridPos.col }]->Destroy();
-            m_PlacedItemsMap.erase({.row= gridPos.row, .col= gridPos.col });
-        }
+        TryDeletePlacedItem(gridPos);
         
         cols = LevelEditorManager::GetInstance().SetCharAtPosition(gridPos.col, gridPos.row, itemChar);
         if (const auto& placedObject = GameManager::GetInstance().PlaceNewItem(gridPos.col, gridPos.row, itemChar))
-            m_PlacedItemsMap[{.row= gridPos.row, .col= gridPos.col }] = placedObject;
+            m_PlacedItemsMap[gridPos].insert(placedObject);
+        
         preview->Destroy();
     }
 
@@ -189,4 +183,87 @@ void superMarioBros::Selector::CreateBackgroundTexture()
 
     m_SpriteRenderComp = m_TextureGO->GetComponent<diji::SpriteRenderComponent>();
     m_TextureGO->SetActive(false);
+    m_TextureGO->SetRenderLayer(2);
+}
+
+bool superMarioBros::Selector::HandleSpecialItems(const char item, const GridPos& gridPos)
+{
+    const char currentItem = LevelEditorManager::GetInstance().GetLevelInfoAtPos(gridPos.col, gridPos.row);
+    switch (item)
+    {
+        case '!': // mushroom
+            if (m_PlacedItemsMap[gridPos].empty() == false)
+            {
+                //  tile d /  H
+                if (currentItem == 'd' || currentItem == 'H')
+                {
+                    TryDeletePlacedItem(gridPos);
+                    CreateItemAtGridPos('v', gridPos);
+                }
+            }
+            return true;
+        case '"': // 1up
+            break;
+            
+        case '$': // star
+            break;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+void superMarioBros::Selector::CreateItemAtGridPos(const char itemChar, const GridPos& gridPos)
+{
+    const int cols = LevelEditorManager::GetInstance().SetCharAtPosition(gridPos.col, gridPos.row, itemChar);
+    if (const auto& placedObject = GameManager::GetInstance().PlaceNewItem(gridPos.col, gridPos.row, itemChar))
+        m_PlacedItemsMap[gridPos].insert(placedObject);
+    
+    m_BackgroundHandlerRef->TempReload(cols, LevelEditorManager::GetInstance().GetLevelInfo()); //todo: fix this  function
+}
+
+void superMarioBros::Selector::CreateAllSpecialBlocks()
+{
+    const auto& levelInfo = LevelEditorManager::GetInstance().GetLevelInfo();
+    const int cols = static_cast<int>(levelInfo.size()) / MAX_LEVEL_HEIGHT;
+
+    for (int index = 0; index < static_cast<int>(levelInfo.size()); ++index)
+    {
+        const char item = levelInfo[index];
+
+        if (item == '0')
+            continue;
+
+        const int row = index / cols;
+        const int col = index % cols;
+        const GridPos gridPos = { .row = row, .col = col };
+
+        switch (item)
+        {
+            case 'x':
+                {
+                    const auto& gameObject = diji::SceneManager::GetInstance().SpawnGameObject("X_PreviewTexture", m_ItemTemplateUPtr.get(), sf::Vector2f{ col * 50 + 25.0f, row * 50 + 25.0f });
+                    gameObject->SetRenderLayer(2);
+                    const auto& sprite = gameObject->GetComponent<diji::SpriteRenderComponent>();
+                    sprite->SetStartingFrame(1, 4); // todo: invert keys/values in m_AtlasToPosMap or use a  different container.
+                    sprite->UpdateFrame();
+                    m_PlacedItemsMap[gridPos].insert(gameObject);
+
+                    break;
+                }
+            default:
+                break;
+        }
+    }
+}
+
+void superMarioBros::Selector::TryDeletePlacedItem(const GridPos& gridPos)
+{
+    if (m_PlacedItemsMap[gridPos].empty() == false)
+    {
+        for (const auto& gameObject : m_PlacedItemsMap[gridPos])
+            gameObject->Destroy();
+        m_PlacedItemsMap.erase(gridPos);
+    }
 }

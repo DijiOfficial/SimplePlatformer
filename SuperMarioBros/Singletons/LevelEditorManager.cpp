@@ -100,6 +100,19 @@ int superMarioBros::LevelEditorManager::SetCharAtPosition(const int x, const int
     return m_LevelWidth;
 }
 
+char superMarioBros::LevelEditorManager::GetLevelInfoAtPos(const int x, const int y) const
+{
+    if (x < 0 || y < 0 || y >= MAX_LEVEL_HEIGHT)
+        return '0';
+
+    const int cols = static_cast<int>(m_LevelInfo.size()) / MAX_LEVEL_HEIGHT;
+
+    if (x >= cols)
+        return '0';
+
+    return m_LevelInfo[y * cols + x];
+}
+
 void superMarioBros::LevelEditorManager::SaveLevelInfo(const std::string& filepath) const
 {
     if (m_LevelInfo.size() % MAX_LEVEL_HEIGHT != 0)

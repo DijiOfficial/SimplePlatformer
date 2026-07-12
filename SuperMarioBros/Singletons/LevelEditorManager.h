@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <SFML/System/Vector2.hpp>
 
+#include "Engine/Interfaces/EventSystem.h"
 #include "Engine/Singleton/Singleton.h"
 
 namespace superMarioBros
@@ -22,9 +23,12 @@ namespace superMarioBros
 
         [[nodiscard]] const std::string& GetCurrentLevelName() const { return m_CurrentLevelName; }
         [[nodiscard]] bool DoesLevelExist(const std::string& levelName) const { return m_LevelNameToFileUMap.contains(levelName); }
-        void SetLevelInfo(const std::vector<char>& levelInfo) { m_LevelInfo = levelInfo; RecalculateLevelWidth(); }
+        void SetLevelInfo(const std::vector<char>& levelInfo) { m_LevelInfo = levelInfo; RecalculateLevelWidth(); OnLevelLoadedEvent.Broadcast(); }
         [[nodiscard]] int SetCharAtPosition(int x, int y, char value);
         [[nodiscard]] const std::vector<char>& GetLevelInfo() const { return m_LevelInfo; }
+        [[nodiscard]] char GetLevelInfoAtPos(int x, int y) const;
+
+        diji::Event<> OnLevelLoadedEvent;
 
     private:
         const std::string LEVEL_EDITOR_INFO_PATH = "../SuperMarioBros/Resources/levels/levelEditorInfo.json";

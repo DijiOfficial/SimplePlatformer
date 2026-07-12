@@ -54,7 +54,6 @@ namespace superMarioBros
 
         void CreateBackgroundTexture();
 
-
         struct GridPos
         {
             int row;
@@ -72,7 +71,11 @@ namespace superMarioBros
             }
         };
         std::unordered_map<GridPos, diji::GameObject*, GridPosHasher> m_PreviewItemsMap;
-        std::unordered_map<GridPos, const diji::GameObject*, GridPosHasher> m_PlacedItemsMap;
+        std::unordered_map<GridPos, std::unordered_set<const diji::GameObject*>, GridPosHasher> m_PlacedItemsMap;
+        bool HandleSpecialItems(char item, const GridPos& gridPos);
+        void CreateItemAtGridPos(char itemChar, const GridPos& gridPos);
+        void CreateAllSpecialBlocks();
+        void TryDeletePlacedItem(const GridPos& gridPos);
 
         struct Vector2iHash
         {
@@ -98,11 +101,11 @@ namespace superMarioBros
             { {1, 1}, '5' },
             { {1, 2}, '8' },
             { {1, 3}, 'b' },
-            { {1, 4}, '0' },
+            { {1, 4}, 'x' },
             { {1, 5}, 'w' },
             { {1, 6}, 'G' },
             { {1, 7}, 'H' },
-            { {1, 8}, '0' },
+            { {1, 8}, '!' },
             { {2, 0}, '4' },
             { {2, 1}, '6' },
             { {2, 2}, '9' },
@@ -111,7 +114,7 @@ namespace superMarioBros
             { {2, 5}, '0' },
             { {2, 6}, '0' },
             { {2, 7}, '0' },
-            { {2, 8}, '0' },
+            { {2, 8}, '"' },
             { {3, 0}, 'k' },
             { {3, 1}, 'j' },
             { {3, 2}, '0' },
@@ -120,47 +123,7 @@ namespace superMarioBros
             { {3, 5}, '0' },
             { {3, 6}, '0' },
             { {3, 7}, '0' },
-            { {3, 8}, '0' },
-            // { '0', {0, 4} }, // Empty tile
-            // { '1', {0, 0} }, // Ground tile
-            // { '2', {0, 1} }, // Stair tile
-            // { '3', {1, 0} }, // TopLeft Up Pipe
-            // { '4', {2, 0} }, // TopRight Up Pipe
-            // { '5', {1, 1} }, // MiddleLeft Up Pipe
-            // { '6', {2, 1} }, // MiddleRight Up Pipe
-            // { '7', {0, 2} }, // TopRight Side Pipe
-            // { '8', {1, 2} }, // MiddleRight Side Pipe
-            // { '9', {2, 2} }, // BottomRight Side Pipe
-            // { 'a', {0, 3} }, // TopLeft Side Pipe
-            // { 'b', {1, 3} }, // MiddleLeft Side Pipe
-            // { 'c', {2, 3} }, // BottomLeft Side Pipe
-            // { 'd', {0, 4} }, // LuckyBlock (invisible tile because it's rendered by LuckyBlock component)
-            // { 'x', {0, 4} }, // LuckyBlock with a power up
-            // { 'y', {0, 4} }, // LuckyBlock with a star power up
-            // { 'e', {0, 4} }, // BreakableBlock (invisible tile because it's rendered by BreakableBlock component)
-            // { 'f', {0, 4} }, // MultiCoinBlock (invisible tile because it's rendered by BreakableBlock component)
-            // { 'g', {0, 4} }, // Goomba (fitting isn't it?) (invisible tile because it's not a background tile)
-            // { 'h', {0, 4} }, // Goomba but offset by 25 (invisible tile because it's not a background tile)
-            // { 'i', {0, 4} }, // Star block
-            // { 'k', {0, 4} }, // pole top
-            // { 'j', {3, 1} }, // pole body
-            // { 'l', {0, 4} }, // small castle base
-            // { 'm', {0, 4} }, // big castle base
-            // { 'n', {0, 4} }, // Hidden 1up mushroom
-            // { 'o', {0, 4} }, // Koopa Troopa
-            // { 'p', {0, 4} }, // Koopa Troopa offset by 25
-            // { 'q', {0, 4} }, // Static Coin
-            // { 'r', {0, 4} }, // CheckPoint
-            // { 's', {1, 0} }, // Piranha Plant (using top left pipe tile as it will replace the pipe tile to spawn the plant)
-            // { 't', {0, 4} }, // Hidden Block
-            // { 'u', {0, 4} }, // Brick Star
-            // { 'v', {0, 4} }, // Brick PowerUp
-            // { 'D', {0, 2} }, // TopRight Side Pipe (Z priority)
-            // { 'E', {1, 2} }, // MiddleRight Side Pipe (Z priority)
-            // { 'F', {2, 2} }, // BottomRight Side Pipe (Z priority)
-            // { 'A', {0, 3} }, // TopLeft Side Pipe (Z priority)
-            // { 'B', {1, 3} }, // MiddleLeft Side Pipe (Z priority)
-            // { 'C', {2, 3} }, // BottomLeft Side Pipe (Z priority)
+            { {3, 8}, '$' },
         }; 
     };
 }
