@@ -27,6 +27,7 @@ namespace superMarioBros
         [[nodiscard]] int SetCharAtPosition(int x, int y, char value);
         [[nodiscard]] const std::vector<char>& GetLevelInfo() const { return m_LevelInfo; }
         [[nodiscard]] char GetLevelInfoAtPos(int x, int y) const;
+        [[nodiscard]] int GetLevelWidth() const { return m_LevelWidth; }
 
         diji::Event<> OnLevelLoadedEvent;
 

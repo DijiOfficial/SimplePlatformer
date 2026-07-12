@@ -39,12 +39,7 @@ void superMarioBros::GameManager::LoadLevel(const std::string& levelFilePath)
     diji::TimerManager::GetInstance().DelayUntilNextTick([&]
     {
         ReadLevelInfo(std::format("../SuperMarioBros/Resources/levels/{}", levelFilePath));  //todo:  literal string
-        m_WorldGameObject = WorldBuilder::CreateWorld(m_LevelInfo, m_Rows, m_Cols);
-        for (const auto enemyCol : m_EnemyColliders)
-        {
-            enemyCol->SetActive(true);  
-            enemyCol->GetOwner()->GetComponent<BaseEnemy>()->Pause();
-        }
+        CreateEmptyWorld();
         LevelEditorManager::GetInstance().SetLevelInfo(m_LevelInfo);
         OnNewLevelLoadedEvent.Broadcast();
     });

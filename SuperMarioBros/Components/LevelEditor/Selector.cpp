@@ -3,9 +3,11 @@
 #include <ranges>
 
 #include "SelectorControls.h"
+#include "../../Helpers/WorldBuilder.h"
 #include "../../Singletons/GameManager.h"
 #include "../../Singletons/LevelEditorManager.h"
 #include "../Backgrounds/BackgroundHandler.h"
+#include "../Enemies/BaseEnemy.h"
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Core/GameObject.h"
@@ -226,8 +228,8 @@ void superMarioBros::Selector::CreateItemAtGridPos(const char itemChar, const Gr
 void superMarioBros::Selector::CreateAllSpecialBlocks()
 {
     const auto& levelInfo = LevelEditorManager::GetInstance().GetLevelInfo();
-    const int cols = static_cast<int>(levelInfo.size()) / MAX_LEVEL_HEIGHT;
 
+    const int cols = static_cast<int>(levelInfo.size()) / MAX_LEVEL_HEIGHT;
     for (int index = 0; index < static_cast<int>(levelInfo.size()); ++index)
     {
         const char item = levelInfo[index];
@@ -239,6 +241,9 @@ void superMarioBros::Selector::CreateAllSpecialBlocks()
         const int col = index % cols;
         const GridPos gridPos = { .row = row, .col = col };
 
+        CreateItemAtGridPos(item, { .row = row, .col = col });
+
+        // todo swithc into method  or generalized
         switch (item)
         {
             case 'x':
@@ -255,6 +260,12 @@ void superMarioBros::Selector::CreateAllSpecialBlocks()
             default:
                 break;
         }
+    }
+
+    for (const auto enemyCol : GameManager::GetInstance().GetEnemyColliders())
+    {
+        enemyCol->SetActive(true);  
+        enemyCol->GetOwner()->GetComponent<BaseEnemy>()->Pause();
     }
 }
 
