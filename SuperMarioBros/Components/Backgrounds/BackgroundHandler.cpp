@@ -33,7 +33,7 @@ void superMarioBros::BackgroundHandler::Init()
         { 'f', {0, 4} }, // MultiCoinBlock (invisible tile because it's rendered by BreakableBlock component)
         { 'g', {0, 4} }, // Goomba (fitting isn't it?) (invisible tile because it's not a background tile)
         { 'h', {0, 4} }, // Goomba but offset by 25 (invisible tile because it's not a background tile)
-        { 'i', {0, 4} }, // Star block
+        { 'i', {0, 4} }, // BreakableBlock + Star block
         { 'k', {0, 4} }, // pole top
         { 'j', {3, 1} }, // pole body
         { 'l', {0, 4} }, // small castle base
@@ -45,7 +45,7 @@ void superMarioBros::BackgroundHandler::Init()
         { 'r', {0, 4} }, // CheckPoint
         { 's', {1, 0} }, // Piranha Plant (using top left pipe tile as it will replace the pipe tile to spawn the plant)
         { 't', {0, 4} }, // Hidden Block
-        { 'u', {0, 4} }, // Brick Star
+        { 'u', {3, 4} }, // BreakableBlock Green + Star
         { 'v', {0, 4} }, // Brick PowerUp
         { 'D', {0, 2} }, // TopRight Side Pipe (Z priority)
         { 'E', {1, 2} }, // MiddleRight Side Pipe (Z priority)
@@ -56,6 +56,8 @@ void superMarioBros::BackgroundHandler::Init()
         { 'w', {1, 4} }, // Ground Green
         { 'G', {2, 4} }, // Floor Green
         { 'H', {3, 4} }, // BreakableBlock Green
+        { 'z', {3, 4} }, // BreakableBlock Green + multi coin
+        { 'I', {3, 4} }, // BreakableBlock Green + powerUp
         // ... etc.
     };
 

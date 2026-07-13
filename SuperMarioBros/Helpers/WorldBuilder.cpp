@@ -85,6 +85,7 @@ void superMarioBros::WorldBuilder::Init()
     // 3) Breakable / special blocks: d,f,i,n,t,u,v
     m_Handlers['d'] = m_Handlers['f'] = m_Handlers['i'] = m_Handlers['n'] =
     m_Handlers['t'] = m_Handlers['u'] = m_Handlers['v'] = m_Handlers['H'] =
+    m_Handlers['z'] = m_Handlers['I'] = 
     [](const diji::GameObject* world, const int row, const int col, const char tile) -> int
     {
         const float left = static_cast<float>(col) * TILE_SIZE;
@@ -98,7 +99,7 @@ void superMarioBros::WorldBuilder::Init()
 
         const auto spr = go->GetComponent<diji::SpriteRenderComponent>();
         spr->SetStartingFrameX(1);
-        if (tile == 'H')
+        if (tile == 'H' || tile == 'z' || tile == 'u' || tile == 'I')
             spr->SetStartingFrameY(1);
         spr->SetLooping(false);
         spr->SkipStart();
@@ -111,9 +112,9 @@ void superMarioBros::WorldBuilder::Init()
 
         if (tile == 'd' || tile == 'H')
             go->AddComponent<BreakableBlock>(BaseBlock::ItemSpawnType::None);
-        else if (tile == 'i')
+        else if (tile == 'i' || tile == 'u')
             go->AddComponent<StarBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
-        else if (tile == 'f')
+        else if (tile == 'f' || tile == 'z')
             go->AddComponent<MultiCoinBlock>(BaseBlock::ItemSpawnType::Coin);
         else if (tile == 'n')
         {
@@ -127,9 +128,7 @@ void superMarioBros::WorldBuilder::Init()
             collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
             collider->SetTag("HiddenBlock");
         }
-        else if (tile == 'u')
-            go->AddComponent<BreakableBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
-        else if (tile == 'v')
+        else if (tile == 'v' || tile == 'I')
             go->AddComponent<PowerUpBlock>(BaseBlock::ItemSpawnType::PowerUp);
 
         const auto object = diji::SceneManager::GetInstance().SpawnGameObject("E_breakableBlock", std::move(go), center);

@@ -31,14 +31,6 @@ void superMarioBros::Selector::Init()
 
     LevelEditorManager::GetInstance().OnLevelLoadedEvent.AddListener(this, &Selector::CreateAllSpecialBlocks);
     SetRenderLayer(3);
-
-    for (const auto& [pos, value] : m_GridToCharMap)
-    {
-        if (m_CharToGridMap.contains(value))
-            continue;
-
-        m_CharToGridMap.emplace(value, pos);
-    }
 }
 
 void superMarioBros::Selector::Start()
@@ -203,26 +195,71 @@ bool superMarioBros::Selector::HandleSpecialItems(const char item, const GridPos
     {
         case 'x':
         {
+            TryDeletePlacedItem(gridPos);
             CreateItemAtGridPos('x', gridPos);
             HandleCreatingSpecialBlocks('x', gridPos);
             return true;
         }
-        case '!': // mushroom
-            if (m_PlacedItemsMap[gridPos].empty() == false)
-            {
-                //  tile d /  H
-                if (currentItem == 'd' || currentItem == 'H')
-                {
-                    TryDeletePlacedItem(gridPos);
-                    CreateItemAtGridPos('v', gridPos);
-                }
-            }
+        case '!':
+        {
+            if (m_PlacedItemsMap[gridPos].empty())
+                return false;
+    
+            TryDeletePlacedItem(gridPos);
+            char target;
+            if (currentItem == 'd')
+                target = 'v';
+            else if (currentItem == 'H')
+                target = 'I';
+            else
+                return true;
+    
+            CreateItemAtGridPos(target, gridPos);
+            HandleCreatingSpecialBlocks(target, gridPos);
+
             return true;
+        }
+        case 'q':
+        {
+            if (m_PlacedItemsMap[gridPos].empty())
+                return false;
+        
+            TryDeletePlacedItem(gridPos);
+            char target;
+            if (currentItem == 'd')
+                target = 'f';
+            else if (currentItem == 'H')
+                target = 'z';
+            else
+                return true;
+        
+            CreateItemAtGridPos(target, gridPos);
+            HandleCreatingSpecialBlocks(target, gridPos);
+
+            return true;
+        }
+        case '$':
+        {
+            if (m_PlacedItemsMap[gridPos].empty())
+                return false;
+        
+            TryDeletePlacedItem(gridPos);
+            char target;
+            if (currentItem == 'd')
+                target = 'i';
+            else if (currentItem == 'H')
+                target = 'u';
+            else
+                return true;
+            
+            CreateItemAtGridPos(target, gridPos);
+            HandleCreatingSpecialBlocks(target, gridPos);
+                
+            return true;
+        }
         case '"': // 1up
             break;
             
-        case '$': // star
-            break;
         default:
             break;
     }

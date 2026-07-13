@@ -87,45 +87,55 @@ namespace superMarioBros
                 return h1 ^ (h2 << 1);
             }
         };
-        std::unordered_map<char, sf::Vector2i> m_CharToGridMap;
         std::unordered_map<sf::Vector2i, char, Vector2iHash> m_GridToCharMap =
         {
             { {0, 0}, '0' },
             { {0, 1}, '0' },
-            { {0, 2}, '7' },
-            { {0, 3}, 'a' },
-            { {0, 4}, 'e' },
-            { {0, 5}, '1' },
-            { {0, 6}, '2' },
-            { {0, 7}, 'd' },
-            { {0, 8}, 'q' },
-            { {1, 0}, '3' },
-            { {1, 1}, '5' },
-            { {1, 2}, '8' },
-            { {1, 3}, 'b' },
-            { {1, 4}, 'x' },
-            { {1, 5}, 'w' },
-            { {1, 6}, 'G' },
-            { {1, 7}, 'H' },
-            { {1, 8}, '!' },
-            { {2, 0}, '4' },
-            { {2, 1}, '6' },
-            { {2, 2}, '9' },
-            { {2, 3}, 'c' },
-            { {2, 4}, '0' },
+            { {0, 2}, '7' }, // Side Pipe Top Right
+            { {0, 3}, 'a' }, // Side Pipe Top Left
+            { {0, 4}, 'e' }, // Lucky Block Coin
+            { {0, 5}, '1' }, // Floor
+            { {0, 6}, '2' }, // Stair
+            { {0, 7}, 'd' }, // Breakable Block
+            { {0, 8}, 'q' }, // Static Coin
+            { {1, 0}, '3' }, // Pipe Top Left
+            { {1, 1}, '5' }, // Pipe Middle Left
+            { {1, 2}, '8' }, // Side Pipe Middle Right
+            { {1, 3}, 'b' }, // Side Pipe Middle Left
+            { {1, 4}, 'x' }, // Lucky Block Power Up
+            { {1, 5}, 'w' }, // Ground Green
+            { {1, 6}, 'G' }, // Stair Green
+            { {1, 7}, 'H' }, // Breakable Block Green
+            { {1, 8}, '!' }, // Mushroom / Power Up
+            { {2, 0}, '4' }, // Pipe Top Right
+            { {2, 1}, '6' }, // Pipe Middle Right
+            { {2, 2}, '9' }, // Side Pipe Bottom Right
+            { {2, 3}, 'c' }, // Side Pipe Bottom Left
+            { {2, 4}, '0' },  
             { {2, 5}, '0' },
             { {2, 6}, '0' },
             { {2, 7}, '0' },
-            { {2, 8}, '"' },
-            { {3, 0}, 'k' },
-            { {3, 1}, 'j' },
+            { {2, 8}, '"' }, // 1up Mushroom
+            { {3, 0}, 'k' }, // Flag
+            { {3, 1}, 'j' }, // Pole
             { {3, 2}, '0' },
             { {3, 3}, '0' },
             { {3, 4}, '0' },
             { {3, 5}, '0' },
             { {3, 6}, '0' },
             { {3, 7}, '0' },
-            { {3, 8}, '$' },
-        }; 
+            { {3, 8}, '$' }, // Star
+        };
+
+        std::unordered_map<char, sf::Vector2i> m_CharToGridMap =
+        {
+            { 'x', {1, 4} }, // Lucky Block Power Up
+            { 'f', {0, 8} }, // Static Coin
+            { 'z', {0, 8} }, // Static Coin
+            { 'i', {3, 8} }, // Star
+            { 'u', {3, 8} }, // Star
+            { 'v', {1, 8} }, // Mushroom
+            { 'I', {1, 8} }, // Mushroom
+        };
     };
 }
