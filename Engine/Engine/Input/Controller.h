@@ -6,6 +6,7 @@ namespace diji
     class Controller final
     {
     public:
+        // todo: also add support for Triggers and Joystick Axes
         enum class Button : uint16_t
         {
             DPadUp = 0x0001,
