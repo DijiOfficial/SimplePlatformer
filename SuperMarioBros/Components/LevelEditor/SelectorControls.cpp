@@ -85,6 +85,34 @@ void superMarioBros::SelectorControls::Move(const sf::Vector2f& direction, const
     diji::TimerManager::GetInstance().ClearTimer(m_MoveTimerHandle);
 }
 
+void superMarioBros::SelectorControls::OpenSaveMenu()
+{
+    if (m_DisableMovement)
+    {
+        ClearOutOfSpecialMenu();
+        return;
+    }
+    
+    EnterMenu();
+    m_IsInMenu = true;
+    ChooseMenuItem(1);
+    SelectCurrentMenuItem();
+}
+
+void superMarioBros::SelectorControls::OpenBlocksMenu()
+{
+    if (m_DisableMovement)
+    {
+        ClearOutOfSpecialMenu();
+        return;
+    }
+    
+    EnterMenu();
+    m_IsInMenu = true;
+    ChooseMenuItem(2);
+    SelectCurrentMenuItem();
+}
+
 void superMarioBros::SelectorControls::SelectCurrentMenuItem()
 {
     if (m_IsInMenu == false)
@@ -249,4 +277,14 @@ int superMarioBros::SelectorControls::ClosestMenuItemPosition(const int x)
 
     m_CurrentMenuIndex = idx;
     return higherEntry.xPosition;
+}
+
+void superMarioBros::SelectorControls::ChooseMenuItem(int index)
+{
+    if (m_MenuEntries.empty())
+        return;
+
+    index = std::clamp(index, 0, static_cast<int>(m_MenuEntries.size()) - 1);
+    m_CurrentMenuIndex = index;
+    m_CanvasSelector->SetObjectPosition(sf::Vector2f{static_cast<float>(m_MenuEntries[index].xPosition),m_MenuYPosition});
 }

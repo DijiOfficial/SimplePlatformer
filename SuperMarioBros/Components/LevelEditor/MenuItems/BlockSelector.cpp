@@ -2,6 +2,7 @@
 
 #include "../Selector.h"
 #include "../SelectorControls.h"
+#include "../../../Singletons/LevelEditorManager.h"
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Singleton/SceneManager.h"
@@ -73,6 +74,34 @@ bool superMarioBros::BlockSelector::Return()
 {
     CloseMenu();
     return false;
+}
+
+void superMarioBros::BlockSelector::SelectNextOrPreviousBlock(const bool isNext)
+{
+    if (isNext)
+    {
+        m_CurrentBlockIndex =(m_CurrentBlockIndex + 1) % (m_GridWidth * m_GridHeight);
+    }
+    else
+    {
+        const int count = m_GridWidth * m_GridHeight;
+        m_CurrentBlockIndex = (m_CurrentBlockIndex - 1 + count) % count;
+    }
+
+    UpdateSelectorPosition();
+    (void)Select();
+}
+
+void superMarioBros::BlockSelector::CopyBlockHoveredPosition() const
+{
+    m_Selector->ActivateBackgroundTexture();
+    const sf::Vector2f& pos = m_Selector->GetOwner()->GetObjectPosition();
+
+    const int row = static_cast<int>(pos.y - 25.f) / 50;
+    const int col = static_cast<int>(pos.x - 25.f) / 50;
+    const auto& grid = m_Selector->GetGridPosFromChar(LevelEditorManager::GetInstance().GetLevelInfoAtPos(col, row));
+
+    m_Selector->SetFramePosition(grid.x, grid.y);
 }
 
 void superMarioBros::BlockSelector::SetAllBlocksPositions()

@@ -38,6 +38,7 @@ namespace superMarioBros
         void UpdatePreviewItems();
         void EnablePreview() const;
         void DisablePreview() const;
+        [[nodiscard]] sf::Vector2i GetGridPosFromChar(char itemChar) const;
 
     private:
         sf::Vector2i m_CurrentFramePos{ -1, -1 };

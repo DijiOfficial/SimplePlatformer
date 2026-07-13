@@ -204,6 +204,15 @@ void SceneLoader::LevelEditor()
 
     input.BindCommand<superMarioBros::ClearSpecialMenu>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Escape, selector);
     input.BindCommand<superMarioBros::ClearSpecialMenu>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::B, selector);
+    
+    input.BindCommand<superMarioBros::OpenSaveMenu>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Start, selector);
+    
+    input.BindCommand<superMarioBros::OpenBlocksMenu>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Back, selector);
+    
+    input.BindCommand<superMarioBros::SelectNextBlock>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::RightShoulder, items, true);
+    input.BindCommand<superMarioBros::SelectNextBlock>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::LeftShoulder, items, false);
+
+    input.BindCommand<superMarioBros::CopyBlockHoveredPosition>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::X, items);
 #pragma endregion
 
 #pragma region Events

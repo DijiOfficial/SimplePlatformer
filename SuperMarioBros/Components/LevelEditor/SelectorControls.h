@@ -35,6 +35,9 @@ namespace superMarioBros
         void SetMenuArrow(diji::GameObject* menuArrow) { m_MenuArrowRef = menuArrow; }
 
         void Move(const sf::Vector2f& direction, bool isStart);
+        // todo merge both menu open
+        void OpenSaveMenu();
+        void OpenBlocksMenu();
         void SelectCurrentMenuItem();
         void SetMenuTransform(std::vector<MenuItem*> data) { m_MenuItems = std::move(data); }
         void SetMenuYPosition(const float pos) { m_MenuYPosition = pos; }
@@ -82,5 +85,6 @@ namespace superMarioBros
         [[nodiscard]] int ClosestMenuItemPosition(int x);
         void EnterMenu();
         void ResetSpecialMenu();
+        void ChooseMenuItem(int index);
     };
 }

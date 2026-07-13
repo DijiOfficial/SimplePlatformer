@@ -172,6 +172,16 @@ void superMarioBros::Selector::DisablePreview() const
     m_TextureGO->SetActive(false);
 }
 
+sf::Vector2i superMarioBros::Selector::GetGridPosFromChar(const char itemChar) const
+{
+    for (const auto [pos, item] : m_GridToCharMap)
+    {
+        if (item == itemChar)
+            return sf::Vector2i{ pos.x, pos.y };
+    }
+    return sf::Vector2i{ -1, -1 };
+}
+
 void superMarioBros::Selector::CreateBackgroundTexture()
 {
     auto texture = std::make_unique<diji::GameObject>();
@@ -190,6 +200,7 @@ void superMarioBros::Selector::CreateBackgroundTexture()
 
 bool superMarioBros::Selector::HandleSpecialItems(const char item, const GridPos& gridPos)
 {
+    // todo: merge
     const char currentItem = LevelEditorManager::GetInstance().GetLevelInfoAtPos(gridPos.col, gridPos.row);
     switch (item)
     {

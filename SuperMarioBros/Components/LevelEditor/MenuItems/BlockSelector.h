@@ -20,6 +20,8 @@ namespace superMarioBros
 
         void SetSelectorControls(SelectorControls* selectorControls) { m_SelectorControls = selectorControls; }
         void SetSelector(Selector* selector) { m_Selector = selector; }
+        void SelectNextOrPreviousBlock(bool isNext);
+        void CopyBlockHoveredPosition() const;
         
     private:
         diji::GameObject* m_ChildChoiceGO = nullptr;

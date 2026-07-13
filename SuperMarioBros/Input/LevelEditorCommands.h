@@ -3,6 +3,7 @@
 
 namespace superMarioBros
 {
+    class BlockSelector;
     class SelectorControls;
 }
 
@@ -47,5 +48,53 @@ namespace superMarioBros
     private:
         SelectorControls* m_Selector = nullptr;
     };
+
+    class OpenSaveMenu final : public diji::GameActorCommands
+    {
+    public:
+        explicit OpenSaveMenu(diji::GameObject* actor);
+        ~OpenSaveMenu() noexcept override = default;
+
+        void Execute() override;
+        
+    private:
+        SelectorControls* m_Selector = nullptr;
+    };
     
+    class OpenBlocksMenu final : public diji::GameActorCommands
+    {
+    public:
+        explicit OpenBlocksMenu(diji::GameObject* actor);
+        ~OpenBlocksMenu() noexcept override = default;
+
+        void Execute() override;
+        
+    private:
+        SelectorControls* m_Selector = nullptr;
+    };
+
+    class SelectNextBlock final : public diji::GameActorCommands
+    {
+    public:
+        explicit SelectNextBlock(diji::GameObject* actor, bool isNext);
+        ~SelectNextBlock() noexcept override = default;
+
+        void Execute() override;
+        
+    private:
+        bool m_IsNext;
+        BlockSelector* m_Selector = nullptr;
+    };
+
+    class  CopyBlockHoveredPosition final : public diji::GameActorCommands
+    {
+    public:
+        explicit CopyBlockHoveredPosition(diji::GameObject* actor);
+        ~CopyBlockHoveredPosition() noexcept override = default;
+
+        void Execute() override;
+        
+    private:
+        BlockSelector* m_Selector = nullptr;
+    };
 }
