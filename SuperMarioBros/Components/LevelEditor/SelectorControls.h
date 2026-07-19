@@ -53,9 +53,8 @@ namespace superMarioBros
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::TimerManager::TimerHandle m_MoveTimerHandle = 0;
         sf::Vector2f m_ArenaBoundsHorizontal{ 25.f, 12000.f };
-        sf::Vector2f m_ArenaBoundsVertical{ 25.f, 575.f };
+        sf::Vector2f m_ArenaBoundsVertical{ 25.f, 625.0f };
 
-        const float TILE_SIZE = 50.0f;
         const float INITIAL_DELAY_BEFORE_MOVE = 0.25f;
         const float DELAY_BETWEEN_MOVE = 0.03f;
         float m_MenuYPosition = -25.f;

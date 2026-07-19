@@ -76,15 +76,15 @@ int superMarioBros::LevelEditorManager::SetCharAtPosition(const int x, const int
     if (x < 0)
         return -1;
 
-    if (y < 0 || y >= MAX_LEVEL_HEIGHT)
+    if (y < 0 || y >= WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT)
         return -1;
 
     if (x >= m_LevelWidth)
     {
         const int newWidth = x + 1;
 
-        std::vector newLevel(static_cast<size_t>(newWidth) * MAX_LEVEL_HEIGHT, '0');
-        for (int row = 0; row < MAX_LEVEL_HEIGHT; ++row)
+        std::vector newLevel(static_cast<size_t>(newWidth) * WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT, '0');
+        for (int row = 0; row < WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT; ++row)
         {
             for (int col = 0; col < m_LevelWidth; ++col)
             {
@@ -103,10 +103,10 @@ int superMarioBros::LevelEditorManager::SetCharAtPosition(const int x, const int
 
 char superMarioBros::LevelEditorManager::GetLevelInfoAtPos(const int x, const int y) const
 {
-    if (x < 0 || y < 0 || y >= MAX_LEVEL_HEIGHT)
+    if (x < 0 || y < 0 || y >= WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT)
         return '0';
 
-    const int cols = static_cast<int>(m_LevelInfo.size()) / MAX_LEVEL_HEIGHT;
+    const int cols = static_cast<int>(m_LevelInfo.size()) / WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT;
 
     if (x >= cols)
         return '0';
@@ -116,10 +116,10 @@ char superMarioBros::LevelEditorManager::GetLevelInfoAtPos(const int x, const in
 
 void superMarioBros::LevelEditorManager::SaveLevelInfo(const std::string& filepath) const
 {
-    if (m_LevelInfo.size() % MAX_LEVEL_HEIGHT != 0)
+    if (m_LevelInfo.size() % WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT != 0)
         throw std::runtime_error("Level data is not divisible by 13.");
 
-    constexpr int rows = MAX_LEVEL_HEIGHT;
+    constexpr int rows = WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT;
     const int cols = static_cast<int>(m_LevelInfo.size()) / rows;
     
     std::ofstream file(filepath);
@@ -149,11 +149,11 @@ void superMarioBros::LevelEditorManager::RecalculateLevelWidth()
         return;
     }
 
-    const int rowWidth = static_cast<int>(m_LevelInfo.size()) / MAX_LEVEL_HEIGHT;
+    const int rowWidth = static_cast<int>(m_LevelInfo.size()) / WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT;
 
     int maxWidth = 0;
 
-    for (int y = 0; y < MAX_LEVEL_HEIGHT; ++y)
+    for (int y = 0; y < WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT; ++y)
     {
         const int rowStart = y * rowWidth;
         if (m_LevelInfo[rowStart + rowWidth] != '0')

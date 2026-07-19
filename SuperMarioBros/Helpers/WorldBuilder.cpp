@@ -36,13 +36,13 @@ void superMarioBros::WorldBuilder::Init()
     m_Handlers['w'] = m_Handlers['G'] = 
     [](const diji::GameObject* world, const int row, const int col, char) -> int
     {
-        const float left = static_cast<float>(col) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
+        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         const sf::Vector2f center = { left + 25.f, bottom + 25.f };
 
         auto go = std::make_unique<diji::GameObject>();
         go->SetObjectPosition(center);
-        go->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ TILE_SIZE, TILE_SIZE });
+        go->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ WorldSettings::TILE_SIZE, WorldSettings::TILE_SIZE });
 
         const auto collider = go->GetComponent<diji::Collider>();
         collider->SetStatic(true);
@@ -58,8 +58,8 @@ void superMarioBros::WorldBuilder::Init()
     m_Handlers['e'] = m_Handlers['x'] = m_Handlers['y'] =
     [](const diji::GameObject* world, const int row, const int col, const char tile) -> int
     {
-        const float left = static_cast<float>(col) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
+        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         const sf::Vector2f center = { left + 25.f, bottom + 25.f };
 
         auto go = std::make_unique<diji::GameObject>();
@@ -88,8 +88,8 @@ void superMarioBros::WorldBuilder::Init()
     m_Handlers['z'] = m_Handlers['I'] = 
     [](const diji::GameObject* world, const int row, const int col, const char tile) -> int
     {
-        const float left = static_cast<float>(col) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
+        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         const sf::Vector2f center = { left + 25.f, bottom + 25.f };
 
         auto go = std::make_unique<diji::GameObject>();
@@ -140,8 +140,8 @@ void superMarioBros::WorldBuilder::Init()
     m_Handlers['g'] = m_Handlers['h'] =
     [](const diji::GameObject* world, const int row, const int col, const char tile) -> int
     {
-        const float left = static_cast<float>(col) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
+        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         sf::Vector2f center = { left + 25.f, bottom + 25.f };
 
         auto go = std::make_unique<diji::GameObject>();
@@ -177,8 +177,8 @@ void superMarioBros::WorldBuilder::Init()
     // 5) Flag pole
     m_Handlers['k'] = [](const diji::GameObject* world, const int row, const int col, char) -> int
     {
-        const float left = static_cast<float>(col) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
+        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         const sf::Vector2f center = { left + 25.f, bottom + 25.f };
 
         // pole collider
@@ -217,8 +217,8 @@ void superMarioBros::WorldBuilder::Init()
     // 6) Castle l/m
     m_Handlers['l'] = m_Handlers['m'] = [](const diji::GameObject* world, const int row, const int col, char ) -> int
     {
-        const float left = static_cast<float>(col) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
+        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         const sf::Vector2f center = { left + 25.f, bottom + 25.f - 100.f };
 
         auto castle = std::make_unique<diji::GameObject>();
@@ -243,8 +243,8 @@ void superMarioBros::WorldBuilder::Init()
     // 7) Koopa o/p
     m_Handlers['o'] = m_Handlers['p'] = [](const diji::GameObject* world, const int row, const int col, const char tile) -> int
     {
-        const float left = static_cast<float>(col) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
+        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         sf::Vector2f center = { left + 25.f, bottom + 25.f };
 
         auto go = std::make_unique<diji::GameObject>();
@@ -281,8 +281,8 @@ void superMarioBros::WorldBuilder::Init()
     m_Handlers['D'] = m_Handlers['E'] = m_Handlers['F'] =
     [](const diji::GameObject* world, const int row, const int col, const char tile) -> int
     {
-        const float left = static_cast<float>(col) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
+        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         const sf::Vector2f center = { left + 25.f, bottom + 25.f };
 
         int x = 0, y = 0;
@@ -321,8 +321,8 @@ void superMarioBros::WorldBuilder::Init()
     // 9) Static coin q
     m_Handlers['q'] = [](const diji::GameObject* world, const int row, const int col, char) -> int
     {
-        const float left = static_cast<float>(col) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
+        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         const sf::Vector2f center = { left + 25.f, bottom + 25.f };
 
         auto go = std::make_unique<diji::GameObject>();
@@ -345,8 +345,8 @@ void superMarioBros::WorldBuilder::Init()
     // 10) Checkpoint r
     m_Handlers['r'] = [](const diji::GameObject* world, const int row, const int col, char) -> int
     {
-        const float left = static_cast<float>(col) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
+        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         const sf::Vector2f center = { left + 25.f, bottom + 25.f };
 
         auto go = std::make_unique<diji::GameObject>();
@@ -362,8 +362,8 @@ void superMarioBros::WorldBuilder::Init()
     // 11) Piranha plant s
     m_Handlers['s'] = [](const diji::GameObject* world, const int row, const int col, char) -> int
     {
-        const float left = static_cast<float>(col) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
+        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         const sf::Vector2f center = { left + 50.f, bottom + 45.f };
 
         auto plant = std::make_unique<diji::GameObject>();
@@ -386,7 +386,7 @@ void superMarioBros::WorldBuilder::Init()
         // spawn a ground collider under the plant (mirrors original)
         auto ground = std::make_unique<diji::GameObject>();
         ground->SetObjectPosition(center);
-        ground->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{TILE_SIZE, TILE_SIZE});
+        ground->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{WorldSettings::TILE_SIZE, WorldSettings::TILE_SIZE});
 
         const auto groundCollider = ground->GetComponent<diji::Collider>();
         groundCollider->SetStatic(true);
@@ -421,14 +421,14 @@ diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<ch
         const int len = c - startC;
         if (len <= 0) return 1;
 
-        const float left = static_cast<float>(startC) * TILE_SIZE;
-        const float bottom = static_cast<float>(row) * TILE_SIZE;
-        const float width  = static_cast<float>(len) * TILE_SIZE;
-        const sf::Vector2f center = { left + width * 0.5f, bottom + TILE_SIZE * 0.5f };
+        const float left = static_cast<float>(startC) * WorldSettings::TILE_SIZE;
+        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
+        const float width  = static_cast<float>(len) * WorldSettings::TILE_SIZE;
+        const sf::Vector2f center = { left + width * 0.5f, bottom + WorldSettings::TILE_SIZE * 0.5f };
 
         auto go = std::make_unique<diji::GameObject>();
         go->SetObjectPosition(center);
-        go->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ static_cast<float>(len) * TILE_SIZE, TILE_SIZE });
+        go->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{ static_cast<float>(len) * WorldSettings::TILE_SIZE, WorldSettings::TILE_SIZE });
 
         const auto collider = go->GetComponent<diji::Collider>();
         collider->SetStatic(true);

@@ -1,6 +1,7 @@
 ﻿#include "SelectorControls.h"
 
 #include "Selector.h"
+#include "../../Helpers/WorldBuilder.h"
 #include "../../Singletons/LevelEditorManager.h"
 #include "Engine/Components/Render.h"
 #include "Engine/Core/GameObject.h"
@@ -65,7 +66,7 @@ void superMarioBros::SelectorControls::Move(const sf::Vector2f& direction, const
         if (!CanMove(direction))
             return;
 
-        m_TransformCompPtr->AddWorldOffset(sf::Vector2f{ direction.x * TILE_SIZE, direction.y * TILE_SIZE });
+        m_TransformCompPtr->AddWorldOffset(sf::Vector2f{ direction.x * WorldBuilder::WorldSettings::TILE_SIZE, direction.y * WorldBuilder::WorldSettings::TILE_SIZE });
         m_SelectorRef->UpdatePreviewItems();
         m_MoveTimerHandle = diji::TimerManager::GetInstance().SetTimer(this, 
             [this, direction]()
@@ -73,7 +74,7 @@ void superMarioBros::SelectorControls::Move(const sf::Vector2f& direction, const
                 if (!CanMove(direction))
                     return;
 
-                m_TransformCompPtr->AddWorldOffset(sf::Vector2f{ direction.x * TILE_SIZE, direction.y * TILE_SIZE });
+                m_TransformCompPtr->AddWorldOffset(sf::Vector2f{ direction.x * WorldBuilder::WorldSettings::TILE_SIZE, direction.y * WorldBuilder::WorldSettings::TILE_SIZE });
                 m_SelectorRef->UpdatePreviewItems();
             },
             DELAY_BETWEEN_MOVE, true, INITIAL_DELAY_BEFORE_MOVE

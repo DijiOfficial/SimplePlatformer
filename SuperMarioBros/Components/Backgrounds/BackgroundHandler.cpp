@@ -1,9 +1,10 @@
 ﻿#include "BackgroundHandler.h"
 
+#include "../../Helpers/WorldBuilder.h"
 #include "../../Singletons/GameManager.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Sprite.h"
-#include "../../Singletons/LevelEditorManager.h"
+
 void superMarioBros::BackgroundHandler::Init()
 {
     m_BackgroundSprite = GetOwner()->GetComponent<diji::Sprite>();
@@ -61,7 +62,7 @@ void superMarioBros::BackgroundHandler::Init()
         // ... etc.
     };
 
-    // tbh this shouldn't call load level in the first place
+    // todo: tbh this shouldn't call load level in the first place
     if (m_ShouldLoadFirstLevel)
         GameManager::GetInstance().LoadLevel();
 }
@@ -140,7 +141,7 @@ void superMarioBros::BackgroundHandler::ApplyTile(const int x, const int y, cons
     auto& vertices = m_BackgroundSprite->GetVertexArray();
 
     // safety
-    if (cols == -1 || x < 0 || y < 0 || x >= cols || y >= MAX_LEVEL_HEIGHT)
+    if (cols == -1 || x < 0 || y < 0 || x >= cols || y >= WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT)
         return;
 
     const int vertexIndex = (y * cols + x) * 6;
@@ -190,12 +191,12 @@ void superMarioBros::BackgroundHandler::TempReload(const int cols, const std::ve
     constexpr int tileSize = 50;
 
     m_BackgroundSprite->SetTileSize(tileSize);
-    m_BackgroundSprite->SetTileCount(cols, MAX_LEVEL_HEIGHT);
+    m_BackgroundSprite->SetTileCount(cols, WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT);
     m_BackgroundSprite->ResizeVertexArray();
 
     auto& tempVertexArray = m_BackgroundSprite->GetVertexArray();
 
-    for (int y = 0; y < MAX_LEVEL_HEIGHT; ++y)
+    for (int y = 0; y < WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT; ++y)
     {
         for (int x = 0; x < cols; ++x)
         {

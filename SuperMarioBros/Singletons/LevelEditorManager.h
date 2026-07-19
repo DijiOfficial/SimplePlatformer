@@ -8,7 +8,6 @@
 
 namespace superMarioBros
 {
-    static constexpr int MAX_LEVEL_HEIGHT = 13;
 
     class LevelEditorManager final : public diji::Singleton<LevelEditorManager>
     {

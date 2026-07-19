@@ -25,12 +25,12 @@
 #include "Engine/Components/TextComp.h"
 #include "Engine/Core/Engine.h"
 #include "Engine/Singleton/GameStateManager.h"
-#include "Engine/Singleton/TimerManager.h"
 
 #include <format>
 
 #include "../Components/Other/SceneLoader.h"
 #include "../Components/Player/CheckPlayerTopPixel.h"
+#include "../Helpers/WorldBuilder.h"
 #include "Engine/Components/ShapeRender.h"
 #include "Engine/Core/Renderer.h"
 
@@ -449,15 +449,14 @@ void SceneLoader::TransitionToNextLevel()
         superMarioBros::GameManager::GetInstance().SwitchToNextScene();
     });
   
-    const sf::FloatRect arena{ sf::Vector2f{ 0, -(115 * 4.5) }, sf::Vector2f{ 1920.f, 1080.f } };
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->SetObjectPosition({ 0, 0 });
     camera->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
-    camera->GetComponent<Camera>()->SetLevelBoundaries(arena);
+    camera->GetComponent<Camera>()->SetLevelBoundaries(superMarioBros::WorldBuilder::WorldSettings::ARENA_SIZE);
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
-    staticBackground->SetObjectPosition({ 0, 178 });
+    staticBackground->SetObjectPosition({ 0, 228 });
     staticBackground->AddComponent<TextureComp>("graphics/background.png");
     staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>(player->GetRootComponent());
 
@@ -574,7 +573,7 @@ void SceneLoader::Level()
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
-    staticBackground->SetObjectPosition({ 0, 178 });
+    staticBackground->SetObjectPosition({ 0, 228 });
     staticBackground->AddComponent<TextureComp>("graphics/background.png");
     staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>(player->GetRootComponent());
     scene->SetToAlwaysRender(staticBackground, true);
@@ -586,11 +585,10 @@ void SceneLoader::Level()
     background->AddComponent<superMarioBros::BackgroundHandler>();
     scene->SetToAlwaysRender(background, true);
 
-    const sf::FloatRect arena{ sf::Vector2f{ 0, -(115 * 4.5) }, sf::Vector2f{ 12000.f, 1080.f } };
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->SetObjectPosition({ 0, 0 });
     camera->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
-    camera->GetComponent<Camera>()->SetLevelBoundaries(arena);
+    camera->GetComponent<Camera>()->SetLevelBoundaries(superMarioBros::WorldBuilder::WorldSettings::ARENA_SIZE);
 
     player->SetObjectPosition({ 200, 0 });
     player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);

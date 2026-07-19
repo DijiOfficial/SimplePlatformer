@@ -13,6 +13,7 @@
 #include "../../Components/Player/BroadcastPlayerPosition.h"
 #include "../../Components/Player/CheckPlayerTopPixel.h"
 #include "../../Components/Player/PlayerCharacter.h"
+#include "../../Helpers/WorldBuilder.h"
 #include "../../Input/LevelEditorCommands.h"
 #include "Engine/Collision/Collider.h"
 #include "Engine/Collision/CollisionShape.h"
@@ -41,19 +42,18 @@ void SceneLoader::LevelEditor()
 
     const auto selector = scene->CreateGameObject("X_SelectorPlayer");
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
-    staticBackground->SetObjectPosition({ 0, 178 });
+    staticBackground->SetObjectPosition({ 0, 228 });
     staticBackground->AddComponent<TextureComp>("graphics/background.png");
     staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>(selector->GetRootComponent());
     scene->SetToAlwaysRender(staticBackground, true);
-
-    constexpr sf::FloatRect arena{ sf::Vector2f{ 0, -(115 * 4.5) }, sf::Vector2f{ 12000.f, 1080.f } };
+    
     selector->SetObjectPosition({ 525, 25 });
     selector->AddComponent<TextureComp>("graphics/squareWhiteSmaller50.png");
     selector->AddComponent<Render>();
     const auto& selectorControlsComp = selector->AddComponent<superMarioBros::SelectorControls>();
     const auto& selectorComp = selector->AddComponent<superMarioBros::Selector>();
     selector->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
-    selector->GetComponent<Camera>()->SetLevelBoundaries(arena);
+    selector->GetComponent<Camera>()->SetLevelBoundaries(superMarioBros::WorldBuilder::WorldSettings::ARENA_SIZE);
     selector->SetRenderLayer(10);
     
     // todo: fix background to only parse the visible background

@@ -295,7 +295,7 @@ void superMarioBros::Selector::CreateAllSpecialBlocks()
     if (levelInfo.empty())
         return;
 
-    const int cols = static_cast<int>(levelInfo.size()) / MAX_LEVEL_HEIGHT;
+    const int cols = static_cast<int>(levelInfo.size()) / WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT;
     for (int index = 0; index < static_cast<int>(levelInfo.size()); ++index)
     {
         const char item = levelInfo[index];
