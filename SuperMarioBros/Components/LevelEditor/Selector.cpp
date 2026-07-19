@@ -200,82 +200,38 @@ void superMarioBros::Selector::CreateBackgroundTexture()
 
 bool superMarioBros::Selector::HandleSpecialItems(const char item, const GridPos& gridPos)
 {
-    // todo: merge
     const char currentItem = LevelEditorManager::GetInstance().GetLevelInfoAtPos(gridPos.col, gridPos.row);
-    switch (item)
+
+    if (item == 'x')
     {
-        case 'x':
-        {
-            TryDeletePlacedItem(gridPos);
-            CreateItemAtGridPos('x', gridPos);
-            HandleCreatingSpecialBlocks('x', gridPos);
-            return true;
-        }
-        case '!':
-        {
-            if (m_PlacedItemsMap[gridPos].empty())
-                return false;
-    
-            TryDeletePlacedItem(gridPos);
-            char target;
-            if (currentItem == 'd')
-                target = 'v';
-            else if (currentItem == 'H')
-                target = 'I';
-            else
-                return true;
-    
-            CreateItemAtGridPos(target, gridPos);
-            HandleCreatingSpecialBlocks(target, gridPos);
-
-            return true;
-        }
-        case 'q':
-        {
-            if (m_PlacedItemsMap[gridPos].empty())
-                return false;
-        
-            TryDeletePlacedItem(gridPos);
-            char target;
-            if (currentItem == 'd')
-                target = 'f';
-            else if (currentItem == 'H')
-                target = 'z';
-            else
-                return true;
-        
-            CreateItemAtGridPos(target, gridPos);
-            HandleCreatingSpecialBlocks(target, gridPos);
-
-            return true;
-        }
-        case '$':
-        {
-            if (m_PlacedItemsMap[gridPos].empty())
-                return false;
-        
-            TryDeletePlacedItem(gridPos);
-            char target;
-            if (currentItem == 'd')
-                target = 'i';
-            else if (currentItem == 'H')
-                target = 'u';
-            else
-                return true;
-            
-            CreateItemAtGridPos(target, gridPos);
-            HandleCreatingSpecialBlocks(target, gridPos);
-                
-            return true;
-        }
-        case '"': // 1up
-            break;
-            
-        default:
-            break;
+        TryDeletePlacedItem(gridPos);
+        CreateItemAtGridPos('x', gridPos);
+        HandleCreatingSpecialBlocks('x', gridPos);
+        return true;
     }
 
-    return false;
+    if (m_PlacedItemsMap[gridPos].empty())
+        return false;
+    
+    const auto ReplaceSpecialItem = [&](const char target)
+    {
+        TryDeletePlacedItem(gridPos);
+        CreateItemAtGridPos(target, gridPos);
+        HandleCreatingSpecialBlocks(target, gridPos);
+    };
+
+    const auto it = m_ReplacementsMap.find(item);
+    if (it == m_ReplacementsMap.end())
+        return false;
+    
+    if (currentItem == 'd')
+        ReplaceSpecialItem(it->second.first);
+    else if (currentItem == 'H')
+        ReplaceSpecialItem(it->second.second);
+    else
+        return false;
+
+    return true;
 }
 
 void superMarioBros::Selector::CreateItemAtGridPos(const char itemChar, const GridPos& gridPos)

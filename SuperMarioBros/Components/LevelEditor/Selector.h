@@ -138,5 +138,12 @@ namespace superMarioBros
             { 'v', {1, 8} }, // Mushroom
             { 'I', {1, 8} }, // Mushroom
         };
+
+        std::unordered_map<char, std::pair<char, char>> m_ReplacementsMap =
+        {
+            {'!', {'v', 'I'}},
+            {'q', {'f', 'z'}},
+            {'$', {'i', 'u'}}
+        };
     };
 }
