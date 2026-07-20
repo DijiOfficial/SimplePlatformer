@@ -47,6 +47,8 @@ void diji::SceneManager::Init()
 void diji::SceneManager::Start() const
 {
     m_ScenesUPtrMap.at(m_ActiveSceneId)->Start();
+
+    m_PhysicsWorldUPtr->Init();
 }
 
 void diji::SceneManager::FixedUpdate() const

@@ -1,45 +1,44 @@
 ﻿#pragma once
 #include <vector>
-#include <stack>
-#include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
-// A small, generic BVH that operates on axis-aligned FloatRects.
-// Leaves store an integer "userIndex" which you decide (e.g. index into predictions or static array).
+#include "CollisionStructs.h"
+
 namespace diji
 {
-    class BVHTree
+    class Collider;
+
+    // todo: this tree doesn't support adding new colliders after the initial build.
+    class BVHTree final
     {
     public:
         struct Node
         {
             sf::FloatRect aabb;
-            int left = -1;         // index of left child (if internal)
-            int right = -1;        // index of right child (if internal)
-            int userIndex = -1;    // if leaf: index into user array
-            bool isLeaf = false;
+            uint32_t left = UINT16_MAX;
+            uint32_t right = UINT16_MAX;
+
+            Collider* collider = nullptr;
         };
 
         BVHTree() = default;
+        ~BVHTree() = default;
 
-        // Build tree from provided list of AABBs. userIndices are implicit as 0..N-1.
-        void BuildFromAABBs(const std::vector<sf::FloatRect>& aabbs);
+        BVHTree(const BVHTree& other) = delete;
+        BVHTree(BVHTree&& other) = delete;
+        BVHTree& operator=(const BVHTree& other) = delete;
+        BVHTree& operator=(BVHTree&& other) = delete;
 
-        // Query all leaf userIndices whose AABB overlaps the query AABB
-        void QueryOverlap(const sf::FloatRect& query, std::vector<int>& outIndices) const;
-
-        // Raycast: optional, returns first hit userIndex (not required in this PR, but useful)
-        int RaycastFirst(const sf::Vector2f& origin, const sf::Vector2f& dir, float maxDist) const;
-
-        void Clear() { m_nodes.clear(); }
-
-        bool Empty() const { return m_nodes.empty(); }
-
+        void Build(const std::vector<StaticColliderInfo>& staticColliders);
+        [[nodiscard]] const std::vector<StaticColliderInfo>& Query(const sf::FloatRect& queryAABB);
+        
     private:
-        std::vector<Node> m_nodes;
-
-        static sf::FloatRect MergeAABB(const sf::FloatRect& a, const sf::FloatRect& b);
-        static float Area(const sf::FloatRect& r);
-        static bool Overlap(const sf::FloatRect& a, const sf::FloatRect& b);
+        std::vector<StaticColliderInfo> m_CollidersInfo;
+        std::vector<StaticColliderInfo> m_CollidersResults;
+        std::vector<Node> m_Nodes;
+        
+        void QueryNode(uint32_t nodeIdx, const sf::FloatRect& queryAABB);
+        uint32_t BuildNode(uint32_t begin, uint32_t end);
+        sf::FloatRect ComputeBounds(uint32_t begin, uint32_t end) const;
     };
 }

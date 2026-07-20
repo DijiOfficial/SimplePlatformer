@@ -64,6 +64,12 @@ void diji::PhysicsWorld::RemoveCollider(Collider* collider)
     RemoveFromTriggerLists(collider);
 }
 
+void diji::PhysicsWorld::Init()
+{
+    m_StaticsBVHTree = std::make_unique<BVHTree>();
+    m_StaticsBVHTree->Build(m_StaticInfos);
+}
+
 void diji::PhysicsWorld::FixedUpdate()
 {
     // Phase 1: Predict movement
@@ -353,19 +359,21 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         auto& [colliderPtr, predictedAABB, pos, vel, collisionsVec] = predictionsVec[i];
         if (!colliderPtr->IsColliderActive()) continue;
 
+        if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore)
+            continue;
+        
         // STATIC COLLISIONS: Check against all static colliders
-        for (const auto& [aabb, staticCollider] : m_StaticInfos)
+        for (const auto& [aabb, staticCollider] : m_StaticsBVHTree->Query(predictedAABB))
         {
             if (!staticCollider->IsColliderActive()) continue;
-            if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
             if (colliderPtr->IsIgnoringCollider(staticCollider) || staticCollider->IsIgnoringCollider(colliderPtr)) continue;
             if (!AABBOverlap(predictedAABB, aabb)) continue;
             
             const auto [Overlap, Hit] = HandleStaticCollisions(predictionsVec[i], staticCollider);
-
+            
             if (Overlap)
                 m_ActiveTriggers.push_back({.trigger = colliderPtr, .other = staticCollider, .hitInfo = collisionsVec.back()});
-
+            
             if (!Hit || !colliderPtr->IsGenerateHitEvents())
                 continue;
             
@@ -374,8 +382,28 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             info.other = staticCollider;
             info.hasHitEvent = Hit;
         }
+        // for (const auto& [aabb, staticCollider] : m_StaticInfos)
+        // {
+        //     if (!staticCollider->IsColliderActive()) continue;
+        //     if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
+        //     if (colliderPtr->IsIgnoringCollider(staticCollider) || staticCollider->IsIgnoringCollider(colliderPtr)) continue;
+        //     if (!AABBOverlap(predictedAABB, aabb)) continue;
+        //     
+        //     const auto [Overlap, Hit] = HandleStaticCollisions(predictionsVec[i], staticCollider);
+        //
+        //     if (Overlap)
+        //         m_ActiveTriggers.push_back({.trigger = colliderPtr, .other = staticCollider, .hitInfo = collisionsVec.back()});
+        //
+        //     if (!Hit || !colliderPtr->IsGenerateHitEvents())
+        //         continue;
+        //     
+        //     auto& info = collisionsVec.back();
+        //     info.trigger = colliderPtr;
+        //     info.other = staticCollider;
+        //     info.hasHitEvent = Hit;
+        // }
 
-        if (colliderPtr->IsIgnoringAllDynamicColliders() || colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore)
+        if (colliderPtr->IsIgnoringAllDynamicColliders())
             continue;
         
         // DYNAMIC COLLISIONS: Check against remaining dynamic colliders (avoid duplicates)

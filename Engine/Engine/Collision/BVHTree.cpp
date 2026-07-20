@@ -1,191 +1,102 @@
 ﻿#include "BVHTree.h"
+#include "PhysicsWorld.h"
 #include <algorithm>
-#include <limits>
-#include <cmath>
-#include <functional>
 
-using Node = diji::BVHTree::Node;
-
-sf::FloatRect diji::BVHTree::MergeAABB(const sf::FloatRect& a, const sf::FloatRect& b)
+void diji::BVHTree::Build(const std::vector<StaticColliderInfo>& staticColliders)
 {
-    const float left = std::min(a.position.x, b.position.x);
-    const float top = std::min(a.position.y, b.position.y);
-    const float right = std::max(a.position.x + a.size.x, b.position.x + b.size.x);
-    const float bottom = std::max(a.position.y + a.size.y, b.position.y + b.size.y);
-    return sf::FloatRect{ sf::Vector2f{ left, top }, sf::Vector2f{ right - left, bottom - top } };
+    m_Nodes.clear();
+
+    if (staticColliders.empty())
+        return;
+    
+    m_Nodes.reserve(staticColliders.size() * 2 - 1);
+    m_CollidersInfo = staticColliders;
+
+    BuildNode(0, static_cast<uint32_t>(staticColliders.size()));
 }
 
-float diji::BVHTree::Area(const sf::FloatRect& r)
+const std::vector<diji::StaticColliderInfo>& diji::BVHTree::Query(const sf::FloatRect& queryAABB)
 {
-    return r.size.x * r.size.y;
+    m_CollidersResults.clear();
+    QueryNode(0, queryAABB);
+    
+    return m_CollidersResults;
 }
 
-bool diji::BVHTree::Overlap(const sf::FloatRect& a, const sf::FloatRect& b)
+void diji::BVHTree::QueryNode(const uint32_t nodeIdx, const sf::FloatRect& queryAABB)
 {
-    return !(a.position.x + a.size.x < b.position.x || b.position.x + b.size.x < a.position.x ||
-             a.position.y + a.size.y < b.position.y || b.position.y + b.size.y < a.position.y);
-}
+    const auto& [aabb, left, right, collider] = m_Nodes[nodeIdx];
 
-void diji::BVHTree::BuildFromAABBs(const std::vector<sf::FloatRect>& aabbs)
-{
-    m_nodes.clear();
-    const int n = static_cast<int>(aabbs.size());
-    if (n == 0) return;
+    if (PhysicsWorld::AABBOverlap(aabb, queryAABB) == false)
+        return;
 
-    // Prepare array of leaf indices
-    struct Item { int index; sf::FloatRect aabb; sf::Vector2f center; };
-    std::vector<Item> items; items.reserve(n);
-    for (int i = 0; i < n; ++i)
+    if (collider)
     {
-        Item it;
-        it.index = i;
-        it.aabb = aabbs[i];
-        it.center = { aabbs[i].position.x + aabbs[i].size.x * 0.5f, aabbs[i].position.y + aabbs[i].size.y * 0.5f };
-        items.push_back(it);
+        m_CollidersResults.push_back({ .aabb= aabb, .collider= collider });
+        return;
     }
 
-    // Recursively build with stack to avoid recursion depth issues
-    struct BuildTask { int start, end, parentIndex; bool isLeft; };
-    std::vector<BuildTask> tasks;
-    tasks.push_back({ 0, static_cast<int>(items.size()), -1, false });
+    QueryNode(left, queryAABB);
+    QueryNode(right, queryAABB);
+}
 
-    // We'll maintain a parallel storage for temporary ordering of items
-    std::vector<Item> localItems = std::move(items);
+// Median split with max 1 collider per leaf node. Could extend to allow more colliders per leaf node depending on use case.
+// todo: look into using SAH or Spatial Splitting
+uint32_t diji::BVHTree::BuildNode(const uint32_t begin, const uint32_t end)
+{
+    const uint32_t nodeIndex = static_cast<uint32_t>(m_Nodes.size());
+    m_Nodes.emplace_back();
 
-    // We will create nodes and assign leaves as we go
-    // To make life easy, use a lambda that builds a subtree for [start,end) and returns node index
-    std::function<int(int,int)> buildSubtree;
-    buildSubtree = [&](const int start, const int end) -> int
+    if (end - begin == 1)
     {
-        const int count = end - start;
-        if (count <= 0) return -1;
-
-        Node node;
-        if (count == 1)
-        {
-            node.aabb = localItems[start].aabb;
-            node.isLeaf = true;
-            node.userIndex = localItems[start].index;
-            m_nodes.push_back(node);
-            return static_cast<int>(m_nodes.size()) - 1;
-        }
-
-        // Compute bounding box and extents
-        sf::FloatRect bounds = localItems[start].aabb;
-        for (int i = start + 1; i < end; ++i)
-            bounds = MergeAABB(bounds, localItems[i].aabb);
-
-        const float width = bounds.size.x;
-        const float height = bounds.size.y;
-        const int axis = (width >= height) ? 0 : 1; // 0 = x, 1 = y
-
-        // Partition by median of centers
-        const int mid = start + count / 2;
-        if (axis == 0)
-        {
-            std::nth_element(localItems.begin() + start, localItems.begin() + mid, localItems.begin() + end,
-                [](const Item& a, const Item& b){ return a.center.x < b.center.x; });
-        }
-        else
-        {
-            std::nth_element(localItems.begin() + start, localItems.begin() + mid, localItems.begin() + end,
-                [](const Item& a, const Item& b){ return a.center.y < b.center.y; });
-        }
-
-        // Create internal node
-        Node internal;
-        internal.isLeaf = false;
-        // left and right will be filled after recursive calls
-        m_nodes.push_back(internal);
-        const int nodeIndex = static_cast<int>(m_nodes.size()) - 1;
-
-        const int left = buildSubtree(start, mid);
-        const int right = buildSubtree(mid, end);
-
-        // compute AABB
-        const sf::FloatRect leftAABB = (left >= 0) ? m_nodes[left].aabb : sf::FloatRect();
-        const sf::FloatRect rightAABB = (right >= 0) ? m_nodes[right].aabb : sf::FloatRect();
-        m_nodes[nodeIndex].left = left;
-        m_nodes[nodeIndex].right = right;
-        m_nodes[nodeIndex].aabb = MergeAABB(leftAABB, rightAABB);
-
+        m_Nodes[nodeIndex].aabb = m_CollidersInfo[begin].aabb;
+        m_Nodes[nodeIndex].collider = m_CollidersInfo[begin].collider;
         return nodeIndex;
-    };
+    }
 
-    // Build entire tree
-    const int root = buildSubtree(0, static_cast<int>(localItems.size()));
-    (void)root;
+    m_Nodes[nodeIndex].aabb = ComputeBounds(begin, end);
+
+    bool splitX = m_Nodes[nodeIndex].aabb.size.x > m_Nodes[nodeIndex].aabb.size.y;
+    const auto first = m_CollidersInfo.begin() + begin;
+    const auto middle = first + (end - begin) / 2;
+    const auto last = m_CollidersInfo.begin() + end;
+
+    // std::sort(m_CollidersInfo.begin() + begin, m_CollidersInfo.begin() + end,
+    std::nth_element(first, middle, last,
+    [splitX](const auto& a, const auto& b)
+    {
+        const auto& aAABB = a.aabb;
+        const auto& bAABB = b.aabb;
+
+        const float aCenterAxisAligned = splitX ? aAABB.position.x + aAABB.size.x * 0.5f : aAABB.position.y + aAABB.size.y * 0.5f;
+        const float bCenterAxisAligned = splitX ? bAABB.position.x + bAABB.size.x * 0.5f : bAABB.position.y + bAABB.size.y * 0.5f;
+
+        return aCenterAxisAligned < bCenterAxisAligned;
+    });
+
+    const uint32_t mid = begin + (end - begin) / 2;
+
+    m_Nodes[nodeIndex].left = BuildNode(begin, mid);
+    m_Nodes[nodeIndex].right = BuildNode(mid, end);
+
+    return nodeIndex;
 }
 
-void diji::BVHTree::QueryOverlap(const sf::FloatRect& query, std::vector<int>& outIndices) const
+sf::FloatRect diji::BVHTree::ComputeBounds(const uint32_t begin, const uint32_t end) const
 {
-    outIndices.clear();
-    if (m_nodes.empty()) return;
+    sf::FloatRect bounds = m_CollidersInfo[begin].aabb;
 
-    std::stack<int> stack;
-    stack.push(static_cast<int>(m_nodes.size()) - 1); // root node
-
-    while (!stack.empty())
+    for (uint32_t i = begin + 1; i < end; i++)
     {
-        const int ni = stack.top(); stack.pop();
-        if (ni < 0) continue;
-        const Node& n = m_nodes[ni];
-        if (!Overlap(n.aabb, query)) continue;
+        const sf::FloatRect& aabb = m_CollidersInfo[i].aabb;
 
-        if (n.isLeaf)
-        {
-            outIndices.push_back(n.userIndex);
-        }
-        else
-        {
-            if (n.left >= 0) stack.push(n.left);
-            if (n.right >= 0) stack.push(n.right);
-        }
+        const float left = std::min(bounds.position.x, aabb.position.x);
+        const float top = std::min(bounds.position.y, aabb.position.y);
+        const float right = std::max(bounds.position.x + bounds.size.x, aabb.position.x + aabb.size.x);
+        const float bottom = std::max(bounds.position.y + bounds.size.y, aabb.position.y + aabb.size.y);
+
+        bounds = sf::FloatRect{ sf::Vector2f{ left, top }, sf::Vector2f{ right - left, bottom - top } };
     }
-}
 
-int diji::BVHTree::RaycastFirst(const sf::Vector2f& origin, const sf::Vector2f& dir, float maxDist) const
-{
-    // Very simple slab test over nodes, returns first leaf hit (no sorting, may not be the closest)
-    if (m_nodes.empty()) return -1;
-    std::stack<int> stack;
-    stack.push(static_cast<int>(m_nodes.size()) - 1);
-
-    const sf::Vector2f invDir{ (dir.x == 0.0f) ? std::numeric_limits<float>::max() : 1.0f/dir.x,
-                               (dir.y == 0.0f) ? std::numeric_limits<float>::max() : 1.0f/dir.y };
-
-    auto slabTest = [&](const sf::FloatRect& r) -> bool
-    {
-        const float minX = r.position.x;
-        const float maxX = r.position.x + r.size.x;
-        const float t1 = (minX - origin.x) * invDir.x;
-        const float t2 = (maxX - origin.x) * invDir.x;
-        float tEnter = std::min(t1, t2);
-        float tExit  = std::max(t1, t2);
-
-        const float minY = r.position.y;
-        const float maxY = r.position.y + r.size.y;
-        const float t3 = (minY - origin.y) * invDir.y;
-        const float t4 = (maxY - origin.y) * invDir.y;
-        tEnter = std::max(tEnter, std::min(t3, t4));
-        tExit  = std::min(tExit,  std::max(t3, t4));
-
-        if (tExit < 0.0f || tEnter > tExit) return false;
-        const float h = (tEnter >= 0.0f ? tEnter : tExit);
-        return (h >= 0.0f && h <= maxDist);
-    };
-
-    while (!stack.empty())
-    {
-        const int ni = stack.top(); stack.pop();
-        if (ni < 0) continue;
-        const Node& n = m_nodes[ni];
-        if (!slabTest(n.aabb)) continue;
-
-        if (n.isLeaf)
-            return n.userIndex;
-        if (n.left >= 0) stack.push(n.left);
-        if (n.right >= 0) stack.push(n.right);
-    }
-    return -1;
+    return bounds;
 }

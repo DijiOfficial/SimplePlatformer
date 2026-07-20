@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "../Singleton/TimeSingleton.h"
 #include "QuadTree.h"
+#include "BVHTree.h"
 
 #include <optional>
 #include <unordered_set>
@@ -8,6 +9,7 @@
 
 namespace diji
 {
+	class BVHTree;
 	class Collider;
 	class QuadTree;
 
@@ -25,18 +27,27 @@ namespace diji
 		void Reset();
 		void AddCollider(Collider* collider);
 		void RemoveCollider(Collider* collider);
+		void Init();
 		void FixedUpdate();
 		void LateFixedUpdate() const;
 		void EndFrameUpdate();
 		void SetGravity(const sf::Vector2f& gravity) { m_Gravity = gravity; }
 		[[nodiscard]] sf::Vector2f GetGravity() const { return m_Gravity; }
 
+		// todo: below should all be in helper class	
 		struct CollisionDetectionResult
 		{
 			bool overlap;
 			bool hit;
 		};
 
+		static bool AABBOverlap(const sf::FloatRect& a, const sf::FloatRect& b)
+		{
+			return !(Right(a) <= Left(b) ||
+					 Right(b) <= Left(a) ||
+					 Bottom(a) <= Top(b) ||
+					 Bottom(b) <= Top(a));
+		}
 		static float Right(const sf::FloatRect& r)  { return r.position.x + r.size.x; }
 		static float Left(const sf::FloatRect& r)	{ return r.position.x - r.size.x; }
 		static float Bottom(const sf::FloatRect& r) { return r.position.y  + r.size.y; }
@@ -46,9 +57,11 @@ namespace diji
 
 	private:
 		std::vector<Collider*> m_DynamicColliders;
-		std::vector<StaticColliderInfo> m_StaticInfos;
+		std::vector<StaticColliderInfo> m_StaticInfos; // I could in theory get rid of this completely and have it stored in the BVH
 		std::unordered_set<SleepingCollider, SleepingColliderHash, SleepingColliderEqual> m_SleepingColliders;
 		std::vector<Prediction> m_Predictions;
+		std::unique_ptr<BVHTree> m_StaticsBVHTree = nullptr;
+		
 		std::unique_ptr<QuadTree> m_QuadTree = nullptr;
 		sf::FloatRect m_WorldBounds;
 		
@@ -80,14 +93,6 @@ namespace diji
 		void ProcessTriggerEvents();
 		static void NotifyTriggerEvent(const TriggerPair& trigger, EventType eventType);
 		static void NotifyHitEvent(const TriggerPair& trigger, EventType eventType);
-		
-		static bool AABBOverlap(const sf::FloatRect& a, const sf::FloatRect& b)
-		{
-			return !(Right(a) <= Left(b) ||
-					 Right(b) <= Left(a) ||
-					 Bottom(a) <= Top(b) ||
-					 Bottom(b) <= Top(a));
-		}
 		
 		void PredictMovement(std::vector<Prediction>& predictionsVec) const;
 		void DetectCollisions(std::vector<Prediction>& predictionsVec);
