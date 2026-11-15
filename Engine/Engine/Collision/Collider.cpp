@@ -27,8 +27,9 @@ void diji::Collider::Start()
 void diji::Collider::Update()
 {
     if (m_IsStatic) return;
+    if (m_SleepState == SleepState::Sleeping) return;
 
-    // todo: I don't like having to do this duplicate position update. it should be done once and the rest updated properly
+    // todo: I don't like having to do this duplicate position update. it should be done once and the rest synced properly
     const auto pos = Helpers::lerp(m_LastPosition, m_NewPosition, m_TimeSingletonInstance.GetFixedTimeAlpha());
     m_TransformCompPtr->SetWorldPosition(pos);
     m_Shape->SetPosition(pos);

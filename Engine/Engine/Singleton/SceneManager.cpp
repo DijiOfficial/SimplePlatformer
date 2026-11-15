@@ -124,8 +124,14 @@ void diji::SceneManager::EndFrameUpdate()
     }
 
     m_PhysicsWorldUPtr->EndFrameUpdate();
+    
     // Handle pending destroy
-    if (!m_HasPendingDestroy) return;
+    if (!m_HasPendingDestroy)
+    {
+        m_ScenesUPtrMap[m_ActiveSceneId]->ProcessRenderChunkModifications();
+        return;
+    }
+    
     // todo: Instead of iterating through all of them and removing them, pass it to the scene so I can use swap method to destroy all of them without having to iterate over all of the game objects multiple time.
     for (const auto gameObject : m_PendingDestroyVec)
     {
@@ -137,6 +143,7 @@ void diji::SceneManager::EndFrameUpdate()
     m_HasPendingDestroy = false;
 
     m_ScenesUPtrMap.at(m_ActiveSceneId)->ValidateCollidersAfterDestroy();
+    m_ScenesUPtrMap[m_ActiveSceneId]->ProcessRenderChunkModifications();
 }
 
 void diji::SceneManager::ReloadScene()

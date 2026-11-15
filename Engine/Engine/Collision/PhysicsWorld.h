@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "../Singleton/TimeSingleton.h"
-#include "QuadTree.h"
 #include "BVHTree.h"
 
+#include <memory>
 #include <optional>
 #include <unordered_set>
 #include <SFML/System/Vector2.hpp>
@@ -34,6 +34,10 @@ namespace diji
 		void SetGravity(const sf::Vector2f& gravity) { m_Gravity = gravity; }
 		[[nodiscard]] sf::Vector2f GetGravity() const { return m_Gravity; }
 
+		void DisablePhysics() { m_IsEnabled = false; }
+		void EnablePhysics() { m_IsEnabled = true; }
+		[[nodiscard]] bool IsPhysicsEnabled() const { return m_IsEnabled; }
+
 		// todo: below should all be in helper class	
 		struct CollisionDetectionResult
 		{
@@ -62,7 +66,6 @@ namespace diji
 		std::vector<Prediction> m_Predictions;
 		std::unique_ptr<BVHTree> m_StaticsBVHTree = nullptr;
 		
-		std::unique_ptr<QuadTree> m_QuadTree = nullptr;
 		sf::FloatRect m_WorldBounds;
 		
 		sf::Vector2f m_Gravity{ 0.f, 980.f }; // This doesn't need to be a vector unless we want to simulate planets or some shit
@@ -71,6 +74,7 @@ namespace diji
 		const float SLEEP_VELOCITY = 1.0f;
 		const float SLEEP_VELOCITY_SQUARED = SLEEP_VELOCITY * SLEEP_VELOCITY;
 		const float SLEEP_TIME = 5.0f;
+		bool m_IsEnabled = true;
 		
 		// physics trigger events
 		struct TriggerPair

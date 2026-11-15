@@ -25,6 +25,9 @@ const std::vector<diji::StaticColliderInfo>& diji::BVHTree::Query(const sf::Floa
 
 void diji::BVHTree::QueryNode(const uint32_t nodeIdx, const sf::FloatRect& queryAABB)
 {
+    if (m_Nodes.empty())
+        return;
+    
     const auto& [aabb, left, right, collider] = m_Nodes[nodeIdx];
 
     if (PhysicsWorld::AABBOverlap(aabb, queryAABB) == false)

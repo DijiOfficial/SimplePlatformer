@@ -3,7 +3,6 @@
 #include "CollisionDispatcher.h"
 #include "../Singleton/Helpers.h"
 #include "../Core/GameObject.h"
-#include "QuadTree.h"
 #include "CollisionsHelper.h"
 
 #include <stdexcept>
@@ -16,7 +15,6 @@ void diji::PhysicsWorld::Reset()
     m_PreviousFrameTriggers = std::vector<TriggerPair>();
     m_HitEventTriggers = std::vector<TriggerPair>();
     m_WorldBounds = sf::FloatRect();
-    m_QuadTree = std::make_unique<QuadTree>(m_WorldBounds);
     m_Predictions = std::vector<Prediction>();
     m_SleepingColliders = std::unordered_set<SleepingCollider, SleepingColliderHash, SleepingColliderEqual>();
 }
@@ -72,6 +70,9 @@ void diji::PhysicsWorld::Init()
 
 void diji::PhysicsWorld::FixedUpdate()
 {
+    if (m_IsEnabled == false)
+        return;
+    
     // Phase 1: Predict movement
     m_Predictions.clear();
     PredictMovement(m_Predictions);
@@ -115,6 +116,9 @@ void diji::PhysicsWorld::FixedUpdate()
 
 void diji::PhysicsWorld::LateFixedUpdate() const
 {
+    if (m_IsEnabled == false)
+        return;
+    
     // todo: multi thread
     const float dt = m_TimeSingletonInstance.GetFixedUpdateDeltaTime();
     for (const auto& collider : m_DynamicColliders)
@@ -141,6 +145,9 @@ void diji::PhysicsWorld::LateFixedUpdate() const
 
 void diji::PhysicsWorld::EndFrameUpdate()
 {
+    if (m_IsEnabled == false)
+        return;
+    
     // todo: multihtread
     for (Collider* collider : m_DynamicColliders)
     {
@@ -169,6 +176,9 @@ void diji::PhysicsWorld::EndFrameUpdate()
 
 std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& origin, const sf::Vector2f& direction, const float maxDistance, const Collider* collider) const
 {
+    if (m_IsEnabled == false)
+        return std::nullopt;
+    
     std::optional<RaycastHit> closestHit;
     float closestDist = maxDistance;
     
@@ -352,6 +362,11 @@ void diji::PhysicsWorld::PredictMovement(std::vector<Prediction>& predictionsVec
 void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVec)
 {
     // todo: I believe this can be multithreaded?
+    // step 1: take out m_ActiveTriggers out of the loops  -> thread_local std::vector<TriggerEvent> localTriggers; + merge
+    // step 2: same thing with additionalPredictions -> thread local + merge
+    // step 3: predictionsVec' collisionsVec cannot be modified in the loop, need to keep track of each collision and associate it with the correct prediction after the loop
+    // step 4: in the same essence as step 3, collisionsVec.back() is unsafe therefore handling the collisionVec in the loop then associating it with the correct prediction after the loop is safer
+    // step 5: Queue Wake has to be done outside the loop as well. This will go with step 2
     std::vector<Prediction> additionalPredictions;
     const size_t& size = predictionsVec.size(); 
     for (size_t i = 0; i < size; ++i)
@@ -382,26 +397,6 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             info.other = staticCollider;
             info.hasHitEvent = Hit;
         }
-        // for (const auto& [aabb, staticCollider] : m_StaticInfos)
-        // {
-        //     if (!staticCollider->IsColliderActive()) continue;
-        //     if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
-        //     if (colliderPtr->IsIgnoringCollider(staticCollider) || staticCollider->IsIgnoringCollider(colliderPtr)) continue;
-        //     if (!AABBOverlap(predictedAABB, aabb)) continue;
-        //     
-        //     const auto [Overlap, Hit] = HandleStaticCollisions(predictionsVec[i], staticCollider);
-        //
-        //     if (Overlap)
-        //         m_ActiveTriggers.push_back({.trigger = colliderPtr, .other = staticCollider, .hitInfo = collisionsVec.back()});
-        //
-        //     if (!Hit || !colliderPtr->IsGenerateHitEvents())
-        //         continue;
-        //     
-        //     auto& info = collisionsVec.back();
-        //     info.trigger = colliderPtr;
-        //     info.other = staticCollider;
-        //     info.hasHitEvent = Hit;
-        // }
 
         if (colliderPtr->IsIgnoringAllDynamicColliders())
             continue;
@@ -920,9 +915,4 @@ void diji::PhysicsWorld::UpdateWorldBounds(const sf::FloatRect& aabb)
     m_WorldBounds.position.y    = top;
     m_WorldBounds.size.x  = right - left;
     m_WorldBounds.size.y = bottom - top;
-
-    if (!m_QuadTree)
-        m_QuadTree = std::make_unique<QuadTree>(m_WorldBounds);
-    else
-        m_QuadTree->SetWorldBounds(m_WorldBounds);
 }

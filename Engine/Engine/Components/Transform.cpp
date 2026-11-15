@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 
+#include "../Singleton/Helpers.h"
 #include "../Singleton/SceneManager.h"
 
 sf::Vector2f diji::Transform::GetWorldPosition()
@@ -13,6 +14,9 @@ sf::Vector2f diji::Transform::GetWorldPosition()
 
 void diji::Transform::SetWorldPosition(const sf::Vector2f& pos)
 {
+    if (Helpers::AreVectorsEqual(m_WorldPosition, pos))
+        return;
+    
     m_LocalPosition = m_IsParented ? pos - m_ParentTransformCompPtr->GetWorldPosition() : pos;
     UpdateWorldPosition();
     MarkPositionDirty();

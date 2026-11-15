@@ -161,6 +161,7 @@ void diji::Scene::OnDestroy()
     m_CanvasObjectsUPtrMap = std::unordered_map<std::string, std::unique_ptr<GameObject>>();
     m_CanvasRenderMap = std::map<int, std::unordered_set<const GameObject*>>();
     m_RenderChunks = std::unordered_map<GameObject::ChunkCoord, RenderChunk, ChunkCoordHasher>();
+    m_RenderChunkModifications = std::vector<RenderChunkModification>();
 }
 
 diji::GameObject* diji::Scene::CreateCameraObject(const std::string& name)
@@ -310,6 +311,7 @@ void diji::Scene::RemoveAll()
 {
     m_ObjectsUPtrMap = std::unordered_map<std::string, std::unique_ptr<GameObject>>();
     m_RenderChunks = std::unordered_map<GameObject::ChunkCoord, RenderChunk, ChunkCoordHasher>();
+    m_RenderChunkModifications = std::vector<RenderChunkModification>();
     m_CanvasObjectsUPtrMap = std::unordered_map<std::string, std::unique_ptr<GameObject>>();
     m_CanvasRenderMap = std::map<int, std::unordered_set<const GameObject*>>();
 }
@@ -535,10 +537,8 @@ void diji::Scene::DrawGameObjects() const
             auto it = m_RenderChunks.find(coord);
             if (it == m_RenderChunks.end())
                 continue;
-
-            // Fucking rendering can update an object position and cause it to remove itself from the chunk
-            const auto renderLayers = it->second.objects;
-            for (const auto& objects : renderLayers | std::views::values)
+            
+            for (const auto& objects : it->second.objects | std::views::values)
             {
                 for (const GameObject* obj : objects)
                     obj->Render();
@@ -605,13 +605,18 @@ void diji::Scene::RegisterToChunk(const GameObject* object)
         return;
 
     const sf::Vector2f pos = object->GetRootComponent()->GetWorldPosition();
-    const GameObject::ChunkCoord coord = WorldToChunk(pos);
+    const GameObject::ChunkCoord newCoord = WorldToChunk(pos);
+    const GameObject::ChunkCoord oldCoord = object->GetChunkCoord();
+
+    if (oldCoord == newCoord)
+        return;
 
     const auto layer = object->GetRenderLayer();
-    m_RenderChunks[object->GetChunkCoord()].objects[layer].erase(object);
     
-    object->SetChunkCoord(coord);
-    m_RenderChunks[coord].objects[layer].insert(object);
+    RemovePendingChunkModifications(object);
+    
+    m_RenderChunkModifications.push_back({.object= object, .chunk= oldCoord, .layer= layer, .shouldAdd=false});
+    m_RenderChunkModifications.push_back({.object= object, .chunk= newCoord, .layer= layer, .shouldAdd= true});
 }
 
 std::pair<diji::GameObject::ChunkCoord, diji::GameObject::ChunkCoord> diji::Scene::GetVisibleChunkRange(const sf::View& view) const
@@ -630,18 +635,84 @@ std::pair<diji::GameObject::ChunkCoord, diji::GameObject::ChunkCoord> diji::Scen
 
 void diji::Scene::RemoveFromChunk(const std::unordered_map<std::string, std::unique_ptr<GameObject>>::iterator& it)
 {
-    if (const auto renderChunkIt = m_RenderChunks.find(it->second->GetChunkCoord()); renderChunkIt != m_RenderChunks.end())
-    {
-        renderChunkIt->second.objects[it->second->GetRenderLayer()].erase(it->second.get());
+    if (!it->second) return;
 
-        if (renderChunkIt->second.objects.empty())
-            m_RenderChunks.erase(renderChunkIt);
+    const auto* object = it->second.get();
+
+    std::erase_if(m_RenderChunkModifications, [object](const auto& modification) { return modification.object == object && modification.shouldAdd; });
+    m_RenderChunkModifications.push_back({ .object = object, .chunk = object->GetChunkCoord(), .layer = object->GetRenderLayer(), .shouldAdd = false });
+}
+
+void diji::Scene::DestroyFromChunks(const std::unordered_map<std::string, std::unique_ptr<GameObject>>::iterator& it)
+{
+    if (!it->second)
+        return;
+
+    const auto* object = it->second.get();
+    const auto chunk = object->GetChunkCoord();
+    const auto layer = object->GetRenderLayer();
+
+    std::erase_if(m_RenderChunkModifications, [object](const auto& modification) { return modification.object == object; });
+
+    if (const auto chunkIt = m_RenderChunks.find(chunk); chunkIt != m_RenderChunks.end())
+    {
+        if (const auto layerIt = chunkIt->second.objects.find(layer); layerIt != chunkIt->second.objects.end())
+        {
+            layerIt->second.erase(object);
+            if (layerIt->second.empty()) chunkIt->second.objects.erase(layerIt);
+        }
+
+        if (chunkIt->second.objects.empty()) m_RenderChunks.erase(chunkIt);
     }
 }
 
 void diji::Scene::UpdateGameObjectRenderLayerInChunk(const GameObject* gameObject, const GameObject::RenderLayer oldLayer)
 {
+    if (!gameObject)
+        return;
+
     const auto coords = gameObject->GetChunkCoord();
-    m_RenderChunks[coords].objects[oldLayer].erase(gameObject);
-    m_RenderChunks[coords].objects[gameObject->GetRenderLayer()].insert(gameObject);
+    const auto newLayer = gameObject->GetRenderLayer();
+
+    if (oldLayer == newLayer)
+        return;
+
+    RemovePendingChunkModifications(gameObject);
+
+    m_RenderChunkModifications.push_back({ .object= gameObject, .chunk= coords, .layer= oldLayer, .shouldAdd= false});
+    m_RenderChunkModifications.push_back({ .object= gameObject, .chunk= coords, .layer= newLayer, .shouldAdd= true});
+}
+
+void diji::Scene::RemovePendingChunkModifications(const GameObject* object)
+{
+    std::erase_if(m_RenderChunkModifications, [object](const auto& modification)
+    {
+        return modification.object == object;
+    });
+}
+
+void diji::Scene::ProcessRenderChunkModifications()
+{
+    for (const auto& [object, chunk, layer, shouldAdd] : m_RenderChunkModifications)
+    {
+        auto it = m_RenderChunks.find(chunk);
+
+        if (shouldAdd)
+        {
+            m_RenderChunks[chunk].objects[layer].insert(object);
+            object->SetChunkCoord(chunk);
+        }
+        else if (it != m_RenderChunks.end())
+        {
+            it->second.objects[layer].erase(object);
+
+            if (it->second.objects[layer].empty())
+                it->second.objects.erase(layer);
+
+            if (it->second.objects.empty())
+                m_RenderChunks.erase(it);
+        }
+    }
+
+    m_RenderChunkModifications.clear();
 }

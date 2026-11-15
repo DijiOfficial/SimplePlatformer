@@ -33,7 +33,8 @@ namespace diji
         void Render() const;
         void RenderMultiplayerViews() const;
         void OnDestroy();
-		
+        void ProcessRenderChunkModifications();
+        
         [[nodiscard]] GameObject* CreateCameraObject(const std::string& name);
         [[nodiscard]] GameObject* CreateGameObject(const std::string& name);
         [[nodiscard]] GameObject* CreateGameObject(const std::string& name, const GameObject* original);
@@ -95,7 +96,7 @@ namespace diji
             if (it == container.end())
                 return false;
 
-            RemoveFromChunk(it);
+            DestroyFromChunks(it);
             auto localUp = std::move(it->second);
             container.erase(it);
 
@@ -104,6 +105,7 @@ namespace diji
         }
 
         // Frustum Culling
+        // todo: these pointers shenanigans although work are pretty tedious to keep clean. find a better solution for automatic cleanup
         struct RenderChunk
         {
             std::map<int, std::unordered_set<const GameObject*>> objects;
@@ -117,12 +119,25 @@ namespace diji
                 return h1 ^ (h2 << 1);
             }
         };
+
+        struct RenderChunkModification
+        {
+            const GameObject* object;
+            GameObject::ChunkCoord chunk;
+            int layer;
+            bool shouldAdd;
+        };
+
+        std::vector<RenderChunkModification> m_RenderChunkModifications;
+        
         static constexpr float CHUNK_SIZE = 512.f; // tune later
         std::unordered_map<GameObject::ChunkCoord, RenderChunk, ChunkCoordHasher> m_RenderChunks;
         GameObject::ChunkCoord WorldToChunk(const sf::Vector2f& pos) const { return GameObject::ChunkCoord{.x= static_cast<int>(std::floor(pos.x / CHUNK_SIZE)), .y= static_cast<int>(std::floor(pos.y / CHUNK_SIZE))};}
         void RegisterToChunk(const GameObject* object);
         std::pair<GameObject::ChunkCoord, GameObject::ChunkCoord> GetVisibleChunkRange(const sf::View& view) const;
         void RemoveFromChunk(const std::unordered_map<std::string, std::unique_ptr<GameObject>>::iterator& it);
+        void DestroyFromChunks(const std::unordered_map<std::string, std::unique_ptr<GameObject>>::iterator& it);
         void UpdateGameObjectRenderLayerInChunk(const GameObject* gameObject, GameObject::RenderLayer oldLayer);
+        void RemovePendingChunkModifications(const GameObject* object);
     };
 }

@@ -40,6 +40,8 @@ void SceneLoader::LevelEditor()
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::LevelEditor));
     Renderer::GetInstance().SetBackgroundColor(sf::Color(92, 148, 252));
 
+    SceneManager::GetInstance().GetPhysicsWorld()->DisablePhysics();
+
     const auto selector = scene->CreateGameObject("X_SelectorPlayer");
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
     staticBackground->SetObjectPosition({ 0, 228 });
