@@ -181,19 +181,22 @@ void superMarioBros::WorldBuilder::Init()
     {
         const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
         const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-        const sf::Vector2f center = { left + 25.f, bottom + 25.f };
+        const sf::Vector2f center = { left + 25.0f, bottom + 25.0f };
 
         // pole collider
+        const sf::Vector2f poleSize = { 24.0f, 16.0f * WorldSettings::TILE_SIZE };
+        const sf::Vector2f poleCenter = { center.x, bottom + 10.0f * WorldSettings::TILE_SIZE - poleSize.y * 0.5f };
+
         auto pole = std::make_unique<diji::GameObject>();
-        pole->SetObjectPosition(center);
-        pole->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{24, 16 * 50});
+        pole->SetObjectPosition(poleCenter);
+        pole->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, poleSize);
 
         const auto poleCollider = pole->GetComponent<diji::Collider>();
         poleCollider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
         poleCollider->SetTag("flagPole");
         poleCollider->SetAffectedByGravity(false);
         poleCollider->SetStatic(true);
-        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("E_endPole", std::move(pole), center);
+        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("E_endPole", std::move(pole), poleCenter);
         AttachToWorldObject(world, object);
 
         // flag
@@ -202,7 +205,7 @@ void superMarioBros::WorldBuilder::Init()
         flag->AddComponent<diji::TextureComp>("graphics/flag.png");
         flag->AddComponent<diji::Render>();
         flag->AddComponent<Flag>();
-        const auto object2 = diji::SceneManager::GetInstance().SpawnGameObject("E_flag", std::move(flag), center - sf::Vector2f{25, 100});
+        const auto object2 = diji::SceneManager::GetInstance().SpawnGameObject("E_flag", std::move(flag), center - sf::Vector2f{ 25.0f, 100.0f });
         AttachToWorldObject(world, object2);
 
         // pole top
@@ -210,7 +213,7 @@ void superMarioBros::WorldBuilder::Init()
         poleTop->SetObjectPosition(center);
         poleTop->AddComponent<diji::TextureComp>("graphics/poleTop.png");
         poleTop->AddComponent<diji::Render>();
-        const auto object3 = diji::SceneManager::GetInstance().SpawnGameObject("E_poleTop", std::move(poleTop), center - sf::Vector2f{0, 75.f});
+        const auto object3 = diji::SceneManager::GetInstance().SpawnGameObject("E_poleTop", std::move(poleTop), center - sf::Vector2f{ 0.0f, 75.0f });
         AttachToWorldObject(world, object3);
 
         return 1;
