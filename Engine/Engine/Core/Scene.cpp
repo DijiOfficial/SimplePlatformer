@@ -1,13 +1,12 @@
 ﻿#include "Scene.h"
 #include "Engine.h"
 #include "../Collision/Collider.h"
+#include "Renderer.h"
 #include "../Components/Camera.h"
 
 #include <format>
 #include <ranges>
 #include <stdexcept>
-
-#include "../Singleton/Helpers.h"
 
 diji::Scene::~Scene() noexcept
 {
@@ -105,17 +104,17 @@ void diji::Scene::Render() const
     {
         if (m_RenderBackground)
         {
-            window::g_window_ptr->setView(m_MainCameraViewCopy);
+            Renderer::GetInstance().SetView(m_MainCameraViewCopy);
             m_StaticBackgroundObjUPtr->Render();
         }
         
         if (m_MainCameraCompPtr) // todo: what happens if there is no camera?
-            window::g_window_ptr->setView(m_MainCameraCompPtr->GetCameraView());
+            Renderer::GetInstance().SetView(m_MainCameraCompPtr->GetCameraView());
         
         DrawGameObjects();
     }
     
-    window::g_window_ptr->setView(m_CanvasView);
+    Renderer::GetInstance().SetView(m_CanvasView);
     for (const auto& gameObjects : m_CanvasRenderMap | std::views::values)
     {
         for (const auto& gameObject : gameObjects)
@@ -132,12 +131,12 @@ void diji::Scene::RenderMultiplayerViews() const
         // Set background view
         if (m_StaticBackgroundObjUPtr)
         {
-            window::g_window_ptr->setView(m_MultiplayerViewsCopy[i].GetView());
+            Renderer::GetInstance().SetView(m_MultiplayerViewsCopy[i].GetView());
             m_StaticBackgroundObjUPtr->Render();
         }
 
         // Set gameplay view
-        window::g_window_ptr->setView(m_MultiplayerViews[i].GetView());
+        Renderer::GetInstance().SetView(m_MultiplayerViews[i].GetView());
         DrawGameObjects();
     }
 }

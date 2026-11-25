@@ -2,6 +2,7 @@
 #include "../Singleton/Singleton.h"
 
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/System/Vector2.hpp>
 
 namespace sf
@@ -22,6 +23,7 @@ namespace sf
 	class RenderWindow;
 	class Texture;
 	class Text;
+	class View;
 }
 
 namespace diji
@@ -46,13 +48,16 @@ namespace diji
 		void RenderRotatedTexture(const sf::Texture& texture, float x, float y, int width, int height, const sf::Angle& angle) const;
 		
 		// todo: unnecessary functions?
-		void DrawRect(const sf::RectangleShape& shape, const sf::Color& outline, const sf::Color& fill, float outlineWidth = 1.f) const;
+		void DrawRect(const sf::RectangleShape& shape, const sf::Color& outline, const sf::Color& fill, float outlineWidth = 1.0f) const;
 		void DrawRect(const sf::RectangleShape& shape) const;
 		void DrawFilledRect(const sf::RectangleShape& shape, const sf::Color& color) const;
 		
 		void DrawShape(const sf::Shape& shape) const;
 		void RenderSprite(const sf::Sprite& sprite) const;
 		void RenderSpriteWithShader(const sf::Sprite& sprite, const sf::Shader* shader) const;
+
+		void SetView(const sf::View& view) const;
+		void FlushSpriteBatch() const;
 
 		[[nodiscard]] const sf::Color& GetBackgroundColor() const { return m_ClearColor; }
 		void SetBackgroundColor(const sf::Color& color);
@@ -61,6 +66,9 @@ namespace diji
 		// todo: use the static global window pointer instead
 		sf::RenderWindow* m_WindowPtr = nullptr;
 		sf::Color m_ClearColor;
+
+		mutable sf::VertexArray m_SpriteBatch{ sf::PrimitiveType::Triangles };
+		mutable const sf::Texture* m_SpriteBatchTexturePtr = nullptr;
 	};
 }
 
