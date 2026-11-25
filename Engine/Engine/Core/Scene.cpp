@@ -476,14 +476,17 @@ void diji::Scene::SetGameObjectAsStaticBackground(const GameObject* object)
     SetGameObjectAsStaticBackground(object->GetName());
 }
 
-void diji::Scene::ValidateCollidersAfterDestroy()
+void diji::Scene::ValidateCollidersAfterDestroy(const std::unordered_set<const Collider*>& destroyedColliders)
 {
+    if (destroyedColliders.empty()) return;
+
     // todo: multi-thread?
     for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
     {
-        if (gameObject->HasComponent<Collider>() == false) continue;
+        Collider* collider = gameObject->GetCollider();
+        if (collider == nullptr) continue;
 
-        gameObject->GetComponent<Collider>()->ValidateColliderLists();
+        collider->RemoveDestroyedColliders(destroyedColliders);
     }
 }
 

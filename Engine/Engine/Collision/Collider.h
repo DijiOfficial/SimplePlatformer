@@ -37,7 +37,7 @@ namespace diji
                     m_Shape = std::make_unique<Triangle>(std::forward<Args>(args)...);
             }
 
-            if (!m_Shape)
+            if (m_Shape == nullptr)
                 throw std::invalid_argument("Shape does not exist or invalid arguments for the specified shape type.");
         }
 
@@ -73,10 +73,10 @@ namespace diji
         
         [[nodiscard]] sf::Vector2f GetPosition() const;
 
-        void SetKineticFriction(const float friction) { m_KineticFriction = std::clamp(friction, 0.f, 1.f); }
+        void SetKineticFriction(const float friction) { m_KineticFriction = std::clamp(friction, 0.0f, 1.0f); }
         [[nodiscard]] float GetKineticFriction() const { return m_StaticFriction; }
 
-        void SetStaticFriction(const float friction) { m_StaticFriction = std::clamp(friction, 0.f, 1.f); }
+        void SetStaticFriction(const float friction) { m_StaticFriction = std::clamp(friction, 0.0f, 1.0f); }
         [[nodiscard]] float GetStaticFriction() const { return m_KineticFriction; }
         
         [[nodiscard]] sf::FloatRect GetAABB() const;
@@ -137,7 +137,7 @@ namespace diji
         
         [[nodiscard]] sf::Vector2f GetSurfaceNormalAt(const sf::Vector2f& point) const;
 
-        void ValidateColliderLists();
+        void RemoveDestroyedColliders(const std::unordered_set<const Collider*>& destroyedColliders);
         bool IsSleeping() const { return m_SleepState == SleepState::Sleeping; }
         bool IsAwake() const { return m_SleepState == SleepState::Awake; }
         bool IsPendingAwake() const { return m_SleepState == SleepState::PendingWake; }
@@ -156,17 +156,17 @@ namespace diji
         CollisionResponse m_CollisionResponse = CollisionResponse::Block;
 
         // physics state
-        sf::Vector2f m_Velocity{0.f, 0.f};
+        sf::Vector2f m_Velocity{0.0f, 0.0f};
         sf::Vector2f m_MaxVelocity{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
-        sf::Vector2f m_NewPosition{ 0.f, 0.f };
-        sf::Vector2f m_LastPosition{ 0.f, 0.f };
-        sf::Vector2f m_NetForce{ 0.f, 0.f };
+        sf::Vector2f m_NewPosition{ 0.0f, 0.0f };
+        sf::Vector2f m_LastPosition{ 0.0f, 0.0f };
+        sf::Vector2f m_NetForce{ 0.0f, 0.0f };
         mutable SleepState m_SleepState = SleepState::Awake;
-        float m_SleepTimer = 0.f;
-        float m_Mass = 1.f;
+        float m_SleepTimer = 0.0f;
+        float m_Mass = 1.0f;
         float m_KineticFriction = 0.5f; // [0,1]
         float m_StaticFriction = 0.5f; // [0,1]
-        float m_Restitution = 1.f; // bounciness [0,1]
+        float m_Restitution = 1.0f; // bounciness [0,1]
         bool m_IsStatic = false; // immovable object
         bool m_AffectedByGravity = true;
         bool m_IsGenerateHitEvents = false;

@@ -20,7 +20,7 @@ void diji::Collider::Start()
     
     SceneManager::GetInstance().GetPhysicsWorld()->AddCollider(this);
 
-    if (m_IsActive && !GetOwner()->IsActive())
+    if (m_IsActive && GetOwner()->IsActive() == false)
         SetActive(false);
 }
 
@@ -135,15 +135,15 @@ sf::Vector2f diji::Collider::GetSurfaceNormalAt(const sf::Vector2f& point) const
     return m_Shape->GetSurfaceNormalAt(point);
 }
 
-void diji::Collider::ValidateColliderLists()
+void diji::Collider::RemoveDestroyedColliders(const std::unordered_set<const Collider*>& destroyedColliders)
 {
-    std::erase_if(m_IgnoredColliders, [](const Collider* collider)
+    std::erase_if(m_IgnoredColliders, [&destroyedColliders](const Collider* collider)
     {
-        return collider == nullptr;
+        return destroyedColliders.contains(collider);
     });
 
-    std::erase_if(m_CollidersToOverlap, [](const Collider* collider)
+    std::erase_if(m_CollidersToOverlap, [&destroyedColliders](const Collider* collider)
     {
-        return collider == nullptr;
+        return destroyedColliders.contains(collider);
     });
 }

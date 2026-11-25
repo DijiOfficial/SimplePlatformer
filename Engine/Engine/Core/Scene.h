@@ -65,7 +65,7 @@ namespace diji
         void SetMultiplayerSplitScreen(int numPlayers);
         void SetGameObjectAsStaticBackground(const std::string& name);
         void SetGameObjectAsStaticBackground(const GameObject* object);
-        void ValidateCollidersAfterDestroy();
+        void ValidateCollidersAfterDestroy(const std::unordered_set<const Collider*>& destroyedColliders);
         void SetToAlwaysRender(const GameObject* object, bool shouldAlwaysRender);
         void SetMainCamera(const GameObject* cameraObject);
     

@@ -54,6 +54,7 @@ namespace diji
 		void NotifyTriggerEvent(const Collider* other, const EventType& eventType, const CollisionInfo& hitInfo) const;
 		std::optional<sf::FloatRect> GetBoundingBox() const;
 		[[nodiscard]] const std::string& GetName() const { return m_Name; }
+		[[nodiscard]] Collider* GetCollider() const { return m_ColliderCompPtr; }
 
 		using RenderLayer = int;
 		void SetRenderLayer(RenderLayer layer);

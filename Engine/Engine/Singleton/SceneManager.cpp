@@ -135,6 +135,13 @@ void diji::SceneManager::EndFrameUpdate()
     }
     
     // todo: Instead of iterating through all of them and removing them, pass it to the scene so I can use swap method to destroy all of them without having to iterate over all of the game objects multiple time.
+    std::unordered_set<const Collider*> destroyedColliders;
+    for (const auto gameObject : m_PendingDestroyVec)
+    {
+        if (const Collider* collider = gameObject->GetCollider(); collider != nullptr)
+            destroyedColliders.insert(collider);
+    }
+
     for (const auto gameObject : m_PendingDestroyVec)
     {
         m_ScenesUPtrMap.at(m_ActiveSceneId)->Remove(gameObject);
@@ -144,7 +151,7 @@ void diji::SceneManager::EndFrameUpdate()
     m_PendingDestroyVec = std::unordered_set<const GameObject*>();
     m_HasPendingDestroy = false;
 
-    m_ScenesUPtrMap.at(m_ActiveSceneId)->ValidateCollidersAfterDestroy();
+    m_ScenesUPtrMap.at(m_ActiveSceneId)->ValidateCollidersAfterDestroy(destroyedColliders);
     m_ScenesUPtrMap[m_ActiveSceneId]->ProcessRenderChunkModifications();
 }
 
