@@ -2,7 +2,7 @@
 #include "Component.h"
 
 #include <SFML/Graphics/Shader.hpp>
-#include <SFML/Graphics/Texture.hpp>
+#include "../RAII_Wrappers/TextureHandle.h"
 
 namespace diji
 {
@@ -36,7 +36,7 @@ namespace diji
         void OnDestroy() override {}
         
         virtual void RenderFrame() const;
-        virtual void UpdateTexture(sf::Texture& texture);
+        virtual void UpdateTexture(const TextureHandle& textureHandle);
         void DisableRender() { m_Render = false; }
         void EnableRender() { m_Render = true; }
         void ToggleRendering() { m_Render = !m_Render; }
@@ -57,7 +57,7 @@ namespace diji
         
     private:
         Transform* m_TransformCompPtr;
-        sf::Texture m_SFMLTexture;
+        TextureHandle m_TextureHandle;
         TextureComp* m_TextureCompPtr;
         Sprite* m_SpriteCompPtr;
         TextComp* m_TextCompPtr;

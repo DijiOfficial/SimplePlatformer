@@ -6,21 +6,21 @@
 
 diji::SpriteRenderComponent::SpriteRenderComponent(GameObject* ownerPtr, const std::string& texturePath)
     : Render{ ownerPtr }
-    , m_Sprite{ ResourceManager::GetInstance().LoadTexture(texturePath) }
+    , m_Sprite{ ResourceManager::GetInstance().LoadTexture(texturePath).Get() }
 {
-    const auto& size = m_Texture.getSize();
+    const auto size = m_Sprite.getTexture().getSize();
     m_TotalAnimationFrames = static_cast<int>(static_cast<float>(size.x) / static_cast<float>(size.y));
     m_FrameSize = { static_cast<int>(size.y), static_cast<int>(size.y) };
 
     m_Sprite.setOrigin(sf::Vector2f{ static_cast<float>(m_FrameSize.x) * 0.5f, static_cast<float>(m_FrameSize.y) * 0.5f });
 }
 
-diji::SpriteRenderComponent::SpriteRenderComponent(GameObject* ownerPtr, const std::string& texturePath, const sf::Vector2i& frameSize, int totalAnimationFrames, float frameDurationSec)
+diji::SpriteRenderComponent::SpriteRenderComponent(GameObject* ownerPtr, const std::string& texturePath, const sf::Vector2i& frameSize, const int totalAnimationFrames, const float frameDurationSec)
     : Render{ ownerPtr }
-    , m_Sprite{ ResourceManager::GetInstance().LoadTexture(texturePath) }
+    , m_Sprite{ ResourceManager::GetInstance().LoadTexture(texturePath).Get() }
     , m_FrameSize{ frameSize }
     , m_TotalAnimationFrames{ totalAnimationFrames <= 0 ? 1 : totalAnimationFrames }
-    , m_FrameDuration{ frameDurationSec <= 0.f ? 0.1f : frameDurationSec }
+    , m_FrameDuration{ frameDurationSec <= 0.0f ? 0.1f : frameDurationSec }
 {
     m_Sprite.setOrigin(sf::Vector2f{ static_cast<float>(m_FrameSize.x) * 0.5f, static_cast<float>(m_FrameSize.y) * 0.5f });
 }
@@ -43,7 +43,8 @@ void diji::SpriteRenderComponent::LateUpdate()
     m_Sprite.setPosition(m_TransformCompPtr->GetWorldPosition());
     m_Sprite.setRotation(m_TransformCompPtr->GetWorldRotation());
     
-    if (!m_IsPlaying) return;
+    if (m_IsPlaying == false)
+        return;
     
     m_AnimationTimer += m_TimeSingletonInstance.GetDeltaTime();
   
@@ -69,7 +70,7 @@ void diji::SpriteRenderComponent::LateUpdate()
 
 void diji::SpriteRenderComponent::RenderFrame() const
 {
-    if (not m_Render)
+    if (m_Render == false)
         return;
 
     if (m_RenderWithShader)

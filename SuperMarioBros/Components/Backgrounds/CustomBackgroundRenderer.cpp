@@ -15,14 +15,14 @@ void superMarioBros::CustomBackgroundRenderer::Init()
     m_TransformCompPtr = m_OwnerPtr->GetRootComponent();
 
     // m_PlayerTransformPtr = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetRootComponent();
-    m_SFMLTexture = m_TextureCompPtr->GetTexture();
-    m_Width = static_cast<float>(m_SFMLTexture.getSize().x) * scale;
+    m_TextureHandle = m_TextureCompPtr->GetTexture();
+    m_Width = static_cast<float>(m_TextureHandle.GetSize().x) * scale;
     m_WidthCenter = m_Width * 0.5f;
 }
 
 void superMarioBros::CustomBackgroundRenderer::RenderFrame() const
 {
-    if (m_Render == false)
+    if (m_Render == false || m_TextureHandle.IsValid() == false)
         return;
 
     // not very efficient but works for now
@@ -34,7 +34,7 @@ void superMarioBros::CustomBackgroundRenderer::RenderFrame() const
     const sf::Vector2f& scale = m_OwnerPtr->GetObjectScale2D();
     // Render center tile
     diji::Renderer::GetInstance().RenderTexture(
-        m_SFMLTexture,
+        m_TextureHandle.Get(),
         m_TextureCompPtr->GetOrigin(),
         m_OwnerPtr->GetObjectRotation(),
         posX, posY,
@@ -42,7 +42,7 @@ void superMarioBros::CustomBackgroundRenderer::RenderFrame() const
         scale.y);
     
     diji::Renderer::GetInstance().RenderTexture(
-        m_SFMLTexture,
+        m_TextureHandle.Get(),
         m_TextureCompPtr->GetOrigin(),
         m_OwnerPtr->GetObjectRotation(),
         posX2, posY,

@@ -59,14 +59,13 @@ namespace diji
     private:
         const TimeSingleton& m_TimeSingletonInstance = TimeSingleton::GetInstance();
         Transform* m_TransformCompPtr = nullptr;
-        sf::Texture m_Texture;
         sf::Sprite m_Sprite;
         sf::Vector2i m_FrameSize;
         int m_CurrentFrame = 0;
         int m_StartingFrameX = 0;  
         int m_StartingFrameY = 0;
         int m_TotalAnimationFrames = 1;
-        float m_AnimationTimer = 0.f;
+        float m_AnimationTimer = 0.0f;
         float m_FrameDuration = 0.25f;
 
         bool m_IsPlaying = true;

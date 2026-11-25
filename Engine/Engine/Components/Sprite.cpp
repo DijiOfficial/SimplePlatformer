@@ -39,7 +39,7 @@ diji::Sprite::Sprite(GameObject* ownerPtr, std::string filename, const int tileS
 
 void diji::Sprite::Init()
 {
-    if (not m_FilePath.empty())
+    if (m_FilePath.empty() == false)
         SetTexture(m_FilePath);
 
     m_VertexArray.setPrimitiveType(sf::PrimitiveType::Triangles);
@@ -55,12 +55,14 @@ void diji::Sprite::Init()
 
 void diji::Sprite::SetTexture(const std::string& filename)
 {
-    m_SFMLTexture = ResourceManager::GetInstance().LoadTexture(filename);
+    m_TextureHandle = ResourceManager::GetInstance().LoadTexture(filename);
 }
 
 void diji::Sprite::Render() const
 {
-    Renderer::GetInstance().RenderVertexArray(m_SFMLTexture, m_VertexArray); 
+    if (m_TextureHandle.IsValid() == false) return;
+
+    Renderer::GetInstance().RenderVertexArray(m_TextureHandle.Get(), m_VertexArray);
 }
 
 // todo: this is not engine code

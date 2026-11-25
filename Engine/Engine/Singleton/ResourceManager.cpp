@@ -9,25 +9,24 @@ void diji::ResourceManager::Init(const std::string& dataPath)
 	m_DataPath = dataPath;
 }
 
-sf::Texture& diji::ResourceManager::LoadTexture(const std::string& file)
+diji::TextureHandle diji::ResourceManager::LoadTexture(const std::string& file)
 {
 	// check if texture is already loaded
 	const auto fullPath = m_DataPath + file;
 	const auto it = m_TexturesUMap.find(fullPath);
 	if (it != m_TexturesUMap.cend())
 	{
-		return it->second;
+		return TextureHandle{ it->second };
 	}
 
 	// if not cache it
 	sf::Texture tempTexture;
-	if (!tempTexture.loadFromFile(fullPath))
+	if (tempTexture.loadFromFile(fullPath) == false)
 	{
 		throw std::runtime_error("Failed to load texture: " + fullPath);
 	}
 
-	m_TexturesUMap[fullPath] = sf::Texture(tempTexture);
-	return m_TexturesUMap[fullPath];
+	return TextureHandle{ m_TexturesUMap.emplace(fullPath, std::move(tempTexture)).first->second };
 }
 
 sf::Font& diji::ResourceManager::LoadFont(const std::string& file)
@@ -42,7 +41,7 @@ sf::Font& diji::ResourceManager::LoadFont(const std::string& file)
 	
 	// Store it if it's not already loaded
 	sf::Font tempFont;
-	if (!tempFont.openFromFile(fullPath))
+	if (tempFont.openFromFile(fullPath) == false)
 	{
 		throw std::runtime_error("Failed to load font: " + fullPath);
 	}
@@ -59,10 +58,10 @@ sf::Sound& diji::ResourceManager::LoadSoundEffect(const std::string& file)
 		return it->second;
 
 	// Ensure buffer is loaded
-	if (!m_SoundBuffersUMap.contains(fullPath))
+	if (m_SoundBuffersUMap.contains(fullPath) == false)
 	{
 		sf::SoundBuffer buffer;
-		if (!buffer.loadFromFile(fullPath))
+		if (buffer.loadFromFile(fullPath) == false)
 			throw std::runtime_error("Failed to load sound: " + fullPath);
 		
 		m_SoundBuffersUMap.emplace(fullPath, std::move(buffer));
@@ -85,9 +84,9 @@ sf::Shader& diji::ResourceManager::LoadShader(const std::string& vertexFile, con
 	if (const auto it = m_ShaderBuffersUMap.find(key); it != m_ShaderBuffersUMap.end())
 		return *(it->second);
 
-	if (!std::filesystem::exists(fullFragPath))
+	if (std::filesystem::exists(fullFragPath) == false)
 		throw std::runtime_error("Shader fragment file not found: " + fullFragPath);
-	if (!vertexFile.empty() && !std::filesystem::exists(fullVertPath))
+	if (vertexFile.empty() == false && std::filesystem::exists(fullVertPath) == false)
 		throw std::runtime_error("Shader vertex file not found: " + fullVertPath);
 
 	auto shaderPtr = std::make_unique<sf::Shader>();
@@ -95,7 +94,7 @@ sf::Shader& diji::ResourceManager::LoadShader(const std::string& vertexFile, con
 		? shaderPtr->loadFromFile(fullFragPath, sf::Shader::Type::Fragment)
 		: shaderPtr->loadFromFile(fullVertPath, fullFragPath);
 
-	if (!success)
+	if (success == false)
 		throw std::runtime_error("Failed to load shader from " + fullVertPath + " / " + fullFragPath);
 
 	auto [it, inserted] = m_ShaderBuffersUMap.emplace(key, std::move(shaderPtr));

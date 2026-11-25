@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Singleton.h"
+#include "../RAII_Wrappers/TextureHandle.h"
 
 #include <map>
 #include <memory>
@@ -21,7 +22,7 @@ namespace diji
     {
     public:
         void Init(const std::string& dataPath);
-        [[nodiscard]] sf::Texture& LoadTexture(const std::string& file);
+        [[nodiscard]] TextureHandle LoadTexture(const std::string& file);
         [[nodiscard]] sf::Font& LoadFont(const std::string& file);
         [[nodiscard]] sf::Sound& LoadSoundEffect(const std::string& file);
         [[nodiscard]] sf::Shader& LoadShader(const std::string& vertexFile, const std::string& shaderFile);

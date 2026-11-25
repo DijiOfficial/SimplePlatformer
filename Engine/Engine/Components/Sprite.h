@@ -2,7 +2,7 @@
 #include "Component.h"
 
 #include <string>
-#include <SFML/Graphics/Texture.hpp>
+#include "../RAII_Wrappers/TextureHandle.h"
 #include <SFML/Graphics/VertexArray.hpp>
 
 // todo: not engine relevant
@@ -45,7 +45,7 @@ namespace diji
             );
         }
         
-        sf::Texture GetTexture() const { return m_SFMLTexture; }
+        [[nodiscard]] TextureHandle GetTexture() const { return m_TextureHandle; }
         [[nodiscard]] sf::VertexArray& GetVertexArray() { return m_VertexArray; }
 
         void Render() const;
@@ -53,7 +53,7 @@ namespace diji
 
     private:
         sf::VertexArray m_VertexArray;
-        sf::Texture m_SFMLTexture;
+        TextureHandle m_TextureHandle;
         std::string m_FilePath;
         // Give the exact pixel positions, not the tile position
         sf::FloatRect m_WallSpritePosition;

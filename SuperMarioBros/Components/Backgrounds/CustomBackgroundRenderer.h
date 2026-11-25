@@ -32,9 +32,9 @@ namespace superMarioBros
         diji::TextureComp* m_TextureCompPtr = nullptr;
         diji::Transform* m_PlayerTransformPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
-        sf::Texture m_SFMLTexture;
+        diji::TextureHandle m_TextureHandle;
 
-        float m_Width = 0;
-        float m_WidthCenter = 0;
+        float m_Width = 0.0f;
+        float m_WidthCenter = 0.0f;
     };
 }

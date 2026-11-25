@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Component.h"
 #include <string>
-#include <SFML/Graphics/Texture.hpp> // can I remove this?
+#include "../RAII_Wrappers/TextureHandle.h"
 
 namespace sf
 {
@@ -40,7 +40,7 @@ namespace diji
 		void OnDestroy() override {}
 
 		void SetTexture(const std::string& filename);
-		sf::Texture GetTexture() const { return m_SFMLTexture; }
+		[[nodiscard]] TextureHandle GetTexture() const { return m_TextureHandle; }
 
 		void SetScaleX(float scaleX) const;
 		void SetScaleY(float scaleY) const;
@@ -60,9 +60,9 @@ namespace diji
 		bool IsCentered() const { return m_IsCentered; }
 		
 	private:
-		sf::Texture m_SFMLTexture;
+		TextureHandle m_TextureHandle;
 		std::string m_FilePath;
-		sf::Vector2f m_Origin = { 0.f, 0.f };
+		sf::Vector2f m_Origin = { 0.0f, 0.0f };
 		
 		bool m_NeedsCentering = true;
 		bool m_IsCentered = false;

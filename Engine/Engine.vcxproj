@@ -56,6 +56,7 @@
     <ClInclude Include="Engine\Interfaces\Timeline.h" />
     <ClInclude Include="Engine\Interfaces\TimelineManager.h" />
     <ClInclude Include="Engine\RAII_Wrappers\SplitScreenView.h" />
+    <ClInclude Include="Engine\RAII_Wrappers\TextureHandle.h" />
     <ClInclude Include="Engine\RAII_Wrappers\Timer.h" />
     <ClInclude Include="Engine\Singleton\GameStateManager.h" />
     <ClInclude Include="Engine\Singleton\Helpers.h" />
