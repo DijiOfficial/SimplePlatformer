@@ -16,22 +16,114 @@
 #include "LevelEditorManager.h"
 #include "../Helpers/WorldBuilder.h"
 #include "Engine/Singleton/Helpers.h"
+#include "Engine/Singleton/JSONLoader.h"
 #include "Engine/Singleton/TimerManager.h"
+
+// todo: replace the manual level data parsing with C++26 static reflection once MSVC supports it
+namespace
+{
+    sf::Vector2i ParseCell(const JSONLoader::json& cellData)
+    {
+        return sf::Vector2i{ cellData.at(0).get<int>(), cellData.at(1).get<int>() };
+    }
+
+    diji::Directions ParseDirection(const std::string& direction)
+    {
+        if (direction == "Left")
+            return diji::Directions::Left;
+        if (direction == "Right")
+            return diji::Directions::Right;
+        if (direction == "Up")
+            return diji::Directions::Up;
+        if (direction == "Down")
+            return diji::Directions::Down;
+
+        throw std::runtime_error("Invalid warp direction in level data: " + direction);
+    }
+
+    superMarioBros::WarpExitType ParseExitType(const std::string& exitType)
+    {
+        if (exitType == "Drop")
+            return superMarioBros::WarpExitType::Drop;
+        if (exitType == "RiseFromPipe")
+            return superMarioBros::WarpExitType::RiseFromPipe;
+
+        throw std::runtime_error("Invalid warp exit type in level data: " + exitType);
+    }
+
+    superMarioBros::WarpEntrance ParseEntrance(const JSONLoader::json& entranceData)
+    {
+        return superMarioBros::WarpEntrance{ .cell = ParseCell(entranceData.at("cell")), .direction = ParseDirection(entranceData.at("enter").get<std::string>()) };
+    }
+
+    superMarioBros::WarpArrival ParseArrival(const JSONLoader::json& arrivalData)
+    {
+        return superMarioBros::WarpArrival{ .cell = ParseCell(arrivalData.at("cell")), .exitType = ParseExitType(arrivalData.at("exit").get<std::string>()) };
+    }
+
+    superMarioBros::MapInfo ParseMapInfo(const JSONLoader::json& mapData)
+    {
+        superMarioBros::MapInfo mapInfo;
+        mapInfo.file = mapData.at("file").get<std::string>();
+        mapInfo.isBonusArea = mapData.value("type", std::string{}) == "Bonus";
+
+        if (mapData.contains("start"))
+            mapInfo.start = ParseCell(mapData.at("start"));
+
+        if (mapData.contains("arrival"))
+            mapInfo.arrival = ParseArrival(mapData.at("arrival"));
+
+        if (mapData.contains("exit"))
+            mapInfo.exit = ParseEntrance(mapData.at("exit"));
+
+        if (mapData.contains("warps"))
+        {
+            for (const auto& warpData : mapData.at("warps"))
+            {
+                mapInfo.warps.push_back(superMarioBros::WarpInfo
+                {
+                    .entrance = ParseEntrance(warpData.at("entrance")),
+                    .targetMap = warpData.at("map").get<std::string>(),
+                    .returnPoint = ParseArrival(warpData.at("return"))
+                });
+            }
+        }
+
+        return mapInfo;
+    }
+}
 
 void superMarioBros::GameManager::LoadLevel()
 {
     m_IsLevelAlreadyCleared = false;
     m_CurrentPlayerState = m_LastPlayerState == PlayerHealthState::Small ? PlayerHealthState::Small : PlayerHealthState::Big;
 
-    const bool isTransitionLevel = m_ShouldPlayTransition;
-    ReadLevelInfo(LoadInformation());
+    LoadLevelData();
 
-    WorldBuilder::CreateWorld(m_LevelInfo, m_Rows, m_Cols);
+    const bool isTransitionLevel = m_ShouldPlayTransition;
+    m_ShouldPlayTransition = false;
+
+    const MapInfo& mapInfo = GetMapInfo(isTransitionLevel ? m_TransitionMapName : GetCurrentLevelEntry().map);
+    m_StartPosition = static_cast<sf::Vector2u>(static_cast<sf::Vector2f>(mapInfo.start) * WorldBuilder::WorldSettings::TILE_SIZE);
+
+    ReadLevelInfo(MAPS_PATH + mapInfo.file);
+    const diji::GameObject* world = WorldBuilder::CreateWorld(m_LevelInfo, m_Rows, m_Cols);
 
     OnNewLevelLoadedEvent.Broadcast();
 
-    if (isTransitionLevel == false)
-        LoadBonusArea();
+    ResetBonusArea();
+    if (isTransitionLevel)
+        return;
+
+    for (const WarpInfo& warp : mapInfo.warps)
+    {
+        WorldBuilder::SpawnWarpEntrance(world, warp.entrance.cell, warp.entrance.direction);
+        WorldBuilder::SpawnWarpArrival(world, warp.returnPoint.cell, warp.returnPoint.exitType);
+    }
+
+    // todo: only one bonus area per level is supported until the bonus background can hold multiple maps
+    if (mapInfo.warps.empty() == false)
+        LoadBonusArea(mapInfo.warps.front());
 }
 
 void superMarioBros::GameManager::LoadLevel(const std::string& levelFilePath)
@@ -107,7 +199,7 @@ void superMarioBros::GameManager::ResetLevel(const bool playerDied)
     else
         diji::SceneManager::GetInstance().SetNextSceneToActivate(static_cast<int>(superMarioBrosState::LivesDisplayMenu));
 
-    if (m_PlayerInfo.currentLevel >= 4)
+    if (m_PlayerInfo.currentLevel > static_cast<int>(m_Levels.size()))
     {
         // trigger end screen?
         SaveHighScoreToFile();
@@ -178,7 +270,7 @@ void superMarioBros::GameManager::ResetPlayerInfo()
 int superMarioBros::GameManager::GetHighScoreFromFile() const
 {
     std::ifstream file(m_HighScoreFileName);
-    if (!file.is_open())
+    if (file.is_open() == false)
         throw std::runtime_error("Could not open high score file: " + m_HighScoreFileName);
 
     int highScore = 0;
@@ -198,7 +290,7 @@ void superMarioBros::GameManager::SaveHighScoreToFile() const
         return;
 
     std::ofstream file(m_HighScoreFileName, std::ios::trunc);
-    if (!file.is_open())
+    if (file.is_open() == false)
         throw std::runtime_error("Could not open high score file: " + m_HighScoreFileName);
 
 
@@ -208,7 +300,7 @@ void superMarioBros::GameManager::SaveHighScoreToFile() const
 
 void superMarioBros::GameManager::CreateEmptyWorld()
 {
-    m_WorldGameObject = diji::SceneManager::GetInstance().SpawnGameObject("WorldLevel", std::make_unique<diji::GameObject>(), sf::Vector2f{ 0.f, 0.f });
+    m_WorldGameObject = diji::SceneManager::GetInstance().SpawnGameObject("WorldLevel", std::make_unique<diji::GameObject>(), sf::Vector2f{ 0.0f, 0.0f });
 }
 
 const diji::GameObject* superMarioBros::GameManager::PlaceNewItem(const int x, const int y, const char itemID) const
@@ -247,10 +339,10 @@ void superMarioBros::GameManager::HideCurrentArea()
     sceneManager.GetGameObject("B_Background")->GetComponent<diji::Render>()->DisableRender();
 }
 
-sf::Vector2f superMarioBros::GameManager::ShowNextArea()
+superMarioBros::AreaArrival superMarioBros::GameManager::ShowNextArea()
 {
     const auto& sceneManager = diji::SceneManager::GetInstance();
-    m_IsInBonusArea = !m_IsInBonusArea;
+    m_IsInBonusArea = m_IsInBonusArea == false;
 
     if (m_IsInBonusArea)
     {
@@ -258,7 +350,7 @@ sf::Vector2f superMarioBros::GameManager::ShowNextArea()
         sceneManager.GetGameObject("B_BonusAreaBackground")->GetComponent<diji::Render>()->EnableRender();
         diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/UndergroundMusic.mp3", true);
 
-        return m_BonusAreaSpawnPosition;
+        return m_BonusAreaArrival;
     }
 
     sceneManager.GetMainCamera()->GetComponent<diji::Camera>()->ReleaseForcedCameraPosition();
@@ -268,78 +360,75 @@ sf::Vector2f superMarioBros::GameManager::ShowNextArea()
     sceneManager.GetGameObject("B_Background")->GetComponent<diji::Render>()->EnableRender();
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/LevelMusic.mp3", true);
 
-    return m_BonusAreaExitPosition;
+    return m_BonusAreaReturn;
 }
 
-void superMarioBros::GameManager::LoadBonusArea()
+void superMarioBros::GameManager::ResetBonusArea()
 {
     m_IsInBonusArea = false;
     m_BonusAreaWorldGameObject = nullptr;
     m_BonusAreaInfo = std::vector<char>();
     m_BonusAreaRows = 0;
     m_BonusAreaCols = 0;
+}
 
-    const std::string bonusAreaFile = LoadBonusAreaInformation();
-    if (bonusAreaFile.empty())
-        return;
+void superMarioBros::GameManager::LoadBonusArea(const WarpInfo& warp)
+{
+    const MapInfo& bonusMapInfo = GetMapInfo(warp.targetMap);
 
-    ReadLevelFile(MAPS_PATH + bonusAreaFile, m_BonusAreaInfo, m_BonusAreaRows, m_BonusAreaCols);
+    ReadLevelFile(MAPS_PATH + bonusMapInfo.file, m_BonusAreaInfo, m_BonusAreaRows, m_BonusAreaCols);
 
     m_BonusAreaWorldGameObject = WorldBuilder::CreateWorld(m_BonusAreaInfo, m_BonusAreaRows, m_BonusAreaCols, BONUS_AREA_COLUMN_OFFSET);
+    WorldBuilder::SpawnWarpEntrance(m_BonusAreaWorldGameObject, bonusMapInfo.exit.cell, bonusMapInfo.exit.direction, BONUS_AREA_COLUMN_OFFSET);
     m_BonusAreaWorldGameObject->SetActive(false);
+
+    m_BonusAreaArrival = AreaArrival{ .position = WorldBuilder::GetWarpArrivalPosition(bonusMapInfo.arrival.cell, bonusMapInfo.arrival.exitType, BONUS_AREA_COLUMN_OFFSET), .exitType = bonusMapInfo.arrival.exitType };
+    m_BonusAreaReturn = AreaArrival{ .position = WorldBuilder::GetWarpArrivalPosition(warp.returnPoint.cell, warp.returnPoint.exitType), .exitType = warp.returnPoint.exitType };
 }
 
-std::string superMarioBros::GameManager::LoadBonusAreaInformation()
+std::string superMarioBros::GameManager::GetCurrentLevelName()
 {
-    // todo: move this to a mapping file like the level information
-    switch (m_PlayerInfo.currentLevel)
-    {
-    case 1:
-        // between the first and second tile of the opening, 1 tile below the top layer
-        m_BonusAreaSpawnPosition = sf::Vector2f{ (BONUS_AREA_COLUMN_OFFSET + 13) * WorldBuilder::WorldSettings::TILE_SIZE, 1.5f * WorldBuilder::WorldSettings::TILE_SIZE };
-        return "BonusAreaA.txt";
-    default:
+    if (m_Levels.empty())
+        LoadLevelData();
+
+    const int levelIndex = m_PlayerInfo.currentLevel - 1;
+    if (levelIndex < 0 || levelIndex >= static_cast<int>(m_Levels.size()))
         return "";
-    }
+
+    return m_Levels[levelIndex].name;
 }
 
-std::string superMarioBros::GameManager::LoadInformation()
+void superMarioBros::GameManager::LoadLevelData()
 {
-    if (m_ShouldPlayTransition)
-    {
-        m_ShouldPlayTransition = false;
-        m_StartPosition.x = 100;
-        m_StartPosition.y = 100;
+    const JSONLoader::json data = JSONLoader::Load(LEVEL_DATA_PATH);
 
-        return MAPS_PATH + "transitionLevel.txt"; //todo: save file name
-    }
-    
-    switch (m_PlayerInfo.currentLevel) // todo: if you're going to read from a file put this information in the fucking file
-    {
-    case 1:
-        m_StartPosition.x = 100;
-        m_StartPosition.y = 400;
-        break;
-    case 2:
-        m_StartPosition.x = 100;
-        m_StartPosition.y = 0;
-        break;
-    case 3:
-        m_StartPosition.x = 1250;
-        m_StartPosition.y = 0;
-        break;
-    case 4:
-        m_StartPosition.x = 50;
-        m_StartPosition.y = 200;
-        break;
-    default:
+    m_TransitionMapName = data.at("transitionMap").get<std::string>();
+
+    m_Levels = std::vector<LevelEntry>();
+    for (const auto& levelData : data.at("levels"))
+        m_Levels.push_back(LevelEntry{ .name = levelData.at("name").get<std::string>(), .map = levelData.at("map").get<std::string>() });
+
+    m_Maps = std::unordered_map<std::string, MapInfo>();
+    for (const auto& mapItem : data.at("maps").items())
+        m_Maps[mapItem.key()] = ParseMapInfo(mapItem.value());
+}
+
+const superMarioBros::MapInfo& superMarioBros::GameManager::GetMapInfo(const std::string& mapName) const
+{
+    const auto it = m_Maps.find(mapName);
+    if (it == m_Maps.end())
+        throw std::runtime_error("Map not found in level data: " + mapName);
+
+    return it->second;
+}
+
+const superMarioBros::LevelEntry& superMarioBros::GameManager::GetCurrentLevelEntry() const
+{
+    const int levelIndex = m_PlayerInfo.currentLevel - 1;
+    if (levelIndex < 0 || levelIndex >= static_cast<int>(m_Levels.size()))
         throw std::runtime_error("Invalid Level.");
-    }
-    
-    int world = (m_PlayerInfo.currentLevel - 1) / 4 + 1;
-    int level = (m_PlayerInfo.currentLevel - 1) % 4 + 1;
 
-    return std::format("{}level {}-{}.txt", MAPS_PATH, world, level);
+    return m_Levels[levelIndex];
 }
 
 void superMarioBros::GameManager::ReadLevelInfo(const std::string& filepath)
@@ -350,7 +439,7 @@ void superMarioBros::GameManager::ReadLevelInfo(const std::string& filepath)
 void superMarioBros::GameManager::ReadLevelFile(const std::string& filepath, std::vector<char>& levelInfo, int& rows, int& cols)
 {
     std::ifstream file(filepath);
-    if (!file.is_open())
+    if (file.is_open() == false)
         throw std::runtime_error("Could not open level file: " + filepath);
 
     std::string line;

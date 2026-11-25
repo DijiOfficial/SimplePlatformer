@@ -273,7 +273,7 @@ void SceneLoader::LivesDisplayMenu()
 
     const auto worldCountHUD = scene->CreateGameObject("Z_worldCountHUD");
     worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
-    const std::string levelStr = std::format("1-{}", superMarioBros::GameManager::GetInstance().GetPlayerInfo().currentLevel);
+    const std::string levelStr = superMarioBros::GameManager::GetInstance().GetCurrentLevelName();
     worldCountHUD->AddComponent<TextComp>(levelStr, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     worldCountHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     worldCountHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -282,7 +282,7 @@ void SceneLoader::LivesDisplayMenu()
 
     const auto worldCountCentered = scene->CreateGameObject("Z_worldCountCentered");
     worldCountCentered->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.5f, static_cast<float>(window::VIEWPORT.y) * 0.4f });
-    const std::string levelStrCenter = std::format("WORLD 1-{}", superMarioBros::GameManager::GetInstance().GetPlayerInfo().currentLevel);
+    const std::string levelStrCenter = std::format("WORLD {}", superMarioBros::GameManager::GetInstance().GetCurrentLevelName());
     worldCountCentered->AddComponent<TextComp>(levelStrCenter, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     worldCountCentered->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     worldCountCentered->GetComponent<TextComp>()->SetCentered(true);
@@ -404,7 +404,7 @@ void SceneLoader::GameOverMenu()
 
     const auto worldCountHUD = scene->CreateGameObject("Z_worldCountHUD");
     worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
-    const std::string levelStr = std::format("1-{}", superMarioBros::GameManager::GetInstance().GetPlayerInfo().currentLevel);
+    const std::string levelStr = superMarioBros::GameManager::GetInstance().GetCurrentLevelName();
     worldCountHUD->AddComponent<TextComp>(levelStr, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     worldCountHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     worldCountHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -540,7 +540,7 @@ void SceneLoader::TransitionToNextLevel()
 
     const auto worldCountHUD = scene->CreateGameObject("Z_worldCountHUD");
     worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
-    const std::string levelStr = std::format("1-{}", superMarioBros::GameManager::GetInstance().GetPlayerInfo().currentLevel);
+    const std::string levelStr = superMarioBros::GameManager::GetInstance().GetCurrentLevelName();
     worldCountHUD->AddComponent<TextComp>(levelStr, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     worldCountHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     worldCountHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -716,7 +716,7 @@ void SceneLoader::Level()
 
     const auto worldCountHUD = scene->CreateGameObject("Z_worldCountHUD");
     worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
-    const std::string levelStr = std::format("1-{}", superMarioBros::GameManager::GetInstance().GetPlayerInfo().currentLevel);
+    const std::string levelStr = superMarioBros::GameManager::GetInstance().GetCurrentLevelName();
     worldCountHUD->AddComponent<TextComp>(levelStr, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     worldCountHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     worldCountHUD->GetComponent<TextComp>()->SetCentered(true);

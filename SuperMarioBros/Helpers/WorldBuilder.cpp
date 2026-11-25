@@ -382,26 +382,25 @@ void superMarioBros::WorldBuilder::Init()
 
         return 1;
     };
+}
 
-    // 12) Bonus area pipes J (enter from the top), K (enter from the left), L (bonus area exit point)
-    m_Handlers['J'] = [](const diji::GameObject* world, const int row, const int col, char) -> int
+void superMarioBros::WorldBuilder::SpawnWarpEntrance(const diji::GameObject* world, const sf::Vector2i& cell, const diji::Directions direction, const int colOffset)
+{
+    const int row = cell.y;
+    const int col = cell.x + colOffset;
+
+    switch (direction)
     {
-        (void)m_Handlers['1'](world, row, col, '1');
-
-        SpawnForegroundTile(world, row, col - 1, sf::Vector2i{ 1, 0 });
-        SpawnForegroundTile(world, row, col, sf::Vector2i{ 2, 0 });
-        SpawnForegroundTile(world, row + 1, col - 1, sf::Vector2i{ 1, 1 });
-        SpawnForegroundTile(world, row + 1, col, sf::Vector2i{ 2, 1 });
-
-        const sf::Vector2f center = { static_cast<float>(col) * WorldSettings::TILE_SIZE, static_cast<float>(row) * WorldSettings::TILE_SIZE - 10.0f };
-        SpawnBonusAreaTrigger(world, center, sf::Vector2f{ WorldSettings::TILE_SIZE * 2.0f * 0.8f, 20.0f }, diji::Directions::Down);
-        return 1;
-    };
-
-    m_Handlers['K'] = [](const diji::GameObject* world, const int row, const int col, char) -> int
+    case diji::Directions::Down:
     {
-        (void)m_Handlers['1'](world, row, col, '1');
+        SpawnVerticalPipeOverlay(world, row, col);
 
+        const sf::Vector2f center = { static_cast<float>(col + 1) * WorldSettings::TILE_SIZE, static_cast<float>(row) * WorldSettings::TILE_SIZE - 10.0f };
+        SpawnBonusAreaTrigger(world, center, sf::Vector2f{ WorldSettings::TILE_SIZE * 2.0f * 0.8f, 20.0f }, direction);
+        break;
+    }
+    case diji::Directions::Right:
+    {
         SpawnForegroundTile(world, row, col, sf::Vector2i{ 0, 2 });
         SpawnForegroundTile(world, row, col + 1, sf::Vector2i{ 1, 2 });
         SpawnForegroundTile(world, row, col + 2, sf::Vector2i{ 2, 2 });
@@ -410,22 +409,32 @@ void superMarioBros::WorldBuilder::Init()
         SpawnForegroundTile(world, row + 1, col + 2, sf::Vector2i{ 2, 3 });
 
         const sf::Vector2f center = { static_cast<float>(col) * WorldSettings::TILE_SIZE - 10.0f, static_cast<float>(row + 1) * WorldSettings::TILE_SIZE };
-        SpawnBonusAreaTrigger(world, center, sf::Vector2f{ 20.0f, WorldSettings::TILE_SIZE * 2.0f }, diji::Directions::Right);
-        return 1;
-    };
+        SpawnBonusAreaTrigger(world, center, sf::Vector2f{ 20.0f, WorldSettings::TILE_SIZE * 2.0f }, direction);
+        break;
+    }
+    case diji::Directions::Left:
+    case diji::Directions::Up:
+    case diji::Directions::None:
+        throw std::runtime_error("Warp entrance direction is not supported yet.");
+    }
+}
 
-    m_Handlers['L'] = [](const diji::GameObject* world, const int row, const int col, char) -> int
-    {
-        (void)m_Handlers['1'](world, row, col, '1');
+void superMarioBros::WorldBuilder::SpawnWarpArrival(const diji::GameObject* world, const sf::Vector2i& cell, const WarpExitType exitType, const int colOffset)
+{
+    if (exitType != WarpExitType::RiseFromPipe) return;
 
-        SpawnForegroundTile(world, row, col - 1, sf::Vector2i{ 1, 0 });
-        SpawnForegroundTile(world, row, col, sf::Vector2i{ 2, 0 });
-        SpawnForegroundTile(world, row + 1, col - 1, sf::Vector2i{ 1, 1 });
-        SpawnForegroundTile(world, row + 1, col, sf::Vector2i{ 2, 1 });
+    SpawnVerticalPipeOverlay(world, cell.y, cell.x + colOffset);
+}
 
-        GameManager::GetInstance().SetBonusAreaExitPosition(sf::Vector2f{ static_cast<float>(col) * WorldSettings::TILE_SIZE, static_cast<float>(row) * WorldSettings::TILE_SIZE });
-        return 1;
-    };
+sf::Vector2f superMarioBros::WorldBuilder::GetWarpArrivalPosition(const sf::Vector2i& cell, const WarpExitType exitType, const int colOffset)
+{
+    // the player is centered on the 2 tiles wide footprint starting at the cell
+    const float x = static_cast<float>(cell.x + colOffset + 1) * WorldSettings::TILE_SIZE;
+
+    if (exitType == WarpExitType::Drop)
+        return sf::Vector2f{ x, (static_cast<float>(cell.y) + 0.5f) * WorldSettings::TILE_SIZE };
+
+    return sf::Vector2f{ x, static_cast<float>(cell.y) * WorldSettings::TILE_SIZE };
 }
 
 diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInfo, const int& rows, const int& cols, const int colOffset)
@@ -534,6 +543,14 @@ void superMarioBros::WorldBuilder::SpawnForegroundTile(const diji::GameObject* w
 
     const auto object = diji::SceneManager::GetInstance().SpawnGameObject("ZZ_foregroundTexture", std::move(go), center);
     AttachToWorldObject(world, object);
+}
+
+void superMarioBros::WorldBuilder::SpawnVerticalPipeOverlay(const diji::GameObject* world, const int row, const int col)
+{
+    SpawnForegroundTile(world, row, col, sf::Vector2i{ 1, 0 });
+    SpawnForegroundTile(world, row, col + 1, sf::Vector2i{ 2, 0 });
+    SpawnForegroundTile(world, row + 1, col, sf::Vector2i{ 1, 1 });
+    SpawnForegroundTile(world, row + 1, col + 1, sf::Vector2i{ 2, 1 });
 }
 
 void superMarioBros::WorldBuilder::SpawnBonusAreaTrigger(const diji::GameObject* world, const sf::Vector2f& center, const sf::Vector2f& size, const diji::Directions entranceDirection)

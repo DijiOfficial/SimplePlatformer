@@ -6,20 +6,15 @@
 
 void superMarioBros::LevelEditorManager::Init()
 {
-    const JSONLoader::json data = JSONLoader::Load(LEVEL_EDITOR_INFO_PATH);
-    
-    if (!data.is_object())
-        throw std::runtime_error("LEVEL_EDITOR_INFO_PATH JSON root must be an object.");
+    const JSONLoader::json data = JSONLoader::Load(LEVEL_DATA_PATH);
+
+    if (data.is_object() == false || data.contains("maps") == false)
+        throw std::runtime_error("LEVEL_DATA_PATH JSON root must be an object containing \"maps\".");
 
     m_LevelNameToFileUMap.clear();
 
-    for (auto it = data.begin(); it != data.end(); ++it)
-    {
-        if (it.value().is_string())
-            m_LevelNameToFileUMap[it.key()] = it.value().get<std::string>();
-        else
-            m_LevelNameToFileUMap[it.key()] = it.value().dump();
-    }
+    for (const auto& mapItem : data.at("maps").items())
+        m_LevelNameToFileUMap[mapItem.key()] = mapItem.value().at("file").get<std::string>();
 
     GameManager::GetInstance().CreateEmptyWorld();
     WorldBuilder::Init();
@@ -42,15 +37,12 @@ void superMarioBros::LevelEditorManager::LoadNewLevel()
 
 void superMarioBros::LevelEditorManager::SaveNewMap(const std::string& levelName, const std::string& levelPath)
 {
-    JSONLoader::json data;
+    JSONLoader::json data = JSONLoader::Load(LEVEL_DATA_PATH);
 
     m_LevelNameToFileUMap[levelName] = levelPath;
-    for (const auto& [key, value] : m_LevelNameToFileUMap) // todo: can I just add the new entry instead of rewriting the whole file?
-    {
-        data[key] = value;
-    }
+    data["maps"][levelName]["file"] = levelPath;
 
-    JSONLoader::Save(LEVEL_EDITOR_INFO_PATH, data);
+    JSONLoader::Save(LEVEL_DATA_PATH, data);
 
     SaveLevelInfo(MAPS_PATH + levelPath);
 }

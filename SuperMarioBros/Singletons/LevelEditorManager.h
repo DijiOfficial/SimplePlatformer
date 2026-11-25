@@ -31,7 +31,6 @@ namespace superMarioBros
         diji::Event<> OnLevelLoadedEvent;
 
     private:
-        const std::string LEVEL_EDITOR_INFO_PATH = "../SuperMarioBros/Resources/levels/levelEditorInfo.json";
         std::string m_CurrentLevelName = "New Level";
         int m_LevelWidth = -1;
         std::unordered_map<std::string, std::string> m_LevelNameToFileUMap;

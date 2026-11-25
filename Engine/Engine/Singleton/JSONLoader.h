@@ -9,11 +9,11 @@ namespace JSONLoader
 {
     using json = nlohmann::json;
 
-    static json Load(const std::string& filepath)
+    inline json Load(const std::string& filepath)
     {
         std::ifstream file(filepath);
 
-        if (!file.is_open())
+        if (file.is_open() == false)
             throw std::runtime_error("Failed to open JSON file: " + filepath);
 
         json data;
@@ -22,23 +22,23 @@ namespace JSONLoader
         return data;
     }
 
-    static void Save(const std::string& filepath, const json& data, const int indent = 4)
+    inline void Save(const std::string& filepath, const json& data, const int indent = 4)
     {
         std::ofstream file(filepath);
 
-        if (!file.is_open())
+        if (file.is_open() == false)
             throw std::runtime_error("Failed to save JSON file: " + filepath);
 
         file << data.dump(indent);
     }
 
-    // static bool IsValid(const std::string& filepath)
+    // inline bool IsValid(const std::string& filepath)
     // {
     //     try
     //     {
     //         std::ifstream file(filepath);
     //
-    //         if (!file.is_open())
+    //         if (file.is_open() == false)
     //             return false;
     //
     //         json test;

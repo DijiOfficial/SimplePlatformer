@@ -61,9 +61,6 @@ void superMarioBros::BackgroundHandler::Init()
         { 'H', {0, 4} }, // BreakableBlock Green (invisible tile because it's rendered by BreakableBlock component)
         { 'z', {3, 4} }, // BreakableBlock Green + multi coin
         { 'I', {3, 4} }, // BreakableBlock Green + powerUp
-        { 'J', {2, 0} }, // Bonus area pipe entered from the top (TopRight Up Pipe)
-        { 'K', {0, 2} }, // Bonus area pipe entered from the left (side pipe opening)
-        { 'L', {2, 0} }, // Bonus area exit pipe (TopRight Up Pipe)
         // ... etc.
     };
 

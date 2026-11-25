@@ -1,0 +1,46 @@
+{
+    "transitionMap": "Transition Level",
+    "levels": [
+        { "name": "1-1", "map": "Level 1-1" },
+        { "name": "1-2", "map": "Level 1-2" }
+    ],
+    "maps": {
+        "BonusAreaA": {
+            "file": "BonusAreaA.txt",
+            "type": "Bonus",
+            "arrival": { "cell": [12, 1], "exit": "Drop" },
+            "exit": { "cell": [24, 9], "enter": "Right" }
+        },
+        "Level 1-1": {
+            "file": "level 1-1.txt",
+            "start": [2, 8],
+            "warps": [
+                {
+                    "entrance": { "cell": [56, 7], "enter": "Down" },
+                    "map": "BonusAreaA",
+                    "return": { "cell": [161, 9], "exit": "RiseFromPipe" }
+                }
+            ]
+        },
+        "Level 1-2": {
+            "file": "Level 1-2.txt",
+            "start": [2, 0]
+        },
+        "Level 2-1": {
+            "file": "level5.txt",
+            "start": [2, 8]
+        },
+        "Level 3-1": {
+            "file": "level9.txt",
+            "start": [2, 8]
+        },
+        "Test World": {
+            "file": "testlevel1.txt",
+            "start": [2, 8]
+        },
+        "Transition Level": {
+            "file": "transitionLevel.txt",
+            "start": [2, 2]
+        }
+    }
+}

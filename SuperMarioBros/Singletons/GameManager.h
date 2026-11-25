@@ -3,8 +3,11 @@
 #include "Engine/Singleton/Singleton.h"
 #include "Engine/Collision/Collider.h"
 
+#include <cstdint>
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <vector>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
@@ -23,7 +26,55 @@ namespace superMarioBros
     };
 
     static const std::string MAPS_PATH = "../SuperMarioBros/Resources/levels/";
-    
+    static const std::string LEVEL_DATA_PATH = MAPS_PATH + "levelData.json";
+
+    enum class WarpExitType : std::uint8_t
+    {
+        Drop = 0,
+        RiseFromPipe = 1
+    };
+
+    struct WarpEntrance
+    {
+        sf::Vector2i cell;
+        diji::Directions direction{};
+    };
+
+    struct WarpArrival
+    {
+        sf::Vector2i cell;
+        WarpExitType exitType = WarpExitType::Drop;
+    };
+
+    struct WarpInfo
+    {
+        WarpEntrance entrance;
+        std::string targetMap;
+        WarpArrival returnPoint;
+    };
+
+    struct MapInfo
+    {
+        std::string file;
+        sf::Vector2i start;
+        bool isBonusArea = false;
+        WarpArrival arrival;
+        WarpEntrance exit;
+        std::vector<WarpInfo> warps;
+    };
+
+    struct LevelEntry
+    {
+        std::string name;
+        std::string map;
+    };
+
+    struct AreaArrival
+    {
+        sf::Vector2f position;
+        WarpExitType exitType = WarpExitType::Drop;
+    };
+
     class GameManager final : public diji::Singleton<GameManager>
     {
     public:
@@ -44,6 +95,7 @@ namespace superMarioBros
         void SwitchToNextScene();
         [[nodiscard]] const std::vector<char>& GetLevelInfo() const { return m_LevelInfo; }
         [[nodiscard]] const sf::Vector2u& GetStartPosition() const { return m_StartPosition; }
+        [[nodiscard]] std::string GetCurrentLevelName();
         [[nodiscard]] int GetRows() const { return m_Rows; }
         [[nodiscard]] int GetCols() const { return m_Cols; }
         void SetLevelCleared();
@@ -63,7 +115,7 @@ namespace superMarioBros
             int totalScore = 0;
             int currentLevel = 1;
             bool checkPointActivated = false;
-            sf::Vector2f checkPointPosition = { 0.f, 0.f };
+            sf::Vector2f checkPointPosition = { 0.0f, 0.0f };
         };
         [[nodiscard]] const PlayerInfo& GetPlayerInfo() const { return m_PlayerInfo; }
         void LoseLife() { --m_PlayerInfo.totalLives; }
@@ -87,8 +139,7 @@ namespace superMarioBros
 
         void PrepareLoadBonusArea(diji::Directions direction);
         void HideCurrentArea();
-        [[nodiscard]] sf::Vector2f ShowNextArea();
-        void SetBonusAreaExitPosition(const sf::Vector2f& position) { m_BonusAreaExitPosition = position; }
+        [[nodiscard]] AreaArrival ShowNextArea();
         [[nodiscard]] bool IsInBonusArea() const { return m_IsInBonusArea; }
         [[nodiscard]] const std::vector<char>& GetBonusAreaInfo() const { return m_BonusAreaInfo; }
         [[nodiscard]] int GetBonusAreaRows() const { return m_BonusAreaRows; }
@@ -111,21 +162,28 @@ namespace superMarioBros
         bool m_IsLevelAlreadyCleared = false;
         PlayerInfo m_PlayerInfo;
 
+        // Level Data
+        std::string m_TransitionMapName;
+        std::vector<LevelEntry> m_Levels;
+        std::unordered_map<std::string, MapInfo> m_Maps;
+
         // Bonus Area
         diji::GameObject* m_BonusAreaWorldGameObject = nullptr;
         std::vector<char> m_BonusAreaInfo;
-        sf::Vector2f m_BonusAreaSpawnPosition;
-        sf::Vector2f m_BonusAreaExitPosition;
+        AreaArrival m_BonusAreaArrival;
+        AreaArrival m_BonusAreaReturn;
         sf::Color m_LevelBackgroundColor;
         int m_BonusAreaRows = 0;
         int m_BonusAreaCols = 0;
         bool m_IsInBonusArea = false;
 
-        std::string LoadInformation();
+        void LoadLevelData();
+        [[nodiscard]] const MapInfo& GetMapInfo(const std::string& mapName) const;
+        [[nodiscard]] const LevelEntry& GetCurrentLevelEntry() const;
         void ReadLevelInfo(const std::string& filepath);
         static void ReadLevelFile(const std::string& filepath, std::vector<char>& levelInfo, int& rows, int& cols);
-        void LoadBonusArea();
-        std::string LoadBonusAreaInformation();
+        void ResetBonusArea();
+        void LoadBonusArea(const WarpInfo& warp);
         void ClearListeners();
         void SavePlayerState();
     };

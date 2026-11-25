@@ -488,18 +488,18 @@ void superMarioBros::PlayerCharacter::PlayPipeTransitionAnimation(const diji::Di
         (void)diji::TimerManager::GetInstance().SetTimer(this, [this]()
         {
             auto& gameManager = GameManager::GetInstance();
-            const sf::Vector2f nextPosition = gameManager.ShowNextArea();
+            const AreaArrival nextArea = gameManager.ShowNextArea();
 
-            if (gameManager.IsInBonusArea())
+            if (nextArea.exitType == WarpExitType::Drop)
             {
-                TeleportPlayer(nextPosition);
+                TeleportPlayer(nextArea.position);
                 EndPipeTransition();
                 return;
             }
 
             const float height = GetPlayerHeight();
             const float distance = height * PIPE_TRAVEL_DISTANCE_MULTIPLIER;
-            TeleportPlayer(sf::Vector2f{ nextPosition.x, nextPosition.y - height * 0.5f + distance });
+            TeleportPlayer(sf::Vector2f{ nextArea.position.x, nextArea.position.y - height * 0.5f + distance });
             diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_pipe.wav", false);
 
             MoveThroughPipe(UP_VECTOR, distance, height, true, [this]()
