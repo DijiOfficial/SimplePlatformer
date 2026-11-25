@@ -504,7 +504,9 @@ void diji::Scene::SetToAlwaysRender(const GameObject* object, const bool shouldA
         if (it != m_AlwaysRender.end())
         {
             m_AlwaysRender.erase(object);
-            RegisterToChunk(object);
+
+            const GameObject::ChunkCoord chunk = WorldToChunk(object->GetRootComponent()->GetWorldPosition());
+            m_RenderChunkModifications.push_back({ .object = object, .chunk = chunk, .layer = object->GetRenderLayer(), .shouldAdd = true });
         }
     }
 }
@@ -600,15 +602,18 @@ void diji::Scene::RegisterToChunk(const GameObject* object)
 {
     if (object == nullptr) return;
 
-    const auto it = m_ObjectsUPtrMap.find(object->GetName());
-    if (it == m_ObjectsUPtrMap.end())
-        return;
-
     const sf::Vector2f pos = object->GetRootComponent()->GetWorldPosition();
     const GameObject::ChunkCoord newCoord = WorldToChunk(pos);
     const GameObject::ChunkCoord oldCoord = object->GetChunkCoord();
 
     if (oldCoord == newCoord)
+        return;
+
+    if (m_AlwaysRender.contains(object))
+        return;
+
+    const auto it = m_ObjectsUPtrMap.find(object->GetName());
+    if (it == m_ObjectsUPtrMap.end())
         return;
 
     const auto layer = object->GetRenderLayer();
