@@ -21,7 +21,9 @@
 #include "../Components/Other/LevelObjects/CheckPoint.h"
 #include "../Components/Other/Coins/StaticCoin.h"
 #include "../Components/Blocks/BaseBlock.h"
+#include "../Components/Other/LevelObjects/BonusArea.h"
 #include "../Singletons/GameManager.h"
+#include "Engine/Singleton/Helpers.h"
 
 #include <functional>
 #include <string>
@@ -281,10 +283,6 @@ void superMarioBros::WorldBuilder::Init()
     m_Handlers['D'] = m_Handlers['E'] = m_Handlers['F'] =
     [](const diji::GameObject* world, const int row, const int col, const char tile) -> int
     {
-        const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
-        const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-        const sf::Vector2f center = { left + 25.f, bottom + 25.f };
-
         int x = 0, y = 0;
         switch (tile)
         {
@@ -297,24 +295,7 @@ void superMarioBros::WorldBuilder::Init()
             default: break;
         }
 
-        auto go = std::make_unique<diji::GameObject>();
-        go->SetObjectPosition(center);
-        go->AddComponent<diji::SpriteRenderComponent>("graphics/tiles_sheet.png", sf::Vector2i{50,50}, 1, 0.05f);
-        go->SetRenderLayer(5);
-
-        const auto spr = go->GetComponent<diji::SpriteRenderComponent>();
-        spr->SetFrameSize(sf::Vector2i{50,50});
-        spr->SetStartingFrame(x, y);
-        spr->SetTotalAnimationFrames(1);
-        spr->SetFrameDuration(0.01f);
-        spr->SetLooping(false);
-        spr->Pause();
-        spr->SetCurrentAnimationFrame(0);
-        spr->UpdateFrame();
-        spr->SkipStart();
-
-        const auto object = diji::SceneManager::GetInstance().SpawnGameObject("ZZ_foregroundTexture", std::move(go), center);
-        AttachToWorldObject(world, object);
+        SpawnForegroundTile(world, row, col, sf::Vector2i{ x, y });
         return 1;
     };
 
@@ -396,14 +377,57 @@ void superMarioBros::WorldBuilder::Init()
 
         return 1;
     };
+
+    // 12) Bonus area pipes J (enter from the top), K (enter from the left), L (bonus area exit point)
+    m_Handlers['J'] = [](const diji::GameObject* world, const int row, const int col, char) -> int
+    {
+        (void)m_Handlers['1'](world, row, col, '1');
+
+        SpawnForegroundTile(world, row, col - 1, sf::Vector2i{ 1, 0 });
+        SpawnForegroundTile(world, row, col, sf::Vector2i{ 2, 0 });
+        SpawnForegroundTile(world, row + 1, col - 1, sf::Vector2i{ 1, 1 });
+        SpawnForegroundTile(world, row + 1, col, sf::Vector2i{ 2, 1 });
+
+        const sf::Vector2f center = { static_cast<float>(col) * WorldSettings::TILE_SIZE, static_cast<float>(row) * WorldSettings::TILE_SIZE - 10.0f };
+        SpawnBonusAreaTrigger(world, center, sf::Vector2f{ WorldSettings::TILE_SIZE * 2.0f * 0.8f, 20.0f }, diji::Directions::Down);
+        return 1;
+    };
+
+    m_Handlers['K'] = [](const diji::GameObject* world, const int row, const int col, char) -> int
+    {
+        (void)m_Handlers['1'](world, row, col, '1');
+
+        SpawnForegroundTile(world, row, col, sf::Vector2i{ 0, 2 });
+        SpawnForegroundTile(world, row, col + 1, sf::Vector2i{ 1, 2 });
+        SpawnForegroundTile(world, row, col + 2, sf::Vector2i{ 2, 2 });
+        SpawnForegroundTile(world, row + 1, col, sf::Vector2i{ 0, 3 });
+        SpawnForegroundTile(world, row + 1, col + 1, sf::Vector2i{ 1, 3 });
+        SpawnForegroundTile(world, row + 1, col + 2, sf::Vector2i{ 2, 3 });
+
+        const sf::Vector2f center = { static_cast<float>(col) * WorldSettings::TILE_SIZE - 10.f, static_cast<float>(row + 1) * WorldSettings::TILE_SIZE };
+        SpawnBonusAreaTrigger(world, center, sf::Vector2f{ 20.f, WorldSettings::TILE_SIZE * 2.f }, diji::Directions::Right);
+        return 1;
+    };
+
+    m_Handlers['L'] = [](const diji::GameObject* world, const int row, const int col, char) -> int
+    {
+        (void)m_Handlers['1'](world, row, col, '1');
+
+        SpawnForegroundTile(world, row, col - 1, sf::Vector2i{ 1, 0 });
+        SpawnForegroundTile(world, row, col, sf::Vector2i{ 2, 0 });
+        SpawnForegroundTile(world, row + 1, col - 1, sf::Vector2i{ 1, 1 });
+        SpawnForegroundTile(world, row + 1, col, sf::Vector2i{ 2, 1 });
+
+        GameManager::GetInstance().SetBonusAreaExitPosition(sf::Vector2f{ static_cast<float>(col) * WorldSettings::TILE_SIZE, static_cast<float>(row) * WorldSettings::TILE_SIZE });
+        return 1;
+    };
 }
 
-diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInfo, const int& rows, const int& cols)
+diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInfo, const int& rows, const int& cols, const int colOffset)
 {
     Init();
     const auto world = diji::SceneManager::GetInstance().SpawnGameObject("WorldLevel", std::make_unique<diji::GameObject>(), sf::Vector2f{ 0.f, 0.f });
-    
-    const std::string specialTiles = "0edxyfghijklmnopqrstuvABCDEFH"; //todo: consider inverting this system
+    const std::string specialTiles = std::string{ "0edxyfghijklmnopqrstuvABCDEFH" } + std::string{ WorldSettings::GROUND_MERGE_STOP_TILES }; //todo: consider inverting this system
 
     auto attachToWorldObject = [&](const diji::GameObject* object) -> void
     {
@@ -416,12 +440,12 @@ diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<ch
     {
         const int startC = col;
         int c = col;
-        while (c < cols && levelInfo[row * cols + c] != '0')
+        while (c < cols && levelInfo[row * cols + c] != '0' && WorldSettings::GROUND_MERGE_STOP_TILES.find(levelInfo[row * cols + c]) == std::string_view::npos)
             ++c;
         const int len = c - startC;
         if (len <= 0) return 1;
 
-        const float left = static_cast<float>(startC) * WorldSettings::TILE_SIZE;
+        const float left = static_cast<float>(startC + colOffset) * WorldSettings::TILE_SIZE;
         const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
         const float width  = static_cast<float>(len) * WorldSettings::TILE_SIZE;
         const sf::Vector2f center = { left + width * 0.5f, bottom + WorldSettings::TILE_SIZE * 0.5f };
@@ -456,7 +480,7 @@ diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<ch
 
             auto it = m_Handlers.find(tile);
             if (it != m_Handlers.end())
-                col += it->second(world, row, col, tile);
+                col += it->second(world, row, col + colOffset, tile);
             else
                 ++col;
         }
@@ -479,4 +503,48 @@ void superMarioBros::WorldBuilder::AttachToWorldObject(const diji::GameObject* w
 {
     object->AttachToObject(world, true);
     m_LastGameObjectCreated = object;
+}
+
+void superMarioBros::WorldBuilder::SpawnForegroundTile(const diji::GameObject* world, const int row, const int col, const sf::Vector2i& atlasPos)
+{
+    const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
+    const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
+    const sf::Vector2f center = { left + 25.f, bottom + 25.f };
+
+    auto go = std::make_unique<diji::GameObject>();
+    go->SetObjectPosition(center);
+    go->AddComponent<diji::SpriteRenderComponent>("graphics/tiles_sheet.png", sf::Vector2i{50,50}, 1, 0.05f);
+    go->SetRenderLayer(5);
+
+    const auto spr = go->GetComponent<diji::SpriteRenderComponent>();
+    spr->SetFrameSize(sf::Vector2i{50,50});
+    spr->SetStartingFrame(atlasPos.x, atlasPos.y);
+    spr->SetTotalAnimationFrames(1);
+    spr->SetFrameDuration(0.01f);
+    spr->SetLooping(false);
+    spr->Pause();
+    spr->SetCurrentAnimationFrame(0);
+    spr->UpdateFrame();
+    spr->SkipStart();
+
+    const auto object = diji::SceneManager::GetInstance().SpawnGameObject("ZZ_foregroundTexture", std::move(go), center);
+    AttachToWorldObject(world, object);
+}
+
+void superMarioBros::WorldBuilder::SpawnBonusAreaTrigger(const diji::GameObject* world, const sf::Vector2f& center, const sf::Vector2f& size, const diji::Directions entranceDirection)
+{
+    auto go = std::make_unique<diji::GameObject>();
+    go->SetObjectPosition(center);
+    go->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, size);
+    go->AddComponent<BonusArea>(entranceDirection);
+
+    const auto collider = go->GetComponent<diji::Collider>();
+    collider->SetIsMoveable(false);
+    collider->SetStatic(true);
+    collider->SetTag("bonusArea");
+    collider->SetAffectedByGravity(false);
+    collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
+
+    const auto object = diji::SceneManager::GetInstance().SpawnGameObject("E_bonusAreaPipe", std::move(go), center);
+    AttachToWorldObject(world, object);
 }

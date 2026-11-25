@@ -7,6 +7,7 @@
 #include "Engine/Singleton/GameStateManager.h"
 #include "Engine/Singleton/PauseSingleton.h"
 #include "Engine/Singleton/RandNumber.h"
+#include "../Components/Other/LevelObjects/BonusArea.h"
 
 superMarioBros::MoveCharacter::MoveCharacter(diji::GameObject* actor, const sf::Vector2f& direction, const bool isMoving)
     : GameActorCommands { actor }
@@ -95,4 +96,15 @@ superMarioBros::Crouch::Crouch(diji::GameObject* actor, const bool isStart)
 void superMarioBros::Crouch::Execute()
 {
     m_CharacterInput->Crouch(m_IsStart);
+}
+
+superMarioBros::TriggerBonusArea::TriggerBonusArea(diji::GameObject* actor)
+    : GameActorCommands { actor }
+{
+    m_BonusAreaPtr = actor->GetComponent<BonusArea>();
+}
+
+void superMarioBros::TriggerBonusArea::Execute()
+{
+    m_BonusAreaPtr->TryTriggerBonusArea();
 }

@@ -6,6 +6,12 @@
 #include <memory>
 #include <string>
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Color.hpp>
+
+namespace diji
+{
+    enum class Directions;
+}
 
 namespace superMarioBros
 {
@@ -29,6 +35,7 @@ namespace superMarioBros
         diji::Event<int> OnScoreAddedEvent;
         diji::Event<> OnCoinCollectedEvent;
         diji::Event<> OnLevelClearedEvent;
+        diji::Event<diji::Directions> OnBonusAreaTriggeredEvent;
 
         void LoadLevel();
         void LoadLevel(const std::string& levelFilePath);
@@ -76,6 +83,17 @@ namespace superMarioBros
         const diji::GameObject* PlaceNewItem(int x, int y, char itemID) const;
         void AttachToWorldObject(const diji::GameObject* object) const;
 
+        static constexpr int BONUS_AREA_COLUMN_OFFSET = -80;
+
+        void PrepareLoadBonusArea(diji::Directions direction);
+        void HideCurrentArea();
+        [[nodiscard]] sf::Vector2f ShowNextArea();
+        void SetBonusAreaExitPosition(const sf::Vector2f& position) { m_BonusAreaExitPosition = position; }
+        [[nodiscard]] bool IsInBonusArea() const { return m_IsInBonusArea; }
+        [[nodiscard]] const std::vector<char>& GetBonusAreaInfo() const { return m_BonusAreaInfo; }
+        [[nodiscard]] int GetBonusAreaRows() const { return m_BonusAreaRows; }
+        [[nodiscard]] int GetBonusAreaCols() const { return m_BonusAreaCols; }
+
     private:
         diji::GameObject* m_WorldGameObject = nullptr;
         std::unordered_set<diji::Collider*> m_EnemyColliders;
@@ -84,7 +102,7 @@ namespace superMarioBros
         PlayerHealthState m_LastPlayerState = PlayerHealthState::Small;
         sf::Vector2u m_StartPosition;
         std::vector<char> m_LevelInfo;
-		// todo remove string literal
+		// todo: remove string literal
         std::string m_HighScoreFileName = "../SuperMarioBros/Resources/levels/highscores.txt";
         int m_Rows = 0;
         int m_Cols = 0;
@@ -93,8 +111,21 @@ namespace superMarioBros
         bool m_IsLevelAlreadyCleared = false;
         PlayerInfo m_PlayerInfo;
 
+        // Bonus Area
+        diji::GameObject* m_BonusAreaWorldGameObject = nullptr;
+        std::vector<char> m_BonusAreaInfo;
+        sf::Vector2f m_BonusAreaSpawnPosition;
+        sf::Vector2f m_BonusAreaExitPosition;
+        sf::Color m_LevelBackgroundColor;
+        int m_BonusAreaRows = 0;
+        int m_BonusAreaCols = 0;
+        bool m_IsInBonusArea = false;
+
         std::string LoadInformation();
         void ReadLevelInfo(const std::string& filepath);
+        static void ReadLevelFile(const std::string& filepath, std::vector<char>& levelInfo, int& rows, int& cols);
+        void LoadBonusArea();
+        std::string LoadBonusAreaInformation();
         void ClearListeners();
         void SavePlayerState();
     };

@@ -27,6 +27,7 @@ void superMarioBros::BaseEnemy::Start()
 
     player->GetComponent<PlayerCharacter>()->OnEnemyStompedEvent.AddListener(this, &BaseEnemy::HandleStomp);
     player->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener(this, &BaseEnemy::SetPauseState);
+    player->GetComponent<PlayerCharacter>()->OnPipeTransitionEvent.AddListener(this, &BaseEnemy::SetPauseState);
 }
 
 void superMarioBros::BaseEnemy::Update()

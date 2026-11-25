@@ -33,6 +33,11 @@ void superMarioBros::TimerScript::Init()
     {
         m_Paused = isPoweringUp;
     });
+
+    diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar")->GetComponent<PlayerCharacter>()->OnPipeTransitionEvent.AddListener([this](const bool isInTransition)
+    {
+        m_Paused = isInTransition;
+    });
 }
 
 void superMarioBros::TimerScript::Update()

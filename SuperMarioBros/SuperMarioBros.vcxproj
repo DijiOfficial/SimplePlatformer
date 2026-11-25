@@ -198,6 +198,7 @@
     <ClCompile Include="Components\Other\HUD\HudManager.cpp" />
     <ClCompile Include="Components\Other\HUD\PointsBehaviour.cpp" />
     <ClCompile Include="Components\Other\HUD\TimerScript.cpp" />
+    <ClCompile Include="Components\Other\LevelObjects\BonusArea.cpp" />
     <ClCompile Include="Components\Other\LevelObjects\CastleFlag.cpp" />
     <ClCompile Include="Components\Other\LevelObjects\CheckPoint.cpp" />
     <ClCompile Include="Components\Other\LevelObjects\Flag.cpp" />
@@ -252,6 +253,7 @@
     <ClInclude Include="Components\Other\HUD\HudManager.h" />
     <ClInclude Include="Components\Other\HUD\PointsBehaviour.h" />
     <ClInclude Include="Components\Other\HUD\TimerScript.h" />
+    <ClInclude Include="Components\Other\LevelObjects\BonusArea.h" />
     <ClInclude Include="Components\Other\LevelObjects\CastleFlag.h" />
     <ClInclude Include="Components\Other\LevelObjects\CheckPoint.h" />
     <ClInclude Include="Components\Other\LevelObjects\Flag.h" />

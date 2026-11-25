@@ -358,7 +358,7 @@ void superMarioBros::PlayerInputManager::CheckIfPlayerIsGrounded()
     const sf::Vector2f bottomLeft = { origin.x - 23, origin.y + offset };
     const sf::Vector2f bottomRight = { origin.x + 23, origin.y + offset };
     
-    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(bottomLeft, dir, 10.f, m_ColliderCompPtr))
+    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(bottomLeft, dir, 10.0f, m_ColliderCompPtr, true))
     {
         if (hit->info.hasCollision && GROUND_TAGS.contains(hit->collider->GetTag()))
         {
@@ -367,7 +367,7 @@ void superMarioBros::PlayerInputManager::CheckIfPlayerIsGrounded()
         }
     }
 
-    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(bottomRight, dir, 10.f, m_ColliderCompPtr))
+    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(bottomRight, dir, 10.0f, m_ColliderCompPtr, true))
     {
         if (hit->info.hasCollision && GROUND_TAGS.contains(hit->collider->GetTag()))
         {

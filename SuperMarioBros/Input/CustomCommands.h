@@ -1,11 +1,6 @@
 ﻿#pragma once
 #include "Engine/Input/GameActorCommand.h"
 
-namespace superMarioBros
-{
-    class tempTest;
-}
-
 namespace diji
 {
     class Collider;
@@ -14,6 +9,7 @@ namespace diji
 namespace superMarioBros
 {
     class PlayerInputManager;
+    class BonusArea;
 
     class MoveCharacter final : public diji::GameActorCommands
     {
@@ -83,7 +79,7 @@ namespace superMarioBros
     class StartGame final : public diji::GameActorCommands
     {
     public:
-        explicit StartGame(diji::GameObject* actor) : GameActorCommands{ actor } {};
+        explicit StartGame(diji::GameObject* actor) : GameActorCommands{ actor } {}
         ~StartGame() noexcept override = default;
 
         void Execute() override;
@@ -109,5 +105,17 @@ namespace superMarioBros
     private:
         PlayerInputManager* m_CharacterInput = nullptr;
         bool m_IsStart = false;
+    };
+
+    class TriggerBonusArea final : public diji::GameActorCommands
+    {
+    public:
+        explicit TriggerBonusArea(diji::GameObject* actor);
+        ~TriggerBonusArea() noexcept override = default;
+
+        void Execute() override;
+        
+    private:
+        BonusArea* m_BonusAreaPtr = nullptr;
     };
 }

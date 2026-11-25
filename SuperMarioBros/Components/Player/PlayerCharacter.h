@@ -1,14 +1,17 @@
 ﻿#pragma once
+#include <functional>
 #include <string>
 #include <SFML/System/Vector2.hpp>
 
 #include "Engine/Components/Component.h"
+#include "Engine/Collision/Collider.h"
 #include "Engine/Singleton/TimeSingleton.h"
 #include "PlayerStates.h"
 #include "../../Interfaces/IPowerUp.h"
 
 namespace diji
 {
+    enum class Directions;
     class Timeline;
     class SpriteRenderComponent;
     class Transform;
@@ -67,12 +70,14 @@ namespace superMarioBros
         diji::Event<bool> OnPoweringUpEvent;
         diji::Event<> OnLevelFinishedEvent;
         diji::Event<> OnCastleReachedEvent;
+        diji::Event<bool> OnPipeTransitionEvent;
 
     private:
         const diji::TimeSingleton& m_TimeSingletonInstance = diji::TimeSingleton::GetInstance();
         std::unique_ptr<PlayerStates> m_CurrentStateUPtr = nullptr;
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;
         diji::Timeline* m_FlagPoleTimelinePtr = nullptr;
+        diji::Timeline* m_PipeTimelinePtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
 
@@ -89,10 +94,15 @@ namespace superMarioBros
         
         int m_BounceScoreMultiplier = 1;
         const float STOMP_THRESHOLD = 0.5f;
-        const float DEATH_BUMP_STRENGTH = 950.f;
-        
-        float m_InvincibilityTimer = 0.f;
-        float m_InvincibilityRenderTimer = 0.f;
+        const float DEATH_BUMP_STRENGTH = 950.0f;
+        const float PIPE_TRANSITION_DURATION = 1.0f;
+        const float PIPE_BLACK_SCREEN_DURATION = 0.5f;
+        const float PIPE_TRAVEL_DISTANCE_MULTIPLIER = 2.0f;
+        const float PLAYER_WIDTH = 48.0f; // small mario is 48x48, big mario 48x96
+        diji::Collider::CollisionResponse m_PreviousCollisionResponse = diji::Collider::CollisionResponse::Block;
+
+        float m_InvincibilityTimer = 0.0f;
+        float m_InvincibilityRenderTimer = 0.0f;
         float m_StarPowerTimer = 0.0f;
         bool m_IsDead = false;
         bool m_IsPaused = false;
@@ -119,5 +129,11 @@ namespace superMarioBros
         void CheckForSavedState();
         void HitByEnemy();
         bool IsValidStomp(const diji::Collider* other) const;
+        void PlayPipeTransitionAnimation(diji::Directions pipeEntranceDirection);
+        void MoveThroughPipe(const sf::Vector2f& direction, float distance, float playerSize, bool isExitingPipe, const std::function<void()>& onFinished);
+        void EndPipeTransition();
+        void UpdatePipeVisibility(float depthInPipe, float playerSize) const;
+        void TeleportPlayer(const sf::Vector2f& position) const;
+        [[nodiscard]] float GetPlayerHeight() const;
     };
 }

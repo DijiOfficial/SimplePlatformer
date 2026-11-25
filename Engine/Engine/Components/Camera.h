@@ -40,6 +40,9 @@ namespace diji
         void SetAsMainView() const;
         void SetClampingMode(const bool isClamped) { m_IsClamped = isClamped; }
         void ClearFollow();
+        void ForceCameraPosition(const sf::Vector2f& position) { m_ForcedPosition = position; m_IsPositionForced = true; }
+        void ReleaseForcedCameraPosition() { m_IsPositionForced = false; }
+        [[nodiscard]] bool IsCameraPositionForced() const { return m_IsPositionForced; }
         
         sf::Vector2f GetCameraOffset() const { return m_CameraOffset; }
         bool GetIsCameraLocked() const { return m_IsLocked; }
@@ -53,10 +56,12 @@ namespace diji
         sf::View m_CameraView;
         sf::FloatRect m_LevelBoundaries;
         sf::Vector2f m_CameraOffset;
+        sf::Vector2f m_ForcedPosition;
         float m_Width;
         float m_Height;
         bool m_IsLocked;
         bool m_IsClamped = true;
+        bool m_IsPositionForced = false;
 
         void Clamp(sf::Vector2f& pos) const;
     };

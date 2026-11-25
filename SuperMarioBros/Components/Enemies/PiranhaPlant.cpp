@@ -17,6 +17,7 @@ void superMarioBros::PiranhaPlant::Start()
         m_PlayerTransformCompPtr = player->GetRootComponent();
         player->GetComponent<PlayerCharacter>()->OnHitByEnemyEvent.AddListener(this, &PiranhaPlant::PauseTimeline);
         player->GetComponent<PlayerCharacter>()->OnPoweringUpEvent.AddListener(this, &PiranhaPlant::PauseTimeline);
+        player->GetComponent<PlayerCharacter>()->OnPipeTransitionEvent.AddListener(this, &PiranhaPlant::PauseTimeline);
     }
 
     CreateTimeLine();

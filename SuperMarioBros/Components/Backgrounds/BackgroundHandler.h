@@ -14,11 +14,12 @@ namespace superMarioBros
     {
     public:
         explicit BackgroundHandler(diji::GameObject* ownerPtr) : Component(ownerPtr) {}
+        explicit BackgroundHandler(diji::GameObject* ownerPtr, const bool isBonusAreaBackground) : Component(ownerPtr), m_IsBonusAreaBackground{ isBonusAreaBackground } {}
         ~BackgroundHandler() noexcept override = default;
 
         void Init() override;
         void OnEnable() override {}
-        void Start() override {}
+        void Start() override;
         
         void Update() override {}
         void FixedUpdate() override {}
@@ -36,6 +37,8 @@ namespace superMarioBros
         std::unordered_map<char, sf::Vector2i> m_TileIDToAtlasPos;
 
         bool m_ShouldLoadFirstLevel = true;
+        bool m_IsBonusAreaBackground = false;
         void OnNewLevelLoaded() const;
+        void FillVertexArray(const std::vector<char>& levelData, int rows, int cols, int colOffset) const;
     };
 }

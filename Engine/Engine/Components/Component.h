@@ -2,6 +2,7 @@
 #include "../Interfaces/EventSystem.h" // Included for all inherited classes
 #include "../Collision/CollisionStructs.h"
 #include "../Singleton/TimerManager.h"
+#include "../Input/InputManager.h"
 
 namespace diji 
 {
@@ -48,6 +49,13 @@ namespace diji
         explicit Component(GameObject* ownerPtr) : m_OwnerPtr{ ownerPtr } {}
         template<typename T>
         T* GetComponent() const;
+
+        template<typename T, typename... Args>
+            requires std::derived_from<T, GameActorCommands>
+        void BindCommand(const PlayerIdx playerIdx, const KeyState state, const Input::InputType input, Args&&... args)
+        {
+            InputManager::GetInstance().BindCommand<T>(playerIdx, state, input, m_OwnerPtr, std::forward<Args>(args)...);
+        }
 
     private:
         GameObject* m_OwnerPtr = {};

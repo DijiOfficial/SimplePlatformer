@@ -22,6 +22,9 @@ void superMarioBros::CustomBackgroundRenderer::Init()
 
 void superMarioBros::CustomBackgroundRenderer::RenderFrame() const
 {
+    if (m_Render == false)
+        return;
+
     // not very efficient but works for now
     const float posY = m_TransformCompPtr->GetWorldPosition().y;
     const int chunk = static_cast<int>(m_PlayerTransformPtr->GetWorldPosition().x - m_WidthCenter) / static_cast<int>(m_Width);

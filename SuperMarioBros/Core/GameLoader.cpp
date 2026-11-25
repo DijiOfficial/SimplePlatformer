@@ -52,8 +52,8 @@ void SceneLoader::GameStartUp()
     SceneManager::GetInstance().RegisterScene(static_cast<int>(superMarioBros::superMarioBrosState::TransitionToNextLevel), TransitionToNextLevel);
     SceneManager::GetInstance().RegisterScene(static_cast<int>(superMarioBros::superMarioBrosState::LevelEditor), LevelEditor);
 
-    StartMenu();
-    // Level();
+    // StartMenu();
+    Level();
     // LevelEditor();
 }
 
@@ -585,6 +585,14 @@ void SceneLoader::Level()
     background->AddComponent<superMarioBros::BackgroundHandler>();
     scene->SetToAlwaysRender(background, true);
 
+    // tiles of the bonus area, only rendered while the player is in it
+    const auto bonusAreaBackground = scene->CreateGameObject("B_BonusAreaBackground");
+    bonusAreaBackground->SetObjectPosition({ 0, 0 });
+    bonusAreaBackground->AddComponent<Sprite>("graphics/tiles_sheet.png");
+    bonusAreaBackground->AddComponent<Render>();
+    bonusAreaBackground->AddComponent<superMarioBros::BackgroundHandler>(true);
+    scene->SetToAlwaysRender(bonusAreaBackground, true);
+
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->SetObjectPosition({ 0, 0 });
     camera->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
@@ -613,15 +621,17 @@ void SceneLoader::Level()
 
     // const auto testObject = scene->CreateGameObject("Y_testObject");
     // // auto testObject = std::make_unique<diji::GameObject>();
-    // testObject->SetObjectPosition({ 6000, 400 });
-    // testObject->AddComponent<SpriteRenderComponent>("graphics/piranhaPlant.png", sf::Vector2i{ 50, 75 }, 2, 0.135f);
-    // testObject->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 50, 75 });
+    // testObject->SetObjectPosition({ 600, 300 });
+    // // testObject->AddComponent<SpriteRenderComponent>("graphics/piranhaPlant.png", sf::Vector2i{ 50, 75 }, 2, 0.135f);
+    // testObject->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 100, 50 });
+    // testObject->AddComponent<ShapeRender>();
     // const auto collider = testObject->GetComponent<Collider>();
     // collider->SetIsMoveable(false);
-    // collider->SetTag("plant");
+    // collider->SetStatic(true);
+    // collider->SetTag("bonusArea");
     // collider->SetAffectedByGravity(false);
     // collider->SetCollisionResponse(Collider::CollisionResponse::Overlap);
-    // testObject->AddComponent<superMarioBros::PiranhaPlant>();
+    // testObject->AddComponent<superMarioBros::BonusArea>(Directions::Right);
  
     
     // const auto testObject = scene->CreateGameObject("Y_testObject");

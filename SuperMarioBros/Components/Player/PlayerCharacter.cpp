@@ -22,6 +22,7 @@
 #include "Engine/Interfaces/IInterface.h"
 #include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/GameStateManager.h"
+#include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/RandNumber.h"
 #include "Engine/Singleton/ResourceManager.h"
 #include "Engine/Singleton/TimerManager.h"
@@ -56,6 +57,8 @@ void superMarioBros::PlayerCharacter::Start()
         flag->GetComponent<Flag>()->OnFlagAnimationFinishedEvent.AddListener(this, &PlayerCharacter::StopFlagAnimAndMoveToCastle);
 
     CheckForSavedState();
+
+    GameManager::GetInstance().OnBonusAreaTriggeredEvent.AddListener(this, &PlayerCharacter::PlayPipeTransitionAnimation);
 }
 
 #include <SFML/Window/Keyboard.hpp>
@@ -438,6 +441,138 @@ void superMarioBros::PlayerCharacter::PlayFireTransitionAnimation()
         OnPoweringUpEvent.Broadcast(false);
         m_ColliderCompPtr->SetAffectedByGravity(true);
     }, 0.78f, false);
+}
+
+void superMarioBros::PlayerCharacter::PlayPipeTransitionAnimation(const diji::Directions pipeEntranceDirection)
+{
+    sf::Vector2f direction;
+
+    // todo: introduce a converter in utils.
+    switch (pipeEntranceDirection)
+    {
+    case diji::Directions::Left:
+        direction = { -1.0f, 0.0f };
+        break;
+
+    case diji::Directions::Right:
+        direction = { 1.0f, 0.0f };
+        break;
+
+    case diji::Directions::Up:
+        direction = { 0.0f, -1.0f };
+        break;
+
+    case diji::Directions::Down:
+        direction = { 0.0f, 1.0f };
+        break;
+    case diji::Directions::None:
+        // todo: throw an error
+        break;
+    }
+
+    m_IsPaused = true;
+    OnPipeTransitionEvent.Broadcast(true);
+    diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_pipe.wav", false);
+
+    m_PreviousCollisionResponse = m_ColliderCompPtr->GetCollisionResponse();
+    m_ColliderCompPtr->SetCollisionResponse(diji::Collider::CollisionResponse::Ignore);
+    m_ColliderCompPtr->SetAffectedByGravity(false);
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.0f, 0.0f });
+
+    const float playerSize = direction.y != 0.0f ? GetPlayerHeight() : PLAYER_WIDTH;
+
+    MoveThroughPipe(direction, playerSize * PIPE_TRAVEL_DISTANCE_MULTIPLIER, playerSize, false, [this]()
+    {
+        GameManager::GetInstance().HideCurrentArea();
+
+        (void)diji::TimerManager::GetInstance().SetTimer(this, [this]()
+        {
+            auto& gameManager = GameManager::GetInstance();
+            const sf::Vector2f nextPosition = gameManager.ShowNextArea();
+
+            if (gameManager.IsInBonusArea())
+            {
+                TeleportPlayer(nextPosition);
+                EndPipeTransition();
+                return;
+            }
+
+            const float height = GetPlayerHeight();
+            const float distance = height * PIPE_TRAVEL_DISTANCE_MULTIPLIER;
+            TeleportPlayer(sf::Vector2f{ nextPosition.x, nextPosition.y - height * 0.5f + distance });
+            diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_pipe.wav", false);
+
+            MoveThroughPipe(UP_VECTOR, distance, height, true, [this]()
+            {
+                EndPipeTransition();
+            });
+        }, PIPE_BLACK_SCREEN_DURATION, false);
+    });
+}
+
+void superMarioBros::PlayerCharacter::MoveThroughPipe(const sf::Vector2f& direction, const float distance, const float playerSize, const bool isExitingPipe, const std::function<void()>& onFinished)
+{
+    const sf::Vector2f originalPos = m_TransformCompPtr->GetWorldPosition();
+    UpdatePipeVisibility(isExitingPipe ? distance : 0.0f, playerSize);
+
+    m_PipeTimelinePtr = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
+    auto& track = m_PipeTimelinePtr->AddFloatTrack("MoveThroughPipe");
+
+    track.keys =
+    {
+        { .time = 0.0f,                     .value = 0.0f },
+        { .time = PIPE_TRANSITION_DURATION, .value = distance }
+    };
+
+    track.onValue = [this, originalPos, direction, distance, playerSize, isExitingPipe](const float currentDistance)
+    {
+        m_TransformCompPtr->SetWorldPosition(
+        {
+            originalPos.x + direction.x * currentDistance,
+            originalPos.y + direction.y * currentDistance
+        });
+
+        UpdatePipeVisibility(isExitingPipe ? distance - currentDistance : currentDistance, playerSize);
+    };
+
+    auto& [eventName, eventKeysVec] = m_PipeTimelinePtr->GetEventTrack("OnAnimationEnd");
+    eventKeysVec =
+    {
+        { .time= PIPE_TRANSITION_DURATION, .callback= onFinished }
+    };
+}
+
+void superMarioBros::PlayerCharacter::EndPipeTransition()
+{
+    m_ColliderCompPtr->SetCollisionResponse(m_PreviousCollisionResponse);
+    m_ColliderCompPtr->SetAffectedByGravity(true);
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.0f, 0.0f });
+    m_SpriteRenderCompPtr->EnableRender();
+
+    m_IsPaused = false;
+    OnPipeTransitionEvent.Broadcast(false);
+}
+
+void superMarioBros::PlayerCharacter::UpdatePipeVisibility(const float depthInPipe, const float playerSize) const
+{
+    if (depthInPipe < playerSize)
+        m_SpriteRenderCompPtr->EnableRender();
+    else
+        m_SpriteRenderCompPtr->DisableRender();
+}
+
+void superMarioBros::PlayerCharacter::TeleportPlayer(const sf::Vector2f& position) const
+{
+    m_TransformCompPtr->SetWorldPosition(position);
+
+    // syncing twice sets both the last and new collider positions, otherwise the collider interpolates from the old position for a frame
+    m_ColliderCompPtr->SyncTransform();
+    m_ColliderCompPtr->SyncTransform();
+}
+
+float superMarioBros::PlayerCharacter::GetPlayerHeight() const
+{
+    return m_PowerUpState == PowerUpState::Small ? PLAYER_WIDTH : PLAYER_WIDTH * 2.0f;
 }
 
 void superMarioBros::PlayerCharacter::HandleStarPickup()

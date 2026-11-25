@@ -174,7 +174,7 @@ void diji::PhysicsWorld::EndFrameUpdate()
     }
 }
 
-std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& origin, const sf::Vector2f& direction, const float maxDistance, const Collider* collider) const
+std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& origin, const sf::Vector2f& direction, const float maxDistance, const Collider* collider, const bool ignoreOverlapColliders) const
 {
     if (m_IsEnabled == false)
         return std::nullopt;
@@ -190,6 +190,9 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
 
     auto testCollider = [&](const Collider* col, const sf::FloatRect& rect)
     {
+        if (ignoreOverlapColliders && col->GetCollisionResponse() == Collider::CollisionResponse::Overlap)
+            return;
+
         // Slab method: x slabs
         const float minX = rect.position.x;
         const float maxX = rect.position.x + rect.size.x;

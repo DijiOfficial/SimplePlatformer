@@ -4,12 +4,14 @@
 #include "../../Singletons/GameManager.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Components/Sprite.h"
+#include "Engine/Components/Render.h"
 
 void superMarioBros::BackgroundHandler::Init()
 {
     m_BackgroundSprite = GetOwner()->GetComponent<diji::Sprite>();
 
-    GameManager::GetInstance().OnNewLevelLoadedEvent.AddListener(this, &BackgroundHandler::OnNewLevelLoaded);
+    if (m_IsBonusAreaBackground == false)
+        GameManager::GetInstance().OnNewLevelLoadedEvent.AddListener(this, &BackgroundHandler::OnNewLevelLoaded);
 
     // todo: this can probably be json now
     m_TileIDToAtlasPos =
@@ -56,29 +58,50 @@ void superMarioBros::BackgroundHandler::Init()
         { 'C', {2, 3} }, // BottomLeft Side Pipe (Z priority)
         { 'w', {1, 4} }, // Ground Green
         { 'G', {2, 4} }, // Floor Green
-        { 'H', {3, 4} }, // BreakableBlock Green
+        { 'H', {0, 4} }, // BreakableBlock Green (invisible tile because it's rendered by BreakableBlock component)
         { 'z', {3, 4} }, // BreakableBlock Green + multi coin
         { 'I', {3, 4} }, // BreakableBlock Green + powerUp
+        { 'J', {2, 0} }, // Bonus area pipe entered from the top (TopRight Up Pipe)
+        { 'K', {0, 2} }, // Bonus area pipe entered from the left (side pipe opening)
+        { 'L', {2, 0} }, // Bonus area exit pipe (TopRight Up Pipe)
         // ... etc.
     };
+
+    if (m_IsBonusAreaBackground)
+        return;
 
     // todo: tbh this shouldn't call load level in the first place
     if (m_ShouldLoadFirstLevel)
         GameManager::GetInstance().LoadLevel();
 }
 
+void superMarioBros::BackgroundHandler::Start()
+{
+    if (m_IsBonusAreaBackground == false)
+        return;
+
+    const auto& gameManager = GameManager::GetInstance();
+    FillVertexArray(gameManager.GetBonusAreaInfo(), gameManager.GetBonusAreaRows(), gameManager.GetBonusAreaCols(), GameManager::BONUS_AREA_COLUMN_OFFSET);
+
+    GetOwner()->GetComponent<diji::Render>()->DisableRender();
+}
+
 void superMarioBros::BackgroundHandler::OnNewLevelLoaded() const
 {
     auto& gameManager = GameManager::GetInstance();
+
+    FillVertexArray(gameManager.GetLevelInfo(), gameManager.GetRows(), gameManager.GetCols(), 0);
+
+    gameManager.ClearLevelInfo();
+}
+
+void superMarioBros::BackgroundHandler::FillVertexArray(const std::vector<char>& levelData, const int rows, const int cols, const int colOffset) const
+{
     constexpr int tileSize = 50;
 
     m_BackgroundSprite->SetTileSize(tileSize);
-    m_BackgroundSprite->SetTileCount(gameManager.GetRows(), gameManager.GetCols());
+    m_BackgroundSprite->SetTileCount(rows, cols);
     m_BackgroundSprite->ResizeVertexArray();
-
-    const std::vector<char>& levelData = gameManager.GetLevelInfo();
-    const int cols = gameManager.GetCols();
-    const int rows = gameManager.GetRows();
 
     auto& tempVertexArray = m_BackgroundSprite->GetVertexArray();
 
@@ -90,7 +113,7 @@ void superMarioBros::BackgroundHandler::OnNewLevelLoaded() const
             const int vertexIndex = (y * cols + x) * 6;
             sf::Vertex* quad = &tempVertexArray[vertexIndex];
 
-            const float left   = static_cast<float>(x * tileSize);
+            const float left   = static_cast<float>((x + colOffset) * tileSize);
             const float top    = static_cast<float>(y * tileSize);
             const float right  = left + tileSize;
             const float bottom = top + tileSize;
@@ -131,8 +154,6 @@ void superMarioBros::BackgroundHandler::OnNewLevelLoaded() const
             quad[5].texCoords = { texRight, texBottom };
         }
     }
-
-    gameManager.ClearLevelInfo();
 }
 
 void superMarioBros::BackgroundHandler::ApplyTile(const int x, const int y, const int cols, const char tileID)

@@ -43,6 +43,13 @@ void diji::Camera::LateUpdate()
 {
     if (m_IsLocked) return;
 
+    if (m_IsPositionForced)
+    {
+        m_CameraView.setCenter(m_ForcedPosition);
+        window::g_window_ptr->setView(m_CameraView);
+        return;
+    }
+
     sf::Vector2f cameraPos = m_TransformCompPtr->GetWorldPosition() + m_CameraOffset;
 
     if (m_IsClamped)

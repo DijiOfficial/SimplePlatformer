@@ -6,7 +6,6 @@
 #include "Engine/Core/GameObject.h"
 #include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/SceneManager.h"
-#include "PlayerCharacter.h"
 #include "PlayerInputManager.h"
 
 void superMarioBros::CameraClamping::Init()
@@ -28,6 +27,9 @@ void superMarioBros::CameraClamping::Start()
 
 void superMarioBros::CameraClamping::LateUpdate()
 {
+    if (m_CameraPtr->IsCameraPositionForced())
+        return;
+
     const auto playerPos = m_PlayerTransformCompPtr->GetWorldPosition();
     const float playerX = playerPos.x;
     const float viewWidth = m_CameraPtr->GetCameraView().getSize().x;
