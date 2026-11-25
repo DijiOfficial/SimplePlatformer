@@ -389,4 +389,5 @@ void superMarioBros::GameManager::ClearListeners()
     OnScoreAddedEvent.ClearAllListeners();
     OnCoinCollectedEvent.ClearAllListeners();
     OnLevelClearedEvent.ClearAllListeners();
+    OnBonusAreaTriggeredEvent.ClearAllListeners();
 }
