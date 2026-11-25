@@ -170,8 +170,9 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessBoxT
     // Flip normal/tangent for B
     collision.normal *= -1.0f;
     collision.tangent *= -1.0f;
+    collision.otherAABB = rectA.getGlobalBounds();
     collisionInfoVecB.push_back(collision);
-    
+
     collisionResult.overlap = isCheckingOverlap;
     collisionResult.hit = !isCheckingOverlap;
     return collisionResult;
