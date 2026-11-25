@@ -14,7 +14,7 @@ void superMarioBros::Flag::StartAnimation()
     m_TimelinePtr = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
 
     auto &track = m_TimelinePtr->AddFloatTrack("MoveVertically");
-    track.keys = { { .time= 0.f, .value= 0.f }, { .time= 1.31f, .value= 490.f }, };
+    track.keys = { { .time= 0.f, .value= 0.f }, { .time= 1.31f, .value= 540.f }, };
     
     diji::Transform* transformPtr = GetOwner()->GetRootComponent();
     sf::Vector2f originalPos = transformPtr->GetWorldPosition();

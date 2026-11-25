@@ -615,7 +615,7 @@ void SceneLoader::Level()
     player->AddComponent<superMarioBros::CameraClamping>();
     player->AddComponent<superMarioBros::BroadcastPlayerPosition>();
     player->AddComponent<superMarioBros::CheckPlayerTopPixel>();
-    player->AddComponent<ShapeRender>(true);
+    // player->AddComponent<ShapeRender>(true);
 
     SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
 

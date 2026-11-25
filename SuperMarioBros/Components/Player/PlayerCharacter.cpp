@@ -615,6 +615,7 @@ void superMarioBros::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& 
 
     m_FlagCenter = center;
     m_TransformCompPtr->SetWorldPosition(sf::Vector2f{ center.x - 20.f, m_TransformCompPtr->GetWorldPosition().y });
+    m_SpriteRenderCompPtr->SetSpriteLookingRight();
     std::unique_ptr<PlayerStates> newState;
     if (m_PowerUpState == PowerUpState::Small)
         newState = std::make_unique<FlagPoleSlideState>();
@@ -630,7 +631,7 @@ void superMarioBros::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& 
     m_FlagPoleTimelinePtr = diji::SceneManager::GetInstance().CreateTimeline(GetOwner());
     sf::Vector2f originalPos = m_TransformCompPtr->GetWorldPosition();
 
-    const float groundDistance = m_PowerUpState == PowerUpState::Small ? 450.f : 400.f;
+    const float groundDistance = m_PowerUpState == PowerUpState::Small ? 476.0f : 452.0f;
     const float distanceToMove = groundDistance - originalPos.y;
     constexpr float moveDuration = 2.f/15.f / 50.f; // 8frames to move 50 units
     auto &track = m_FlagPoleTimelinePtr->AddFloatTrack("MoveVertically");
@@ -669,14 +670,14 @@ void superMarioBros::PlayerCharacter::StopFlagAnimAndMoveToCastle()
 
     m_IsFlagTriggered = true;
     m_FlagPoleTimelinePtr->Stop();
-    m_SpriteRenderCompPtr->InvertSprite();
+    m_SpriteRenderCompPtr->SetSpriteLookingLeft();
     m_SpriteRenderCompPtr->Pause();
-    m_TransformCompPtr->SetWorldPosition(sf::Vector2f{ m_FlagCenter.x + 25, m_TransformCompPtr->GetWorldPosition().y });
+    TeleportPlayer(sf::Vector2f{ m_FlagCenter.x + 20.0f, m_TransformCompPtr->GetWorldPosition().y });
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_stage_clear.wav", false);
 
     (void)diji::TimerManager::GetInstance().SetTimer(this, [&]
     {
-        m_SpriteRenderCompPtr->InvertSprite();
+        m_SpriteRenderCompPtr->SetSpriteLookingRight();
         m_ColliderCompPtr->SetAffectedByGravity(true);
         std::unique_ptr<PlayerStates> newState;
         if (m_PowerUpState == PowerUpState::Small)

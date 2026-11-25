@@ -86,7 +86,7 @@ void SceneLoader::LevelEditor()
     player->AddComponent<superMarioBros::CameraClamping>();
     player->AddComponent<superMarioBros::BroadcastPlayerPosition>();
     player->AddComponent<superMarioBros::CheckPlayerTopPixel>();
-    player->AddComponent<ShapeRender>(true);
+    // player->AddComponent<ShapeRender>(true);
     player->SetActive(false);
 
     const auto tempKeyboard = scene->CreateGameObject("X_tempKeyboard");
