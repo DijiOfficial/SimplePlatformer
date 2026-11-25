@@ -6,6 +6,7 @@
 #include "CollisionsHelper.h"
 
 #include <stdexcept>
+#include <cmath>
 
 void diji::PhysicsWorld::Reset()
 {
@@ -92,12 +93,18 @@ void diji::PhysicsWorld::FixedUpdate()
     {
         if (prediction.collider->IsMoveable() == false) continue;
 
+        sf::Vector2f totalCorrection{ 0.0f, 0.0f };
         for (const CollisionInfo& collision : prediction.collisionInfoVec)
         {
-            if (!collision.hasCollision) continue;
-            
-            ResolveCollision(prediction, collision);
+            if (collision.hasCollision == false) continue;
+
+            const sf::Vector2f correction = ResolveCollision(prediction, collision);
+            if (std::abs(correction.x) > std::abs(totalCorrection.x))
+                totalCorrection.x = correction.x;
+            if (std::abs(correction.y) > std::abs(totalCorrection.y))
+                totalCorrection.y = correction.y;
         }
+        prediction.pos += totalCorrection;
 
         ApplyFrictionOnce(prediction);
     }
@@ -105,9 +112,9 @@ void diji::PhysicsWorld::FixedUpdate()
     // Phase 4: Update final state
     for (Prediction& prediction : m_Predictions)
     {
-        if (!prediction.collider->IsMoveable())
+        if (prediction.collider->IsMoveable() == false)
             continue;
-        
+
         UpdateFinalPosition(prediction);
     }
 
@@ -612,15 +619,16 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
 //     }
 // }
 
-void diji::PhysicsWorld::ResolveCollision(Prediction& prediction, const CollisionInfo& collision)
+sf::Vector2f diji::PhysicsWorld::ResolveCollision(Prediction& prediction, const CollisionInfo& collision)
 {
     const float velocityAlongNormal = Helpers::DotProduct(prediction.vel, collision.normal);
-    
+
     // Objects separating? No collision response needed (technically not needed as I'm snapping instead of resolving over dt)
-    if (velocityAlongNormal > 0) return;
-    
+    if (velocityAlongNormal > 0.0f)
+        return sf::Vector2f{ 0.0f, 0.0f };
+
     const float restitution = prediction.collider->GetRestitution();
-    const float impulseScalar = -(1 + restitution) * velocityAlongNormal;
+    const float impulseScalar = -(1.0f + restitution) * velocityAlongNormal;
     const sf::Vector2f impulse = impulseScalar * collision.normal;
     prediction.vel += impulse;
     collision.normalImpulse = impulseScalar;
@@ -629,13 +637,13 @@ void diji::PhysicsWorld::ResolveCollision(Prediction& prediction, const Collisio
     if (collision.penetration > correctionSlop)
     {
         constexpr float correctionPercent = 0.8f;
-        
-        const sf::Vector2f correction = (collision.penetration - correctionSlop) * correctionPercent * collision.normal;
-        prediction.pos += correction;
+
+        return (collision.penetration - correctionSlop) * correctionPercent * collision.normal;
     }
-    
+
     // Instead, just set position to the collision boundary
     // prediction.pos = collision.point;
+    return sf::Vector2f{ 0.0f, 0.0f };
 }
 
 // AI attempt at implementing Coulomb friction model with static and kinetic friction. I haven't checked thus I'm not using it

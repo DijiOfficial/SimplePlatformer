@@ -100,7 +100,7 @@ namespace diji
 		
 		void PredictMovement(std::vector<Prediction>& predictionsVec) const;
 		void DetectCollisions(std::vector<Prediction>& predictionsVec);
-		static void ResolveCollision(Prediction& prediction, const CollisionInfo& collision);
+		static sf::Vector2f ResolveCollision(Prediction& prediction, const CollisionInfo& collision);
 
 		static void UpdateFinalPosition(const Prediction& prediction);
 		static CollisionDetectionResult HandleStaticCollisions(Prediction& dynamicCollider, const Collider* staticCollider);

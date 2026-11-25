@@ -35,7 +35,7 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
     collision.penetration = radiiSum - distance;
 
     collisionInfoVecA.push_back(collision);
-    collision.normal *= -1.f;
+    collision.normal *= -1.0f;
     collisionInfoVecB.push_back(collision);
 
     result.overlap = isCheckingOverlap;
@@ -85,7 +85,7 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessCirc
     
     // Determine direction to push (centerB - centerA along the axis)
     const sf::Vector2f centerDelta = rect.getPosition() - circleA.getPosition();
-    if (Helpers::DotProduct(centerDelta, smallestAxis) >= 0.f)
+    if (Helpers::DotProduct(centerDelta, smallestAxis) >= 0.0f)
         smallestAxis = -smallestAxis;
 
     CollisionInfo collision;
@@ -148,14 +148,14 @@ diji::PhysicsWorld::CollisionDetectionResult diji::CollisionsHelper::ProcessBoxT
         return true;
     };
 
-    if (!testAxes(axesA))
+    if (testAxes(axesA) == false)
         return collisionResult;
-    if (!testAxes(axesB))
+    if (testAxes(axesB) == false)
         return collisionResult;
 
     // Determine direction to push (centerB - centerA along the axis)
     const sf::Vector2f centerDelta = centerB - centerA;
-    if (Helpers::DotProduct(centerDelta, smallestAxis) >= 0.f)
+    if (Helpers::DotProduct(centerDelta, smallestAxis) >= 0.0f)
         smallestAxis = -smallestAxis;
     
     CollisionInfo collision;
@@ -186,10 +186,12 @@ void diji::CollisionsHelper::FilterAlignedBoxCollisions(Prediction& pred)
     const bool preferHorizontal = xAxis > yAxis + moveDeadzone;
     const bool preferVertical = yAxis > xAxis + moveDeadzone;
 
+    const sf::FloatRect movingAABB{ pred.pos - pred.AABB.size * 0.5f, pred.AABB.size };
+
     std::vector<char> keep(pred.collisionInfoVec.size(), 1);
     for (size_t i = 0; i < pred.collisionInfoVec.size(); ++i)
     {
-        if (!pred.collisionInfoVec[i].hasCollision)
+        if (pred.collisionInfoVec[i].hasCollision == false)
         {
             keep[i] = 0;
             continue;
@@ -198,18 +200,29 @@ void diji::CollisionsHelper::FilterAlignedBoxCollisions(Prediction& pred)
         const sf::FloatRect& rectA = pred.collisionInfoVec[i].otherAABB;
         for (size_t j = i + 1; j < pred.collisionInfoVec.size(); ++j)
         {
-            if (!pred.collisionInfoVec[j].hasCollision)
+            if (pred.collisionInfoVec[j].hasCollision == false)
             {
                 keep[j] = 0;
                 continue;
             }
 
             const sf::FloatRect& rectB = pred.collisionInfoVec[j].otherAABB;
-            if (!BoxesAreAxisAligned(rectA, rectB, Helpers::EPSILON))
-                continue;
-
             const auto& collisionInfoI = pred.collisionInfoVec[i];
             const auto& collisionInfoJ = pred.collisionInfoVec[j];
+
+            if (IsInternalEdge(rectA, collisionInfoI.normal, rectB, movingAABB))
+            {
+                keep[i] = 0;
+                continue;
+            }
+            if (IsInternalEdge(rectB, collisionInfoJ.normal, rectA, movingAABB))
+            {
+                keep[j] = 0;
+                continue;
+            }
+
+            if (BoxesAreAxisAligned(rectA, rectB, Helpers::EPSILON) == false)
+                continue;
 
             const bool iHorizontal = std::abs(collisionInfoI.normal.x) > std::abs(collisionInfoI.normal.y);
             const bool jHorizontal = std::abs(collisionInfoJ.normal.x) > std::abs(collisionInfoJ.normal.y);
@@ -228,16 +241,16 @@ void diji::CollisionsHelper::FilterAlignedBoxCollisions(Prediction& pred)
 
             if (preferHorizontal)
             {
-                if (iHorizontal && !jHorizontal)
+                if (iHorizontal && jHorizontal == false)
                     keep[j] = 0;
-                else if (jHorizontal && !iHorizontal)
+                else if (jHorizontal && iHorizontal == false)
                     keep[i] = 0;
             }
             else if (preferVertical)
             {
-                if (!iHorizontal && jHorizontal)
+                if (iHorizontal == false && jHorizontal)
                     keep[j] = 0;
-                else if (!jHorizontal && iHorizontal)
+                else if (jHorizontal == false && iHorizontal)
                     keep[i] = 0;
             }
             else
@@ -336,8 +349,8 @@ void diji::CollisionsHelper::ProjectCircleOntoAxis(const sf::CircleShape& circle
 
 sf::Vector2f diji::CollisionsHelper::GetCenterOfMass(const std::vector<sf::Vector2f>& points)
 {
-    float sumX = 0.f;
-    float sumY = 0.f;
+    float sumX = 0.0f;
+    float sumY = 0.0f;
 
     for (const auto& p : points)
     {
@@ -353,6 +366,48 @@ bool diji::CollisionsHelper::BoxesAreAxisAligned(const sf::FloatRect& rectA, con
     const float xOverlap = std::min(rectA.position.x + rectA.size.x, rectB.position.x + rectB.size.x) - std::max(rectA.position.x, rectB.position.x);
     const float yOverlap = std::min(rectA.position.y + rectA.size.y, rectB.position.y + rectB.size.y) - std::max(rectA.position.y, rectB.position.y);
 
-    if (xOverlap <= 0.f || yOverlap <= 0.f) return false;
+    if (xOverlap <= 0.0f || yOverlap <= 0.0f) return false;
     return (xOverlap > minOverlap && Helpers::AreFloatEqual(rectA.position.y, rectB.position.y)) || (yOverlap > minOverlap && Helpers::AreFloatEqual(rectA.position.x, rectB.position.x));
+}
+
+bool diji::CollisionsHelper::IsInternalEdge(const sf::FloatRect& box, const sf::Vector2f& normal, const sf::FloatRect& neighbour, const sf::FloatRect& movingBounds)
+{
+    constexpr float tolerance = 1.0f;
+
+    const float boxLeft = box.position.x;
+    const float boxRight = box.position.x + box.size.x;
+    const float boxTop = box.position.y;
+    const float boxBottom = box.position.y + box.size.y;
+
+    const float neighbourLeft = neighbour.position.x;
+    const float neighbourRight = neighbour.position.x + neighbour.size.x;
+    const float neighbourTop = neighbour.position.y;
+    const float neighbourBottom = neighbour.position.y + neighbour.size.y;
+
+    const float movingLeft = movingBounds.position.x;
+    const float movingRight = movingBounds.position.x + movingBounds.size.x;
+    const float movingTop = movingBounds.position.y;
+    const float movingBottom = movingBounds.position.y + movingBounds.size.y;
+
+    const float contactLeft = std::max(movingLeft, boxLeft);  // NOLINT(readability-suspicious-call-argument)
+    const float contactRight = std::min(movingRight, boxRight);
+    const float contactTop = std::max(movingTop, boxTop);
+    const float contactBottom = std::min(movingBottom, boxBottom);
+
+    const bool isContactCoveredHorizontally = contactLeft >= neighbourLeft - tolerance && contactRight <= neighbourRight + tolerance;
+    const bool isContactCoveredVertically = contactTop >= neighbourTop - tolerance && contactBottom <= neighbourBottom + tolerance;
+
+    if (normal.x < -0.5f)
+        return isContactCoveredVertically && std::abs(neighbourRight - boxLeft) <= tolerance;
+
+    if (normal.x > 0.5f)
+        return isContactCoveredVertically && std::abs(neighbourLeft - boxRight) <= tolerance;
+
+    if (normal.y < -0.5f)
+        return isContactCoveredHorizontally && std::abs(neighbourBottom - boxTop) <= tolerance;
+
+    if (normal.y > 0.5f)
+        return isContactCoveredHorizontally && std::abs(neighbourTop - boxBottom) <= tolerance;
+
+    return false;
 }

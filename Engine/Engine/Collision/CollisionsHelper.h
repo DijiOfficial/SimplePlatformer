@@ -25,5 +25,6 @@ namespace diji
         static void ProjectCircleOntoAxis(const sf::CircleShape& circle, const sf::Vector2f& axis, float& min, float& max);
         static sf::Vector2f GetCenterOfMass(const std::vector<sf::Vector2f>& points);
         static bool BoxesAreAxisAligned(const sf::FloatRect& rectA, const sf::FloatRect& rectB, float minOverlap = 0.01f);
+        static bool IsInternalEdge(const sf::FloatRect& box, const sf::Vector2f& normal, const sf::FloatRect& neighbour, const sf::FloatRect& movingBounds);
     };
 }
