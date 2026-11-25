@@ -72,7 +72,7 @@ namespace diji
     private:
         //todo: unify removing anything from any container using a method
         std::unordered_map<std::string, unsigned long long int> m_NameIndexUMap;
-        std::unordered_set<const GameObject*> m_AlwaysRender;
+        std::map<GameObject::RenderLayer, std::unordered_set<const GameObject*>> m_AlwaysRender;
         std::unordered_map<std::string, std::unique_ptr<GameObject>> m_ObjectsUPtrMap;
         std::unordered_map<std::string, std::unique_ptr<GameObject>> m_CanvasObjectsUPtrMap;
         std::map<int, std::unordered_set<const GameObject*>> m_CanvasRenderMap;
@@ -108,7 +108,7 @@ namespace diji
         // todo: these pointers shenanigans although work are pretty tedious to keep clean. find a better solution for automatic cleanup
         struct RenderChunk
         {
-            std::map<int, std::unordered_set<const GameObject*>> objects;
+            std::map<GameObject::RenderLayer, std::unordered_set<const GameObject*>> objects;
         };
         struct ChunkCoordHasher
         {
@@ -124,7 +124,7 @@ namespace diji
         {
             const GameObject* object;
             GameObject::ChunkCoord chunk;
-            int layer;
+            GameObject::RenderLayer layer;
             bool shouldAdd;
         };
 
@@ -139,5 +139,7 @@ namespace diji
         void DestroyFromChunks(const std::unordered_map<std::string, std::unique_ptr<GameObject>>::iterator& it);
         void UpdateGameObjectRenderLayerInChunk(const GameObject* gameObject, GameObject::RenderLayer oldLayer);
         void RemovePendingChunkModifications(const GameObject* object);
+        [[nodiscard]] bool IsAlwaysRendered(const GameObject* object, GameObject::RenderLayer layer) const;
+        void RemoveFromAlwaysRender(const GameObject* object, GameObject::RenderLayer layer);
     };
 }

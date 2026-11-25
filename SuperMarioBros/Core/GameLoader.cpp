@@ -456,20 +456,25 @@ void SceneLoader::TransitionToNextLevel()
     camera->SetObjectPosition({ 0, 0 });
     camera->AddComponent<Camera>(sf::Vector2f{ 1920.0f, 1080.0f });
     camera->GetComponent<Camera>()->SetLevelBoundaries(superMarioBros::WorldBuilder::WorldSettings::ARENA_SIZE);
+    const sf::FloatRect& arena = superMarioBros::WorldBuilder::WorldSettings::ARENA_SIZE;
+    camera->GetComponent<Camera>()->ForceCameraPosition(sf::Vector2f{ arena.position.x + 1920.0f * 0.5f, arena.position.y + 1080.0f * 0.5f });
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
     staticBackground->SetObjectPosition({ 0, 228 });
     staticBackground->AddComponent<TextureComp>("graphics/background.png");
     staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>(player->GetRootComponent());
+    staticBackground->SetRenderLayer(-10);
+    scene->SetToAlwaysRender(staticBackground, true);
 
     const auto background = scene->CreateGameObject("B_Background");
     background->SetObjectPosition({ 0, 0 });
     background->AddComponent<Sprite>("graphics/tiles_sheet.png");
     background->AddComponent<Render>();
     background->AddComponent<superMarioBros::BackgroundHandler>();
-    
-    player->SetObjectPosition({ 200, 475 });
+    scene->SetToAlwaysRender(background, true);
+
+    player->SetObjectPosition({ 200, 525 });
     player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
     player->GetComponent<SpriteRenderComponent>()->SetScale(3);
     player->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
@@ -580,6 +585,7 @@ void SceneLoader::Level()
     staticBackground->SetObjectPosition({ 0, 228 });
     staticBackground->AddComponent<TextureComp>("graphics/background.png");
     staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>(player->GetRootComponent());
+    staticBackground->SetRenderLayer(-10);
     scene->SetToAlwaysRender(staticBackground, true);
 
     const auto background = scene->CreateGameObject("B_Background");

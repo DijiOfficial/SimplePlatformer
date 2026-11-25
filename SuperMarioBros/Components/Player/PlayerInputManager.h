@@ -40,6 +40,7 @@ namespace superMarioBros
         void Attack();
         void Crouch(bool isStart);
         void Bump();
+        [[nodiscard]] bool IsOnGround() const { return m_IsOnGround; }
 
     private:
         const diji::TimeSingleton& m_TimeSingletonInstance = diji::TimeSingleton::GetInstance();
@@ -48,9 +49,9 @@ namespace superMarioBros
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
 
-        sf::Vector2f m_BaseMaxVelocity = { 350.f, 1000.f }; // const?
-        sf::Vector2f m_SprintMaxVelocity = { 500.f, 1000.f };
-        sf::Vector2f m_CurrSpeed = { 0.f, 0.f };
+        sf::Vector2f m_BaseMaxVelocity = { 350.0f, 1000.0f }; // const?
+        sf::Vector2f m_SprintMaxVelocity = { 500.0f, 1000.0f };
+        sf::Vector2f m_CurrSpeed = { 0.0f, 0.0f };
 
         enum class MovementDirection : uint8_t
         {
@@ -69,14 +70,14 @@ namespace superMarioBros
         bool m_CanAttack = true;
         bool m_IsAgainstCameraEdge = false;
 
-        float m_JumpForce = 950.f;
-        float m_BaseAcceleration = 1000.f;
+        float m_JumpForce = 950.0f;
+        float m_BaseAcceleration = 1000.0f;
         float m_Acceleration = m_BaseAcceleration;
-        float m_SprintAcceleration = 1500.f;
+        float m_SprintAcceleration = 1500.0f;
         float m_JumpTime = 0.0f;
         float m_MaxJumpTime = 0.25f;
         float m_MinJumpTime = 0.25f;
-        float m_SprintDecelerationTimer = 0.f;
+        float m_SprintDecelerationTimer = 0.0f;
         float m_AttackFireballCooldownTimer = 0.1f;
 
         void DecelerateAfterSprint();

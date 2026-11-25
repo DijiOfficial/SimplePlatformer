@@ -494,18 +494,17 @@ void diji::Scene::SetToAlwaysRender(const GameObject* object, const bool shouldA
     if (shouldAlwaysRender)
     {
         const auto it = m_ObjectsUPtrMap.find(object->GetName());
-        if (it != m_ObjectsUPtrMap.end())
+        if (it != m_ObjectsUPtrMap.end() && IsAlwaysRendered(object, object->GetRenderLayer()) == false)
         {
             RemoveFromChunk(it);
-            m_AlwaysRender.insert(object);
+            m_AlwaysRender[object->GetRenderLayer()].insert(object);
         }
     }
     else
     {
-        const auto it = m_AlwaysRender.find(object);
-        if (it != m_AlwaysRender.end())
+        if (IsAlwaysRendered(object, object->GetRenderLayer()))
         {
-            m_AlwaysRender.erase(object);
+            RemoveFromAlwaysRender(object, object->GetRenderLayer());
 
             const GameObject::ChunkCoord chunk = WorldToChunk(object->GetRootComponent()->GetWorldPosition());
             m_RenderChunkModifications.push_back({ .object = object, .chunk = chunk, .layer = object->GetRenderLayer(), .shouldAdd = true });
@@ -527,9 +526,10 @@ void diji::Scene::DrawGameObjects() const
     max.x += 1;
     max.y += 1;
 
-    for (const GameObject* gameObject : m_AlwaysRender)
+    for (const auto& gameObjects : m_AlwaysRender | std::views::values)
     {
-        gameObject->Render();
+        for (const GameObject* gameObject : gameObjects)
+            gameObject->Render();
     }
     
     for (int y = min.y; y <= max.y; ++y)
@@ -611,7 +611,7 @@ void diji::Scene::RegisterToChunk(const GameObject* object)
     if (oldCoord == newCoord)
         return;
 
-    if (m_AlwaysRender.contains(object))
+    if (IsAlwaysRendered(object, object->GetRenderLayer()))
         return;
 
     const auto it = m_ObjectsUPtrMap.find(object->GetName());
@@ -684,10 +684,33 @@ void diji::Scene::UpdateGameObjectRenderLayerInChunk(const GameObject* gameObjec
     if (oldLayer == newLayer)
         return;
 
+    if (IsAlwaysRendered(gameObject, oldLayer))
+    {
+        RemoveFromAlwaysRender(gameObject, oldLayer);
+        m_AlwaysRender[newLayer].insert(gameObject);
+        return;
+    }
+
     RemovePendingChunkModifications(gameObject);
 
     m_RenderChunkModifications.push_back({ .object= gameObject, .chunk= coords, .layer= oldLayer, .shouldAdd= false});
     m_RenderChunkModifications.push_back({ .object= gameObject, .chunk= coords, .layer= newLayer, .shouldAdd= true});
+}
+
+bool diji::Scene::IsAlwaysRendered(const GameObject* object, const GameObject::RenderLayer layer) const
+{
+    const auto it = m_AlwaysRender.find(layer);
+    return it != m_AlwaysRender.end() && it->second.contains(object);
+}
+
+void diji::Scene::RemoveFromAlwaysRender(const GameObject* object, const GameObject::RenderLayer layer)
+{
+    const auto it = m_AlwaysRender.find(layer);
+    if (it == m_AlwaysRender.end()) return;
+
+    it->second.erase(object);
+    if (it->second.empty())
+        m_AlwaysRender.erase(it);
 }
 
 void diji::Scene::RemovePendingChunkModifications(const GameObject* object)

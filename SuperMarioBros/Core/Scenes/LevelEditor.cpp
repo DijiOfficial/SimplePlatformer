@@ -47,6 +47,7 @@ void SceneLoader::LevelEditor()
     staticBackground->SetObjectPosition({ 0, 228 });
     staticBackground->AddComponent<TextureComp>("graphics/background.png");
     staticBackground->AddComponent<superMarioBros::CustomBackgroundRenderer>(selector->GetRootComponent());
+    staticBackground->SetRenderLayer(-10);
     scene->SetToAlwaysRender(staticBackground, true);
     
     selector->SetObjectPosition({ 525, 25 });
@@ -54,7 +55,7 @@ void SceneLoader::LevelEditor()
     selector->AddComponent<Render>();
     const auto& selectorControlsComp = selector->AddComponent<superMarioBros::SelectorControls>();
     const auto& selectorComp = selector->AddComponent<superMarioBros::Selector>();
-    selector->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
+    selector->AddComponent<Camera>(sf::Vector2f{ 1920.0f, 1080.0f });
     selector->GetComponent<Camera>()->SetLevelBoundaries(superMarioBros::WorldBuilder::WorldSettings::ARENA_SIZE);
     selector->SetRenderLayer(10);
     
@@ -73,13 +74,13 @@ void SceneLoader::LevelEditor()
     player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
     player->GetComponent<SpriteRenderComponent>()->SetScale(3);
     player->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
-    player->GetComponent<Collider>()->SetRestitution(0.f);
+    player->GetComponent<Collider>()->SetRestitution(0.0f);
     player->GetComponent<Collider>()->SetMass(0.89f);
     player->GetComponent<Collider>()->SetStaticFriction(0.25f);
     player->GetComponent<Collider>()->SetKineticFriction(0.15f);
     player->GetComponent<Collider>()->SetGenerateHitEvents(true);
     player->GetComponent<Collider>()->SetIsOnlyApplyingGroundFriction(true);
-    player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.f, 1000.f });
+    player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.0f, 1000.0f });
     player->GetComponent<Collider>()->SetTag("player");
     player->AddComponent<superMarioBros::PlayerCharacter>();
     player->AddComponent<superMarioBros::PlayerInputManager>(0.5f);
@@ -169,37 +170,37 @@ void SceneLoader::LevelEditor()
 #pragma region Commands
     auto& input = InputManager::GetInstance();
     
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::D, selector, sf::Vector2f{ 1.f, 0.f }, true);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Right, selector, sf::Vector2f{ 1.f, 0.f }, true);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::DPadRight, selector, sf::Vector2f{ 1.f, 0.f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::D, selector, sf::Vector2f{ 1.0f, 0.0f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Right, selector, sf::Vector2f{ 1.0f, 0.0f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::DPadRight, selector, sf::Vector2f{ 1.0f, 0.0f }, true);
     
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::A, selector, sf::Vector2f{ -1.f, 0.f }, true);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Left, selector, sf::Vector2f{ -1.f, 0.f }, true);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::DPadLeft, selector, sf::Vector2f{ -1.f, 0.f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::A, selector, sf::Vector2f{ -1.0f, 0.0f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Left, selector, sf::Vector2f{ -1.0f, 0.0f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::DPadLeft, selector, sf::Vector2f{ -1.0f, 0.0f }, true);
     
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::W, selector, sf::Vector2f{ 0.f, -1.f }, true);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Up, selector, sf::Vector2f{ 0.f, -1.f }, true);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::DPadUp, selector, sf::Vector2f{ 0.f, -1.f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::W, selector, sf::Vector2f{ 0.0f, -1.0f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Up, selector, sf::Vector2f{ 0.0f, -1.0f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::DPadUp, selector, sf::Vector2f{ 0.0f, -1.0f }, true);
     
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::S, selector, sf::Vector2f{ 0.f, 1.f }, true);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Down, selector, sf::Vector2f{ 0.f, 1.f }, true);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::DPadDown, selector, sf::Vector2f{ 0.f, 1.f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::S, selector, sf::Vector2f{ 0.0f, 1.0f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Down, selector, sf::Vector2f{ 0.0f, 1.0f }, true);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::DPadDown, selector, sf::Vector2f{ 0.0f, 1.0f }, true);
 
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::D, selector, sf::Vector2f{ 1.f, 0.f }, false);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Right, selector, sf::Vector2f{ 1.f, 0.f }, false);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadRight, selector, sf::Vector2f{ 1.f, 0.f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::D, selector, sf::Vector2f{ 1.0f, 0.0f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Right, selector, sf::Vector2f{ 1.0f, 0.0f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadRight, selector, sf::Vector2f{ 1.0f, 0.0f }, false);
     
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::A, selector, sf::Vector2f{ -1.f, 0.f }, false);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Left, selector, sf::Vector2f{ -1.f, 0.f }, false);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadLeft, selector, sf::Vector2f{ -1.f, 0.f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::A, selector, sf::Vector2f{ -1.0f, 0.0f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Left, selector, sf::Vector2f{ -1.0f, 0.0f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadLeft, selector, sf::Vector2f{ -1.0f, 0.0f }, false);
     
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::W, selector, sf::Vector2f{ 0.f, -1.f }, false);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Up, selector, sf::Vector2f{ 0.f, -1.f }, false);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadUp, selector, sf::Vector2f{ 0.f, -1.f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::W, selector, sf::Vector2f{ 0.0f, -1.0f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Up, selector, sf::Vector2f{ 0.0f, -1.0f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadUp, selector, sf::Vector2f{ 0.0f, -1.0f }, false);
     
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::S, selector, sf::Vector2f{ 0.f, 1.f }, false);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Down, selector, sf::Vector2f{ 0.f, 1.f }, false);
-    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadDown, selector, sf::Vector2f{ 0.f, 1.f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::S, selector, sf::Vector2f{ 0.0f, 1.0f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Down, selector, sf::Vector2f{ 0.0f, 1.0f }, false);
+    input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadDown, selector, sf::Vector2f{ 0.0f, 1.0f }, false);
 
     input.BindCommand<superMarioBros::SelectMenuItem>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Enter, selector);
     input.BindCommand<superMarioBros::SelectMenuItem>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::A, selector);

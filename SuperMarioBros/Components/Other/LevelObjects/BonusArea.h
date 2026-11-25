@@ -33,6 +33,6 @@ namespace superMarioBros
 
         diji::Directions m_BonusAreaEntranceDirection = diji::Directions::None;
 
-        [[nodiscard]] bool IsPlayerCenteredOnPipe() const;
+        [[nodiscard]] bool IsPlayerAlignedWithPipe() const;
     };
 }
