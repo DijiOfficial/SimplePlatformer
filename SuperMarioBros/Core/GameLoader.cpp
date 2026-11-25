@@ -119,7 +119,7 @@ void SceneLoader::StartMenu()
     scene->SetGameObjectAsCanvasObject(marioName);
     
     const auto scoreHUD = scene->CreateGameObject("Z_ScoreHUD");
-    scoreHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    scoreHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     scoreHUD->AddComponent<TextComp>("000000", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     scoreHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     scoreHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -130,7 +130,7 @@ void SceneLoader::StartMenu()
     scene->SetGameObjectAsCanvasObject(scoreHUD);
 
     const auto coinsCounterHud = scene->CreateGameObject("Z_CoinsCounterHUD");
-    coinsCounterHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    coinsCounterHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     coinsCounterHud->AddComponent<TextComp>("00", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     coinsCounterHud->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     coinsCounterHud->GetComponent<TextComp>()->SetCentered(true);
@@ -142,7 +142,7 @@ void SceneLoader::StartMenu()
     scene->SetGameObjectAsCanvasObject(coinsCounterHud);
     
     const auto xMarkHUD = scene->CreateGameObject("Z_xMarkHUD");
-    xMarkHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 38, static_cast<float>(window::VIEWPORT.y) * 0.05f + 32.f });
+    xMarkHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 38, static_cast<float>(window::VIEWPORT.y) * 0.05f + 32.0f });
     xMarkHUD->AddComponent<TextComp>("X", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     xMarkHUD->GetComponent<TextComp>()->GetText().setCharacterSize(18);
     xMarkHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -150,8 +150,9 @@ void SceneLoader::StartMenu()
     scene->SetGameObjectAsCanvasObject(xMarkHUD);
     
     const auto coinImageHud = scene->CreateGameObject("Z_CoinsImageHUD");
-    coinImageHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 60, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    coinImageHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 60, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     coinImageHud->AddComponent<SpriteRenderComponent>("graphics/HUDCoins.png", sf::Vector2i{ 24, 24 }, 6, 0.15f);
+    coinImageHud->GetComponent<SpriteRenderComponent>()->SetUseGlobalClock(true);
     scene->SetGameObjectAsCanvasObject(coinImageHud);
 
     const auto worldNameHUD = scene->CreateGameObject("Z_worldNameHUD");
@@ -163,7 +164,7 @@ void SceneLoader::StartMenu()
     scene->SetGameObjectAsCanvasObject(worldNameHUD);
 
     const auto worldCountHUD = scene->CreateGameObject("Z_worldCountHUD");
-    worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     worldCountHUD->AddComponent<TextComp>("1-1", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     worldCountHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     worldCountHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -212,7 +213,7 @@ void SceneLoader::LivesDisplayMenu()
     
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->SetObjectPosition({ 0, 0 });
-    camera->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
+    camera->AddComponent<Camera>(sf::Vector2f{ 1920.0f, 1080.0f });
 #pragma region HUD
      // Create the HUD    
     const auto marioName = scene->CreateGameObject("Z_MarioName");
@@ -224,7 +225,7 @@ void SceneLoader::LivesDisplayMenu()
     scene->SetGameObjectAsCanvasObject(marioName);
     
     const auto scoreHUD = scene->CreateGameObject("Z_ScoreHUD");
-    scoreHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    scoreHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     scoreHUD->AddComponent<TextComp>("000000", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     scoreHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     scoreHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -236,7 +237,7 @@ void SceneLoader::LivesDisplayMenu()
     scene->SetGameObjectAsCanvasObject(scoreHUD);
 
     const auto coinsCounterHud = scene->CreateGameObject("Z_CoinsCounterHUD");
-    coinsCounterHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    coinsCounterHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     coinsCounterHud->AddComponent<TextComp>("00", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     coinsCounterHud->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     coinsCounterHud->GetComponent<TextComp>()->SetCentered(true);
@@ -249,7 +250,7 @@ void SceneLoader::LivesDisplayMenu()
     scene->SetGameObjectAsCanvasObject(coinsCounterHud);
     
     const auto xMarkHUD = scene->CreateGameObject("Z_xMarkHUD");
-    xMarkHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 38, static_cast<float>(window::VIEWPORT.y) * 0.05f + 32.f });
+    xMarkHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 38, static_cast<float>(window::VIEWPORT.y) * 0.05f + 32.0f });
     xMarkHUD->AddComponent<TextComp>("X", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     xMarkHUD->GetComponent<TextComp>()->GetText().setCharacterSize(18);
     xMarkHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -257,8 +258,9 @@ void SceneLoader::LivesDisplayMenu()
     scene->SetGameObjectAsCanvasObject(xMarkHUD);
     
     const auto coinImageHud = scene->CreateGameObject("Z_CoinsImageHUD");
-    coinImageHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 60, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    coinImageHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 60, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     coinImageHud->AddComponent<SpriteRenderComponent>("graphics/HUDCoins.png", sf::Vector2i{ 24, 24 }, 6, 0.15f);
+    coinImageHud->GetComponent<SpriteRenderComponent>()->SetUseGlobalClock(true);
     scene->SetGameObjectAsCanvasObject(coinImageHud);
 
     const auto worldNameHUD = scene->CreateGameObject("Z_worldNameHUD");
@@ -270,7 +272,7 @@ void SceneLoader::LivesDisplayMenu()
     scene->SetGameObjectAsCanvasObject(worldNameHUD);
 
     const auto worldCountHUD = scene->CreateGameObject("Z_worldCountHUD");
-    worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     const std::string levelStr = std::format("1-{}", superMarioBros::GameManager::GetInstance().GetPlayerInfo().currentLevel);
     worldCountHUD->AddComponent<TextComp>(levelStr, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     worldCountHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
@@ -297,7 +299,7 @@ void SceneLoader::LivesDisplayMenu()
     scene->SetGameObjectAsCanvasObject(livesDisplay);
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
-    player->SetObjectPosition({ 965.f, static_cast<float>(window::VIEWPORT.y) * 0.5f });
+    player->SetObjectPosition({ 965.0f, static_cast<float>(window::VIEWPORT.y) * 0.5f });
     player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 1, 0.05f);
     player->GetComponent<SpriteRenderComponent>()->SetScale(3);
     player->GetComponent<SpriteRenderComponent>()->Pause();
@@ -342,7 +344,7 @@ void SceneLoader::GameOverMenu()
     
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->SetObjectPosition({ 0, 0 });
-    camera->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
+    camera->AddComponent<Camera>(sf::Vector2f{ 1920.0f, 1080.0f });
 
      // Create the HUD    
     const auto marioName = scene->CreateGameObject("Z_MarioName");
@@ -354,7 +356,7 @@ void SceneLoader::GameOverMenu()
     scene->SetGameObjectAsCanvasObject(marioName);
     
     const auto scoreHUD = scene->CreateGameObject("Z_ScoreHUD");
-    scoreHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    scoreHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     scoreHUD->AddComponent<TextComp>("000000", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     scoreHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     scoreHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -366,7 +368,7 @@ void SceneLoader::GameOverMenu()
     scene->SetGameObjectAsCanvasObject(scoreHUD);
 
     const auto coinsCounterHud = scene->CreateGameObject("Z_CoinsCounterHUD");
-    coinsCounterHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    coinsCounterHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     coinsCounterHud->AddComponent<TextComp>("00", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     coinsCounterHud->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     coinsCounterHud->GetComponent<TextComp>()->SetCentered(true);
@@ -379,7 +381,7 @@ void SceneLoader::GameOverMenu()
     scene->SetGameObjectAsCanvasObject(coinsCounterHud);
     
     const auto xMarkHUD = scene->CreateGameObject("Z_xMarkHUD");
-    xMarkHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 38, static_cast<float>(window::VIEWPORT.y) * 0.05f + 32.f });
+    xMarkHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 38, static_cast<float>(window::VIEWPORT.y) * 0.05f + 32.0f });
     xMarkHUD->AddComponent<TextComp>("X", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     xMarkHUD->GetComponent<TextComp>()->GetText().setCharacterSize(18);
     xMarkHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -387,8 +389,9 @@ void SceneLoader::GameOverMenu()
     scene->SetGameObjectAsCanvasObject(xMarkHUD);
     
     const auto coinImageHud = scene->CreateGameObject("Z_CoinsImageHUD");
-    coinImageHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 60, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    coinImageHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 60, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     coinImageHud->AddComponent<SpriteRenderComponent>("graphics/HUDCoins.png", sf::Vector2i{ 24, 24 }, 6, 0.15f);
+    coinImageHud->GetComponent<SpriteRenderComponent>()->SetUseGlobalClock(true);
     scene->SetGameObjectAsCanvasObject(coinImageHud);
 
     const auto worldNameHUD = scene->CreateGameObject("Z_worldNameHUD");
@@ -400,7 +403,7 @@ void SceneLoader::GameOverMenu()
     scene->SetGameObjectAsCanvasObject(worldNameHUD);
 
     const auto worldCountHUD = scene->CreateGameObject("Z_worldCountHUD");
-    worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     const std::string levelStr = std::format("1-{}", superMarioBros::GameManager::GetInstance().GetPlayerInfo().currentLevel);
     worldCountHUD->AddComponent<TextComp>(levelStr, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     worldCountHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
@@ -451,7 +454,7 @@ void SceneLoader::TransitionToNextLevel()
   
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->SetObjectPosition({ 0, 0 });
-    camera->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
+    camera->AddComponent<Camera>(sf::Vector2f{ 1920.0f, 1080.0f });
     camera->GetComponent<Camera>()->SetLevelBoundaries(superMarioBros::WorldBuilder::WorldSettings::ARENA_SIZE);
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
@@ -489,7 +492,7 @@ void SceneLoader::TransitionToNextLevel()
     scene->SetGameObjectAsCanvasObject(marioName);
     
     const auto scoreHUD = scene->CreateGameObject("Z_ScoreHUD");
-    scoreHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    scoreHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     scoreHUD->AddComponent<TextComp>("000000", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     scoreHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     scoreHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -501,7 +504,7 @@ void SceneLoader::TransitionToNextLevel()
     scene->SetGameObjectAsCanvasObject(scoreHUD);
 
     const auto coinsCounterHud = scene->CreateGameObject("Z_CoinsCounterHUD");
-    coinsCounterHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    coinsCounterHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     coinsCounterHud->AddComponent<TextComp>("00", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     coinsCounterHud->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     coinsCounterHud->GetComponent<TextComp>()->SetCentered(true);
@@ -514,7 +517,7 @@ void SceneLoader::TransitionToNextLevel()
     scene->SetGameObjectAsCanvasObject(coinsCounterHud);
     
     const auto xMarkHUD = scene->CreateGameObject("Z_xMarkHUD");
-    xMarkHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 38, static_cast<float>(window::VIEWPORT.y) * 0.05f + 32.f });
+    xMarkHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 38, static_cast<float>(window::VIEWPORT.y) * 0.05f + 32.0f });
     xMarkHUD->AddComponent<TextComp>("X", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     xMarkHUD->GetComponent<TextComp>()->GetText().setCharacterSize(18);
     xMarkHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -522,8 +525,9 @@ void SceneLoader::TransitionToNextLevel()
     scene->SetGameObjectAsCanvasObject(xMarkHUD);
     
     const auto coinImageHud = scene->CreateGameObject("Z_CoinsImageHUD");
-    coinImageHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 60, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    coinImageHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 60, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     coinImageHud->AddComponent<SpriteRenderComponent>("graphics/HUDCoins.png", sf::Vector2i{ 24, 24 }, 6, 0.15f);
+    coinImageHud->GetComponent<SpriteRenderComponent>()->SetUseGlobalClock(true);
     scene->SetGameObjectAsCanvasObject(coinImageHud);
 
     const auto worldNameHUD = scene->CreateGameObject("Z_worldNameHUD");
@@ -535,7 +539,7 @@ void SceneLoader::TransitionToNextLevel()
     scene->SetGameObjectAsCanvasObject(worldNameHUD);
 
     const auto worldCountHUD = scene->CreateGameObject("Z_worldCountHUD");
-    worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     const std::string levelStr = std::format("1-{}", superMarioBros::GameManager::GetInstance().GetPlayerInfo().currentLevel);
     worldCountHUD->AddComponent<TextComp>(levelStr, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     worldCountHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
@@ -595,20 +599,20 @@ void SceneLoader::Level()
 
     const auto camera = scene->CreateCameraObject("A_Camera");
     camera->SetObjectPosition({ 0, 0 });
-    camera->AddComponent<Camera>(sf::Vector2f{ 1920.f, 1080.f });
+    camera->AddComponent<Camera>(sf::Vector2f{ 1920.0f, 1080.0f });
     camera->GetComponent<Camera>()->SetLevelBoundaries(superMarioBros::WorldBuilder::WorldSettings::ARENA_SIZE);
 
     player->SetObjectPosition({ 200, 0 });
     player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
     player->GetComponent<SpriteRenderComponent>()->SetScale(3);
     player->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
-    player->GetComponent<Collider>()->SetRestitution(0.f);
+    player->GetComponent<Collider>()->SetRestitution(0.0f);
     player->GetComponent<Collider>()->SetMass(0.89f);
     player->GetComponent<Collider>()->SetStaticFriction(0.25f);
     player->GetComponent<Collider>()->SetKineticFriction(0.15f);
     player->GetComponent<Collider>()->SetGenerateHitEvents(true);
     player->GetComponent<Collider>()->SetIsOnlyApplyingGroundFriction(true);
-    player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.f, 1000.f });
+    player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.0f, 1000.0f });
     player->GetComponent<Collider>()->SetTag("player");
     player->AddComponent<superMarioBros::PlayerCharacter>();
     player->AddComponent<superMarioBros::PlayerInputManager>(0.5f);
@@ -617,7 +621,7 @@ void SceneLoader::Level()
     player->AddComponent<superMarioBros::CheckPlayerTopPixel>();
     // player->AddComponent<ShapeRender>(true);
 
-    SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.f });
+    SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.0f });
 
     // const auto testObject = scene->CreateGameObject("Y_testObject");
     // // auto testObject = std::make_unique<diji::GameObject>();
@@ -663,7 +667,7 @@ void SceneLoader::Level()
     scene->SetGameObjectAsCanvasObject(marioName);
     
     const auto scoreHUD = scene->CreateGameObject("Z_ScoreHUD");
-    scoreHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    scoreHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f + 13, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     scoreHUD->AddComponent<TextComp>("000000", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     scoreHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     scoreHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -676,7 +680,7 @@ void SceneLoader::Level()
     scene->SetGameObjectAsCanvasObject(scoreHUD);
 
     const auto coinsCounterHud = scene->CreateGameObject("Z_CoinsCounterHUD");
-    coinsCounterHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    coinsCounterHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     coinsCounterHud->AddComponent<TextComp>("00", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     coinsCounterHud->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     coinsCounterHud->GetComponent<TextComp>()->SetCentered(true);
@@ -689,7 +693,7 @@ void SceneLoader::Level()
     scene->SetGameObjectAsCanvasObject(coinsCounterHud);
     
     const auto xMarkHUD = scene->CreateGameObject("Z_xMarkHUD");
-    xMarkHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 38, static_cast<float>(window::VIEWPORT.y) * 0.05f + 32.f });
+    xMarkHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 38, static_cast<float>(window::VIEWPORT.y) * 0.05f + 32.0f });
     xMarkHUD->AddComponent<TextComp>("X", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     xMarkHUD->GetComponent<TextComp>()->GetText().setCharacterSize(18);
     xMarkHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -697,8 +701,9 @@ void SceneLoader::Level()
     scene->SetGameObjectAsCanvasObject(xMarkHUD);
     
     const auto coinImageHud = scene->CreateGameObject("Z_CoinsImageHUD");
-    coinImageHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 60, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    coinImageHud->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.4f - 60, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     coinImageHud->AddComponent<SpriteRenderComponent>("graphics/HUDCoins.png", sf::Vector2i{ 24, 24 }, 6, 0.15f);
+    coinImageHud->GetComponent<SpriteRenderComponent>()->SetUseGlobalClock(true);
     scene->SetGameObjectAsCanvasObject(coinImageHud);
 
     const auto worldNameHUD = scene->CreateGameObject("Z_worldNameHUD");
@@ -710,7 +715,7 @@ void SceneLoader::Level()
     scene->SetGameObjectAsCanvasObject(worldNameHUD);
 
     const auto worldCountHUD = scene->CreateGameObject("Z_worldCountHUD");
-    worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    worldCountHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.6f + 40, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     const std::string levelStr = std::format("1-{}", superMarioBros::GameManager::GetInstance().GetPlayerInfo().currentLevel);
     worldCountHUD->AddComponent<TextComp>(levelStr, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     worldCountHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
@@ -727,7 +732,7 @@ void SceneLoader::Level()
     scene->SetGameObjectAsCanvasObject(timerName);
     
     const auto timerHUD = scene->CreateGameObject("Z_timerHUD");
-    timerHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.85f + 12, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.f });
+    timerHUD->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.85f + 12, static_cast<float>(window::VIEWPORT.y) * 0.05f + 30.0f });
     timerHUD->AddComponent<TextComp>("400", "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     timerHUD->GetComponent<TextComp>()->GetText().setCharacterSize(25);
     timerHUD->GetComponent<TextComp>()->SetCentered(true);
@@ -760,19 +765,19 @@ void SceneLoader::Level()
 #pragma region Commands
     auto& input = InputManager::GetInstance();
 
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Scancode::D, player, sf::Vector2f{ 1.f, 0.f }, true);
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::D, player, sf::Vector2f{ 1.f, 0.f }, false);
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Scancode::Right, player, sf::Vector2f{ 1.f, 0.f }, true);
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Right, player, sf::Vector2f{ 1.f, 0.f }, false);
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::HELD, Controller::Button::DPadRight, player, sf::Vector2f{ 1.f, 0.f }, true);
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadRight, player, sf::Vector2f{ 1.f, 0.f }, false);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Scancode::D, player, sf::Vector2f{ 1.0f, 0.0f }, true);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::D, player, sf::Vector2f{ 1.0f, 0.0f }, false);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Scancode::Right, player, sf::Vector2f{ 1.0f, 0.0f }, true);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Right, player, sf::Vector2f{ 1.0f, 0.0f }, false);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::HELD, Controller::Button::DPadRight, player, sf::Vector2f{ 1.0f, 0.0f }, true);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadRight, player, sf::Vector2f{ 1.0f, 0.0f }, false);
     
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Scancode::A, player, sf::Vector2f{ -1.f, 0.f }, true);
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::A, player, sf::Vector2f{ -1.f, 0.f }, false);
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Scancode::Left, player, sf::Vector2f{ -1.f, 0.f }, true);
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Left, player, sf::Vector2f{ -1.f, 0.f }, false);
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::HELD, Controller::Button::DPadLeft, player, sf::Vector2f{ -1.f, 0.f }, true);
-    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadLeft, player, sf::Vector2f{ -1.f, 0.f }, false);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Scancode::A, player, sf::Vector2f{ -1.0f, 0.0f }, true);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::A, player, sf::Vector2f{ -1.0f, 0.0f }, false);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Scancode::Left, player, sf::Vector2f{ -1.0f, 0.0f }, true);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Left, player, sf::Vector2f{ -1.0f, 0.0f }, false);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::HELD, Controller::Button::DPadLeft, player, sf::Vector2f{ -1.0f, 0.0f }, true);
+    input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadLeft, player, sf::Vector2f{ -1.0f, 0.0f }, false);
     
     input.BindCommand<superMarioBros::CharacterJump>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Scancode::W, player, true);
     input.BindCommand<superMarioBros::CharacterJump>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::W, player, false);

@@ -1,5 +1,6 @@
 ﻿#include "SceneManager.h"
 #include "TimerManager.h"
+#include "TimeSingleton.h"
 #include "../Components/Transform.h"
 #include "../Input/InputManager.h"
 
@@ -8,10 +9,10 @@
 
 diji::Scene* diji::SceneManager::CreateScene(const int id)
 {
-    if (!m_PhysicsWorldUPtr)
+    if (m_PhysicsWorldUPtr == nullptr)
         m_PhysicsWorldUPtr = std::make_unique<PhysicsWorld>();
 
-    if (!m_TimelineManagerUPtr)
+    if (m_TimelineManagerUPtr == nullptr)
         m_TimelineManagerUPtr = std::make_unique<TimelineManager>();
     
     // Check if the scene already exists in the map
@@ -34,10 +35,10 @@ diji::Scene* diji::SceneManager::CreateScene(const int id)
 
 void diji::SceneManager::Init()
 {
-    if (!m_PhysicsWorldUPtr)
+    if (m_PhysicsWorldUPtr == nullptr)
         m_PhysicsWorldUPtr = std::make_unique<PhysicsWorld>();
 
-    if (!m_TimelineManagerUPtr)
+    if (m_TimelineManagerUPtr == nullptr)
         m_TimelineManagerUPtr = std::make_unique<TimelineManager>();
     
     TimerManager::GetInstance().Init();
@@ -46,6 +47,7 @@ void diji::SceneManager::Init()
 
 void diji::SceneManager::Start() const
 {
+    TimeSingleton::GetInstance().StartGlobalClock();
     m_ScenesUPtrMap.at(m_ActiveSceneId)->Start();
 
     m_PhysicsWorldUPtr->Init();
@@ -126,7 +128,7 @@ void diji::SceneManager::EndFrameUpdate()
     m_PhysicsWorldUPtr->EndFrameUpdate();
     
     // Handle pending destroy
-    if (!m_HasPendingDestroy)
+    if (m_HasPendingDestroy == false)
     {
         m_ScenesUPtrMap[m_ActiveSceneId]->ProcessRenderChunkModifications();
         return;

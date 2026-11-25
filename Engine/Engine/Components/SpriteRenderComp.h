@@ -52,6 +52,7 @@ namespace diji
         void SetFrameDuration(const float time) { m_FrameDuration = time; }
         void SetTotalAnimationTime(float time);
         void SkipStart() { m_SkipStart = true; }
+        void SetUseGlobalClock(const bool use) { m_UseGlobalClock = use; }
 
         void UpdateFrame();
         sf::FloatRect GetBoundingBox() const override;
@@ -71,5 +72,6 @@ namespace diji
         bool m_IsPlaying = true;
         bool m_IsLooping = true;
         bool m_SkipStart = false;
+        bool m_UseGlobalClock = false;
     };
 }

@@ -40,7 +40,7 @@ void superMarioBros::WorldBuilder::Init()
     {
         const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
         const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-        const sf::Vector2f center = { left + 25.f, bottom + 25.f };
+        const sf::Vector2f center = { left + 25.0f, bottom + 25.0f };
 
         auto go = std::make_unique<diji::GameObject>();
         go->SetObjectPosition(center);
@@ -62,12 +62,13 @@ void superMarioBros::WorldBuilder::Init()
     {
         const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
         const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-        const sf::Vector2f center = { left + 25.f, bottom + 25.f };
+        const sf::Vector2f center = { left + 25.0f, bottom + 25.0f };
 
         auto go = std::make_unique<diji::GameObject>();
         go->SetObjectPosition(center);
         go->AddComponent<diji::SpriteRenderComponent>("graphics/luckyBlock.png", sf::Vector2i{50,50}, 6, 0.135f);
         go->GetComponent<diji::SpriteRenderComponent>()->SetStartingFrameX(1);
+        go->GetComponent<diji::SpriteRenderComponent>()->SetUseGlobalClock(true);
         go->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{50,50});
 
         const auto collider = go->GetComponent<diji::Collider>();
@@ -92,7 +93,7 @@ void superMarioBros::WorldBuilder::Init()
     {
         const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
         const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-        const sf::Vector2f center = { left + 25.f, bottom + 25.f };
+        const sf::Vector2f center = { left + 25.0f, bottom + 25.0f };
 
         auto go = std::make_unique<diji::GameObject>();
         go->SetObjectPosition(center);
@@ -144,7 +145,7 @@ void superMarioBros::WorldBuilder::Init()
     {
         const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
         const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-        sf::Vector2f center = { left + 25.f, bottom + 25.f };
+        sf::Vector2f center = { left + 25.0f, bottom + 25.0f };
 
         auto go = std::make_unique<diji::GameObject>();
         go->SetObjectPosition(center);
@@ -155,11 +156,11 @@ void superMarioBros::WorldBuilder::Init()
         go->SetActive(false);
         
         const auto collider = go->GetComponent<diji::Collider>();
-        collider->SetRestitution(0.f);
+        collider->SetRestitution(0.0f);
         collider->SetMass(0.89f);
         collider->SetStaticFriction(0.25f);
         collider->SetKineticFriction(0.15f);
-        collider->SetMaxVelocity(sf::Vector2f{400.f, 10000.f});
+        collider->SetMaxVelocity(sf::Vector2f{400.0f, 10000.0f});
         collider->SetGenerateHitEvents(true);
         collider->SetTag("enemy");
 
@@ -167,7 +168,7 @@ void superMarioBros::WorldBuilder::Init()
 
         if (tile == 'h')
         {
-            center.x += 25.f;
+            center.x += 25.0f;
             go->GetComponent<GoombaAI>()->SetActivationMilestone(col - 21);
         }
 
@@ -224,7 +225,7 @@ void superMarioBros::WorldBuilder::Init()
     {
         const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
         const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-        const sf::Vector2f center = { left + 25.f, bottom + 25.f - 100.f };
+        const sf::Vector2f center = { left + 25.0f, bottom + 25.0f - 100.0f };
 
         auto castle = std::make_unique<diji::GameObject>();
         castle->SetObjectPosition(center);
@@ -234,12 +235,12 @@ void superMarioBros::WorldBuilder::Init()
         AttachToWorldObject(world, object);
 
         auto castleFlag = std::make_unique<diji::GameObject>();
-        castleFlag->SetObjectPosition(center + sf::Vector2f{0.f, -75.f});
+        castleFlag->SetObjectPosition(center + sf::Vector2f{0.0f, -75.0f});
         castleFlag->AddComponent<diji::TextureComp>("graphics/castleFlag.png");
         castleFlag->AddComponent<diji::Render>();
         castleFlag->AddComponent<CastleFlag>();
         castleFlag->SetRenderLayer(-1);
-        const auto object2 = diji::SceneManager::GetInstance().SpawnGameObject("C_castleFlag", std::move(castleFlag), center + sf::Vector2f{0.f, -75.f});
+        const auto object2 = diji::SceneManager::GetInstance().SpawnGameObject("C_castleFlag", std::move(castleFlag), center + sf::Vector2f{0.0f, -75.0f});
         AttachToWorldObject(world, object2);
 
         return 1;
@@ -250,7 +251,7 @@ void superMarioBros::WorldBuilder::Init()
     {
         const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
         const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-        sf::Vector2f center = { left + 25.f, bottom + 25.f };
+        sf::Vector2f center = { left + 25.0f, bottom + 25.0f };
 
         auto go = std::make_unique<diji::GameObject>();
         go->SetObjectPosition(center);
@@ -261,17 +262,17 @@ void superMarioBros::WorldBuilder::Init()
         go->SetActive(false);
         
         const auto colComp = go->GetComponent<diji::Collider>();
-        colComp->SetRestitution(0.f);
+        colComp->SetRestitution(0.0f);
         colComp->SetMass(0.89f);
         colComp->SetStaticFriction(0.25f);
         colComp->SetKineticFriction(0.15f);
-        colComp->SetMaxVelocity(sf::Vector2f{400.f, 800.f});
+        colComp->SetMaxVelocity(sf::Vector2f{400.0f, 800.0f});
         colComp->SetGenerateHitEvents(true);
         colComp->SetTag("koopa");
 
         if (tile == 'p')
         {
-            center.x += 25.f;
+            center.x += 25.0f;
             go->GetComponent<KoopaTroopa>()->SetActivationMilestone(col - 21);
         }
 
@@ -307,11 +308,12 @@ void superMarioBros::WorldBuilder::Init()
     {
         const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
         const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-        const sf::Vector2f center = { left + 25.f, bottom + 25.f };
+        const sf::Vector2f center = { left + 25.0f, bottom + 25.0f };
 
         auto go = std::make_unique<diji::GameObject>();
         go->SetObjectPosition(center);
         go->AddComponent<diji::SpriteRenderComponent>("graphics/staticCoin.png", sf::Vector2i{50,50}, 6, 0.135f);
+        go->GetComponent<diji::SpriteRenderComponent>()->SetUseGlobalClock(true);
         go->AddComponent<diji::Collider>(diji::CollisionShape::ShapeType::RECT, sf::Vector2f{50,50});
         go->AddComponent<StaticCoin>();
 
@@ -331,7 +333,7 @@ void superMarioBros::WorldBuilder::Init()
     {
         const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
         const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-        const sf::Vector2f center = { left + 25.f, bottom + 25.f };
+        const sf::Vector2f center = { left + 25.0f, bottom + 25.0f };
 
         auto go = std::make_unique<diji::GameObject>();
         go->SetObjectPosition(center);
@@ -348,7 +350,7 @@ void superMarioBros::WorldBuilder::Init()
     {
         const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
         const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-        const sf::Vector2f center = { left + 50.f, bottom + 45.f };
+        const sf::Vector2f center = { left + 50.0f, bottom + 45.0f };
 
         auto plant = std::make_unique<diji::GameObject>();
         plant->SetObjectPosition(center);
@@ -375,7 +377,7 @@ void superMarioBros::WorldBuilder::Init()
         const auto groundCollider = ground->GetComponent<diji::Collider>();
         groundCollider->SetStatic(true);
         groundCollider->SetTag("ground");
-        const auto object2 = diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(ground), center - sf::Vector2f{ 25.f, 20.f });
+        const auto object2 = diji::SceneManager::GetInstance().SpawnGameObject("WorldCollider", std::move(ground), center - sf::Vector2f{ 25.0f, 20.0f });
         AttachToWorldObject(world, object2);
 
         return 1;
@@ -407,8 +409,8 @@ void superMarioBros::WorldBuilder::Init()
         SpawnForegroundTile(world, row + 1, col + 1, sf::Vector2i{ 1, 3 });
         SpawnForegroundTile(world, row + 1, col + 2, sf::Vector2i{ 2, 3 });
 
-        const sf::Vector2f center = { static_cast<float>(col) * WorldSettings::TILE_SIZE - 10.f, static_cast<float>(row + 1) * WorldSettings::TILE_SIZE };
-        SpawnBonusAreaTrigger(world, center, sf::Vector2f{ 20.f, WorldSettings::TILE_SIZE * 2.f }, diji::Directions::Right);
+        const sf::Vector2f center = { static_cast<float>(col) * WorldSettings::TILE_SIZE - 10.0f, static_cast<float>(row + 1) * WorldSettings::TILE_SIZE };
+        SpawnBonusAreaTrigger(world, center, sf::Vector2f{ 20.0f, WorldSettings::TILE_SIZE * 2.0f }, diji::Directions::Right);
         return 1;
     };
 
@@ -429,7 +431,7 @@ void superMarioBros::WorldBuilder::Init()
 diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<char>& levelInfo, const int& rows, const int& cols, const int colOffset)
 {
     Init();
-    const auto world = diji::SceneManager::GetInstance().SpawnGameObject("WorldLevel", std::make_unique<diji::GameObject>(), sf::Vector2f{ 0.f, 0.f });
+    const auto world = diji::SceneManager::GetInstance().SpawnGameObject("WorldLevel", std::make_unique<diji::GameObject>(), sf::Vector2f{ 0.0f, 0.0f });
     const std::string specialTiles = std::string{ "0edxyfghijklmnopqrstuvABCDEFH" } + std::string{ WorldSettings::GROUND_MERGE_STOP_TILES }; //todo: consider inverting this system
 
     auto attachToWorldObject = [&](const diji::GameObject* object) -> void
@@ -512,7 +514,7 @@ void superMarioBros::WorldBuilder::SpawnForegroundTile(const diji::GameObject* w
 {
     const float left = static_cast<float>(col) * WorldSettings::TILE_SIZE;
     const float bottom = static_cast<float>(row) * WorldSettings::TILE_SIZE;
-    const sf::Vector2f center = { left + 25.f, bottom + 25.f };
+    const sf::Vector2f center = { left + 25.0f, bottom + 25.0f };
 
     auto go = std::make_unique<diji::GameObject>();
     go->SetObjectPosition(center);

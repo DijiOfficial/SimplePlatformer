@@ -72,7 +72,7 @@ void diji::Engine::Run(const std::function<void()>& load)
 		lastFrameTime = currentTime;
 
 		TimeSingleton::GetInstance().SetDeltaTime(deltaTime);
-		if (!input.ProcessInput())
+		if (input.ProcessInput() == false)
 			break;
 		
 		if (pause.GetIsPaused())
@@ -80,6 +80,8 @@ void diji::Engine::Run(const std::function<void()>& load)
 			renderer.Render();
 			continue;
 		}
+
+		time.TickGlobalClock(deltaTime);
 
 		lag += deltaTime;
 		while (lag >= FIXED_TIME_STEP)

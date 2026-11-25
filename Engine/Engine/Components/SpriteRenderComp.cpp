@@ -3,6 +3,10 @@
 #include "../Core/Renderer.h"
 #include "../Core/GameObject.h"
 #include "../Singleton/ResourceManager.h"
+#include "../Singleton/Helpers.h"
+
+#include <algorithm>
+#include <cmath>
 
 diji::SpriteRenderComponent::SpriteRenderComponent(GameObject* ownerPtr, const std::string& texturePath)
     : Render{ ownerPtr }
@@ -40,12 +44,30 @@ void diji::SpriteRenderComponent::Start()
 
 void diji::SpriteRenderComponent::LateUpdate()
 {
-    m_Sprite.setPosition(m_TransformCompPtr->GetWorldPosition());
-    m_Sprite.setRotation(m_TransformCompPtr->GetWorldRotation());
-    
+    const sf::Vector2f worldPosition = m_TransformCompPtr->GetWorldPosition();
+    if (Helpers::AreVectorsEqual(m_Sprite.getPosition(), worldPosition) == false)
+        m_Sprite.setPosition(worldPosition);
+
+    const sf::Angle worldRotation = m_TransformCompPtr->GetWorldRotation();
+    if (Helpers::AreFloatEqual(m_Sprite.getRotation().asDegrees(), worldRotation.asDegrees()) == false)
+        m_Sprite.setRotation(worldRotation);
+
     if (m_IsPlaying == false)
         return;
-    
+
+    if (m_UseGlobalClock && m_IsLooping && m_FrameDuration > 0.0f)
+    {
+        const double loopDuration = m_FrameDuration * static_cast<double>(m_TotalAnimationFrames);
+        const double timeInLoop = std::fmod(m_TimeSingletonInstance.GetGlobalTime(), loopDuration);
+        const int frame = std::min(static_cast<int>(timeInLoop / m_FrameDuration), m_TotalAnimationFrames - 1);
+        if (frame != m_CurrentFrame)
+        {
+            m_CurrentFrame = frame;
+            UpdateFrame();
+        }
+        return;
+    }
+
     m_AnimationTimer += m_TimeSingletonInstance.GetDeltaTime();
   
     while (m_AnimationTimer >= m_FrameDuration)
@@ -114,7 +136,7 @@ void diji::SpriteRenderComponent::SetTotalAnimationFrames(const int count)
 void diji::SpriteRenderComponent::SetCurrentAnimationFrame(const int frame)
 {
     m_CurrentFrame = std::clamp(frame, 0, m_TotalAnimationFrames - 1); 
-    m_Sprite.setTextureRect(sf::IntRect{ sf::Vector2i{ m_StartingFrameX + m_CurrentFrame * m_FrameSize.x, m_StartingFrameY * m_FrameSize.y }, sf::Vector2i{ m_FrameSize.x, m_FrameSize.y } });
+    m_Sprite.setTextureRect(sf::IntRect{ sf::Vector2i{ (m_StartingFrameX + m_CurrentFrame) * m_FrameSize.x, m_StartingFrameY * m_FrameSize.y }, sf::Vector2i{ m_FrameSize.x, m_FrameSize.y } });
 }
 
 void diji::SpriteRenderComponent::SetScale(const float scale)
@@ -166,7 +188,7 @@ void diji::SpriteRenderComponent::SetSpriteLookingRight()
 void diji::SpriteRenderComponent::SetTotalAnimationTime(const float time)
 { 
     if (m_TotalAnimationFrames > 0)
-        m_FrameDuration = time / static_cast<float>(m_TotalAnimationFrames); 
+        m_FrameDuration = time / static_cast<float>(m_TotalAnimationFrames);
 }
 
 void diji::SpriteRenderComponent::UpdateFrame()
