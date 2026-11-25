@@ -130,7 +130,7 @@ namespace diji
 
         std::vector<RenderChunkModification> m_RenderChunkModifications;
         
-        static constexpr float CHUNK_SIZE = 512.f; // tune later
+        static constexpr float CHUNK_SIZE = 512.0f; // tune later
         std::unordered_map<GameObject::ChunkCoord, RenderChunk, ChunkCoordHasher> m_RenderChunks;
         GameObject::ChunkCoord WorldToChunk(const sf::Vector2f& pos) const { return GameObject::ChunkCoord{.x= static_cast<int>(std::floor(pos.x / CHUNK_SIZE)), .y= static_cast<int>(std::floor(pos.y / CHUNK_SIZE))};}
         void RegisterToChunk(const GameObject* object);

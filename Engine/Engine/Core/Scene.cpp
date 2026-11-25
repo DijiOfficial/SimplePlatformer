@@ -418,8 +418,8 @@ void diji::Scene::SetMultiplayerSplitScreen(const int numPlayers)
     case 2:
         {
             // Two players: left and right
-            SplitScreenView leftView    (sf::FloatRect(sf::Vector2{ 0.f, 0.f  }, sf::Vector2{ 0.5f, 1.f }));
-            SplitScreenView rightView   (sf::FloatRect(sf::Vector2{ 0.5f, 0.f }, sf::Vector2{ 0.5f, 1.f }));
+            SplitScreenView leftView    (sf::FloatRect(sf::Vector2{ 0.0f, 0.0f  }, sf::Vector2{ 0.5f, 1.0f }));
+            SplitScreenView rightView   (sf::FloatRect(sf::Vector2{ 0.5f, 0.0f }, sf::Vector2{ 0.5f, 1.0f }));
 
             m_MultiplayerViews.emplace_back(leftView);
             m_MultiplayerViews.emplace_back(rightView);
@@ -428,9 +428,9 @@ void diji::Scene::SetMultiplayerSplitScreen(const int numPlayers)
     case 3:
         {
             // Three players: two top, one bottom (wider)
-            SplitScreenView topLeft (sf::FloatRect(sf::Vector2{ 0.f, 0.f  }, sf::Vector2{ 0.5f, 0.5f }));
-            SplitScreenView topRight(sf::FloatRect(sf::Vector2{ 0.5f, 0.f }, sf::Vector2{ 0.5f, 0.5f }));
-            SplitScreenView bottom  (sf::FloatRect(sf::Vector2{ 0.f, 0.5f }, sf::Vector2{ 1.f, 0.5f  }));
+            SplitScreenView topLeft (sf::FloatRect(sf::Vector2{ 0.0f, 0.0f  }, sf::Vector2{ 0.5f, 0.5f }));
+            SplitScreenView topRight(sf::FloatRect(sf::Vector2{ 0.5f, 0.0f }, sf::Vector2{ 0.5f, 0.5f }));
+            SplitScreenView bottom  (sf::FloatRect(sf::Vector2{ 0.0f, 0.5f }, sf::Vector2{ 1.0f, 0.5f  }));
 
             m_MultiplayerViews.emplace_back(topLeft);
             m_MultiplayerViews.emplace_back(topRight);
@@ -440,9 +440,9 @@ void diji::Scene::SetMultiplayerSplitScreen(const int numPlayers)
     case 4:
         {
             // Four players: 2x2 grid
-            SplitScreenView topLeft     (sf::FloatRect(sf::Vector2{ 0.f, 0.f   }, sf::Vector2{ 0.5f, 0.5f }));
-            SplitScreenView topRight    (sf::FloatRect(sf::Vector2{ 0.5f, 0.f  }, sf::Vector2{ 0.5f, 0.5f }));
-            SplitScreenView bottomLeft  (sf::FloatRect(sf::Vector2{ 0.f, 0.5f  }, sf::Vector2{ 0.5f, 0.5f }));
+            SplitScreenView topLeft     (sf::FloatRect(sf::Vector2{ 0.0f, 0.0f   }, sf::Vector2{ 0.5f, 0.5f }));
+            SplitScreenView topRight    (sf::FloatRect(sf::Vector2{ 0.5f, 0.0f  }, sf::Vector2{ 0.5f, 0.5f }));
+            SplitScreenView bottomLeft  (sf::FloatRect(sf::Vector2{ 0.0f, 0.5f  }, sf::Vector2{ 0.5f, 0.5f }));
             SplitScreenView bottomRight (sf::FloatRect(sf::Vector2{ 0.5f, 0.5f }, sf::Vector2{ 0.5f, 0.5f }));
 
             m_MultiplayerViews.emplace_back(topLeft);
@@ -481,7 +481,7 @@ void diji::Scene::ValidateCollidersAfterDestroy()
     // todo: multi-thread?
     for (const auto& gameObject : m_ObjectsUPtrMap | std::views::values)
     {
-        if (!gameObject->HasComponent<Collider>()) continue;
+        if (gameObject->HasComponent<Collider>() == false) continue;
 
         gameObject->GetComponent<Collider>()->ValidateColliderLists();
     }
@@ -568,7 +568,7 @@ std::string diji::Scene::GenerateUniqueName(const std::unordered_map<std::string
 
     auto &idx = m_NameIndexUMap[strippedName];
 
-    if (!objectMap.contains(baseName))
+    if (objectMap.contains(baseName) == false)
     {
         idx = baseHasNumber ? parsedSuffix + 1ULL : 1ULL;
         return baseName;
@@ -587,7 +587,7 @@ std::string diji::Scene::GenerateUniqueName(const std::unordered_map<std::string
         auto [ptr, ec] = std::to_chars(buf, buf + sizeof(buf), idx);
         finalName.append(buf, ptr - buf);
 
-        if (!objectMap.contains(finalName))
+        if (objectMap.contains(finalName) == false)
         {
             m_NameIndexUMap[strippedName] = idx + 1ULL;
             return finalName;
@@ -598,7 +598,7 @@ std::string diji::Scene::GenerateUniqueName(const std::unordered_map<std::string
 // todo: register using visual bounds and store in multiple chunks
 void diji::Scene::RegisterToChunk(const GameObject* object)
 {
-    if (!object) return;
+    if (object == nullptr) return;
 
     const auto it = m_ObjectsUPtrMap.find(object->GetName());
     if (it == m_ObjectsUPtrMap.end())
@@ -635,7 +635,7 @@ std::pair<diji::GameObject::ChunkCoord, diji::GameObject::ChunkCoord> diji::Scen
 
 void diji::Scene::RemoveFromChunk(const std::unordered_map<std::string, std::unique_ptr<GameObject>>::iterator& it)
 {
-    if (!it->second) return;
+    if (it->second == nullptr) return;
 
     const auto* object = it->second.get();
 
@@ -645,7 +645,7 @@ void diji::Scene::RemoveFromChunk(const std::unordered_map<std::string, std::uni
 
 void diji::Scene::DestroyFromChunks(const std::unordered_map<std::string, std::unique_ptr<GameObject>>::iterator& it)
 {
-    if (!it->second)
+    if (it->second == nullptr)
         return;
 
     const auto* object = it->second.get();
@@ -668,7 +668,7 @@ void diji::Scene::DestroyFromChunks(const std::unordered_map<std::string, std::u
 
 void diji::Scene::UpdateGameObjectRenderLayerInChunk(const GameObject* gameObject, const GameObject::RenderLayer oldLayer)
 {
-    if (!gameObject)
+    if (gameObject == nullptr)
         return;
 
     const auto coords = gameObject->GetChunkCoord();
