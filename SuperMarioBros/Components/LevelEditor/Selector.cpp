@@ -82,6 +82,12 @@ void superMarioBros::Selector::TryPlaceItem()
         return;
 
     const GridPos gridPos{ .row= row, .col= col };
+    if (itemChar == 'r')
+    {
+        TryPlaceCheckPoint(gridPos);
+        return;
+    }
+
     if (itemChar == '0')
     {
         if (LevelEditorManager::GetInstance().TryRemoveMarkerAt(sf::Vector2i{ col, row }))
@@ -103,6 +109,9 @@ void superMarioBros::Selector::TryHoldPlaceItem()
         LevelEditorManager::GetInstance().CancelPendingWarp();
         return;
     }
+
+    if (m_IsHolding == false && m_GridToCharMap[m_CurrentFramePos] == 'r')
+        return;
 
     m_IsHolding = m_IsHolding == false;
     if (m_IsHolding)
@@ -315,6 +324,38 @@ void superMarioBros::Selector::HandleCreatingSpecialBlocks(const char itemChar, 
     sprite->UpdateFrame();
     m_PlacedItemsMap[gridPos].insert(gameObject);
     GameManager::GetInstance().AttachToWorldObject(gameObject);
+}
+
+void superMarioBros::Selector::TryPlaceCheckPoint(const GridPos& gridPos)
+{
+    if (LevelEditorManager::GetInstance().GetCurrentMapInfo().isBonusArea)
+        return;
+
+    RemoveAllCheckPoints();
+    TryDeletePlacedItem(gridPos);
+    CreateItemAtGridPos('r', gridPos);
+    HandleCreatingSpecialBlocks('r', gridPos);
+}
+
+void superMarioBros::Selector::RemoveAllCheckPoints()
+{
+    const auto& levelInfo = LevelEditorManager::GetInstance().GetLevelInfo();
+    if (levelInfo.empty())
+        return;
+
+    const int cols = static_cast<int>(levelInfo.size()) / WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT;
+    std::vector<GridPos> checkPointPositions;
+    for (int index = 0; index < static_cast<int>(levelInfo.size()); ++index)
+    {
+        if (levelInfo[index] == 'r')
+            checkPointPositions.push_back(GridPos{ .row = index / cols, .col = index % cols });
+    }
+
+    for (const GridPos& checkPointPos : checkPointPositions)
+    {
+        TryDeletePlacedItem(checkPointPos);
+        CreateItemAtGridPos('0', checkPointPos);
+    }
 }
 
 bool superMarioBros::Selector::IsMarkerToolSelected() const

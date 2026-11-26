@@ -96,6 +96,8 @@ namespace superMarioBros
         void CreateAllSpecialBlocks();
         void TryDeletePlacedItem(const GridPos& gridPos);
         void HandleCreatingSpecialBlocks(const char itemChar, const GridPos& gridPos);
+        void TryPlaceCheckPoint(const GridPos& gridPos);
+        void RemoveAllCheckPoints();
 
         std::unordered_map<sf::Vector2i, char, Vector2iHash> m_GridToCharMap =
         {
@@ -128,7 +130,7 @@ namespace superMarioBros
             { {3, 1}, 'j' }, // Pole
             { {3, 2}, '0' },
             { {3, 3}, '0' },
-            { {3, 5}, '0' },
+            { {3, 5}, 'r' }, // CheckPoint
             { {3, 6}, '0' },
             { {3, 7}, '0' },
             { {3, 8}, '$' }, // Star
@@ -143,6 +145,7 @@ namespace superMarioBros
             { 'u', {3, 8} }, // Star
             { 'v', {1, 8} }, // Mushroom
             { 'I', {1, 8} }, // Mushroom
+            { 'r', {3, 5} }, // CheckPoint
         };
 
         std::unordered_map<char, std::pair<char, char>> m_ReplacementsMap =
