@@ -117,6 +117,9 @@
     <ClCompile Include="Components\PowerUps\StarPower.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Helpers\LevelData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Helpers\MarioHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -228,6 +231,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Components\PowerUps\StarPower.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers\LevelData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Helpers\MarioHelpers.h">

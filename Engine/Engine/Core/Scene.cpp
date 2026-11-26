@@ -694,7 +694,7 @@ void diji::Scene::UpdateGameObjectRenderLayerInChunk(const GameObject* gameObjec
     RemovePendingChunkModifications(gameObject);
 
     m_RenderChunkModifications.push_back({ .object= gameObject, .chunk= coords, .layer= oldLayer, .shouldAdd= false});
-    m_RenderChunkModifications.push_back({ .object= gameObject, .chunk= coords, .layer= newLayer, .shouldAdd= true});
+    m_RenderChunkModifications.push_back({ .object= gameObject, .chunk= WorldToChunk(gameObject->GetRootComponent()->GetWorldPosition()), .layer= newLayer, .shouldAdd= true});
 }
 
 bool diji::Scene::IsAlwaysRendered(const GameObject* object, const GameObject::RenderLayer layer) const

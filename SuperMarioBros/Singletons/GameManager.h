@@ -2,6 +2,7 @@
 #include "Engine/Interfaces/EventSystem.h"
 #include "Engine/Singleton/Singleton.h"
 #include "Engine/Collision/Collider.h"
+#include "../Helpers/LevelData.h"
 
 #include <cstdint>
 #include <memory>
@@ -23,50 +24,6 @@ namespace superMarioBros
         Small = 0,
         Big = 1,
         Fire = 2
-    };
-
-    static const std::string MAPS_PATH = "../SuperMarioBros/Resources/levels/";
-    static const std::string LEVEL_DATA_PATH = MAPS_PATH + "levelData.json";
-
-    enum class WarpExitType : std::uint8_t
-    {
-        Drop = 0,
-        RiseFromPipe = 1
-    };
-
-    struct WarpEntrance
-    {
-        sf::Vector2i cell;
-        diji::Directions direction{};
-    };
-
-    struct WarpArrival
-    {
-        sf::Vector2i cell;
-        WarpExitType exitType = WarpExitType::Drop;
-    };
-
-    struct WarpInfo
-    {
-        WarpEntrance entrance;
-        std::string targetMap;
-        WarpArrival returnPoint;
-    };
-
-    struct MapInfo
-    {
-        std::string file;
-        sf::Vector2i start;
-        bool isBonusArea = false;
-        WarpArrival arrival;
-        WarpEntrance exit;
-        std::vector<WarpInfo> warps;
-    };
-
-    struct LevelEntry
-    {
-        std::string name;
-        std::string map;
     };
 
     struct AreaArrival

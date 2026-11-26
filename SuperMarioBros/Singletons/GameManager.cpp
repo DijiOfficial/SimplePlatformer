@@ -16,82 +16,7 @@
 #include "LevelEditorManager.h"
 #include "../Helpers/WorldBuilder.h"
 #include "Engine/Singleton/Helpers.h"
-#include "Engine/Singleton/JSONLoader.h"
 #include "Engine/Singleton/TimerManager.h"
-
-// todo: replace the manual level data parsing with C++26 static reflection once MSVC supports it
-namespace
-{
-    sf::Vector2i ParseCell(const JSONLoader::json& cellData)
-    {
-        return sf::Vector2i{ cellData.at(0).get<int>(), cellData.at(1).get<int>() };
-    }
-
-    diji::Directions ParseDirection(const std::string& direction)
-    {
-        if (direction == "Left")
-            return diji::Directions::Left;
-        if (direction == "Right")
-            return diji::Directions::Right;
-        if (direction == "Up")
-            return diji::Directions::Up;
-        if (direction == "Down")
-            return diji::Directions::Down;
-
-        throw std::runtime_error("Invalid warp direction in level data: " + direction);
-    }
-
-    superMarioBros::WarpExitType ParseExitType(const std::string& exitType)
-    {
-        if (exitType == "Drop")
-            return superMarioBros::WarpExitType::Drop;
-        if (exitType == "RiseFromPipe")
-            return superMarioBros::WarpExitType::RiseFromPipe;
-
-        throw std::runtime_error("Invalid warp exit type in level data: " + exitType);
-    }
-
-    superMarioBros::WarpEntrance ParseEntrance(const JSONLoader::json& entranceData)
-    {
-        return superMarioBros::WarpEntrance{ .cell = ParseCell(entranceData.at("cell")), .direction = ParseDirection(entranceData.at("enter").get<std::string>()) };
-    }
-
-    superMarioBros::WarpArrival ParseArrival(const JSONLoader::json& arrivalData)
-    {
-        return superMarioBros::WarpArrival{ .cell = ParseCell(arrivalData.at("cell")), .exitType = ParseExitType(arrivalData.at("exit").get<std::string>()) };
-    }
-
-    superMarioBros::MapInfo ParseMapInfo(const JSONLoader::json& mapData)
-    {
-        superMarioBros::MapInfo mapInfo;
-        mapInfo.file = mapData.at("file").get<std::string>();
-        mapInfo.isBonusArea = mapData.value("type", std::string{}) == "Bonus";
-
-        if (mapData.contains("start"))
-            mapInfo.start = ParseCell(mapData.at("start"));
-
-        if (mapData.contains("arrival"))
-            mapInfo.arrival = ParseArrival(mapData.at("arrival"));
-
-        if (mapData.contains("exit"))
-            mapInfo.exit = ParseEntrance(mapData.at("exit"));
-
-        if (mapData.contains("warps"))
-        {
-            for (const auto& warpData : mapData.at("warps"))
-            {
-                mapInfo.warps.push_back(superMarioBros::WarpInfo
-                {
-                    .entrance = ParseEntrance(warpData.at("entrance")),
-                    .targetMap = warpData.at("map").get<std::string>(),
-                    .returnPoint = ParseArrival(warpData.at("return"))
-                });
-            }
-        }
-
-        return mapInfo;
-    }
-}
 
 void superMarioBros::GameManager::LoadLevel()
 {
@@ -104,7 +29,7 @@ void superMarioBros::GameManager::LoadLevel()
     m_ShouldPlayTransition = false;
 
     const MapInfo& mapInfo = GetMapInfo(isTransitionLevel ? m_TransitionMapName : GetCurrentLevelEntry().map);
-    m_StartPosition = static_cast<sf::Vector2u>(static_cast<sf::Vector2f>(mapInfo.start) * WorldBuilder::WorldSettings::TILE_SIZE);
+    m_StartPosition = static_cast<sf::Vector2u>(static_cast<sf::Vector2f>(mapInfo.start.value()) * WorldBuilder::WorldSettings::TILE_SIZE);
 
     ReadLevelInfo(MAPS_PATH + mapInfo.file);
     const diji::GameObject* world = WorldBuilder::CreateWorld(m_LevelInfo, m_Rows, m_Cols);
@@ -379,10 +304,10 @@ void superMarioBros::GameManager::LoadBonusArea(const WarpInfo& warp)
     ReadLevelFile(MAPS_PATH + bonusMapInfo.file, m_BonusAreaInfo, m_BonusAreaRows, m_BonusAreaCols);
 
     m_BonusAreaWorldGameObject = WorldBuilder::CreateWorld(m_BonusAreaInfo, m_BonusAreaRows, m_BonusAreaCols, BONUS_AREA_COLUMN_OFFSET);
-    WorldBuilder::SpawnWarpEntrance(m_BonusAreaWorldGameObject, bonusMapInfo.exit.cell, bonusMapInfo.exit.direction, BONUS_AREA_COLUMN_OFFSET);
+    WorldBuilder::SpawnWarpEntrance(m_BonusAreaWorldGameObject, bonusMapInfo.exit.value().cell, bonusMapInfo.exit.value().direction, BONUS_AREA_COLUMN_OFFSET);
     m_BonusAreaWorldGameObject->SetActive(false);
 
-    m_BonusAreaArrival = AreaArrival{ .position = WorldBuilder::GetWarpArrivalPosition(bonusMapInfo.arrival.cell, bonusMapInfo.arrival.exitType, BONUS_AREA_COLUMN_OFFSET), .exitType = bonusMapInfo.arrival.exitType };
+    m_BonusAreaArrival = AreaArrival{ .position = WorldBuilder::GetWarpArrivalPosition(bonusMapInfo.arrival.value().cell, bonusMapInfo.arrival.value().exitType, BONUS_AREA_COLUMN_OFFSET), .exitType = bonusMapInfo.arrival.value().exitType };
     m_BonusAreaReturn = AreaArrival{ .position = WorldBuilder::GetWarpArrivalPosition(warp.returnPoint.cell, warp.returnPoint.exitType), .exitType = warp.returnPoint.exitType };
 }
 
@@ -400,17 +325,11 @@ std::string superMarioBros::GameManager::GetCurrentLevelName()
 
 void superMarioBros::GameManager::LoadLevelData()
 {
-    const JSONLoader::json data = JSONLoader::Load(LEVEL_DATA_PATH);
+    LevelDataFile levelData = LevelData::Load();
 
-    m_TransitionMapName = data.at("transitionMap").get<std::string>();
-
-    m_Levels = std::vector<LevelEntry>();
-    for (const auto& levelData : data.at("levels"))
-        m_Levels.push_back(LevelEntry{ .name = levelData.at("name").get<std::string>(), .map = levelData.at("map").get<std::string>() });
-
-    m_Maps = std::unordered_map<std::string, MapInfo>();
-    for (const auto& mapItem : data.at("maps").items())
-        m_Maps[mapItem.key()] = ParseMapInfo(mapItem.value());
+    m_TransitionMapName = std::move(levelData.transitionMap);
+    m_Levels = std::move(levelData.levels);
+    m_Maps = std::move(levelData.maps);
 }
 
 const superMarioBros::MapInfo& superMarioBros::GameManager::GetMapInfo(const std::string& mapName) const

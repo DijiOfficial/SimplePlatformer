@@ -2,19 +2,18 @@
 
 #include "GameManager.h"
 #include "../Helpers/WorldBuilder.h"
-#include "Engine/Singleton/JSONLoader.h"
+
+#include <fstream>
+#include <ranges>
 
 void superMarioBros::LevelEditorManager::Init()
 {
-    const JSONLoader::json data = JSONLoader::Load(LEVEL_DATA_PATH);
-
-    if (data.is_object() == false || data.contains("maps") == false)
-        throw std::runtime_error("LEVEL_DATA_PATH JSON root must be an object containing \"maps\".");
+    const LevelDataFile levelData = LevelData::Load();
 
     m_LevelNameToFileUMap.clear();
 
-    for (const auto& mapItem : data.at("maps").items())
-        m_LevelNameToFileUMap[mapItem.key()] = mapItem.value().at("file").get<std::string>();
+    for (const auto& [mapName, mapInfo] : levelData.maps)
+        m_LevelNameToFileUMap[mapName] = mapInfo.file;
 
     GameManager::GetInstance().CreateEmptyWorld();
     WorldBuilder::Init();
@@ -24,6 +23,12 @@ void superMarioBros::LevelEditorManager::LoadLevel(const std::string& levelName)
 {
     GameManager::GetInstance().LoadLevel(m_LevelNameToFileUMap[levelName]);
     m_CurrentLevelName = levelName;
+
+    const LevelDataFile levelData = LevelData::Load();
+    const auto it = levelData.maps.find(levelName);
+    m_CurrentMapInfo = it != levelData.maps.end() ? it->second : MapInfo{};
+    m_PendingWarp.reset();
+    OnMapInfoChangedEvent.Broadcast();
 }
 
 void superMarioBros::LevelEditorManager::LoadNewLevel()
@@ -32,17 +37,18 @@ void superMarioBros::LevelEditorManager::LoadNewLevel()
     m_LevelInfo = std::vector<char>();
     m_CurrentLevelName = "New Level";
     m_LevelWidth = -1;
+    m_CurrentMapInfo = MapInfo{};
+    m_PendingWarp.reset();
     OnLevelLoadedEvent.Broadcast();
+    OnMapInfoChangedEvent.Broadcast();
 }
 
 void superMarioBros::LevelEditorManager::SaveNewMap(const std::string& levelName, const std::string& levelPath)
 {
-    JSONLoader::json data = JSONLoader::Load(LEVEL_DATA_PATH);
-
     m_LevelNameToFileUMap[levelName] = levelPath;
-    data["maps"][levelName]["file"] = levelPath;
+    m_CurrentMapInfo.file = levelPath;
 
-    JSONLoader::Save(LEVEL_DATA_PATH, data);
+    LevelData::SaveMapInfo(levelName, m_CurrentMapInfo);
 
     SaveLevelInfo(MAPS_PATH + levelPath);
 }
@@ -61,6 +67,149 @@ std::vector<std::string> superMarioBros::LevelEditorManager::GetLevelNames() con
     }
     
     return levelNames;
+}
+
+std::string superMarioBros::LevelEditorManager::GetMissingSaveRequirement() const
+{
+    if (m_CurrentMapInfo.isBonusArea)
+    {
+        if (m_CurrentMapInfo.arrival.has_value() == false)
+            return "Place the bonus area arrival before saving";
+
+        if (m_CurrentMapInfo.exit.has_value() == false)
+            return "Place the bonus area exit before saving";
+
+        return {};
+    }
+
+    if (m_CurrentMapInfo.start.has_value() == false)
+        return "Place the start position before saving";
+
+    return {};
+}
+
+void superMarioBros::LevelEditorManager::SetStartCell(const sf::Vector2i& cell)
+{
+    m_CurrentMapInfo.start = cell;
+    OnMapInfoChangedEvent.Broadcast();
+}
+
+void superMarioBros::LevelEditorManager::SetBonusAreaArrival(const WarpArrival& arrival)
+{
+    m_CurrentMapInfo.arrival = arrival;
+    OnMapInfoChangedEvent.Broadcast();
+}
+
+void superMarioBros::LevelEditorManager::SetBonusAreaExit(const WarpEntrance& exit)
+{
+    m_CurrentMapInfo.exit = exit;
+    OnMapInfoChangedEvent.Broadcast();
+}
+
+void superMarioBros::LevelEditorManager::BeginWarp(const WarpEntrance& entrance)
+{
+    m_PendingWarp = WarpInfo{ .entrance = entrance };  // NOLINT(clang-diagnostic-missing-designated-field-initializers) information is purposely split
+    OnMapInfoChangedEvent.Broadcast();
+}
+
+void superMarioBros::LevelEditorManager::SetPendingWarpTarget(const std::string& targetMap)
+{
+    if (m_PendingWarp.has_value() == false)
+        return;
+
+    m_PendingWarp->targetMap = targetMap;
+    OnWarpTargetChosenEvent.Broadcast();
+}
+
+void superMarioBros::LevelEditorManager::CompleteWarp(const WarpArrival& returnPoint)
+{
+    if (IsWaitingForWarpReturn() == false)
+        return;
+
+    if (m_PendingWarp.has_value() == false)
+        throw std::runtime_error("No pending warp to complete.");
+    
+    m_PendingWarp->returnPoint = returnPoint;
+    m_CurrentMapInfo.warps.push_back(m_PendingWarp.value());
+    m_PendingWarp.reset();
+    OnMapInfoChangedEvent.Broadcast();
+}
+
+void superMarioBros::LevelEditorManager::CancelPendingWarp()
+{
+    if (m_PendingWarp.has_value() == false)
+        return;
+
+    m_PendingWarp.reset();
+    OnMapInfoChangedEvent.Broadcast();
+}
+
+bool superMarioBros::LevelEditorManager::TryRemoveMarkerAt(const sf::Vector2i& cell)
+{
+    bool isRemoved = false;
+
+    if (m_CurrentMapInfo.start.has_value() && m_CurrentMapInfo.start.value() == cell)
+    {
+        m_CurrentMapInfo.start.reset();
+        isRemoved = true;
+    }
+
+    if (m_CurrentMapInfo.arrival.has_value() && m_CurrentMapInfo.arrival->cell == cell)
+    {
+        m_CurrentMapInfo.arrival.reset();
+        isRemoved = true;
+    }
+
+    if (m_CurrentMapInfo.exit.has_value() && m_CurrentMapInfo.exit->cell == cell)
+    {
+        m_CurrentMapInfo.exit.reset();
+        isRemoved = true;
+    }
+
+    if (m_PendingWarp.has_value() && m_PendingWarp->entrance.cell == cell)
+    {
+        m_PendingWarp.reset();
+        isRemoved = true;
+    }
+
+    const auto removedWarpCount = std::erase_if(m_CurrentMapInfo.warps, [&cell](const WarpInfo& warp)
+    {
+        return warp.entrance.cell == cell || warp.returnPoint.cell == cell;
+    });
+
+    if (isRemoved == false && removedWarpCount == 0)
+        return false;
+
+    OnMapInfoChangedEvent.Broadcast();
+    return true;
+}
+
+std::string superMarioBros::LevelEditorManager::CreateBonusMap()
+{
+    std::string mapName;
+    for (char letter = 'A'; letter <= 'Z'; ++letter)
+    {
+        std::string candidate = std::string{ "BonusArea" } + letter;
+        if (m_LevelNameToFileUMap.contains(candidate) == false)
+        {
+            mapName = std::move(candidate);
+            break;
+        }
+    }
+
+    if (mapName.empty())
+        throw std::runtime_error("No free bonus area name left.");
+
+    const MapInfo bonusMapInfo{ .file = mapName + ".txt", .isBonusArea = true };  // NOLINT(clang-diagnostic-missing-designated-field-initializers) information is purposely split
+    LevelData::SaveMapInfo(mapName, bonusMapInfo);
+
+    std::ofstream file(MAPS_PATH + bonusMapInfo.file);
+    if (file.is_open() == false)
+        throw std::runtime_error("Could not create level file: " + bonusMapInfo.file);
+
+    m_LevelNameToFileUMap[mapName] = bonusMapInfo.file;
+
+    return mapName;
 }
 
 int superMarioBros::LevelEditorManager::SetCharAtPosition(const int x, const int y, const char value)
@@ -116,7 +265,7 @@ void superMarioBros::LevelEditorManager::SaveLevelInfo(const std::string& filepa
     
     std::ofstream file(filepath);
 
-    if (!file.is_open())
+    if (file.is_open() == false)
         throw std::runtime_error("Could not save level file: " + filepath);
 
     for (int row = 0; row < rows; ++row)

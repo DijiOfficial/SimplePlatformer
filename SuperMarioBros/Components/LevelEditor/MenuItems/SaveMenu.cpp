@@ -59,6 +59,9 @@ void superMarioBros::SaveMenu::Init()
     no->GetComponent<diji::TextComp>()->GetText().setString("NO");
     confirmText->GetComponent<diji::TextComp>()->GetText().setString("This level already exists. Overwrite?");
     m_YesNoMenu->SetActive(false);
+
+    m_SaveErrorText = diji::SceneManager::GetInstance().AddGameObjectToCanvas("ZZ_SaveErrorText", m_ItemTemplateUPtr.get(), sf::Vector2f{ window::VIEWPORT.x * 0.5f, window::VIEWPORT.y * 0.3f });
+    m_SaveErrorText->SetActive(false);
 }
 
 bool superMarioBros::SaveMenu::ActivateMenu()
@@ -117,7 +120,7 @@ void superMarioBros::SaveMenu::CloseMenu()
 
 void superMarioBros::SaveMenu::Move(const sf::Vector2f& direction, const bool isStart)
 {
-    if (!isStart)
+    if (isStart == false)
         return;
 
     if (m_IsTyping)
@@ -131,13 +134,13 @@ void superMarioBros::SaveMenu::Move(const sf::Vector2f& direction, const bool is
         if (diji::Helpers::AreFloatEqual(direction.x, 0.0f))
             return;
         
-        m_IsYesSelected = !m_IsYesSelected;
+        m_IsYesSelected = m_IsYesSelected == false;
         m_MenuArrow->SetObjectPosition(m_IsYesSelected ? m_YesPosition : m_NoPosition);
         
         return;
     }
     
-    if (!diji::Helpers::AreFloatEqual(direction.y, 0.0f))
+    if (diji::Helpers::AreFloatEqual(direction.y, 0.0f) == false)
     {
         if (m_IsEditingLevelName)
         {
@@ -157,7 +160,7 @@ void superMarioBros::SaveMenu::Move(const sf::Vector2f& direction, const bool is
     if (m_IsEditingLevelName)
         return;
     
-    m_IsSaveSelected = !m_IsSaveSelected;
+    m_IsSaveSelected = m_IsSaveSelected == false;
     m_MenuArrow->SetObjectPosition(m_IsSaveSelected ? m_YesPosition : m_NoPosition);
 }
 
@@ -170,8 +173,7 @@ bool superMarioBros::SaveMenu::Select()
 
         if (m_IsYesSelected)
         {
-            LevelEditorManager::GetInstance().SaveNewMap(m_LevelNameText->GetText().getString(),  m_LevelNameText->GetText().getString() + ".txt");
-            OnSaveLevelEvent.Broadcast(m_LevelNameText->GetText().getString());
+            SaveLevel();
             return false;
         }
         
@@ -221,8 +223,7 @@ bool superMarioBros::SaveMenu::Select()
             return true;
         }
         
-        LevelEditorManager::GetInstance().SaveNewMap(m_LevelNameText->GetText().getString(),  m_LevelNameText->GetText().getString() + ".txt");
-        OnSaveLevelEvent.Broadcast(m_LevelNameText->GetText().getString());
+        SaveLevel();
     }
 
     return false;
@@ -263,4 +264,28 @@ void superMarioBros::SaveMenu::UpdateCursorPosition() const
     m_FakeCursor->SetObjectPosition(m_LevelText->GetObjectPosition() + sf::Vector2f{ m_LevelNameText->GetText().getGlobalBounds().size.x * 0.5f + m_FakeCursor->GetComponent<diji::TextComp>()->GetText().getGlobalBounds().size.y * 0.5f, 0 });
 }
 
+void superMarioBros::SaveMenu::SaveLevel()
+{
+    const std::string missingRequirement = LevelEditorManager::GetInstance().GetMissingSaveRequirement();
+    if (missingRequirement.empty() == false)
+    {
+        ShowSaveError(missingRequirement);
+        return;
+    }
 
+    const std::string levelName = m_LevelNameText->GetText().getString();
+    LevelEditorManager::GetInstance().SaveNewMap(levelName, levelName + ".txt");
+    OnSaveLevelEvent.Broadcast(levelName);
+}
+
+void superMarioBros::SaveMenu::ShowSaveError(const std::string& message)
+{
+    m_SaveErrorText->GetComponent<diji::TextComp>()->GetText().setString(message);
+    m_SaveErrorText->SetActive(true);
+
+    diji::TimerManager::GetInstance().ClearTimer(m_SaveErrorTimerHandle);
+    m_SaveErrorTimerHandle = diji::TimerManager::GetInstance().SetTimer(this, [this]()
+    {
+        m_SaveErrorText->SetActive(false);
+    }, SAVE_ERROR_DURATION);
+}

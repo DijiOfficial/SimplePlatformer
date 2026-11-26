@@ -38,6 +38,7 @@ namespace superMarioBros
         // todo merge both menu open
         void OpenSaveMenu();
         void OpenBlocksMenu();
+        void OpenWarpTargetMenu();
         void SelectCurrentMenuItem();
         void SetMenuTransform(std::vector<MenuItem*> data) { m_MenuItems = std::move(data); }
         void SetMenuYPosition(const float pos) { m_MenuYPosition = pos; }
@@ -52,16 +53,17 @@ namespace superMarioBros
         diji::Render* m_RenderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::TimerManager::TimerHandle m_MoveTimerHandle = 0;
-        sf::Vector2f m_ArenaBoundsHorizontal{ 25.f, 12000.f };
-        sf::Vector2f m_ArenaBoundsVertical{ 25.f, 625.0f };
+        sf::Vector2f m_ArenaBoundsHorizontal{ 25.0f, 12000.0f };
+        sf::Vector2f m_ArenaBoundsVertical{ 25.0f, 625.0f };
 
         const float INITIAL_DELAY_BEFORE_MOVE = 0.25f;
         const float DELAY_BETWEEN_MOVE = 0.03f;
-        float m_MenuYPosition = -25.f;
+        float m_MenuYPosition = -25.0f;
         float m_MenuRenderRatio = 1.0f;
         int m_CurrentMenuIndex = 0;
         bool m_IsInMenu = false;
         bool m_DisableMovement = false;
+        bool m_ShouldExitMenuOnClose = false;
 
         struct MenuEntry
         {

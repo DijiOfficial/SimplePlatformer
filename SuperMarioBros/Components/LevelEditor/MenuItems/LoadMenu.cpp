@@ -4,6 +4,7 @@
 #include "Engine/Components/TextComp.h"
 #include "Engine/Components/Render.h"
 #include "Engine/Core/GameObject.h"
+#include "Engine/Singleton/Helpers.h"
 #include "Engine/Singleton/SceneManager.h"
 
 void superMarioBros::LoadMenu::Init()
@@ -33,6 +34,10 @@ bool superMarioBros::LoadMenu::ActivateMenu()
         level->SetActive(true);
 
     m_SpecialMenuIndex = 0;
+    m_IsChoosingWarpTarget = LevelEditorManager::GetInstance().IsWaitingForWarpTarget();
+    auto& firstEntryText = m_LevelNameObjects[0]->GetComponent<diji::TextComp>()->GetText();
+    firstEntryText.setString(m_IsChoosingWarpTarget ? "New Bonus Area" : "New Level");
+    m_LevelData[0].Position.x = m_LevelNameObjects[0]->GetRootComponent()->GetWorldPosition().x - firstEntryText.getGlobalBounds().size.x * 0.5f - SELECTOR_SPACING;
 
     m_MenuArrow->SetObjectPosition(sf::Vector2f{ m_LevelData[m_SpecialMenuIndex].Position });
     m_MenuArrow->SetActive(true);
@@ -49,7 +54,7 @@ void superMarioBros::LoadMenu::CloseMenu()
 
 void superMarioBros::LoadMenu::Move(const sf::Vector2f& direction, const bool isStart)
 {
-    if (direction.y == 0.0f || !isStart)
+    if (diji::Helpers::AreFloatEqual(direction.y, 0.0f) || isStart == false)
         return;
 
     const int count = static_cast<int>(m_LevelData.size());
@@ -61,11 +66,39 @@ void superMarioBros::LoadMenu::Move(const sf::Vector2f& direction, const bool is
 
 bool superMarioBros::LoadMenu::Select()
 {
+    if (m_IsChoosingWarpTarget)
+    {
+        m_IsChoosingWarpTarget = false;
+
+        if (m_SpecialMenuIndex == 0)
+        {
+            const std::string bonusMapName = LevelEditorManager::GetInstance().CreateBonusMap();
+            CloseMenu();
+            AddNewName(bonusMapName);
+            LevelEditorManager::GetInstance().SetPendingWarpTarget(bonusMapName);
+            return false;
+        }
+
+        LevelEditorManager::GetInstance().SetPendingWarpTarget(m_LevelData[m_SpecialMenuIndex].Name);
+        return false;
+    }
+
     if (m_SpecialMenuIndex == 0)
         LevelEditorManager::GetInstance().LoadNewLevel();
     else
         LevelEditorManager::GetInstance().LoadLevel(m_LevelData[m_SpecialMenuIndex].Name);
     
+    return false;
+}
+
+bool superMarioBros::LoadMenu::Return()
+{
+    if (m_IsChoosingWarpTarget)
+    {
+        m_IsChoosingWarpTarget = false;
+        LevelEditorManager::GetInstance().CancelPendingWarp();
+    }
+
     return false;
 }
 

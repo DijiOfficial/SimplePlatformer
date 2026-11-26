@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "Engine/Components/Component.h"
 
+#include <vector>
+
 namespace diji
 {
     class Transform;
@@ -10,6 +12,7 @@ namespace diji
 namespace superMarioBros
 {
     class BackgroundHandler;
+    class SelectorControls;
 
     class Selector final : public diji::Component
     {
@@ -41,19 +44,33 @@ namespace superMarioBros
         [[nodiscard]] sf::Vector2i GetGridPosFromChar(char itemChar) const;
 
     private:
+        static constexpr sf::Vector2i START_TOOL_FRAME{ 2, 4 };
+        static constexpr sf::Vector2i WARP_TOOL_FRAME{ 3, 4 };
+        static constexpr sf::Vector2i ARRIVAL_TOOL_FRAME{ 2, 5 };
+        static constexpr int MARKER_RENDER_LAYER = 4;
+
         sf::Vector2i m_CurrentFramePos{ -1, -1 };
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::GameObject* m_TextureGO = nullptr;
         diji::SpriteRenderComponent* m_SpriteRenderComp = nullptr;
         diji::SpriteRenderComponent* m_TemplateSpriteRenderComp = nullptr;
         BackgroundHandler* m_BackgroundHandlerRef = nullptr;
+        SelectorControls* m_SelectorControlsRef = nullptr;
         std::unique_ptr<diji::GameObject> m_ItemTemplateUPtr = nullptr;
+        std::vector<const diji::GameObject*> m_MarkerObjects;
         bool m_IsHolding = false;
         int m_StartingRow = 0;
         int m_StartingCol = 0;
-        sf::Vector2f m_StartingPos{ 0.f, 0.f };
+        sf::Vector2f m_StartingPos{ 0.0f, 0.0f };
 
         void CreateBackgroundTexture();
+        [[nodiscard]] bool IsMarkerToolSelected() const;
+        void TryPlaceMarker(const sf::Vector2i& cell) const;
+        void TryPlaceWarpEntrance(const sf::Vector2i& cell, char tile) const;
+        void PlaceArrival(const sf::Vector2i& cell, char tile) const;
+        void RefreshMarkers();
+        void SpawnMarker(const sf::Vector2i& cell, const sf::Vector2i& frame);
+        void SelectArrivalTool();
 
         struct GridPos
         {
@@ -112,8 +129,6 @@ namespace superMarioBros
             { {2, 1}, '6' }, // Pipe Middle Right
             { {2, 2}, '9' }, // Side Pipe Bottom Right
             { {2, 3}, 'c' }, // Side Pipe Bottom Left
-            { {2, 4}, '0' },  
-            { {2, 5}, '0' },
             { {2, 6}, '0' },
             { {2, 7}, '0' },
             { {2, 8}, '"' }, // 1up Mushroom
@@ -121,7 +136,6 @@ namespace superMarioBros
             { {3, 1}, 'j' }, // Pole
             { {3, 2}, '0' },
             { {3, 3}, '0' },
-            { {3, 4}, '0' },
             { {3, 5}, '0' },
             { {3, 6}, '0' },
             { {3, 7}, '0' },

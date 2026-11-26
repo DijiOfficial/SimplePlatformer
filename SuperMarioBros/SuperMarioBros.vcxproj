@@ -216,6 +216,7 @@
     <ClCompile Include="Components\PowerUps\StarPower.cpp" />
     <ClCompile Include="Core\GameLoader.cpp" />
     <ClCompile Include="Core\Scenes\LevelEditor.cpp" />
+    <ClCompile Include="Helpers\LevelData.cpp" />
     <ClCompile Include="Helpers\MarioHelpers.cpp" />
     <ClCompile Include="Helpers\WorldBuilder.cpp" />
     <ClCompile Include="Input\CustomCommands.cpp" />
@@ -272,6 +273,7 @@
     <ClInclude Include="Components\PowerUps\StarPower.h" />
     <ClInclude Include="Core\GameLoader.h" />
     <ClInclude Include="Core\GameState.h" />
+    <ClInclude Include="Helpers\LevelData.h" />
     <ClInclude Include="Helpers\MarioHelpers.h" />
     <ClInclude Include="Helpers\WorldBuilder.h" />
     <ClInclude Include="Input\CustomCommands.h" />

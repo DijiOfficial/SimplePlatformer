@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "MenuItem.h"
+#include "Engine/Singleton/TimerManager.h"
 
 namespace onScreenKeyboard
 {
@@ -36,6 +37,8 @@ namespace superMarioBros
         diji::GameObject* m_YesNoMenu = nullptr;
         diji::GameObject* m_LevelText = nullptr;
         diji::GameObject* m_FakeCursor = nullptr;
+        diji::GameObject* m_SaveErrorText = nullptr;
+        diji::TimerManager::TimerHandle m_SaveErrorTimerHandle = 0;
         std::unique_ptr<diji::GameObject> m_ItemTemplateUPtr = nullptr;
         diji::TextComp* m_LevelNameText;
         sf::Vector2f m_YesPosition;
@@ -49,10 +52,13 @@ namespace superMarioBros
         bool m_IsConfirmChoice;
 
         const float ITEM_SPACING = 60.0f;
+        const float SAVE_ERROR_DURATION = 2.0f;
 
         sf::Vector2f GetSelectorPosition(const diji::GameObject* button) const;
         sf::Vector2f GetSelectorPosition(diji::TextComp* text) const;
 
         void UpdateCursorPosition() const;
+        void SaveLevel();
+        void ShowSaveError(const std::string& message);
     };
 }

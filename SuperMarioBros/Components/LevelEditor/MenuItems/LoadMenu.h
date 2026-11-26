@@ -24,6 +24,7 @@ namespace superMarioBros
         void CloseMenu() override;
         void Move(const sf::Vector2f& direction, bool isStart) override;
         [[nodiscard]] bool Select() override;
+        [[nodiscard]] bool Return() override;
         void AddNewName(const std::string& newLevelName);
 
     private:
@@ -36,6 +37,7 @@ namespace superMarioBros
         const int ITEM_SPACING = 60;
         const int INITIAL_SPACING = 150;
         int m_SpecialMenuIndex = 0;
+        bool m_IsChoosingWarpTarget = false;
 
         void LoadMenuItems();
         void CreateMenuItem(const std::string& levelName, float xPos, float yPos);

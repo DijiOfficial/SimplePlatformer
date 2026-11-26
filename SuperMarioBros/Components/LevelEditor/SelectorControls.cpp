@@ -23,7 +23,7 @@ void superMarioBros::SelectorControls::Init()
     canvasSelector->AddComponent<diji::TextureComp>("graphics/squareWhiteSmaller50.png");
     const auto& renderComp = canvasSelector->AddComponent<diji::Render>(m_MenuRenderRatio);
     renderComp->SetRenderLayer(2);
-    m_CanvasSelector = diji::SceneManager::GetInstance().SpawnGameObject("CanvasSelector", std::move(canvasSelector), sf::Vector2f{ 0.f, 0.f });
+    m_CanvasSelector = diji::SceneManager::GetInstance().SpawnGameObject("CanvasSelector", std::move(canvasSelector), sf::Vector2f{ 0.0f, 0.0f });
     diji::SceneManager::GetInstance().SetGameObjectAsCanvasObject(m_CanvasSelector);
     m_CanvasSelector->SetActive(false);
 }
@@ -63,7 +63,7 @@ void superMarioBros::SelectorControls::Move(const sf::Vector2f& direction, const
     {
         diji::TimerManager::GetInstance().ClearTimer(m_MoveTimerHandle);
 
-        if (!CanMove(direction))
+        if (CanMove(direction) == false)
             return;
 
         m_TransformCompPtr->AddWorldOffset(sf::Vector2f{ direction.x * WorldBuilder::WorldSettings::TILE_SIZE, direction.y * WorldBuilder::WorldSettings::TILE_SIZE });
@@ -71,7 +71,7 @@ void superMarioBros::SelectorControls::Move(const sf::Vector2f& direction, const
         m_MoveTimerHandle = diji::TimerManager::GetInstance().SetTimer(this, 
             [this, direction]()
             {
-                if (!CanMove(direction))
+                if (CanMove(direction) == false)
                     return;
 
                 m_TransformCompPtr->AddWorldOffset(sf::Vector2f{ direction.x * WorldBuilder::WorldSettings::TILE_SIZE, direction.y * WorldBuilder::WorldSettings::TILE_SIZE });
@@ -114,6 +114,15 @@ void superMarioBros::SelectorControls::OpenBlocksMenu()
     SelectCurrentMenuItem();
 }
 
+void superMarioBros::SelectorControls::OpenWarpTargetMenu()
+{
+    m_ShouldExitMenuOnClose = true;
+    EnterMenu();
+    m_IsInMenu = true;
+    ChooseMenuItem(0);
+    SelectCurrentMenuItem();
+}
+
 void superMarioBros::SelectorControls::SelectCurrentMenuItem()
 {
     if (m_IsInMenu == false)
@@ -145,7 +154,7 @@ void superMarioBros::SelectorControls::ClearOutOfSpecialMenu()
         return;
     }
     
-    if  (!m_DisableMovement)
+    if  (m_DisableMovement == false)
         return;
 
     if (m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->Return())
@@ -161,25 +170,25 @@ void superMarioBros::SelectorControls::TrySetCanvasSelector(const sf::Vector2f& 
 
 bool superMarioBros::SelectorControls::CanMove(const sf::Vector2f& dir)
 {
-    const bool isMovingX = !diji::Helpers::AreFloatEqual(dir.x, 0.0f);
+    const bool isMovingX = diji::Helpers::AreFloatEqual(dir.x, 0.0f) == false;
     if (isMovingX && CheckForMenuMovementX(dir))
         return false;
     
-    const bool isMovingY = !diji::Helpers::AreFloatEqual(dir.y, 0.0f);
+    const bool isMovingY = diji::Helpers::AreFloatEqual(dir.y, 0.0f) == false;
     if (isMovingY && CheckForMenuMovementY(dir))
         return false;
     
     const auto pos = m_TransformCompPtr->GetWorldPosition();
     const bool canMoveX = (dir.x < 0 && pos.x <= m_ArenaBoundsHorizontal.x) ||(dir.x > 0 && pos.x >= m_ArenaBoundsHorizontal.y);
     const bool canMoveY = (dir.y > 0 && pos.y >= m_ArenaBoundsVertical.y) || (dir.y < 0 && pos.y <= m_ArenaBoundsVertical.x);
-    const bool canMove = !(canMoveX || canMoveY);
+    const bool canMove = (canMoveX || canMoveY) == false;
     
     return canMove;
 }
 
 bool superMarioBros::SelectorControls::CheckForMenuMovementX(const sf::Vector2f& dir)
 {
-    if (!m_IsInMenu || m_MenuEntries.empty())
+    if (m_IsInMenu == false || m_MenuEntries.empty())
         return false;
     
     const int count = static_cast<int>(m_MenuEntries.size());
@@ -205,7 +214,7 @@ bool superMarioBros::SelectorControls::CheckForMenuMovementY(const sf::Vector2f&
         return true;
     }
 
-    if (!m_IsInMenu && dir.y < 0 && diji::Helpers::AreFloatEqual(pos.y, m_ArenaBoundsVertical.x))
+    if (m_IsInMenu == false && dir.y < 0 && diji::Helpers::AreFloatEqual(pos.y, m_ArenaBoundsVertical.x))
     {
         EnterMenu();
         
@@ -233,8 +242,11 @@ void superMarioBros::SelectorControls::ResetSpecialMenu()
     m_IsInMenu = true;
     m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->CloseMenu();
 
-    if (m_CurrentMenuIndex == 2)
+    if (m_CurrentMenuIndex == 2 || m_ShouldExitMenuOnClose)
+    {
+        m_ShouldExitMenuOnClose = false;
         Move(sf::Vector2f{ 0.0f, 1.0f } ,true);
+    }
 }
 
 int superMarioBros::SelectorControls::ClosestMenuItemPosition(const int x)
