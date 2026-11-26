@@ -1,6 +1,7 @@
 ﻿#include "LevelEditorManager.h"
 
 #include "GameManager.h"
+#include "../Components/Backgrounds/BackgroundHandler.h"
 #include "../Components/Backgrounds/CustomBackgroundRenderer.h"
 #include "../Components/Player/PlayerCharacter.h"
 #include "../Core/GameLoader.h"
@@ -10,6 +11,7 @@
 #include "Engine/Components/Transform.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Input/InputManager.h"
+#include "Engine/Interfaces/ISoundSystem.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Singleton/TimerManager.h"
 
@@ -162,9 +164,25 @@ void superMarioBros::LevelEditorManager::SetBackground(const std::string& backgr
     GameManager::ApplyBackground(background);
 }
 
+std::string superMarioBros::LevelEditorManager::GetMissingPlayRequirement() const
+{
+    if (m_CurrentMapInfo.start.has_value() == false)
+        return "Place the start position before playing";
+
+    const LevelDataFile levelData = LevelData::Load();
+    for (const WarpInfo& warp : m_CurrentMapInfo.warps)
+    {
+        const auto it = levelData.maps.find(warp.targetMap);
+        if (it == levelData.maps.end() || it->second.exit.has_value() == false || it->second.arrival.has_value() == false)
+            return warp.targetMap + " needs an exit and arrival";
+    }
+
+    return {};
+}
+
 void superMarioBros::LevelEditorManager::StartPlayTest()
 {
-    if (m_IsPlayTesting || m_CurrentMapInfo.start.has_value() == false)
+    if (m_IsPlayTesting || GetMissingPlayRequirement().empty() == false)
         return;
 
     m_IsPlayTesting = true;
@@ -181,6 +199,7 @@ void superMarioBros::LevelEditorManager::StopPlayTest()
         m_PlayTestExitPosition = player->GetRootComponent()->GetWorldPosition();
 
     m_IsPlayTesting = false;
+    diji::ServiceLocator::GetSoundSystem().StopMusic();
     OnPlayTestToggledEvent.Broadcast(false);
     ReloadWorld();
 }
@@ -205,6 +224,7 @@ void superMarioBros::LevelEditorManager::ReloadWorld()
         if (const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar"))
             player->Destroy();
 
+        GameManager::GetInstance().OnBonusAreaTriggeredEvent.ClearAllListeners();
         GameManager::GetInstance().DestroyWorld();
 
         diji::TimerManager::GetInstance().DelayUntilNextTick([this]
@@ -240,6 +260,9 @@ void superMarioBros::LevelEditorManager::SpawnPlayer() const
         SceneLoader::BindLevelEditorCommands();
         return;
     }
+
+    GameManager::GetInstance().LoadPlayTestWarps(m_CurrentMapInfo);
+    sceneManager.GetGameObject("B_BonusAreaBackground")->GetComponent<BackgroundHandler>()->LoadBonusAreaTiles();
 
     auto* playerCharacterComp = player->GetComponent<PlayerCharacter>();
     playerCharacterComp->LinkLevelObjects();

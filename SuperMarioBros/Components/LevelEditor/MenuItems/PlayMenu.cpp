@@ -22,9 +22,10 @@ void superMarioBros::PlayMenu::Init()
 bool superMarioBros::PlayMenu::ActivateMenu()
 {
     LevelEditorManager& levelEditorManager = LevelEditorManager::GetInstance();
-    if (levelEditorManager.GetCurrentMapInfo().start.has_value() == false)
+    const std::string missingRequirement = levelEditorManager.GetMissingPlayRequirement();
+    if (missingRequirement.empty() == false)
     {
-        ShowError("Place the start position before playing");
+        ShowError(missingRequirement);
         return false;
     }
 

@@ -47,6 +47,7 @@ namespace superMarioBros
 
         [[nodiscard]] bool IsPlayTesting() const { return m_IsPlayTesting; }
         [[nodiscard]] const sf::Vector2f& GetPlayTestExitPosition() const { return m_PlayTestExitPosition; }
+        [[nodiscard]] std::string GetMissingPlayRequirement() const;
         void StartPlayTest();
         void StopPlayTest();
         void RestartPlayTest();

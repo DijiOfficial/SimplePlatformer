@@ -49,6 +49,7 @@ namespace superMarioBros
         void LoadLevel(const std::string& levelFilePath);
         void DestroyWorld();
         void BuildEditorWorld(const std::vector<char>& levelInfo);
+        void LoadPlayTestWarps(const MapInfo& mapInfo);
         void PrepareLevelTest(const sf::Vector2i& startCell);
         void EmptyLevel();
         void ClearLevelInfo() { m_LevelInfo = std::vector<char>(); }
@@ -147,6 +148,8 @@ namespace superMarioBros
         static void ReadLevelFile(const std::string& filepath, std::vector<char>& levelInfo, int& rows, int& cols);
         void ResetBonusArea();
         void LoadBonusArea(const WarpInfo& warp);
+        void LoadWarps(const diji::GameObject* world, const MapInfo& mapInfo);
+        void UnloadBonusArea();
         void ClearListeners();
         void SavePlayerState();
     };

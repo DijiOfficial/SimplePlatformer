@@ -77,10 +77,14 @@ void superMarioBros::BackgroundHandler::Start()
     if (m_IsBonusAreaBackground == false)
         return;
 
+    LoadBonusAreaTiles();
+    GetOwner()->GetComponent<diji::Render>()->DisableRender();
+}
+
+void superMarioBros::BackgroundHandler::LoadBonusAreaTiles() const
+{
     const auto& gameManager = GameManager::GetInstance();
     FillVertexArray(gameManager.GetBonusAreaInfo(), gameManager.GetBonusAreaRows(), gameManager.GetBonusAreaCols(), GameManager::BONUS_AREA_COLUMN_OFFSET);
-
-    GetOwner()->GetComponent<diji::Render>()->DisableRender();
 }
 
 void superMarioBros::BackgroundHandler::OnNewLevelLoaded() const

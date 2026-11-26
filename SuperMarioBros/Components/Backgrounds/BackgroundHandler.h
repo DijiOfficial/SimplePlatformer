@@ -31,6 +31,7 @@ namespace superMarioBros
         void DisableLevelLoadingOnStart() { m_ShouldLoadFirstLevel = false; }
         void ApplyTile(int x, int y, int cols, char tileID);
         void TempReload(const int cols, const std::vector<char>& levelData);
+        void LoadBonusAreaTiles() const;
 
     private:
         diji::Sprite* m_BackgroundSprite = nullptr;

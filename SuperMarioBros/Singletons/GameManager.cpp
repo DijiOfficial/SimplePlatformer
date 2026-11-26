@@ -46,6 +46,19 @@ void superMarioBros::GameManager::LoadLevel()
     if (isTransitionLevel)
         return;
 
+    LoadWarps(world, mapInfo);
+}
+
+void superMarioBros::GameManager::LoadPlayTestWarps(const MapInfo& mapInfo)
+{
+    LoadLevelData();
+    m_LevelBackground = mapInfo.background;
+    ResetBonusArea();
+    LoadWarps(m_WorldGameObject, mapInfo);
+}
+
+void superMarioBros::GameManager::LoadWarps(const diji::GameObject* world, const MapInfo& mapInfo)
+{
     for (const WarpInfo& warp : mapInfo.warps)
     {
         WorldBuilder::SpawnWarpEntrance(world, warp.entrance.cell, warp.entrance.direction);
@@ -70,11 +83,32 @@ void superMarioBros::GameManager::LoadLevel(const std::string& levelFilePath)
 
 void superMarioBros::GameManager::DestroyWorld()
 {
+    UnloadBonusArea();
+
     if (m_WorldGameObject == nullptr) return;
 
     m_WorldGameObject->Destroy();
     m_WorldGameObject = nullptr;
     m_EnemyColliders = std::unordered_set<diji::Collider*>();
+}
+
+void superMarioBros::GameManager::UnloadBonusArea()
+{
+    const auto& sceneManager = diji::SceneManager::GetInstance();
+    auto* cameraComp = sceneManager.GetMainCamera()->GetComponent<diji::Camera>();
+
+    if (m_IsInBonusArea || cameraComp->IsCameraPositionForced())
+    {
+        cameraComp->ReleaseForcedCameraPosition();
+        sceneManager.GetGameObject("B_BonusAreaBackground")->GetComponent<diji::Render>()->DisableRender();
+        sceneManager.GetGameObject("B_Background")->GetComponent<diji::Render>()->EnableRender();
+        ApplyBackground(m_LevelBackground);
+    }
+
+    if (m_BonusAreaWorldGameObject)
+        m_BonusAreaWorldGameObject->Destroy();
+
+    ResetBonusArea();
 }
 
 void superMarioBros::GameManager::BuildEditorWorld(const std::vector<char>& levelInfo)

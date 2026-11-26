@@ -63,6 +63,14 @@ void SceneLoader::LevelEditor()
     selectorComp->SetBackgroundHandlerRef(backgroundHandlerComp);
     scene->SetToAlwaysRender(background,  true);
 
+    // tiles of the bonus area, only rendered while the player is in it during play mode
+    const auto bonusAreaBackground = scene->CreateGameObject("B_BonusAreaBackground");
+    bonusAreaBackground->SetObjectPosition({ 0, 0 });
+    bonusAreaBackground->AddComponent<Sprite>("graphics/tiles_sheet.png");
+    bonusAreaBackground->AddComponent<Render>();
+    bonusAreaBackground->AddComponent<superMarioBros::BackgroundHandler>(true);
+    scene->SetToAlwaysRender(bonusAreaBackground, true);
+
     const auto player = scene->CreateGameObject("X_PlayerChar");
     player->SetObjectPosition({ 200, 0 });
     AddPlayerComponents(player);
