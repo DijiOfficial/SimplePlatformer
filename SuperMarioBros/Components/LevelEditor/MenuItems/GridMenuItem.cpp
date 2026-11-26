@@ -1,6 +1,7 @@
 ﻿#include "GridMenuItem.h"
 
 #include "../SelectorControls.h"
+#include "../../../Helpers/WorldBuilder.h"
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Core/GameObject.h"
 #include "Engine/Singleton/SceneManager.h"
@@ -71,7 +72,7 @@ void superMarioBros::GridMenuItem::UpdateSelectorPosition()
 
 void superMarioBros::GridMenuItem::SetAllGridPositions()
 {
-    constexpr int tileSize = 50;
+    constexpr float tileSize = WorldBuilder::WorldSettings::TILE_SIZE;
     constexpr float halfTileSize = tileSize * 0.5f;
 
     const auto& sceneManager = diji::SceneManager::GetInstance();
@@ -79,8 +80,8 @@ void superMarioBros::GridMenuItem::SetAllGridPositions()
     const auto& size = m_ChildChoiceGO->GetComponent<diji::TextureComp>()->GetSize();
     const auto& pos  = sceneManager.GetWorldPositionFromScreen(m_ChildChoiceGO->GetObjectPosition());
 
-    m_GridWidth  = static_cast<int>(size.x) / tileSize;
-    m_GridHeight = static_cast<int>(size.y) / tileSize;
+    m_GridWidth  = static_cast<int>(static_cast<float>(size.x) / tileSize);
+    m_GridHeight = static_cast<int>(static_cast<float>(size.y) / tileSize);
 
     const sf::Vector2f topLeft = pos - sf::Vector2f{ size.x * 0.5f, size.y * 0.5f };
 
@@ -89,7 +90,7 @@ void superMarioBros::GridMenuItem::SetAllGridPositions()
     {
         for (int col = 0; col < m_GridWidth; ++col)
         {
-            const sf::Vector2f logicalPos = topLeft + sf::Vector2f(col * tileSize + halfTileSize, row * tileSize + halfTileSize);
+            const sf::Vector2f logicalPos = topLeft + sf::Vector2f(static_cast<float>(col) * tileSize + halfTileSize, static_cast<float>(row) * tileSize + halfTileSize);
             m_GridPositionsMap[index++] = sceneManager.GetScreenPosition(logicalPos);
         }
     }

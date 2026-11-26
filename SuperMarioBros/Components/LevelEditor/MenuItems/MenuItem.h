@@ -34,5 +34,6 @@ namespace superMarioBros
     protected:
         diji::GameObject* m_MenuArrow = nullptr;
         const int SELECTOR_SPACING = 20;
+        static constexpr float ERROR_MESSAGE_DURATION = 2.0f;
     };
 }

@@ -11,6 +11,7 @@
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Collision/Collider.h"
 #include "../../Singletons/GameManager.h"
+#include "../../Singletons/LevelEditorManager.h"
 #include "../Enemies/KoopaTroopa.h"
 #include "../Other/LevelObjects/Flag.h"
 #include "../Other/HUD/PointsBehaviour.h"
@@ -45,16 +46,11 @@ void superMarioBros::PlayerCharacter::Init()
 
 void superMarioBros::PlayerCharacter::Start()
 {
-    for(const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
-        m_ColliderCompPtr->OverlapCollider(enemyCollider);
-
+    LinkLevelObjects();
     LoadPosition();
-    
+
     sf::Shader& starShader = diji::ResourceManager::GetInstance().LoadShader("", "shaders/star.frag");
     m_SpriteRenderCompPtr->SetShader(&starShader);
-
-    if (const auto flag = diji::SceneManager::GetInstance().GetGameObject("E_flag"))
-        flag->GetComponent<Flag>()->OnFlagAnimationFinishedEvent.AddListener(this, &PlayerCharacter::StopFlagAnimAndMoveToCastle);
 
     CheckForSavedState();
 
@@ -82,7 +78,7 @@ void superMarioBros::PlayerCharacter::Update()
         CheckEnemyStomp();
     }
     
-    if (m_TransformCompPtr->GetWorldPosition().y > 600.f)
+    if (m_TransformCompPtr->GetWorldPosition().y > 600.0f)
     {
         OnFallingInHoleEvent.Broadcast();
         HandleDeathSequence();
@@ -92,7 +88,7 @@ void superMarioBros::PlayerCharacter::Update()
 void superMarioBros::PlayerCharacter::LateUpdate()
 {
     if (m_IsDead || m_IsPaused) return;
-    if (!m_IsStartPoweredUp) return;
+    if (m_IsStartPoweredUp == false) return;
     
     UpdateStarPowerShader();
 }
@@ -155,8 +151,8 @@ bool superMarioBros::PlayerCharacter::IsValidStomp(const diji::Collider* other) 
 {
     const bool isAbove = m_TransformCompPtr->GetWorldPosition().y <= other->GetPosition().y;
 
-    bool isValid = m_ColliderCompPtr->GetVelocity().y > 0.f;
-    if (!isValid)
+    bool isValid = m_ColliderCompPtr->GetVelocity().y > 0.0f;
+    if (isValid == false)
         isValid = other->GetVelocity().y < 0.0f;
 
     return isAbove && isValid;
@@ -166,7 +162,7 @@ void superMarioBros::PlayerCharacter::OnHitEvent(const diji::Collider* other, co
 {
     const std::string& otherTag = other->GetTag();
 
-    if (!GROUND_TAGS.contains(otherTag))
+    if (GROUND_TAGS.contains(otherTag) == false)
         return;
     
     m_KoopaStompToggle = false;
@@ -241,9 +237,19 @@ void superMarioBros::PlayerCharacter::PlayDeathSequence() const
     }, 3.41f, false);
 }
 
+void superMarioBros::PlayerCharacter::LinkLevelObjects()
+{
+    for(const auto enemyCollider : GameManager::GetInstance().GetEnemyColliders())
+        m_ColliderCompPtr->OverlapCollider(enemyCollider);
+
+    if (const auto flag = diji::SceneManager::GetInstance().GetGameObject("E_flag"))
+        flag->GetComponent<Flag>()->OnFlagAnimationFinishedEvent.AddListener(this, &PlayerCharacter::StopFlagAnimAndMoveToCastle);
+}
+
 void superMarioBros::PlayerCharacter::LoadPosition() const
 {
-    if ( static_cast<superMarioBrosState>(diji::GameStateManager::GetInstance().GetCurrentGameState()) != superMarioBrosState::Level) return;
+    const bool isInLevel = static_cast<superMarioBrosState>(diji::GameStateManager::GetInstance().GetCurrentGameState()) == superMarioBrosState::Level;
+    if (isInLevel == false && LevelEditorManager::GetInstance().IsPlayTesting() == false) return;
     
     const auto& gameManager = GameManager::GetInstance();
     if (gameManager.IsCheckPointActivated())
@@ -262,7 +268,7 @@ void superMarioBros::PlayerCharacter::PlayGrowthAnimation()
     m_CurrentStateUPtr->OnEnter(GetOwner());
 
     m_ColliderCompPtr->ResizeCollider(sf::Vector2f{ 48, 96 });
-    m_TransformCompPtr->SetWorldPosition(m_TransformCompPtr->GetWorldPosition() + sf::Vector2f{ 0.f, -24.f });
+    m_TransformCompPtr->SetWorldPosition(m_TransformCompPtr->GetWorldPosition() + sf::Vector2f{ 0.0f, -24.0f });
     
     (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
@@ -289,7 +295,7 @@ void superMarioBros::PlayerCharacter::PlayShrinkAnimation()
     m_CurrentStateUPtr = std::move(newState);
     m_CurrentStateUPtr->OnEnter(GetOwner());
     m_ColliderCompPtr->SetAffectedByGravity(false);
-    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.f, 0.f });
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.0f, 0.0f });
     
     (void)diji::TimerManager::GetInstance().SetTimer(this, [&]()
     {
@@ -323,14 +329,14 @@ void superMarioBros::PlayerCharacter::HandlePowerUpCollision()
     m_ColliderCompPtr->SetAffectedByGravity(false);
     if (m_PowerUpState == PowerUpState::Small)
     {
-        m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.f, 0.f });
+        m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.0f, 0.0f });
         GameManager::GetInstance().SwitchCurrentPlayerState();
         m_PowerUpState = PowerUpState::Big;
         PlayGrowthAnimation();
     }
     else if (m_PowerUpState == PowerUpState::Big)
     {
-        m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.f, 0.f });
+        m_ColliderCompPtr->SetVelocity(sf::Vector2f{ 0.0f, 0.0f });
         m_PowerUpState = PowerUpState::Fire;
         PlayFireTransitionAnimation();
     }
@@ -350,15 +356,15 @@ void superMarioBros::PlayerCharacter::InvisibilityFlash()
     m_InvincibilityTimer -= m_TimeSingletonInstance.GetDeltaTime();
     m_InvincibilityRenderTimer -= m_TimeSingletonInstance.GetDeltaTime();
 
-    if (m_InvincibilityRenderTimer <= 0.f)
+    if (m_InvincibilityRenderTimer <= 0.0f)
     {
         m_InvincibilityRenderTimer += 0.05f;
         m_SpriteRenderCompPtr->ToggleRendering();
     }
     
-    if (m_InvincibilityTimer <= 0.f)
+    if (m_InvincibilityTimer <= 0.0f)
     {
-        m_InvincibilityRenderTimer = 0.f;
+        m_InvincibilityRenderTimer = 0.0f;
         m_SpriteRenderCompPtr->EnableRender();
         m_IsInvincible = false;
     }
@@ -368,13 +374,13 @@ void superMarioBros::PlayerCharacter::CheckEnemyStomp()
 {
     const sf::Vector2f origin = m_ColliderCompPtr->GetPosition();
     constexpr sf::Vector2f dir = { 0, 1 };
-    constexpr float offset = 23.f;
+    constexpr float offset = 23.0f;
     const sf::Vector2f TopLeft = { origin.x - offset, origin.y + offset };
     const sf::Vector2f TopRight = { origin.x + offset, origin.y + offset };
     
     auto ValidateEnemyStomp = [&](const diji::Collider* other) -> void
     {
-        if (!IsValidStomp(other)) return;
+        if (IsValidStomp(other) == false) return;
 
         if (other->GetTag() == "koopa")
             StompKoopa(other);
@@ -382,13 +388,13 @@ void superMarioBros::PlayerCharacter::CheckEnemyStomp()
             StompEnemy(other);
     };
     
-    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopLeft, dir, 10.f, m_ColliderCompPtr))
+    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopLeft, dir, 10.0f, m_ColliderCompPtr))
     {
         if (hit->info.hasCollision && hit->collider->GetTag() == "enemy")
             ValidateEnemyStomp(hit->collider);
     }
 
-    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopRight, dir, 10.f, m_ColliderCompPtr))
+    if (const auto hit =  diji::SceneManager::GetInstance().GetPhysicsWorld()->Raycast(TopRight, dir, 10.0f, m_ColliderCompPtr))
     {
         if (hit->info.hasCollision && hit->collider->GetTag() == "enemy")
             ValidateEnemyStomp(hit->collider);
@@ -398,7 +404,7 @@ void superMarioBros::PlayerCharacter::CheckEnemyStomp()
 void superMarioBros::PlayerCharacter::StompEnemy(const diji::Collider* other)
 {
     // I'm capping vertical velocity so max it out to ensure the bounce is same height as normal jump
-    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_ColliderCompPtr->GetVelocity().x, 0.f });
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_ColliderCompPtr->GetVelocity().x, 0.0f });
     m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -DEATH_BUMP_STRENGTH));
     
     ++m_BounceScoreMultiplier;
@@ -410,7 +416,7 @@ void superMarioBros::PlayerCharacter::StompEnemy(const diji::Collider* other)
 
 void superMarioBros::PlayerCharacter::StompKoopa(const diji::Collider* other)
 {
-    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_ColliderCompPtr->GetVelocity().x, 0.f });
+    m_ColliderCompPtr->SetVelocity(sf::Vector2f{ m_ColliderCompPtr->GetVelocity().x, 0.0f });
     m_ColliderCompPtr->ApplyImpulse(sf::Vector2f(0, -DEATH_BUMP_STRENGTH));
 
     m_KoopaStompToggle = !m_KoopaStompToggle;
@@ -502,7 +508,7 @@ void superMarioBros::PlayerCharacter::PlayPipeTransitionAnimation(const diji::Di
             TeleportPlayer(sf::Vector2f{ nextArea.position.x, nextArea.position.y - height * 0.5f + distance });
             diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/smb_pipe.wav", false);
 
-            MoveThroughPipe(UP_VECTOR, distance, height, true, [this]()
+            MoveThroughPipe(diji::Transform::UP, distance, height, true, [this]()
             {
                 EndPipeTransition();
             });
@@ -596,7 +602,7 @@ void superMarioBros::PlayerCharacter::UpdateStarPowerShader()
     const int paletteIndex = static_cast<int>(m_StarPowerTimer * flashSpeed) % 4;
     starShader->setUniform("paletteIndex", paletteIndex);
 
-    if (m_StarPowerTimer >= 11.f)
+    if (m_StarPowerTimer >= 11.0f)
     {
         m_IsStartPoweredUp = false;
         m_SpriteRenderCompPtr->SetRenderWithShader(false);
@@ -614,7 +620,7 @@ void superMarioBros::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& 
     m_ColliderCompPtr->SetAffectedByGravity(false);
 
     m_FlagCenter = center;
-    m_TransformCompPtr->SetWorldPosition(sf::Vector2f{ center.x - 20.f, m_TransformCompPtr->GetWorldPosition().y });
+    m_TransformCompPtr->SetWorldPosition(sf::Vector2f{ center.x - 20.0f, m_TransformCompPtr->GetWorldPosition().y });
     m_SpriteRenderCompPtr->SetSpriteLookingRight();
     std::unique_ptr<PlayerStates> newState;
     if (m_PowerUpState == PowerUpState::Small)
@@ -633,9 +639,9 @@ void superMarioBros::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& 
 
     const float groundDistance = m_PowerUpState == PowerUpState::Small ? 476.0f : 452.0f;
     const float distanceToMove = groundDistance - originalPos.y;
-    constexpr float moveDuration = 2.f/15.f / 50.f; // 8frames to move 50 units
+    constexpr float moveDuration = 2.0f/15.0f / 50.0f; // 8frames to move 50 units
     auto &track = m_FlagPoleTimelinePtr->AddFloatTrack("MoveVertically");
-    track.keys = { { .time= 0.f, .value= 0.f }, { .time= distanceToMove * moveDuration, .value= distanceToMove } };
+    track.keys = { { .time= 0.0f, .value= 0.0f }, { .time= distanceToMove * moveDuration, .value= distanceToMove } };
     
     track.onValue = [&, originalPos](const float y)
     {
@@ -651,15 +657,15 @@ void superMarioBros::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& 
     GameManager::GetInstance().OnScoreAddedEvent.Broadcast(flagPoints);
     const std::string pointsString = std::to_string(flagPoints);
     auto pointsText = std::make_unique<diji::GameObject>();
-    pointsText->SetObjectPosition(sf::Vector2f{ originalPos.x + 65.f, 425.f });
+    pointsText->SetObjectPosition(sf::Vector2f{ originalPos.x + 65.0f, 425.0f });
     pointsText->AddComponent<diji::TextComp>(pointsString, "fonts/PressStart2P-vaV7.ttf", sf::Color::White, true);
     pointsText->GetComponent<diji::TextComp>()->GetText().setCharacterSize(18);
     pointsText->AddComponent<diji::Render>();
     pointsText->AddComponent<PointsBehaviour>(true);
-    pointsText->GetComponent<PointsBehaviour>()->SetSpeed(-375.f);
-    pointsText->GetComponent<PointsBehaviour>()->SetMaxHeight(-75.f);
+    pointsText->GetComponent<PointsBehaviour>()->SetSpeed(-375.0f);
+    pointsText->GetComponent<PointsBehaviour>()->SetMaxHeight(-75.0f);
 
-    diji::SceneManager::GetInstance().SpawnGameObject("ZZ_pointsText", std::move(pointsText), sf::Vector2f{ originalPos.x + 65.f, 425.f });
+    diji::SceneManager::GetInstance().SpawnGameObject("ZZ_pointsText", std::move(pointsText), sf::Vector2f{ originalPos.x + 65.0f, 425.0f });
     
     OnLevelFinishedEvent.Broadcast();
 }
@@ -694,7 +700,7 @@ void superMarioBros::PlayerCharacter::StopFlagAnimAndMoveToCastle()
         sf::Vector2f originalPos = m_TransformCompPtr->GetWorldPosition();
 
         auto &track = m_FlagPoleTimelinePtr->AddFloatTrack("MoveVertically");
-        track.keys = { { .time= 0.f, .value= 0.f }, { .time= 1.25f, .value= 700 } };
+        track.keys = { { .time= 0.0f, .value= 0.0f }, { .time= 1.25f, .value= 700 } };
             
         track.onValue = [&, originalPos](const float x)
         {
@@ -721,7 +727,7 @@ void superMarioBros::PlayerCharacter::CheckForSavedState()
     if (m_PowerUpState != PowerUpState::Small)
     {
         m_ColliderCompPtr->ResizeCollider(sf::Vector2f{ 48, 96 });
-        m_TransformCompPtr->SetWorldPosition(m_TransformCompPtr->GetWorldPosition() + sf::Vector2f{ 0.f, -24.f });
+        m_TransformCompPtr->SetWorldPosition(m_TransformCompPtr->GetWorldPosition() + sf::Vector2f{ 0.0f, -24.0f });
 
         std::unique_ptr<PlayerStates> newState;
         if (m_PowerUpState == PowerUpState::Fire)

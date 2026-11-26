@@ -44,12 +44,19 @@ namespace superMarioBros
         void CompleteWarp(const WarpArrival& returnPoint);
         void CancelPendingWarp();
         void SetBackground(const std::string& background);
+
+        [[nodiscard]] bool IsPlayTesting() const { return m_IsPlayTesting; }
+        [[nodiscard]] const sf::Vector2f& GetPlayTestExitPosition() const { return m_PlayTestExitPosition; }
+        void StartPlayTest();
+        void StopPlayTest();
+        void RestartPlayTest();
         [[nodiscard]] bool TryRemoveMarkerAt(const sf::Vector2i& cell);
         [[nodiscard]] std::string CreateBonusMap();
 
         diji::Event<> OnLevelLoadedEvent;
         diji::Event<> OnMapInfoChangedEvent;
         diji::Event<> OnWarpTargetChosenEvent;
+        diji::Event<bool> OnPlayTestToggledEvent;
 
     private:
         std::string m_CurrentLevelName = "New Level";
@@ -58,8 +65,13 @@ namespace superMarioBros
         std::vector<char> m_LevelInfo;
         MapInfo m_CurrentMapInfo;
         std::optional<WarpInfo> m_PendingWarp;
+        sf::Vector2f m_PlayTestExitPosition{ 0.0f, 0.0f };
+        bool m_IsPlayTesting = false;
+        bool m_IsReloadingWorld = false;
 
         void SaveLevelInfo(const std::string& filepath) const;
+        void ReloadWorld();
+        void SpawnPlayer() const;
         void RecalculateLevelWidth();
     };
 }

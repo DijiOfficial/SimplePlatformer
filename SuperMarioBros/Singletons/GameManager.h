@@ -47,6 +47,9 @@ namespace superMarioBros
 
         void LoadLevel();
         void LoadLevel(const std::string& levelFilePath);
+        void DestroyWorld();
+        void BuildEditorWorld(const std::vector<char>& levelInfo);
+        void PrepareLevelTest(const sf::Vector2i& startCell);
         void EmptyLevel();
         void ClearLevelInfo() { m_LevelInfo = std::vector<char>(); }
         void SwitchToNextScene();
@@ -96,7 +99,7 @@ namespace superMarioBros
         static constexpr int BONUS_AREA_COLUMN_OFFSET = -80;
 
         void PrepareLoadBonusArea(diji::Directions direction);
-        void HideCurrentArea();
+        void HideCurrentArea() const;
         [[nodiscard]] AreaArrival ShowNextArea();
         [[nodiscard]] bool IsInBonusArea() const { return m_IsInBonusArea; }
         [[nodiscard]] const std::vector<char>& GetBonusAreaInfo() const { return m_BonusAreaInfo; }
@@ -140,6 +143,7 @@ namespace superMarioBros
         [[nodiscard]] const MapInfo& GetMapInfo(const std::string& mapName) const;
         [[nodiscard]] const LevelEntry& GetCurrentLevelEntry() const;
         void ReadLevelInfo(const std::string& filepath);
+        void CreateWorld();
         static void ReadLevelFile(const std::string& filepath, std::vector<char>& levelInfo, int& rows, int& cols);
         void ResetBonusArea();
         void LoadBonusArea(const WarpInfo& warp);

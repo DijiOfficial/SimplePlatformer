@@ -287,5 +287,5 @@ void superMarioBros::SaveMenu::ShowSaveError(const std::string& message)
     m_SaveErrorTimerHandle = diji::TimerManager::GetInstance().SetTimer(this, [this]()
     {
         m_SaveErrorText->SetActive(false);
-    }, SAVE_ERROR_DURATION);
+    }, ERROR_MESSAGE_DURATION);
 }

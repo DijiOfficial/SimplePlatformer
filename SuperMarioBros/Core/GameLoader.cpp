@@ -443,7 +443,7 @@ void SceneLoader::TransitionToNextLevel()
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(superMarioBros::superMarioBrosState::TransitionToNextLevel));
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(superMarioBros::superMarioBrosState::TransitionToNextLevel));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::TransitionToNextLevel));
-    Renderer::GetInstance().SetBackgroundColor(sf::Color(92, 148, 252));
+    Renderer::GetInstance().SetBackgroundColor(superMarioBros::WorldBuilder::WorldSettings::SKY_COLOR);
 
     const auto sceneChanger = scene->CreateCameraObject("A_sceneChanger");
     const auto& loader = sceneChanger->AddComponent<superMarioBros::SceneLoader>(5.6f);
@@ -578,7 +578,7 @@ void SceneLoader::Level()
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(superMarioBros::superMarioBrosState::Level));
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(superMarioBros::superMarioBrosState::Level));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::Level));
-    Renderer::GetInstance().SetBackgroundColor(sf::Color(92, 148, 252));
+    Renderer::GetInstance().SetBackgroundColor(superMarioBros::WorldBuilder::WorldSettings::SKY_COLOR);
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     const auto staticBackground = scene->CreateGameObject("A_StaticBackground");
@@ -609,25 +609,9 @@ void SceneLoader::Level()
     camera->GetComponent<Camera>()->SetLevelBoundaries(superMarioBros::WorldBuilder::WorldSettings::ARENA_SIZE);
 
     player->SetObjectPosition({ 200, 0 });
-    player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
-    player->GetComponent<SpriteRenderComponent>()->SetScale(3);
-    player->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
-    player->GetComponent<Collider>()->SetRestitution(0.0f);
-    player->GetComponent<Collider>()->SetMass(0.89f);
-    player->GetComponent<Collider>()->SetStaticFriction(0.25f);
-    player->GetComponent<Collider>()->SetKineticFriction(0.15f);
-    player->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    player->GetComponent<Collider>()->SetIsOnlyApplyingGroundFriction(true);
-    player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.0f, 1000.0f });
-    player->GetComponent<Collider>()->SetTag("player");
-    player->AddComponent<superMarioBros::PlayerCharacter>();
-    player->AddComponent<superMarioBros::PlayerInputManager>(0.5f);
-    player->AddComponent<superMarioBros::CameraClamping>();
-    player->AddComponent<superMarioBros::BroadcastPlayerPosition>();
-    player->AddComponent<superMarioBros::CheckPlayerTopPixel>();
-    // player->AddComponent<ShapeRender>(true);
+    AddPlayerComponents(player);
 
-    SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(sf::Vector2f{ 0, 980 * 3.0f });
+    SceneManager::GetInstance().GetPhysicsWorld()->SetGravity(superMarioBros::WorldBuilder::WorldSettings::GRAVITY);
 
     // const auto testObject = scene->CreateGameObject("Y_testObject");
     // // auto testObject = std::make_unique<diji::GameObject>();
@@ -771,6 +755,47 @@ void SceneLoader::Level()
 #pragma region Commands
     auto& input = InputManager::GetInstance();
 
+    BindPlayerCommands(player);
+
+    input.BindCommand<superMarioBros::Pause>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Enter, nullptr);
+    input.BindCommand<superMarioBros::Pause>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Escape, nullptr);
+    input.BindCommand<superMarioBros::Pause>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Start, nullptr);
+    input.BindCommand<superMarioBros::Pause>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Back, nullptr);
+#pragma endregion
+
+#pragma region Events
+
+    superMarioBros::GameManager::GetInstance().OnScoreAddedEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
+    superMarioBros::GameManager::GetInstance().OnCoinCollectedEvent.AddListener(coinsCounterHud->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
+    timerHUD->GetComponent<ScoreCounter>()->OnGivenScoreReachedEvent.AddListener(player->GetComponent<superMarioBros::PlayerCharacter>(), &superMarioBros::PlayerCharacter::KillPlayer);
+#pragma endregion
+}
+
+void SceneLoader::AddPlayerComponents(GameObject* player)
+{
+    player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
+    player->GetComponent<SpriteRenderComponent>()->SetScale(3);
+    player->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
+    player->GetComponent<Collider>()->SetRestitution(0.0f);
+    player->GetComponent<Collider>()->SetMass(0.89f);
+    player->GetComponent<Collider>()->SetStaticFriction(0.25f);
+    player->GetComponent<Collider>()->SetKineticFriction(0.15f);
+    player->GetComponent<Collider>()->SetGenerateHitEvents(true);
+    player->GetComponent<Collider>()->SetIsOnlyApplyingGroundFriction(true);
+    player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.0f, 1000.0f });
+    player->GetComponent<Collider>()->SetTag("player");
+    player->AddComponent<superMarioBros::PlayerCharacter>();
+    player->AddComponent<superMarioBros::PlayerInputManager>(0.5f);
+    player->AddComponent<superMarioBros::CameraClamping>();
+    player->AddComponent<superMarioBros::BroadcastPlayerPosition>();
+    player->AddComponent<superMarioBros::CheckPlayerTopPixel>();
+    // player->AddComponent<ShapeRender>(true);
+}
+
+void SceneLoader::BindPlayerCommands(GameObject* player)
+{
+    auto& input = InputManager::GetInstance();
+
     input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Scancode::D, player, sf::Vector2f{ 1.0f, 0.0f }, true);
     input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::D, player, sf::Vector2f{ 1.0f, 0.0f }, false);
     input.BindCommand<superMarioBros::MoveCharacter>(PlayerIdx::KEYBOARD, KeyState::HELD, sf::Keyboard::Scancode::Right, player, sf::Vector2f{ 1.0f, 0.0f }, true);
@@ -806,23 +831,10 @@ void SceneLoader::Level()
     input.BindCommand<superMarioBros::Attack>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::X, player);
     input.BindCommand<superMarioBros::Attack>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::B, player);
 
-    input.BindCommand<superMarioBros::Pause>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Enter, nullptr);
-    input.BindCommand<superMarioBros::Pause>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Escape, nullptr);
-    input.BindCommand<superMarioBros::Pause>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Start, nullptr);
-    input.BindCommand<superMarioBros::Pause>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Back, nullptr);
-
     input.BindCommand<superMarioBros::Crouch>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::S, player, true);
     input.BindCommand<superMarioBros::Crouch>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::S, player, false);
     input.BindCommand<superMarioBros::Crouch>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Down, player, true);
     input.BindCommand<superMarioBros::Crouch>(PlayerIdx::KEYBOARD, KeyState::RELEASED, sf::Keyboard::Scancode::Down, player, false);
     input.BindCommand<superMarioBros::Crouch>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::DPadDown, player, true);
     input.BindCommand<superMarioBros::Crouch>(PlayerIdx::PLAYER1, KeyState::RELEASED, Controller::Button::DPadDown, player, false);
-#pragma endregion
-
-#pragma region Events
-
-    superMarioBros::GameManager::GetInstance().OnScoreAddedEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
-    superMarioBros::GameManager::GetInstance().OnCoinCollectedEvent.AddListener(coinsCounterHud->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
-    timerHUD->GetComponent<ScoreCounter>()->OnGivenScoreReachedEvent.AddListener(player->GetComponent<superMarioBros::PlayerCharacter>(), &superMarioBros::PlayerCharacter::KillPlayer);
-#pragma endregion
 }

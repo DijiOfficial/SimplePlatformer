@@ -4,6 +4,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
 namespace diji
@@ -25,6 +26,8 @@ namespace superMarioBros
             static constexpr float TILE_SIZE = 50.0f;
             static constexpr sf::FloatRect ARENA_SIZE = { sf::Vector2f{ 0.0f, -(TILE_SIZE * MAX_LEVEL_HEIGHT * 0.5f + 100.0f) }, sf::Vector2f{ 12000.0f, 1080.0f } }; // 100 is the custom offset
             static constexpr std::string_view GROUND_MERGE_STOP_TILES = "H";
+            static constexpr sf::Vector2f GRAVITY{ 0.0f, 980.0f * 3.0f };
+            static constexpr sf::Color SKY_COLOR{ 92, 148, 252 };
         };
 
         static void Init();

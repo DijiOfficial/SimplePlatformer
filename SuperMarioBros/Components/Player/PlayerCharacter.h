@@ -47,6 +47,7 @@ namespace superMarioBros
         void SetTransitionState();
         void KillPlayer() { OnFallingInHoleEvent.Broadcast(); HandleDeathSequence(); }
         void OnPowerUpCollected(PowerUpType power) override;
+        void LinkLevelObjects();
 
         template <typename T, typename... Args>
         void ChangeState(Args&&... args)
@@ -81,8 +82,7 @@ namespace superMarioBros
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
 
-        sf::Vector2f m_FlagCenter = { 0.f, 0.f };
-        const sf::Vector2f UP_VECTOR = { 0.f, -1.f };
+        sf::Vector2f m_FlagCenter = { 0.0f, 0.0f };
 
         enum class PowerUpState : uint8_t
         {

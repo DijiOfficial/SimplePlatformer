@@ -28,6 +28,7 @@ namespace diji
 		void AddCollider(Collider* collider);
 		void RemoveCollider(Collider* collider);
 		void Init();
+		void RefreshStaticColliders() const;
 		void FixedUpdate();
 		void LateFixedUpdate() const;
 		void EndFrameUpdate();
@@ -68,7 +69,7 @@ namespace diji
 		
 		sf::FloatRect m_WorldBounds;
 		
-		sf::Vector2f m_Gravity{ 0.f, 980.f }; // This doesn't need to be a vector unless we want to simulate planets or some shit
+		sf::Vector2f m_Gravity{ 0.0f, 980.0f }; // This doesn't need to be a vector unless we want to simulate planets or some shit
 		const TimeSingleton& m_TimeSingletonInstance = TimeSingleton::GetInstance();
 
 		const float SLEEP_VELOCITY = 1.0f;

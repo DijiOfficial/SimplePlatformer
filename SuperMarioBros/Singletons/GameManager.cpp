@@ -59,20 +59,46 @@ void superMarioBros::GameManager::LoadLevel()
 
 void superMarioBros::GameManager::LoadLevel(const std::string& levelFilePath)
 {
-    if (m_WorldGameObject)
-    {
-        m_WorldGameObject->Destroy();
-        m_WorldGameObject = nullptr;
-        m_EnemyColliders = std::unordered_set<diji::Collider*>();
-    }
+    DestroyWorld();
 
     diji::TimerManager::GetInstance().DelayUntilNextTick([&]
     {
         ReadLevelInfo(std::format("../SuperMarioBros/Resources/levels/{}", levelFilePath));  //todo:  literal string
-        CreateEmptyWorld();
-        LevelEditorManager::GetInstance().SetLevelInfo(m_LevelInfo);
-        OnNewLevelLoadedEvent.Broadcast();
+        CreateWorld();
     });
+}
+
+void superMarioBros::GameManager::DestroyWorld()
+{
+    if (m_WorldGameObject == nullptr) return;
+
+    m_WorldGameObject->Destroy();
+    m_WorldGameObject = nullptr;
+    m_EnemyColliders = std::unordered_set<diji::Collider*>();
+}
+
+void superMarioBros::GameManager::BuildEditorWorld(const std::vector<char>& levelInfo)
+{
+    m_LevelInfo = levelInfo;
+    m_Rows = WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT;
+    m_Cols = static_cast<int>(m_LevelInfo.size()) / m_Rows;
+    CreateWorld();
+}
+
+void superMarioBros::GameManager::PrepareLevelTest(const sf::Vector2i& startCell)
+{
+    ResetPlayerInfo();
+    m_CurrentPlayerState = PlayerHealthState::Small;
+    m_LastPlayerState = PlayerHealthState::Small;
+    m_TotalFireballsInLevel = 0;
+    m_StartPosition = static_cast<sf::Vector2u>(static_cast<sf::Vector2f>(startCell) * WorldBuilder::WorldSettings::TILE_SIZE);
+}
+
+void superMarioBros::GameManager::CreateWorld()
+{
+    CreateEmptyWorld();
+    LevelEditorManager::GetInstance().SetLevelInfo(m_LevelInfo);
+    OnNewLevelLoadedEvent.Broadcast();
 }
 
 void superMarioBros::GameManager::EmptyLevel()
@@ -122,7 +148,14 @@ void superMarioBros::GameManager::ResetLevel(const bool playerDied)
         m_CurrentPlayerState = PlayerHealthState::Small;
         m_LastPlayerState = PlayerHealthState::Small;
     }
-    
+
+    if (LevelEditorManager::GetInstance().IsPlayTesting())
+    {
+        m_TotalFireballsInLevel = 0;
+        LevelEditorManager::GetInstance().RestartPlayTest();
+        return;
+    }
+
     ClearListeners();
         
     if (m_PlayerInfo.totalLives == 0)
@@ -194,7 +227,7 @@ void superMarioBros::GameManager::ApplyBackground(const std::string& background)
         return;
     }
 
-    diji::Renderer::GetInstance().SetBackgroundColor(sf::Color{ 92, 148, 252 });
+    diji::Renderer::GetInstance().SetBackgroundColor(WorldBuilder::WorldSettings::SKY_COLOR);
     backgroundRendererComp->SetBackgroundTexture("graphics/" + background);
     backgroundRendererComp->EnableRender();
 }
@@ -265,7 +298,7 @@ void superMarioBros::GameManager::PrepareLoadBonusArea(const diji::Directions di
     OnBonusAreaTriggeredEvent.Broadcast(direction);
 }
 
-void superMarioBros::GameManager::HideCurrentArea()
+void superMarioBros::GameManager::HideCurrentArea() const
 {
     const auto& sceneManager = diji::SceneManager::GetInstance();
 

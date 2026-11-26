@@ -27,6 +27,7 @@ namespace superMarioBros
         
         void RenderFrame() const override;
         void SetBackgroundTexture(const std::string& filename);
+        void SetFollowTransform(diji::Transform* followTransform) { m_PlayerTransformPtr = followTransform; }
 
     private:
         const diji::GameObject* m_OwnerPtr = nullptr;

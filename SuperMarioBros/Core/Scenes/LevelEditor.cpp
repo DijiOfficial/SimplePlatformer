@@ -8,23 +8,16 @@
 #include "../../Components/LevelEditor/Selector.h"
 #include "../../Components/LevelEditor/MenuItems/BlockSelector.h"
 #include "../../Components/LevelEditor/MenuItems/BackgroundSelector.h"
+#include "../../Components/LevelEditor/MenuItems/PlayMenu.h"
 #include "../../Components/LevelEditor/OnScreenKeyboard/OnScreenKeyboardManager.h"
-#include "../../Components/Player/CameraClamping.h"
-#include "../../Components/Player/PlayerInputManager.h"
-#include "../../Components/Player/BroadcastPlayerPosition.h"
-#include "../../Components/Player/CheckPlayerTopPixel.h"
-#include "../../Components/Player/PlayerCharacter.h"
 #include "../../Helpers/WorldBuilder.h"
 #include "../../Input/LevelEditorCommands.h"
-#include "Engine/Collision/Collider.h"
-#include "Engine/Collision/CollisionShape.h"
 #include "Engine/Components/TextureComp.h"
 #include "Engine/Core/Renderer.h"
 #include "Engine/Input/InputManager.h"
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/FPSCounter.h"
 #include "Engine/Components/ShapeRender.h"
-#include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Singleton/SceneManager.h"
 #include "Engine/Singleton/GameStateManager.h"
 #include "Engine/Components/Sprite.h"
@@ -39,7 +32,7 @@ void SceneLoader::LevelEditor()
     SceneManager::GetInstance().SetActiveScene(static_cast<int>(superMarioBros::superMarioBrosState::LevelEditor));
     const auto& scene = SceneManager::GetInstance().CreateScene(static_cast<int>(superMarioBros::superMarioBrosState::LevelEditor));
     GameStateManager::GetInstance().SetNewGameState(static_cast<GameState>(superMarioBros::superMarioBrosState::LevelEditor));
-    Renderer::GetInstance().SetBackgroundColor(sf::Color(92, 148, 252));
+    Renderer::GetInstance().SetBackgroundColor(superMarioBros::WorldBuilder::WorldSettings::SKY_COLOR);
 
     SceneManager::GetInstance().GetPhysicsWorld()->DisablePhysics();
 
@@ -72,23 +65,7 @@ void SceneLoader::LevelEditor()
 
     const auto player = scene->CreateGameObject("X_PlayerChar");
     player->SetObjectPosition({ 200, 0 });
-    player->AddComponent<SpriteRenderComponent>("graphics/player.png", sf::Vector2i{ 16, 16 }, 3, 0.05f);
-    player->GetComponent<SpriteRenderComponent>()->SetScale(3);
-    player->AddComponent<Collider>(CollisionShape::ShapeType::RECT, sf::Vector2f{ 48, 48 });
-    player->GetComponent<Collider>()->SetRestitution(0.0f);
-    player->GetComponent<Collider>()->SetMass(0.89f);
-    player->GetComponent<Collider>()->SetStaticFriction(0.25f);
-    player->GetComponent<Collider>()->SetKineticFriction(0.15f);
-    player->GetComponent<Collider>()->SetGenerateHitEvents(true);
-    player->GetComponent<Collider>()->SetIsOnlyApplyingGroundFriction(true);
-    player->GetComponent<Collider>()->SetMaxVelocity(sf::Vector2f{ 800.0f, 1000.0f });
-    player->GetComponent<Collider>()->SetTag("player");
-    player->AddComponent<superMarioBros::PlayerCharacter>();
-    player->AddComponent<superMarioBros::PlayerInputManager>(0.5f);
-    player->AddComponent<superMarioBros::CameraClamping>();
-    player->AddComponent<superMarioBros::BroadcastPlayerPosition>();
-    player->AddComponent<superMarioBros::CheckPlayerTopPixel>();
-    // player->AddComponent<ShapeRender>(true);
+    AddPlayerComponents(player);
     player->SetActive(false);
 
     const auto tempKeyboard = scene->CreateGameObject("X_tempKeyboard");
@@ -152,13 +129,13 @@ void SceneLoader::LevelEditor()
     scene->SetGameObjectAsCanvasObject(backgroundChoices);
     backgroundChoices->AttachToObject(backgroundMenu, true);
 
-    // const auto play = scene->CreateGameObject("Z_UI_Play");
-    // play->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f, menuYPosition });
-    // play->AddComponent<TextureComp>("graphics/level_editor_play.png");
-    // play->AddComponent<Render>(renderRatio);
-    // play->AddComponent<superMarioBros::MenuItem>();
-    // scene->SetGameObjectAsCanvasObject(play);
-    //
+    const auto play = scene->CreateGameObject("UI_Play");
+    play->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.200f, menuYPosition });
+    play->AddComponent<TextureComp>("graphics/level_editor_play.png");
+    play->AddComponent<Render>(renderRatio);
+    play->AddComponent<superMarioBros::PlayMenu>();
+    scene->SetGameObjectAsCanvasObject(play);
+
     // const auto secondItem = scene->CreateGameObject("Z_UI_Item2");
     // secondItem->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.20f, menuYPosition });
     // secondItem->AddComponent<TextureComp>("graphics/level_editor_item1.png");
@@ -170,7 +147,7 @@ void SceneLoader::LevelEditor()
     menuTransforms.push_back(save->GetComponent<superMarioBros::MenuItem>());
     menuTransforms.push_back(items->GetComponent<superMarioBros::MenuItem>());
     menuTransforms.push_back(backgroundMenu->GetComponent<superMarioBros::MenuItem>());
-    // menuTransforms.push_back(play->GetComponent<superMarioBros::MenuItem>());
+    menuTransforms.push_back(play->GetComponent<superMarioBros::MenuItem>());
     // menuTransforms.push_back(secondItem->GetComponent<superMarioBros::MenuItem>());
     selector->GetComponent<superMarioBros::SelectorControls>()->SetMenuTransform(menuTransforms);
     selector->GetComponent<superMarioBros::SelectorControls>()->SetMenuArrow(selection);
@@ -185,8 +162,26 @@ void SceneLoader::LevelEditor()
 #pragma endregion
     
 #pragma region Commands
+    BindLevelEditorCommands();
+#pragma endregion
+
+#pragma region Events
+
+    saveMenuComp->OnSaveLevelEvent.AddListener(loadMenuComp, &superMarioBros::LoadMenu::AddNewName);
+    // superMarioBros::GameManager::GetInstance().OnScoreAddedEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
+    // superMarioBros::GameManager::GetInstance().OnCoinCollectedEvent.AddListener(coinsCounterHud->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
+    // timerHUD->GetComponent<ScoreCounter>()->OnGivenScoreReachedEvent.AddListener(player->GetComponent<superMarioBros::PlayerCharacter>(), &superMarioBros::PlayerCharacter::KillPlayer);
+#pragma endregion
+}
+
+void SceneLoader::BindLevelEditorCommands()
+{
+    const auto& sceneManager = SceneManager::GetInstance();
+    GameObject* selector = sceneManager.GetGameObject("X_SelectorPlayer");
+    GameObject* items = sceneManager.GetGameObject("Z_UI_Items");
+
     auto& input = InputManager::GetInstance();
-    
+
     input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::D, selector, sf::Vector2f{ 1.0f, 0.0f }, true);
     input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Right, selector, sf::Vector2f{ 1.0f, 0.0f }, true);
     input.BindCommand<superMarioBros::MoveSelector>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::DPadRight, selector, sf::Vector2f{ 1.0f, 0.0f }, true);
@@ -233,13 +228,14 @@ void SceneLoader::LevelEditor()
     input.BindCommand<superMarioBros::SelectNextBlock>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::LeftShoulder, items, false);
 
     input.BindCommand<superMarioBros::CopyBlockHoveredPosition>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::X, items);
-#pragma endregion
+}
 
-#pragma region Events
+void SceneLoader::BindPlayTestCommands()
+{
+    auto& input = InputManager::GetInstance();
 
-    saveMenuComp->OnSaveLevelEvent.AddListener(loadMenuComp, &superMarioBros::LoadMenu::AddNewName);
-    // superMarioBros::GameManager::GetInstance().OnScoreAddedEvent.AddListener(scoreHUD->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
-    // superMarioBros::GameManager::GetInstance().OnCoinCollectedEvent.AddListener(coinsCounterHud->GetComponent<ScoreCounter>(), &ScoreCounter::IncreaseScore);
-    // timerHUD->GetComponent<ScoreCounter>()->OnGivenScoreReachedEvent.AddListener(player->GetComponent<superMarioBros::PlayerCharacter>(), &superMarioBros::PlayerCharacter::KillPlayer);
-#pragma endregion
+    input.BindCommand<superMarioBros::ExitPlayTest>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Enter, nullptr);
+    input.BindCommand<superMarioBros::ExitPlayTest>(PlayerIdx::KEYBOARD, KeyState::PRESSED, sf::Keyboard::Scancode::Escape, nullptr);
+    input.BindCommand<superMarioBros::ExitPlayTest>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Start, nullptr);
+    input.BindCommand<superMarioBros::ExitPlayTest>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::Back, nullptr);
 }

@@ -52,7 +52,6 @@ namespace superMarioBros
         bool m_IsConfirmChoice;
 
         const float ITEM_SPACING = 60.0f;
-        const float SAVE_ERROR_DURATION = 2.0f;
 
         sf::Vector2f GetSelectorPosition(const diji::GameObject* button) const;
         sf::Vector2f GetSelectorPosition(diji::TextComp* text) const;

@@ -2,6 +2,7 @@
 
 #include "../Components/LevelEditor/SelectorControls.h"
 #include "../Components/LevelEditor/MenuItems/BlockSelector.h"
+#include "../Singletons/LevelEditorManager.h"
 #include "Engine/Core/GameObject.h"
 
 superMarioBros::MoveSelector::MoveSelector(diji::GameObject* actor, const sf::Vector2f& direction, const bool isStart)
@@ -82,4 +83,9 @@ superMarioBros::CopyBlockHoveredPosition::CopyBlockHoveredPosition(diji::GameObj
 void superMarioBros::CopyBlockHoveredPosition::Execute()
 {
     m_Selector->CopyBlockHoveredPosition();
+}
+
+void superMarioBros::ExitPlayTest::Execute()
+{
+    LevelEditorManager::GetInstance().StopPlayTest();
 }

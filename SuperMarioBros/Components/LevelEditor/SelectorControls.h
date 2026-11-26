@@ -87,5 +87,6 @@ namespace superMarioBros
         void EnterMenu();
         void ResetSpecialMenu();
         void ChooseMenuItem(int index);
+        void OnPlayTestToggled(bool isPlayTesting);
     };
 }

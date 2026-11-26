@@ -32,6 +32,7 @@ void superMarioBros::Selector::Init()
     LevelEditorManager::GetInstance().OnLevelLoadedEvent.AddListener(this, &Selector::CreateAllSpecialBlocks);
     LevelEditorManager::GetInstance().OnMapInfoChangedEvent.AddListener(this, &Selector::RefreshMarkers);
     LevelEditorManager::GetInstance().OnWarpTargetChosenEvent.AddListener(this, &Selector::SelectArrivalTool);
+    LevelEditorManager::GetInstance().OnPlayTestToggledEvent.AddListener(this, &Selector::OnPlayTestToggled);
     SetRenderLayer(3);
 }
 
@@ -281,6 +282,7 @@ void superMarioBros::Selector::CreateAllSpecialBlocks()
     if (levelInfo.empty())
         return;
 
+    const bool isPlayTesting = LevelEditorManager::GetInstance().IsPlayTesting();
     const int cols = static_cast<int>(levelInfo.size()) / WorldBuilder::WorldSettings::MAX_LEVEL_HEIGHT;
     for (int index = 0; index < static_cast<int>(levelInfo.size()); ++index)
     {
@@ -294,8 +296,12 @@ void superMarioBros::Selector::CreateAllSpecialBlocks()
         const GridPos gridPos = { .row = row, .col = col };
 
         CreateItemAtGridPos(item, { .row = row, .col = col });
-        HandleCreatingSpecialBlocks(item, gridPos);
+        if (isPlayTesting == false)
+            HandleCreatingSpecialBlocks(item, gridPos);
     }
+
+    if (isPlayTesting)
+        return;
 
     for (const auto enemyCol : GameManager::GetInstance().GetEnemyColliders())
     {
@@ -444,6 +450,9 @@ void superMarioBros::Selector::RefreshMarkers()
     m_MarkerObjects.clear();
 
     const LevelEditorManager& levelEditorManager = LevelEditorManager::GetInstance();
+    if (levelEditorManager.IsPlayTesting())
+        return;
+
     const MapInfo& mapInfo = levelEditorManager.GetCurrentMapInfo();
 
     if (mapInfo.start.has_value())
@@ -478,6 +487,11 @@ void superMarioBros::Selector::SpawnMarker(const sf::Vector2i& cell, const sf::V
     sprite->UpdateFrame();
 
     m_MarkerObjects.push_back(marker);
+}
+
+void superMarioBros::Selector::OnPlayTestToggled(bool)
+{
+    RefreshMarkers();
 }
 
 void superMarioBros::Selector::SelectArrivalTool()

@@ -86,6 +86,15 @@ namespace superMarioBros
         BlockSelector* m_Selector = nullptr;
     };
 
+    class ExitPlayTest final : public diji::GameActorCommands
+    {
+    public:
+        explicit ExitPlayTest(diji::GameObject* actor) : GameActorCommands{ actor } {}
+        ~ExitPlayTest() noexcept override = default;
+
+        void Execute() override;
+    };
+
     class  CopyBlockHoveredPosition final : public diji::GameActorCommands
     {
     public:

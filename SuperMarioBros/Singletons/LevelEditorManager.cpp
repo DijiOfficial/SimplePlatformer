@@ -1,7 +1,17 @@
 ﻿#include "LevelEditorManager.h"
 
 #include "GameManager.h"
+#include "../Components/Backgrounds/CustomBackgroundRenderer.h"
+#include "../Components/Player/PlayerCharacter.h"
+#include "../Core/GameLoader.h"
 #include "../Helpers/WorldBuilder.h"
+#include "Engine/Collision/PhysicsWorld.h"
+#include "Engine/Components/Camera.h"
+#include "Engine/Components/Transform.h"
+#include "Engine/Core/GameObject.h"
+#include "Engine/Input/InputManager.h"
+#include "Engine/Singleton/SceneManager.h"
+#include "Engine/Singleton/TimerManager.h"
 
 #include <fstream>
 #include <ranges>
@@ -150,6 +160,100 @@ void superMarioBros::LevelEditorManager::SetBackground(const std::string& backgr
 {
     m_CurrentMapInfo.background = background;
     GameManager::ApplyBackground(background);
+}
+
+void superMarioBros::LevelEditorManager::StartPlayTest()
+{
+    if (m_IsPlayTesting || m_CurrentMapInfo.start.has_value() == false)
+        return;
+
+    m_IsPlayTesting = true;
+    GameManager::GetInstance().PrepareLevelTest(m_CurrentMapInfo.start.value());
+    OnPlayTestToggledEvent.Broadcast(true);
+    ReloadWorld();
+}
+
+void superMarioBros::LevelEditorManager::StopPlayTest()
+{
+    if (m_IsPlayTesting == false) return;
+
+    if (const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar"))
+        m_PlayTestExitPosition = player->GetRootComponent()->GetWorldPosition();
+
+    m_IsPlayTesting = false;
+    OnPlayTestToggledEvent.Broadcast(false);
+    ReloadWorld();
+}
+
+void superMarioBros::LevelEditorManager::RestartPlayTest()
+{
+    if (m_IsPlayTesting == false) return;
+
+    ReloadWorld();
+}
+
+void superMarioBros::LevelEditorManager::ReloadWorld()
+{
+    if (m_IsReloadingWorld) return;
+
+    m_IsReloadingWorld = true;
+    diji::TimerManager::GetInstance().DelayUntilNextTick([this]
+    {
+        diji::InputManager::GetInstance().ResetCommands();
+        diji::SceneManager::GetInstance().GetPhysicsWorld()->DisablePhysics();
+
+        if (const auto player = diji::SceneManager::GetInstance().GetGameObject("X_PlayerChar"))
+            player->Destroy();
+
+        GameManager::GetInstance().DestroyWorld();
+
+        diji::TimerManager::GetInstance().DelayUntilNextTick([this]
+        {
+            m_IsReloadingWorld = false;
+            SpawnPlayer();
+        });
+    });
+}
+
+void superMarioBros::LevelEditorManager::SpawnPlayer() const
+{
+    const auto& sceneManager = diji::SceneManager::GetInstance();
+
+    auto* cameraComp = sceneManager.GetMainCamera()->GetComponent<diji::Camera>();
+    cameraComp->SetLevelBoundaries(WorldBuilder::WorldSettings::ARENA_SIZE);
+
+    auto playerUPtr = std::make_unique<diji::GameObject>();
+    SceneLoader::AddPlayerComponents(playerUPtr.get());
+    diji::GameObject* player = sceneManager.SpawnGameObject("X_PlayerChar", std::move(playerUPtr), sf::Vector2f{ 200.0f, 0.0f });
+
+    GameManager::GetInstance().BuildEditorWorld(m_LevelInfo);
+
+    auto* backgroundRendererComp = sceneManager.GetGameObject("A_StaticBackground")->GetComponent<CustomBackgroundRenderer>();
+
+    if (m_IsPlayTesting == false)
+    {
+        player->SetActive(false);
+
+        const diji::GameObject* selector = sceneManager.GetGameObject("X_SelectorPlayer");
+        cameraComp->SetFollow(selector);
+        backgroundRendererComp->SetFollowTransform(selector->GetRootComponent());
+        SceneLoader::BindLevelEditorCommands();
+        return;
+    }
+
+    auto* playerCharacterComp = player->GetComponent<PlayerCharacter>();
+    playerCharacterComp->LinkLevelObjects();
+    playerCharacterComp->OnCastleReachedEvent.AddListener([]
+    {
+        GetInstance().StopPlayTest();
+    });
+
+    backgroundRendererComp->SetFollowTransform(player->GetRootComponent());
+    sceneManager.GetPhysicsWorld()->RefreshStaticColliders();
+    sceneManager.GetPhysicsWorld()->EnablePhysics();
+    sceneManager.GetPhysicsWorld()->SetGravity(WorldBuilder::WorldSettings::GRAVITY);
+    SceneLoader::BindPlayerCommands(player);
+    SceneLoader::BindPlayTestCommands();
 }
 
 bool superMarioBros::LevelEditorManager::TryRemoveMarkerAt(const sf::Vector2i& cell)

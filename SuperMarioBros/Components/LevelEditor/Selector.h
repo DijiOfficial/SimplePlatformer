@@ -72,6 +72,7 @@ namespace superMarioBros
         void RefreshMarkers();
         void SpawnMarker(const sf::Vector2i& cell, const sf::Vector2i& frame);
         void SelectArrivalTool();
+        void OnPlayTestToggled(bool isPlayTesting);
 
         struct GridPos
         {

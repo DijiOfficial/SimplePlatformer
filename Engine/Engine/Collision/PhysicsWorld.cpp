@@ -22,7 +22,7 @@ void diji::PhysicsWorld::Reset()
 
 void diji::PhysicsWorld::AddCollider(Collider* collider)
 {
-    if (!collider)
+    if (collider == nullptr)
         throw std::runtime_error("Ya done did fucked up");
 
     UpdateWorldBounds(collider->GetAABB());
@@ -66,6 +66,11 @@ void diji::PhysicsWorld::RemoveCollider(Collider* collider)
 void diji::PhysicsWorld::Init()
 {
     m_StaticsBVHTree = std::make_unique<BVHTree>();
+    RefreshStaticColliders();
+}
+
+void diji::PhysicsWorld::RefreshStaticColliders() const
+{
     m_StaticsBVHTree->Build(m_StaticInfos);
 }
 
@@ -161,7 +166,7 @@ void diji::PhysicsWorld::EndFrameUpdate()
         switch (collider->m_SleepState)
         {
         case SleepState::PendingSleep:
-            collider->SetVelocity({0.f, 0.f});
+            collider->SetVelocity({0.0f, 0.0f});
             collider->ClearNetForce();
             collider->m_SleepState = SleepState::Sleeping;
             m_SleepingColliders.insert({.collider = collider, .prediction = { .collider= collider, .AABB= collider->GetAABB(), .pos= collider->GetPosition(), .vel= sf::Vector2f{ 0.0f, 0.0f }, .collisionInfoVec={} } });
@@ -250,7 +255,7 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
     // 1) Dynamic colliders
     for (const Collider* col : m_DynamicColliders)
     {
-        if (!collider || col == collider || collider->IsIgnoringCollider(col))
+        if (collider == nullptr || col == collider || collider->IsIgnoringCollider(col))
             continue;
 
         testCollider(col, col->GetAABB());
@@ -259,7 +264,7 @@ std::optional<diji::RaycastHit> diji::PhysicsWorld::Raycast(const sf::Vector2f& 
     // 2) Static colliders
     for (const auto& [aabb, colliderPtr] : m_StaticInfos)
     {
-        if (!colliderPtr || !collider || colliderPtr == collider || collider->IsIgnoringCollider(colliderPtr))
+        if (colliderPtr == nullptr || collider == nullptr || colliderPtr == collider || collider->IsIgnoringCollider(colliderPtr))
             continue;
 
         // testCollider(colliderPtr, colliderPtr->GetShape()->GetLocalShapeBounds());
@@ -351,8 +356,8 @@ void diji::PhysicsWorld::PredictMovement(std::vector<Prediction>& predictionsVec
 
     for (auto* collider : m_DynamicColliders)
     {
-        if (!collider) continue;
-        if (!collider->IsColliderActive()) continue;
+        if (collider == nullptr) continue;
+        if (collider->IsColliderActive() == false) continue;
         if (collider->IsSleeping()) continue; // todo: ideally if sleeping it would check for gravity
 
         sf::Vector2f forcesApplied = collider->GetNetForce() / collider->GetMass();
@@ -382,7 +387,7 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
     for (size_t i = 0; i < size; ++i)
     {
         auto& [colliderPtr, predictedAABB, pos, vel, collisionsVec] = predictionsVec[i];
-        if (!colliderPtr->IsColliderActive()) continue;
+        if (colliderPtr->IsColliderActive() == false) continue;
 
         if (colliderPtr->GetCollisionResponse() == Collider::CollisionResponse::Ignore)
             continue;
@@ -390,16 +395,16 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         // STATIC COLLISIONS: Check against all static colliders
         for (const auto& [aabb, staticCollider] : m_StaticsBVHTree->Query(predictedAABB))
         {
-            if (!staticCollider->IsColliderActive()) continue;
+            if (staticCollider->IsColliderActive() == false) continue;
             if (colliderPtr->IsIgnoringCollider(staticCollider) || staticCollider->IsIgnoringCollider(colliderPtr)) continue;
-            if (!AABBOverlap(predictedAABB, aabb)) continue;
+            if (AABBOverlap(predictedAABB, aabb) == false) continue;
             
             const auto [Overlap, Hit] = HandleStaticCollisions(predictionsVec[i], staticCollider);
             
             if (Overlap)
                 m_ActiveTriggers.push_back({.trigger = colliderPtr, .other = staticCollider, .hitInfo = collisionsVec.back()});
             
-            if (!Hit || !colliderPtr->IsGenerateHitEvents())
+            if (Hit == false || colliderPtr->IsGenerateHitEvents() == false)
                 continue;
             
             auto& info = collisionsVec.back();
@@ -415,18 +420,18 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
         for (size_t j = i + 1; j < size; ++j)
         {
             Prediction& otherPrediction = predictionsVec[j];
-            if (!otherPrediction.collider->IsColliderActive()) continue;
+            if (otherPrediction.collider->IsColliderActive() == false) continue;
             if (otherPrediction.collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
             if (otherPrediction.collider->IsIgnoringAllDynamicColliders()) continue;
             if (colliderPtr->IsIgnoringCollider(otherPrediction.collider) || otherPrediction.collider->IsIgnoringCollider(colliderPtr)) continue;
-            if (!AABBOverlap(predictedAABB, otherPrediction.AABB)) continue;
+            if (AABBOverlap(predictedAABB, otherPrediction.AABB) == false) continue;
             
             const auto [Overlap, Hit] = HandleDynamicCollisions(predictionsVec[i], otherPrediction);
 
             if (Overlap)
                 m_ActiveTriggers.push_back({.trigger= colliderPtr, .other= otherPrediction.collider, .hitInfo= collisionsVec.back()});
             
-            if (!Hit)
+            if (Hit == false)
                 continue;
             
             if (colliderPtr->IsGenerateHitEvents())
@@ -453,7 +458,7 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             if (collider->GetCollisionResponse() == Collider::CollisionResponse::Ignore) continue;
             if (collider->IsIgnoringAllDynamicColliders()) continue;
             if (colliderPtr->IsIgnoringCollider(collider) || collider->IsIgnoringCollider(colliderPtr)) continue;
-            if (!AABBOverlap(predictedAABB, prediction.AABB))
+            if (AABBOverlap(predictedAABB, prediction.AABB) == false)
                 continue;
 
             Prediction sleepingPrediction = prediction;
@@ -491,7 +496,7 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             additionalPredictions.emplace_back(std::move(sleepingPrediction));
         }
 
-        if (!additionalPredictions.empty())
+        if (additionalPredictions.empty() == false)
         {
             predictionsVec.reserve(predictionsVec.size() + additionalPredictions.size());
             predictionsVec.insert(predictionsVec.end(), std::make_move_iterator(additionalPredictions.begin()), std::make_move_iterator(additionalPredictions.end()));
@@ -660,14 +665,14 @@ void diji::PhysicsWorld::ApplyFrictionOnceWithStaticKinetic(Prediction& predicti
     bool anyCollision = false;
     for (const auto& collisionInfo : prediction.collisionInfoVec)
     {
-        if (!collisionInfo.hasCollision) continue;
+        if (collisionInfo.hasCollision == false) continue;
         anyCollision = true;
         const float absN = std::abs(collisionInfo.normalImpulse);
         totalNormalImpulse += absN;
         weightedTangent += collisionInfo.tangent * absN; 
     }
 
-    if (!anyCollision) return;
+    if (anyCollision == false) return;
 
     // If total normal impulse is essentially zero, fallback to simple frame-based budget
     // (This happens if ResolveCollision didn't set impulses for some reason)
@@ -760,7 +765,7 @@ void diji::PhysicsWorld::ApplyFrictionOnce(Prediction& prediction) const
 
     for (const auto& collisionInfo : prediction.collisionInfoVec)
     {
-        if (!collisionInfo.hasCollision)
+        if (collisionInfo.hasCollision == false)
             continue;
 
         hadCollision = true;
@@ -773,10 +778,10 @@ void diji::PhysicsWorld::ApplyFrictionOnce(Prediction& prediction) const
         }
     }
 
-    if (!hadCollision)
+    if (hadCollision == false)
         return;
 
-    if (prediction.collider->IsOnlyApplyingGroundFriction() && !hasGroundCollision)
+    if (prediction.collider->IsOnlyApplyingGroundFriction() && hasGroundCollision == false)
         return;
 
     const float speed = Helpers::LengthFast(prediction.vel);
@@ -812,7 +817,7 @@ void diji::PhysicsWorld::ApplyFriction(Prediction& prediction)
 
     for (const auto& collisionInfo : prediction.collisionInfoVec)
     {
-        if (!collisionInfo.hasCollision) continue;
+        if (collisionInfo.hasCollision == false) continue;
 
         if (collisionInfo.normal.y < -groundNormalThreshold)
         {

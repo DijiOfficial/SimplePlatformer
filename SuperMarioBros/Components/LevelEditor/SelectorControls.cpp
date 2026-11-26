@@ -10,6 +10,8 @@
 #include "Engine/Singleton/TimerManager.h"
 #include "Engine/Components/TextureComp.h"
 
+#include <cmath>
+
 void superMarioBros::SelectorControls::Init()
 {
     m_TransformCompPtr = GetOwner()->GetRootComponent();
@@ -26,6 +28,36 @@ void superMarioBros::SelectorControls::Init()
     m_CanvasSelector = diji::SceneManager::GetInstance().SpawnGameObject("CanvasSelector", std::move(canvasSelector), sf::Vector2f{ 0.0f, 0.0f });
     diji::SceneManager::GetInstance().SetGameObjectAsCanvasObject(m_CanvasSelector);
     m_CanvasSelector->SetActive(false);
+
+    LevelEditorManager::GetInstance().OnPlayTestToggledEvent.AddListener(this, &SelectorControls::OnPlayTestToggled);
+}
+
+void superMarioBros::SelectorControls::OnPlayTestToggled(const bool isPlayTesting)
+{
+    if (isPlayTesting)
+    {
+        diji::TimerManager::GetInstance().ClearTimer(m_MoveTimerHandle);
+        m_IsInMenu = false;
+        m_DisableMovement = false;
+        m_ShouldExitMenuOnClose = false;
+        m_CanvasSelector->SetActive(false);
+        m_RenderCompPtr->DisableRender();
+        m_SelectorRef->DisablePreview();
+        return;
+    }
+
+    constexpr float tileSize = WorldBuilder::WorldSettings::TILE_SIZE;
+    const sf::Vector2f& exitPosition = LevelEditorManager::GetInstance().GetPlayTestExitPosition();
+    const float x = std::floor(exitPosition.x / tileSize) * tileSize + tileSize * 0.5f;
+    const float y = std::floor(exitPosition.y / tileSize) * tileSize + tileSize * 0.5f;
+    m_TransformCompPtr->SetWorldPosition(sf::Vector2f
+    {
+        std::clamp(x, m_ArenaBoundsHorizontal.x, m_ArenaBoundsHorizontal.y),
+        std::clamp(y, m_ArenaBoundsVertical.x, m_ArenaBoundsVertical.y)
+    });
+
+    m_RenderCompPtr->EnableRender();
+    m_SelectorRef->EnablePreview();
 }
 
 void superMarioBros::SelectorControls::Start()
