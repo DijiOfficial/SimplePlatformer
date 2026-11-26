@@ -43,6 +43,7 @@ namespace superMarioBros
         void SetPendingWarpTarget(const std::string& targetMap);
         void CompleteWarp(const WarpArrival& returnPoint);
         void CancelPendingWarp();
+        void SetBackground(const std::string& background);
         [[nodiscard]] bool TryRemoveMarkerAt(const sf::Vector2i& cell);
         [[nodiscard]] std::string CreateBonusMap();
 

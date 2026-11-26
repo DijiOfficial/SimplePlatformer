@@ -187,6 +187,8 @@
     <ClCompile Include="Components\Enemies\KoopaTroopa.cpp" />
     <ClCompile Include="Components\Enemies\PiranhaPlant.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\BlockSelector.cpp" />
+    <ClCompile Include="Components\LevelEditor\MenuItems\BackgroundSelector.cpp" />
+    <ClCompile Include="Components\LevelEditor\MenuItems\GridMenuItem.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\LoadMenu.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\SaveMenu.cpp" />
     <ClCompile Include="Components\LevelEditor\OnScreenKeyboard\OnScreenKey.cpp" />
@@ -241,6 +243,8 @@
     <ClInclude Include="Components\Enemies\KoopaTroopa.h" />
     <ClInclude Include="Components\Enemies\PiranhaPlant.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\BlockSelector.h" />
+    <ClInclude Include="Components\LevelEditor\MenuItems\BackgroundSelector.h" />
+    <ClInclude Include="Components\LevelEditor\MenuItems\GridMenuItem.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\LoadMenu.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\MenuItem.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\MenuStructs.h" />
@@ -275,6 +279,7 @@
     <ClInclude Include="Core\GameState.h" />
     <ClInclude Include="Helpers\LevelData.h" />
     <ClInclude Include="Helpers\MarioHelpers.h" />
+    <ClInclude Include="Helpers\Vector2iHash.h" />
     <ClInclude Include="Helpers\WorldBuilder.h" />
     <ClInclude Include="Input\CustomCommands.h" />
     <ClInclude Include="Input\LevelEditorCommands.h" />

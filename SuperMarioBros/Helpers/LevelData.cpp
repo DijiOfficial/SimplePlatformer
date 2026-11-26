@@ -50,6 +50,7 @@ namespace
         superMarioBros::MapInfo mapInfo;
         mapInfo.file = mapData.at("file").get<std::string>();
         mapInfo.isBonusArea = mapData.value("type", std::string{}) == "Bonus";
+        mapInfo.background = mapData.value("background", std::string{ mapInfo.isBonusArea ? "black" : "background.png" });
 
         if (mapData.contains("start"))
             mapInfo.start = ParseCell(mapData.at("start"));
@@ -131,6 +132,8 @@ namespace
             mapData["type"] = "Bonus";
         else
             mapData.erase("type");
+
+        mapData["background"] = mapInfo.background;
 
         if (mapInfo.start.has_value())
             mapData["start"] = WriteCell(mapInfo.start.value());

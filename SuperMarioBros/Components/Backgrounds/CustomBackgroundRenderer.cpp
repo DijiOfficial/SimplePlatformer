@@ -20,6 +20,16 @@ void superMarioBros::CustomBackgroundRenderer::Init()
     m_WidthCenter = m_Width * 0.5f;
 }
 
+void superMarioBros::CustomBackgroundRenderer::SetBackgroundTexture(const std::string& filename)
+{
+    m_TextureCompPtr->SetTexture(filename);
+    m_TextureCompPtr->SetOriginToCenter();
+
+    m_TextureHandle = m_TextureCompPtr->GetTexture();
+    m_Width = static_cast<float>(m_TextureHandle.GetSize().x) * m_OwnerPtr->GetObjectScale2D().x;
+    m_WidthCenter = m_Width * 0.5f;
+}
+
 void superMarioBros::CustomBackgroundRenderer::RenderFrame() const
 {
     if (m_Render == false || m_TextureHandle.IsValid() == false)

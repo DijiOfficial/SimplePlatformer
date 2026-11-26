@@ -26,6 +26,7 @@ namespace superMarioBros
         void OnDestroy() override {}
         
         void RenderFrame() const override;
+        void SetBackgroundTexture(const std::string& filename);
 
     private:
         const diji::GameObject* m_OwnerPtr = nullptr;

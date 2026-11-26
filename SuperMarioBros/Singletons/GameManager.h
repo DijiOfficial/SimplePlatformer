@@ -64,6 +64,7 @@ namespace superMarioBros
         [[nodiscard]] bool CanSpawnFireball() const { return m_TotalFireballsInLevel < 2; }
 
         static void SpawnPointsText(const sf::Vector2f& position, const std::string& score);
+        static void ApplyBackground(const std::string& background);
 
         struct PlayerInfo
         {
@@ -129,7 +130,8 @@ namespace superMarioBros
         std::vector<char> m_BonusAreaInfo;
         AreaArrival m_BonusAreaArrival;
         AreaArrival m_BonusAreaReturn;
-        sf::Color m_LevelBackgroundColor;
+        std::string m_LevelBackground;
+        std::string m_BonusAreaBackground;
         int m_BonusAreaRows = 0;
         int m_BonusAreaCols = 0;
         bool m_IsInBonusArea = false;

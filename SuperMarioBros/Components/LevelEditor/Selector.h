@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Engine/Components/Component.h"
+#include "../../Helpers/Vector2iHash.h"
 
 #include <vector>
 
@@ -96,15 +97,6 @@ namespace superMarioBros
         void TryDeletePlacedItem(const GridPos& gridPos);
         void HandleCreatingSpecialBlocks(const char itemChar, const GridPos& gridPos);
 
-        struct Vector2iHash
-        {
-            std::size_t operator()(const sf::Vector2i& v) const noexcept
-            {
-                const std::size_t h1 = std::hash<int>()(v.x);
-                const std::size_t h2 = std::hash<int>()(v.y);
-                return h1 ^ (h2 << 1);
-            }
-        };
         std::unordered_map<sf::Vector2i, char, Vector2iHash> m_GridToCharMap =
         {
             { {0, 0}, '0' },

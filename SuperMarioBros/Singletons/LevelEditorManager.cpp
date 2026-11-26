@@ -28,6 +28,7 @@ void superMarioBros::LevelEditorManager::LoadLevel(const std::string& levelName)
     const auto it = levelData.maps.find(levelName);
     m_CurrentMapInfo = it != levelData.maps.end() ? it->second : MapInfo{};
     m_PendingWarp.reset();
+    GameManager::ApplyBackground(m_CurrentMapInfo.background);
     OnMapInfoChangedEvent.Broadcast();
 }
 
@@ -39,6 +40,7 @@ void superMarioBros::LevelEditorManager::LoadNewLevel()
     m_LevelWidth = -1;
     m_CurrentMapInfo = MapInfo{};
     m_PendingWarp.reset();
+    GameManager::ApplyBackground(m_CurrentMapInfo.background);
     OnLevelLoadedEvent.Broadcast();
     OnMapInfoChangedEvent.Broadcast();
 }
@@ -144,6 +146,12 @@ void superMarioBros::LevelEditorManager::CancelPendingWarp()
     OnMapInfoChangedEvent.Broadcast();
 }
 
+void superMarioBros::LevelEditorManager::SetBackground(const std::string& background)
+{
+    m_CurrentMapInfo.background = background;
+    GameManager::ApplyBackground(background);
+}
+
 bool superMarioBros::LevelEditorManager::TryRemoveMarkerAt(const sf::Vector2i& cell)
 {
     bool isRemoved = false;
@@ -200,7 +208,7 @@ std::string superMarioBros::LevelEditorManager::CreateBonusMap()
     if (mapName.empty())
         throw std::runtime_error("No free bonus area name left.");
 
-    const MapInfo bonusMapInfo{ .file = mapName + ".txt", .isBonusArea = true };  // NOLINT(clang-diagnostic-missing-designated-field-initializers) information is purposely split
+    const MapInfo bonusMapInfo{ .file = mapName + ".txt", .isBonusArea = true, .background = "black" };  // NOLINT(clang-diagnostic-missing-designated-field-initializers) information is purposely split
     LevelData::SaveMapInfo(mapName, bonusMapInfo);
 
     std::ofstream file(MAPS_PATH + bonusMapInfo.file);

@@ -239,6 +239,9 @@
     <ClInclude Include="Helpers\MarioHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Helpers\Vector2iHash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Input\CustomCommands.h">
       <Filter>Header Files</Filter>
     </ClInclude>

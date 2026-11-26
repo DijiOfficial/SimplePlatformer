@@ -49,6 +49,7 @@ namespace superMarioBros
         std::optional<WarpArrival> arrival;
         std::optional<WarpEntrance> exit;
         std::vector<WarpInfo> warps;
+        std::string background = "background.png";
     };
 
     struct LevelEntry

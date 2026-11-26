@@ -7,6 +7,7 @@
 #include "../../Components/LevelEditor/SelectorControls.h"
 #include "../../Components/LevelEditor/Selector.h"
 #include "../../Components/LevelEditor/MenuItems/BlockSelector.h"
+#include "../../Components/LevelEditor/MenuItems/BackgroundSelector.h"
 #include "../../Components/LevelEditor/OnScreenKeyboard/OnScreenKeyboardManager.h"
 #include "../../Components/Player/CameraClamping.h"
 #include "../../Components/Player/PlayerInputManager.h"
@@ -136,6 +137,21 @@ void SceneLoader::LevelEditor()
     scene->SetGameObjectAsCanvasObject(itemChoices);
     itemChoices->AttachToObject(items, true);
 
+    const auto backgroundMenu = scene->CreateGameObject("UI_Background");
+    backgroundMenu->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.175f, menuYPosition });
+    backgroundMenu->AddComponent<TextureComp>("graphics/level_editor_background.png");
+    backgroundMenu->AddComponent<Render>(renderRatio);
+    const auto& backgroundSelector = backgroundMenu->AddComponent<superMarioBros::BackgroundSelector>();
+    backgroundSelector->SetSelectorControls(selectorControlsComp);
+    scene->SetGameObjectAsCanvasObject(backgroundMenu);
+
+    const auto backgroundChoices = scene->CreateGameObject("UI_BackgroundChoice");
+    backgroundChoices->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.175f, menuYPosition * 3 });
+    backgroundChoices->AddComponent<TextureComp>("graphics/level_editor_backgrounds.png");
+    backgroundChoices->AddComponent<Render>(renderRatio);
+    scene->SetGameObjectAsCanvasObject(backgroundChoices);
+    backgroundChoices->AttachToObject(backgroundMenu, true);
+
     // const auto play = scene->CreateGameObject("Z_UI_Play");
     // play->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.15f, menuYPosition });
     // play->AddComponent<TextureComp>("graphics/level_editor_play.png");
@@ -153,6 +169,7 @@ void SceneLoader::LevelEditor()
     menuTransforms.push_back(download->GetComponent<superMarioBros::MenuItem>());
     menuTransforms.push_back(save->GetComponent<superMarioBros::MenuItem>());
     menuTransforms.push_back(items->GetComponent<superMarioBros::MenuItem>());
+    menuTransforms.push_back(backgroundMenu->GetComponent<superMarioBros::MenuItem>());
     // menuTransforms.push_back(play->GetComponent<superMarioBros::MenuItem>());
     // menuTransforms.push_back(secondItem->GetComponent<superMarioBros::MenuItem>());
     selector->GetComponent<superMarioBros::SelectorControls>()->SetMenuTransform(menuTransforms);

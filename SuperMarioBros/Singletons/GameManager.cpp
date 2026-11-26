@@ -7,6 +7,7 @@
 #include "Engine/Core/Renderer.h"
 #include "Engine/Interfaces/ISoundSystem.h"
 #include "../Core/GameState.h"
+#include "../Components/Backgrounds/CustomBackgroundRenderer.h"
 #include "../Components/Other/HUD/PointsBehaviour.h"
 #include "../Components/Player/PlayerCharacter.h"
 
@@ -30,6 +31,11 @@ void superMarioBros::GameManager::LoadLevel()
 
     const MapInfo& mapInfo = GetMapInfo(isTransitionLevel ? m_TransitionMapName : GetCurrentLevelEntry().map);
     m_StartPosition = static_cast<sf::Vector2u>(static_cast<sf::Vector2f>(mapInfo.start.value()) * WorldBuilder::WorldSettings::TILE_SIZE);
+    m_LevelBackground = mapInfo.background;
+    diji::TimerManager::GetInstance().DelayUntilNextTick([background = m_LevelBackground]
+    {
+        ApplyBackground(background);
+    });
 
     ReadLevelInfo(MAPS_PATH + mapInfo.file);
     const diji::GameObject* world = WorldBuilder::CreateWorld(m_LevelInfo, m_Rows, m_Cols);
@@ -177,6 +183,22 @@ void superMarioBros::GameManager::SpawnPointsText(const sf::Vector2f& position, 
     diji::SceneManager::GetInstance().OverwriteCanvasObject("ZZ_pointsText", std::move(pointsText), screenPos);
 }
 
+void superMarioBros::GameManager::ApplyBackground(const std::string& background)
+{
+    auto* backgroundRendererComp = diji::SceneManager::GetInstance().GetGameObject("A_StaticBackground")->GetComponent<CustomBackgroundRenderer>();
+
+    if (background == "black")
+    {
+        diji::Renderer::GetInstance().SetBackgroundColor(sf::Color::Black);
+        backgroundRendererComp->DisableRender();
+        return;
+    }
+
+    diji::Renderer::GetInstance().SetBackgroundColor(sf::Color{ 92, 148, 252 });
+    backgroundRendererComp->SetBackgroundTexture("graphics/" + background);
+    backgroundRendererComp->EnableRender();
+}
+
 void superMarioBros::GameManager::AddLife()
 {
     ++m_PlayerInfo.totalLives;
@@ -258,9 +280,7 @@ void superMarioBros::GameManager::HideCurrentArea()
     const float bonusAreaCenterX = (static_cast<float>(BONUS_AREA_COLUMN_OFFSET) + static_cast<float>(m_BonusAreaCols) * 0.5f) * WorldBuilder::WorldSettings::TILE_SIZE;
     camera->ForceCameraPosition(sf::Vector2f{ bonusAreaCenterX, camera->GetCameraView().getCenter().y });
 
-    m_LevelBackgroundColor = diji::Renderer::GetInstance().GetBackgroundColor();
-    diji::Renderer::GetInstance().SetBackgroundColor(sf::Color::Black);
-    sceneManager.GetGameObject("A_StaticBackground")->GetComponent<diji::Render>()->DisableRender();
+    ApplyBackground(m_BonusAreaBackground);
     sceneManager.GetGameObject("B_Background")->GetComponent<diji::Render>()->DisableRender();
 }
 
@@ -280,8 +300,7 @@ superMarioBros::AreaArrival superMarioBros::GameManager::ShowNextArea()
 
     sceneManager.GetMainCamera()->GetComponent<diji::Camera>()->ReleaseForcedCameraPosition();
 
-    diji::Renderer::GetInstance().SetBackgroundColor(m_LevelBackgroundColor);
-    sceneManager.GetGameObject("A_StaticBackground")->GetComponent<diji::Render>()->EnableRender();
+    ApplyBackground(m_LevelBackground);
     sceneManager.GetGameObject("B_Background")->GetComponent<diji::Render>()->EnableRender();
     diji::ServiceLocator::GetSoundSystem().AddSoundRequest("sound/LevelMusic.mp3", true);
 
@@ -301,6 +320,7 @@ void superMarioBros::GameManager::LoadBonusArea(const WarpInfo& warp)
 {
     const MapInfo& bonusMapInfo = GetMapInfo(warp.targetMap);
 
+    m_BonusAreaBackground = bonusMapInfo.background;
     ReadLevelFile(MAPS_PATH + bonusMapInfo.file, m_BonusAreaInfo, m_BonusAreaRows, m_BonusAreaCols);
 
     m_BonusAreaWorldGameObject = WorldBuilder::CreateWorld(m_BonusAreaInfo, m_BonusAreaRows, m_BonusAreaCols, BONUS_AREA_COLUMN_OFFSET);

@@ -55,6 +55,7 @@
             ]
         },
         "Level 1-2": {
+            "background": "black",
             "file": "Level 1-2.txt",
             "start": [
                 2,

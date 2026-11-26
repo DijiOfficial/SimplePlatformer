@@ -241,6 +241,7 @@ void superMarioBros::SelectorControls::ResetSpecialMenu()
     m_DisableMovement = false;
     m_IsInMenu = true;
     m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->CloseMenu();
+    ChooseMenuItem(m_CurrentMenuIndex);
 
     if (m_CurrentMenuIndex == 2 || m_ShouldExitMenuOnClose)
     {
