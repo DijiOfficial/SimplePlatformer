@@ -8,6 +8,7 @@
 #include "../../Singletons/LevelEditorManager.h"
 #include "../Backgrounds/BackgroundHandler.h"
 #include "../Enemies/BaseEnemy.h"
+#include "Engine/Collision/Collider.h"
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/SpriteRenderComp.h"
 #include "Engine/Core/GameObject.h"
@@ -27,7 +28,10 @@ void superMarioBros::Selector::Init()
     CreateBackgroundTexture();
     
     m_ItemTemplateUPtr = std::make_unique<diji::GameObject>();
-    m_TemplateSpriteRenderComp = m_ItemTemplateUPtr->AddComponent<diji::SpriteRenderComponent>("graphics/tiles_sheet_selection.png", sf::Vector2i{ 50, 50 }, 1, 1.0f);
+    m_TemplateSpriteRenderComp = m_ItemTemplateUPtr->AddComponent<diji::SpriteRenderComponent>(TILES_SELECTION_SHEET, sf::Vector2i{ 50, 50 }, 1, 1.0f);
+
+    m_EnemyTemplateUPtr = std::make_unique<diji::GameObject>();
+    m_EnemyTemplateSpriteRenderComp = m_EnemyTemplateUPtr->AddComponent<diji::SpriteRenderComponent>(ENEMIES_SELECTION_SHEET, sf::Vector2i{ 50, 50 }, 1, 1.0f);
 
     LevelEditorManager::GetInstance().OnLevelLoadedEvent.AddListener(this, &Selector::CreateAllSpecialBlocks);
     LevelEditorManager::GetInstance().OnMapInfoChangedEvent.AddListener(this, &Selector::RefreshMarkers);
@@ -47,6 +51,7 @@ void superMarioBros::Selector::Start()
 
 void superMarioBros::Selector::SetFramePosition(const int frameX, const int frameY)
 {
+    SetSelectedSheet(false);
     m_SpriteRenderComp->SetStartingFrame(frameX, frameY);
     m_SpriteRenderComp->UpdateFrame();
     m_CurrentFramePos.x = frameX;
@@ -78,7 +83,7 @@ void superMarioBros::Selector::TryPlaceItem()
         return;
     }
 
-    const char itemChar = m_GridToCharMap[m_CurrentFramePos];
+    const char itemChar = GetSelectedItemChar();
     if (itemChar == '\0')
         return;
 
@@ -86,6 +91,12 @@ void superMarioBros::Selector::TryPlaceItem()
     if (itemChar == 'r')
     {
         TryPlaceCheckPoint(gridPos);
+        return;
+    }
+
+    if (m_IsEnemySelected)
+    {
+        PlaceEnemy(itemChar, gridPos);
         return;
     }
 
@@ -111,7 +122,7 @@ void superMarioBros::Selector::TryHoldPlaceItem()
         return;
     }
 
-    if (m_IsHolding == false && m_GridToCharMap[m_CurrentFramePos] == 'r')
+    if (m_IsHolding == false && GetSelectedItemChar() == 'r')
         return;
 
     m_IsHolding = m_IsHolding == false;
@@ -120,25 +131,49 @@ void superMarioBros::Selector::TryHoldPlaceItem()
         m_StartingPos = m_TransformCompPtr->GetWorldPosition();
         m_StartingRow = static_cast<int>(m_StartingPos.y - 25.0f) / 50;
         m_StartingCol = static_cast<int>(m_StartingPos.x - 25.0f) / 50;
-        m_PreviewItemsMap[{ .row= m_StartingRow, .col= m_StartingCol }]= diji::SceneManager::GetInstance().SpawnGameObject("X_PreviewTexture", m_ItemTemplateUPtr.get(), m_StartingPos);
+        m_PreviewItemsMap[{ .row= m_StartingRow, .col= m_StartingCol }]= diji::SceneManager::GetInstance().SpawnGameObject("X_PreviewTexture", GetPreviewTemplate(), m_StartingPos + GetPreviewOffset());
         return;
     }
 
-    const char itemChar = m_GridToCharMap[m_CurrentFramePos];
+    const char itemChar = GetSelectedItemChar();
     int cols = 0;
+    std::vector<GridPos> piranhaPlantCells;
 
     for (auto& [gridPos, preview] : m_PreviewItemsMap)
     {
-        TryDeletePlacedItem(gridPos);
-        
-        cols = LevelEditorManager::GetInstance().SetCharAtPosition(gridPos.col, gridPos.row, itemChar);
-        if (const auto& placedObject = GameManager::GetInstance().PlaceNewItem(gridPos.col, gridPos.row, itemChar))
-            m_PlacedItemsMap[gridPos].insert(placedObject);
-        
         preview->Destroy();
+
+        if (itemChar == 's')
+        {
+            piranhaPlantCells.push_back(gridPos);
+            continue;
+        }
+
+        TryDeletePlacedItem(gridPos);
+
+        cols = LevelEditorManager::GetInstance().SetCharAtPosition(gridPos.col, gridPos.row, itemChar);
+        for (const diji::GameObject* placedObject : GameManager::GetInstance().PlaceNewItem(gridPos.col, gridPos.row, itemChar))
+        {
+            m_PlacedItemsMap[gridPos].insert(placedObject);
+            if (m_IsEnemySelected)
+                PrepareEnemyForEditing(placedObject);
+        }
     }
 
     m_PreviewItemsMap.clear();
+
+    if (itemChar == 's')
+    {
+        std::unordered_set<GridPos, GridPosHasher> pipeTops;
+        for (const GridPos& cell : piranhaPlantCells)
+        {
+            const std::optional<GridPos> pipeTop = GetPipeTopLeft(cell);
+            if (pipeTop.has_value() && pipeTops.insert(pipeTop.value()).second)
+                TryPlacePiranhaPlant(pipeTop.value());
+        }
+        return;
+    }
+
     m_BackgroundHandlerRef->TempReload(cols, LevelEditorManager::GetInstance().GetLevelInfo());
 }
 
@@ -181,7 +216,7 @@ void superMarioBros::Selector::UpdatePreviewItems()
                 continue;
 
             sf::Vector2f worldPos{ col * 50.0f + 25.0f, row * 50.0f + 25.0f };
-            m_PreviewItemsMap[cell]= diji::SceneManager::GetInstance().SpawnGameObject("X_PreviewTexture", m_ItemTemplateUPtr.get(), worldPos);
+            m_PreviewItemsMap[cell]= diji::SceneManager::GetInstance().SpawnGameObject("X_PreviewTexture", GetPreviewTemplate(), worldPos + GetPreviewOffset());
         }
     }
 
@@ -213,10 +248,86 @@ sf::Vector2i superMarioBros::Selector::GetGridPosFromChar(const char itemChar) c
     return sf::Vector2i{ -1, -1 };
 }
 
+void superMarioBros::Selector::SelectEnemy(const sf::Vector2i& frame)
+{
+    const auto it = m_EnemyGridToCharMap.find(frame);
+    if (it == m_EnemyGridToCharMap.end())
+        throw std::runtime_error("Invalid enemy selected at grid position: " + std::to_string(frame.x) + ", " + std::to_string(frame.y));
+
+    SetSelectedSheet(true);
+    m_SelectedEnemyChar = it->second;
+    m_CurrentFramePos = frame;
+
+    m_SpriteRenderComp->SetStartingFrame(frame.x, frame.y);
+    m_SpriteRenderComp->UpdateFrame();
+    m_EnemyTemplateSpriteRenderComp->SetStartingFrame(frame.x, frame.y);
+    m_EnemyTemplateSpriteRenderComp->UpdateFrame();
+
+    m_TextureGO->GetRootComponent()->SetWorldPosition(m_TransformCompPtr->GetWorldPosition() + GetPreviewOffset());
+}
+
+void superMarioBros::Selector::SelectItemFromChar(const char itemChar)
+{
+    for (const auto& [frame, enemyChar] : m_EnemyGridToCharMap)
+    {
+        if (enemyChar == itemChar)
+        {
+            SelectEnemy(frame);
+            return;
+        }
+    }
+
+    const sf::Vector2i frame = GetGridPosFromChar(itemChar);
+    SetFramePosition(frame.x, frame.y);
+}
+
+char superMarioBros::Selector::GetSelectedItemChar() const
+{
+    if (m_IsEnemySelected)
+        return m_SelectedEnemyChar;
+
+    const auto it = m_GridToCharMap.find(m_CurrentFramePos);
+    return it != m_GridToCharMap.end() ? it->second : '\0';
+}
+
+const diji::GameObject* superMarioBros::Selector::GetPreviewTemplate() const
+{
+    return m_IsEnemySelected ? m_EnemyTemplateUPtr.get() : m_ItemTemplateUPtr.get();
+}
+
+sf::Vector2f superMarioBros::Selector::GetPreviewOffset() const
+{
+    const char itemChar = GetSelectedItemChar();
+    if (itemChar == 'h' || itemChar == 'p')
+        return ENEMY_OFFSET;
+
+    return sf::Vector2f{ 0.0f, 0.0f };
+}
+
+void superMarioBros::Selector::SetSelectedSheet(const bool isEnemySheet)
+{
+    if (m_IsEnemySelected == isEnemySheet) return;
+
+    m_IsEnemySelected = isEnemySheet;
+    m_SpriteRenderComp->SetTexture(isEnemySheet ? ENEMIES_SELECTION_SHEET : TILES_SELECTION_SHEET);
+
+    if (isEnemySheet == false)
+        m_TextureGO->GetRootComponent()->SetWorldPosition(m_TransformCompPtr->GetWorldPosition());
+}
+
+void superMarioBros::Selector::PrepareEnemyForEditing(const diji::GameObject* enemy)
+{
+    auto* enemyComp = enemy->GetComponent<BaseEnemy>();
+    if (enemyComp == nullptr) return;
+
+    enemyComp->SetActive(true);
+    enemyComp->Pause();
+}
+
 void superMarioBros::Selector::CreateBackgroundTexture()
 {
     auto texture = std::make_unique<diji::GameObject>();
-    const auto& sprite = texture->AddComponent<diji::SpriteRenderComponent>("graphics/tiles_sheet_selection.png");
+    const auto& sprite = texture->AddComponent<diji::SpriteRenderComponent>(TILES_SELECTION_SHEET);
     sprite->SetFrameSize(sf::Vector2i{ 50, 50 });
     sprite->SetTotalAnimationFrames(1);
     sprite->Pause();
@@ -268,9 +379,9 @@ bool superMarioBros::Selector::HandleSpecialItems(const char item, const GridPos
 void superMarioBros::Selector::CreateItemAtGridPos(const char itemChar, const GridPos& gridPos)
 {
     const int cols = LevelEditorManager::GetInstance().SetCharAtPosition(gridPos.col, gridPos.row, itemChar);
-    if (const auto& placedObject = GameManager::GetInstance().PlaceNewItem(gridPos.col, gridPos.row, itemChar))
+    for (const diji::GameObject* placedObject : GameManager::GetInstance().PlaceNewItem(gridPos.col, gridPos.row, itemChar))
         m_PlacedItemsMap[gridPos].insert(placedObject);
-    
+
     m_BackgroundHandlerRef->TempReload(cols, LevelEditorManager::GetInstance().GetLevelInfo()); //todo: fix this  function
 }
 
@@ -303,10 +414,10 @@ void superMarioBros::Selector::CreateAllSpecialBlocks()
     if (isPlayTesting)
         return;
 
-    for (const auto enemyCol : GameManager::GetInstance().GetEnemyColliders())
+    for (const auto& placedObjects : m_PlacedItemsMap | std::views::values)
     {
-        enemyCol->SetActive(true);  
-        enemyCol->GetOwner()->GetComponent<BaseEnemy>()->Pause();
+        for (const diji::GameObject* placedObject : placedObjects)
+            PrepareEnemyForEditing(placedObject);
     }
 }
 
@@ -315,7 +426,10 @@ void superMarioBros::Selector::TryDeletePlacedItem(const GridPos& gridPos)
     if (m_PlacedItemsMap[gridPos].empty() == false)
     {
         for (const auto& gameObject : m_PlacedItemsMap[gridPos])
+        {
+            GameManager::GetInstance().RemoveEnemyCollider(gameObject->GetComponent<diji::Collider>());
             gameObject->Destroy();
+        }
         m_PlacedItemsMap.erase(gridPos);
     }
 }
@@ -364,8 +478,61 @@ void superMarioBros::Selector::RemoveAllCheckPoints()
     }
 }
 
+void superMarioBros::Selector::PlaceEnemy(const char enemyChar, const GridPos& gridPos)
+{
+    if (enemyChar == 's')
+    {
+        if (const std::optional<GridPos> pipeTop = GetPipeTopLeft(gridPos))
+            TryPlacePiranhaPlant(pipeTop.value());
+        return;
+    }
+
+    TryDeletePlacedItem(gridPos);
+    CreateItemAtGridPos(enemyChar, gridPos);
+
+    for (const diji::GameObject* placedObject : m_PlacedItemsMap[gridPos])
+        PrepareEnemyForEditing(placedObject);
+}
+
+void superMarioBros::Selector::TryPlacePiranhaPlant(const GridPos& gridPos)
+{
+    TryDeletePlacedItem(gridPos);
+    CreateItemAtGridPos('s', gridPos);
+
+    for (const diji::GameObject* placedObject : m_PlacedItemsMap[gridPos])
+        PrepareEnemyForEditing(placedObject);
+}
+
+std::optional<superMarioBros::Selector::GridPos> superMarioBros::Selector::GetPipeTopLeft(const GridPos& gridPos) const
+{
+    const LevelEditorManager& levelEditorManager = LevelEditorManager::GetInstance();
+    int col = gridPos.col;
+    int row = gridPos.row;
+    char tile = levelEditorManager.GetLevelInfoAtPos(col, row);
+
+    if (tile == '4' || tile == '6')
+    {
+        --col;
+        tile = levelEditorManager.GetLevelInfoAtPos(col, row);
+    }
+
+    while (tile == '5' && row > 0)
+    {
+        --row;
+        tile = levelEditorManager.GetLevelInfoAtPos(col, row);
+    }
+
+    if (tile == '3' || tile == 's')
+        return GridPos{ .row = row, .col = col };
+
+    return std::nullopt;
+}
+
 bool superMarioBros::Selector::IsMarkerToolSelected() const
 {
+    if (m_IsEnemySelected)
+        return false;
+
     return m_CurrentFramePos == START_TOOL_FRAME || m_CurrentFramePos == WARP_TOOL_FRAME || m_CurrentFramePos == ARRIVAL_TOOL_FRAME;
 }
 

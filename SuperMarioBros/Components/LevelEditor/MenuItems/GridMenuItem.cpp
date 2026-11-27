@@ -59,6 +59,26 @@ void superMarioBros::GridMenuItem::Move(const sf::Vector2f& direction, const boo
     UpdateSelectorPosition();
 }
 
+void superMarioBros::GridMenuItem::SelectNextOrPrevious(const bool isNext)
+{
+    const int count = m_GridWidth * m_GridHeight;
+    if (count == 0) return;
+
+    int nextIndex = m_CurrentIndex;
+    for (int step = 0; step < count; ++step)
+    {
+        nextIndex = isNext ? (nextIndex + 1) % count : (nextIndex - 1 + count) % count;
+        if (IsCellSelectable(nextIndex))
+            break;
+    }
+
+    if (IsCellSelectable(nextIndex) == false) return;
+
+    m_CurrentIndex = nextIndex;
+    UpdateSelectorPosition();
+    (void)Select();
+}
+
 bool superMarioBros::GridMenuItem::Return()
 {
     CloseMenu();

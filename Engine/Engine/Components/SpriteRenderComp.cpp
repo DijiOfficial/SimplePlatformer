@@ -29,6 +29,12 @@ diji::SpriteRenderComponent::SpriteRenderComponent(GameObject* ownerPtr, const s
     m_Sprite.setOrigin(sf::Vector2f{ static_cast<float>(m_FrameSize.x) * 0.5f, static_cast<float>(m_FrameSize.y) * 0.5f });
 }
 
+void diji::SpriteRenderComponent::SetTexture(const std::string& texturePath)
+{
+    m_Sprite.setTexture(ResourceManager::GetInstance().LoadTexture(texturePath).Get());
+    UpdateFrame();
+}
+
 void diji::SpriteRenderComponent::Init()
 {
     m_TransformCompPtr = GetOwner()->GetRootComponent();

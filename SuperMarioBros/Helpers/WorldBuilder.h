@@ -32,7 +32,7 @@ namespace superMarioBros
 
         static void Init();
         static diji::GameObject* CreateWorld(const std::vector<char>& levelInfo, const int& rows, const int& cols, int colOffset = 0);
-        [[nodiscard]] static const diji::GameObject* CreateTileObject(const diji::GameObject* world, int row, int col, char tile);
+        [[nodiscard]] static std::vector<const diji::GameObject*> CreateTileObject(const diji::GameObject* world, int row, int col, char tile);
         static void SpawnWarpEntrance(const diji::GameObject* world, const sf::Vector2i& cell, diji::Directions direction, int colOffset = 0);
         static void SpawnWarpArrival(const diji::GameObject* world, const sf::Vector2i& cell, WarpExitType exitType, int colOffset = 0);
         [[nodiscard]] static sf::Vector2f GetWarpArrivalPosition(const sf::Vector2i& cell, WarpExitType exitType, int colOffset = 0);
@@ -45,6 +45,6 @@ namespace superMarioBros
         static void SpawnForegroundTile(const diji::GameObject* world, int row, int col, const sf::Vector2i& atlasPos);
         static void SpawnVerticalPipeOverlay(const diji::GameObject* world, int row, int col);
         static void SpawnBonusAreaTrigger(const diji::GameObject* world, const sf::Vector2f& center, const sf::Vector2f& size, diji::Directions entranceDirection);
-        inline static const diji::GameObject* m_LastGameObjectCreated = nullptr;
+        inline static std::vector<const diji::GameObject*> m_LastGameObjectsCreated;
     };
 }

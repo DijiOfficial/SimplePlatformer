@@ -8,6 +8,7 @@
 #include "../../Components/LevelEditor/Selector.h"
 #include "../../Components/LevelEditor/MenuItems/BlockSelector.h"
 #include "../../Components/LevelEditor/MenuItems/BackgroundSelector.h"
+#include "../../Components/LevelEditor/MenuItems/EnemySelector.h"
 #include "../../Components/LevelEditor/MenuItems/PlayMenu.h"
 #include "../../Components/LevelEditor/OnScreenKeyboard/OnScreenKeyboardManager.h"
 #include "../../Helpers/WorldBuilder.h"
@@ -122,8 +123,24 @@ void SceneLoader::LevelEditor()
     scene->SetGameObjectAsCanvasObject(itemChoices);
     itemChoices->AttachToObject(items, true);
 
+    const auto enemies = scene->CreateGameObject("UI_Enemies");
+    enemies->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.175f, menuYPosition });
+    enemies->AddComponent<TextureComp>("graphics/level_editor_enemies.png");
+    enemies->AddComponent<Render>(renderRatio);
+    const auto& enemySelector = enemies->AddComponent<superMarioBros::EnemySelector>();
+    enemySelector->SetSelectorControls(selectorControlsComp);
+    enemySelector->SetSelector(selectorComp);
+    scene->SetGameObjectAsCanvasObject(enemies);
+
+    const auto enemyChoices = scene->CreateGameObject("UI_EnemiesChoice");
+    enemyChoices->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.175f, menuYPosition * 3 });
+    enemyChoices->AddComponent<TextureComp>("graphics/enemies_sheet_selection.png");
+    enemyChoices->AddComponent<Render>(renderRatio);
+    scene->SetGameObjectAsCanvasObject(enemyChoices);
+    enemyChoices->AttachToObject(enemies, true);
+
     const auto backgroundMenu = scene->CreateGameObject("UI_Background");
-    backgroundMenu->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.175f, menuYPosition });
+    backgroundMenu->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.200f, menuYPosition });
     backgroundMenu->AddComponent<TextureComp>("graphics/level_editor_background.png");
     backgroundMenu->AddComponent<Render>(renderRatio);
     const auto& backgroundSelector = backgroundMenu->AddComponent<superMarioBros::BackgroundSelector>();
@@ -131,14 +148,14 @@ void SceneLoader::LevelEditor()
     scene->SetGameObjectAsCanvasObject(backgroundMenu);
 
     const auto backgroundChoices = scene->CreateGameObject("UI_BackgroundChoice");
-    backgroundChoices->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.175f, menuYPosition * 3 });
+    backgroundChoices->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.200f, menuYPosition * 3 });
     backgroundChoices->AddComponent<TextureComp>("graphics/level_editor_backgrounds.png");
     backgroundChoices->AddComponent<Render>(renderRatio);
     scene->SetGameObjectAsCanvasObject(backgroundChoices);
     backgroundChoices->AttachToObject(backgroundMenu, true);
 
     const auto play = scene->CreateGameObject("UI_Play");
-    play->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.200f, menuYPosition });
+    play->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.225f, menuYPosition });
     play->AddComponent<TextureComp>("graphics/level_editor_play.png");
     play->AddComponent<Render>(renderRatio);
     play->AddComponent<superMarioBros::PlayMenu>();
@@ -154,6 +171,7 @@ void SceneLoader::LevelEditor()
     menuTransforms.push_back(download->GetComponent<superMarioBros::MenuItem>());
     menuTransforms.push_back(save->GetComponent<superMarioBros::MenuItem>());
     menuTransforms.push_back(items->GetComponent<superMarioBros::MenuItem>());
+    menuTransforms.push_back(enemies->GetComponent<superMarioBros::MenuItem>());
     menuTransforms.push_back(backgroundMenu->GetComponent<superMarioBros::MenuItem>());
     menuTransforms.push_back(play->GetComponent<superMarioBros::MenuItem>());
     // menuTransforms.push_back(secondItem->GetComponent<superMarioBros::MenuItem>());
@@ -187,6 +205,7 @@ void SceneLoader::BindLevelEditorCommands()
     const auto& sceneManager = SceneManager::GetInstance();
     GameObject* selector = sceneManager.GetGameObject("X_SelectorPlayer");
     GameObject* items = sceneManager.GetGameObject("Z_UI_Items");
+    GameObject* enemies = sceneManager.GetGameObject("UI_Enemies");
 
     auto& input = InputManager::GetInstance();
 
@@ -234,6 +253,9 @@ void SceneLoader::BindLevelEditorCommands()
     
     input.BindCommand<superMarioBros::SelectNextBlock>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::RightShoulder, items, true);
     input.BindCommand<superMarioBros::SelectNextBlock>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::LeftShoulder, items, false);
+
+    input.BindCommand<superMarioBros::SelectNextBlock>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::RightTrigger, enemies, true);
+    input.BindCommand<superMarioBros::SelectNextBlock>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::LeftTrigger, enemies, false);
 
     input.BindCommand<superMarioBros::CopyBlockHoveredPosition>(PlayerIdx::PLAYER1, KeyState::PRESSED, Controller::Button::X, items);
 }

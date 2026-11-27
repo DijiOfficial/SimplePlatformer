@@ -30,6 +30,7 @@ namespace superMarioBros
         virtual void Move(const sf::Vector2f& direction, bool isStart) = 0;
         [[nodiscard]] virtual bool Select() = 0;
         [[nodiscard]] virtual bool Return() { return false; }
+        [[nodiscard]] virtual bool IsExitingMenuOnClose() const { return false; }
         
     protected:
         diji::GameObject* m_MenuArrow = nullptr;

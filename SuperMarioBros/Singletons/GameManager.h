@@ -10,7 +10,6 @@
 #include <unordered_map>
 #include <vector>
 #include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/Color.hpp>
 
 namespace diji
 {
@@ -93,8 +92,9 @@ namespace superMarioBros
         [[nodiscard]] int GetHighScoreFromFile() const;
         void SaveHighScoreToFile() const;
         void AddEnemyCollider(diji::Collider* collider) { m_EnemyColliders.insert(collider); }
+        void RemoveEnemyCollider(diji::Collider* collider) { m_EnemyColliders.erase(collider); }
         void CreateEmptyWorld();
-        const diji::GameObject* PlaceNewItem(int x, int y, char itemID) const;
+        [[nodiscard]] std::vector<const diji::GameObject*> PlaceNewItem(int x, int y, char itemID) const;
         void AttachToWorldObject(const diji::GameObject* object) const;
 
         static constexpr int BONUS_AREA_COLUMN_OFFSET = -80;
@@ -116,7 +116,7 @@ namespace superMarioBros
         sf::Vector2u m_StartPosition;
         std::vector<char> m_LevelInfo;
 		// todo: remove string literal
-        std::string m_HighScoreFileName = "../SuperMarioBros/Resources/levels/highscores.txt";
+        const std::string m_HighScoreFileName = "../SuperMarioBros/Resources/levels/highscores.txt";
         int m_Rows = 0;
         int m_Cols = 0;
         int m_TotalFireballsInLevel = 0;

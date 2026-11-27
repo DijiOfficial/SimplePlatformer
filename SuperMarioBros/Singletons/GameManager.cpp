@@ -298,7 +298,7 @@ int superMarioBros::GameManager::GetHighScoreFromFile() const
 
 void superMarioBros::GameManager::SaveHighScoreToFile() const
 {
-    // I can probably optimize this by reading it at the start of the program and keeping track of the high score until the end of the program avoiding file I/O multiple times
+    // todo: I can probably optimize this by reading it at the start of the program and keeping track of the high score until the end of the program avoiding file I/O multiple times
     const int currentHigh = GetHighScoreFromFile();
     if (m_PlayerInfo.totalScore <= currentHigh)
         return;
@@ -317,7 +317,7 @@ void superMarioBros::GameManager::CreateEmptyWorld()
     m_WorldGameObject = diji::SceneManager::GetInstance().SpawnGameObject("WorldLevel", std::make_unique<diji::GameObject>(), sf::Vector2f{ 0.0f, 0.0f });
 }
 
-const diji::GameObject* superMarioBros::GameManager::PlaceNewItem(const int x, const int y, const char itemID) const
+std::vector<const diji::GameObject*> superMarioBros::GameManager::PlaceNewItem(const int x, const int y, const char itemID) const
 {
     return WorldBuilder::CreateTileObject(m_WorldGameObject, y, x, itemID);
 }

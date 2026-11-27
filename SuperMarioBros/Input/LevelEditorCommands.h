@@ -4,6 +4,7 @@
 namespace superMarioBros
 {
     class BlockSelector;
+    class GridMenuItem;
     class SelectorControls;
 }
 
@@ -83,7 +84,7 @@ namespace superMarioBros
         
     private:
         bool m_IsNext;
-        BlockSelector* m_Selector = nullptr;
+        GridMenuItem* m_Selector = nullptr;
     };
 
     class ExitPlayTest final : public diji::GameActorCommands

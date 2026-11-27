@@ -27,6 +27,7 @@ namespace diji
 
         void RenderFrame() const override;
 
+        void SetTexture(const std::string& texturePath);
         void SetFrameSize(const sf::Vector2i& size);
         void SetFrameSizeX(int x);
         void SetFrameSizeY(int y);

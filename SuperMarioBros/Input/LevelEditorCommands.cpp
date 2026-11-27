@@ -66,12 +66,12 @@ superMarioBros::SelectNextBlock::SelectNextBlock(diji::GameObject* actor, const 
     : GameActorCommands { actor }
     , m_IsNext { isNext }
 {
-    m_Selector = actor->GetComponent<BlockSelector>();
+    m_Selector = actor->GetComponent<GridMenuItem>();
 }
 
 void superMarioBros::SelectNextBlock::Execute()
 {
-    m_Selector->SelectNextOrPreviousBlock(m_IsNext);
+    m_Selector->SelectNextOrPrevious(m_IsNext);
 }
 
 superMarioBros::CopyBlockHoveredPosition::CopyBlockHoveredPosition(diji::GameObject* actor)

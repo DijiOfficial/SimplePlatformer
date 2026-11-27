@@ -2,6 +2,8 @@
 #include "Engine/Components/Component.h"
 #include "../../Helpers/Vector2iHash.h"
 
+#include <optional>
+#include <string>
 #include <vector>
 
 namespace diji
@@ -43,22 +45,32 @@ namespace superMarioBros
         void EnablePreview() const;
         void DisablePreview() const;
         [[nodiscard]] sf::Vector2i GetGridPosFromChar(char itemChar) const;
+        void SelectEnemy(const sf::Vector2i& frame);
+        [[nodiscard]] bool IsEnemyCell(const sf::Vector2i& frame) const { return m_EnemyGridToCharMap.contains(frame); }
+        void SelectItemFromChar(char itemChar);
 
     private:
         static constexpr sf::Vector2i START_TOOL_FRAME{ 2, 4 };
         static constexpr sf::Vector2i WARP_TOOL_FRAME{ 3, 4 };
         static constexpr sf::Vector2i ARRIVAL_TOOL_FRAME{ 2, 5 };
         static constexpr int MARKER_RENDER_LAYER = 4;
+        static constexpr sf::Vector2f ENEMY_OFFSET{ 25.0f, 0.0f };
+        inline static const std::string TILES_SELECTION_SHEET = "graphics/tiles_sheet_selection.png";
+        inline static const std::string ENEMIES_SELECTION_SHEET = "graphics/enemies_sheet_selection.png";
 
         sf::Vector2i m_CurrentFramePos{ -1, -1 };
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::GameObject* m_TextureGO = nullptr;
         diji::SpriteRenderComponent* m_SpriteRenderComp = nullptr;
         diji::SpriteRenderComponent* m_TemplateSpriteRenderComp = nullptr;
+        diji::SpriteRenderComponent* m_EnemyTemplateSpriteRenderComp = nullptr;
         BackgroundHandler* m_BackgroundHandlerRef = nullptr;
         SelectorControls* m_SelectorControlsRef = nullptr;
         std::unique_ptr<diji::GameObject> m_ItemTemplateUPtr = nullptr;
+        std::unique_ptr<diji::GameObject> m_EnemyTemplateUPtr = nullptr;
         std::vector<const diji::GameObject*> m_MarkerObjects;
+        char m_SelectedEnemyChar = '\0';
+        bool m_IsEnemySelected = false;
         bool m_IsHolding = false;
         int m_StartingRow = 0;
         int m_StartingCol = 0;
@@ -73,6 +85,11 @@ namespace superMarioBros
         void SpawnMarker(const sf::Vector2i& cell, const sf::Vector2i& frame);
         void SelectArrivalTool();
         void OnPlayTestToggled(bool isPlayTesting);
+        [[nodiscard]] char GetSelectedItemChar() const;
+        [[nodiscard]] const diji::GameObject* GetPreviewTemplate() const;
+        [[nodiscard]] sf::Vector2f GetPreviewOffset() const;
+        void SetSelectedSheet(bool isEnemySheet);
+        static void PrepareEnemyForEditing(const diji::GameObject* enemy);
 
         struct GridPos
         {
@@ -99,6 +116,19 @@ namespace superMarioBros
         void HandleCreatingSpecialBlocks(const char itemChar, const GridPos& gridPos);
         void TryPlaceCheckPoint(const GridPos& gridPos);
         void RemoveAllCheckPoints();
+        void PlaceEnemy(char enemyChar, const GridPos& gridPos);
+        void TryPlacePiranhaPlant(const GridPos& gridPos);
+        [[nodiscard]] std::optional<GridPos> GetPipeTopLeft(const GridPos& gridPos) const;
+
+        // todo: read those from a data file?
+        const std::unordered_map<sf::Vector2i, char, Vector2iHash> m_EnemyGridToCharMap =
+        {
+            { {0, 0}, 'g' }, // Goomba
+            { {1, 0}, 'h' }, // Goomba offset by 25
+            { {2, 0}, 'o' }, // Koopa Troopa
+            { {3, 0}, 'p' }, // Koopa Troopa offset by 25
+            { {0, 1}, 's' }, // Piranha Plant
+        };
 
         std::unordered_map<sf::Vector2i, char, Vector2iHash> m_GridToCharMap =
         {

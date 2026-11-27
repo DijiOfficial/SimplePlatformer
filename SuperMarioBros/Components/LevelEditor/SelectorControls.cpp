@@ -275,7 +275,7 @@ void superMarioBros::SelectorControls::ResetSpecialMenu()
     m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->CloseMenu();
     ChooseMenuItem(m_CurrentMenuIndex);
 
-    if (m_CurrentMenuIndex == 2 || m_ShouldExitMenuOnClose)
+    if (m_MenuEntries[m_CurrentMenuIndex].menuItemPtr->IsExitingMenuOnClose() || m_ShouldExitMenuOnClose)
     {
         m_ShouldExitMenuOnClose = false;
         Move(sf::Vector2f{ 0.0f, 1.0f } ,true);

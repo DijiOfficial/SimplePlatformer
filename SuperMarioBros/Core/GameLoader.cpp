@@ -52,9 +52,9 @@ void SceneLoader::GameStartUp()
     SceneManager::GetInstance().RegisterScene(static_cast<int>(superMarioBros::superMarioBrosState::TransitionToNextLevel), TransitionToNextLevel);
     SceneManager::GetInstance().RegisterScene(static_cast<int>(superMarioBros::superMarioBrosState::LevelEditor), LevelEditor);
 
-    // StartMenu();
+    StartMenu();
     // Level();
-    LevelEditor();
+    // LevelEditor();
 }
 
 #pragma region Menus

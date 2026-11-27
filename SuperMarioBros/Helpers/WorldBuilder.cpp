@@ -446,7 +446,6 @@ diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<ch
     auto attachToWorldObject = [&](const diji::GameObject* object) -> void
     {
         object->AttachToObject(world, true);
-        m_LastGameObjectCreated = object;
     };
     
     // 1) Create Ground
@@ -500,23 +499,26 @@ diji::GameObject* superMarioBros::WorldBuilder::CreateWorld(const std::vector<ch
         }
     }
     
+    m_LastGameObjectsCreated.clear();
     return world;
 }
 
-const diji::GameObject* superMarioBros::WorldBuilder::CreateTileObject(const diji::GameObject* world, const int row, const int col, const char tile)
+std::vector<const diji::GameObject*> superMarioBros::WorldBuilder::CreateTileObject(const diji::GameObject* world, const int row, const int col, const char tile)
 {
+    m_LastGameObjectsCreated.clear();
+
     const auto it = m_Handlers.find(tile);
     if (it == m_Handlers.end())
-        return nullptr;  // throw error?
+        return {};  // throw error?
 
     (void)it->second(world, row, col, tile);
-    return m_LastGameObjectCreated;
+    return m_LastGameObjectsCreated;
 }
 
 void superMarioBros::WorldBuilder::AttachToWorldObject(const diji::GameObject* world, const diji::GameObject* object)
 {
     object->AttachToObject(world, true);
-    m_LastGameObjectCreated = object;
+    m_LastGameObjectsCreated.push_back(object);
 }
 
 void superMarioBros::WorldBuilder::SpawnForegroundTile(const diji::GameObject* world, const int row, const int col, const sf::Vector2i& atlasPos)

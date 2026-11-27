@@ -9,9 +9,9 @@ namespace superMarioBros
         using GridMenuItem::GridMenuItem;
 
         [[nodiscard]] bool Select() override;
+        [[nodiscard]] bool IsExitingMenuOnClose() const override { return true; }
 
         void SetSelector(Selector* selector) { m_Selector = selector; }
-        void SelectNextOrPreviousBlock(bool isNext);
         void CopyBlockHoveredPosition() const;
 
     private:

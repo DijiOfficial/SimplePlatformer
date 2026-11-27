@@ -13,22 +13,6 @@ bool superMarioBros::BlockSelector::Select()
     return false;
 }
 
-void superMarioBros::BlockSelector::SelectNextOrPreviousBlock(const bool isNext)
-{
-    if (isNext)
-    {
-        m_CurrentIndex =(m_CurrentIndex + 1) % (m_GridWidth * m_GridHeight);
-    }
-    else
-    {
-        const int count = m_GridWidth * m_GridHeight;
-        m_CurrentIndex = (m_CurrentIndex - 1 + count) % count;
-    }
-
-    UpdateSelectorPosition();
-    (void)Select();
-}
-
 void superMarioBros::BlockSelector::CopyBlockHoveredPosition() const
 {
     m_Selector->ActivateBackgroundTexture();
@@ -36,7 +20,5 @@ void superMarioBros::BlockSelector::CopyBlockHoveredPosition() const
 
     const int row = static_cast<int>(pos.y - 25.0f) / 50;
     const int col = static_cast<int>(pos.x - 25.0f) / 50;
-    const auto& grid = m_Selector->GetGridPosFromChar(LevelEditorManager::GetInstance().GetLevelInfoAtPos(col, row));
-
-    m_Selector->SetFramePosition(grid.x, grid.y);
+    m_Selector->SelectItemFromChar(LevelEditorManager::GetInstance().GetLevelInfoAtPos(col, row));
 }

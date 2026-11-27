@@ -188,6 +188,7 @@
     <ClCompile Include="Components\Enemies\PiranhaPlant.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\BlockSelector.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\BackgroundSelector.cpp" />
+    <ClCompile Include="Components\LevelEditor\MenuItems\EnemySelector.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\GridMenuItem.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\PlayMenu.cpp" />
     <ClCompile Include="Components\LevelEditor\MenuItems\LoadMenu.cpp" />
@@ -245,6 +246,7 @@
     <ClInclude Include="Components\Enemies\PiranhaPlant.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\BlockSelector.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\BackgroundSelector.h" />
+    <ClInclude Include="Components\LevelEditor\MenuItems\EnemySelector.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\GridMenuItem.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\PlayMenu.h" />
     <ClInclude Include="Components\LevelEditor\MenuItems\LoadMenu.h" />
