@@ -44,19 +44,30 @@ public:
 		ZeroMemory(&m_CurrentState, sizeof(XINPUT_STATE));
 		XInputGetState(m_ControllerIdx, &m_CurrentState);
 
-		const auto buttonChanges = m_CurrentState.Gamepad.wButtons ^ m_PreviousState.Gamepad.wButtons;
-		m_ButtonsPressedThisFrame = buttonChanges & m_CurrentState.Gamepad.wButtons;
-		m_ButtonsReleasedThisFrame = buttonChanges & (~m_CurrentState.Gamepad.wButtons);
+		m_PreviousButtons = m_CurrentButtons;
+		m_CurrentButtons = m_CurrentState.Gamepad.wButtons;
+
+		if (m_CurrentState.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+			m_CurrentButtons |= static_cast<unsigned int>(Button::LeftTrigger);
+
+		if (m_CurrentState.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+			m_CurrentButtons |= static_cast<unsigned int>(Button::RightTrigger);
+
+		const auto buttonChanges = m_CurrentButtons ^ m_PreviousButtons;
+		m_ButtonsPressedThisFrame = buttonChanges & m_CurrentButtons;
+		m_ButtonsReleasedThisFrame = buttonChanges & (~m_CurrentButtons);
 	}
 
 	bool IsDownThisFrame(const unsigned int button) const { return m_ButtonsPressedThisFrame & button; }
 	bool IsUpThisFrame(const unsigned int button) const { return m_ButtonsReleasedThisFrame & button; }
-	bool IsPressed(const unsigned int button) const { return m_CurrentState.Gamepad.wButtons & button; }
+	bool IsPressed(const unsigned int button) const { return m_CurrentButtons & button; }
 
 private:
 	int m_ControllerIdx{};
 	XINPUT_STATE m_PreviousState{};
 	XINPUT_STATE m_CurrentState{};
+	unsigned int m_PreviousButtons{};
+	unsigned int m_CurrentButtons{};
 	unsigned int m_ButtonsPressedThisFrame{};
 	unsigned int m_ButtonsReleasedThisFrame{};
 };

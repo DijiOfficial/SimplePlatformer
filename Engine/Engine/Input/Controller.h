@@ -6,7 +6,7 @@ namespace diji
     class Controller final
     {
     public:
-        // todo: also add support for Triggers and Joystick Axes
+        // todo: also add support for Joystick Axes
         enum class Button : uint16_t
         {
             DPadUp = 0x0001,
@@ -19,6 +19,8 @@ namespace diji
             RightThumb = 0x0080,
             LeftShoulder = 0x0100,
             RightShoulder = 0x0200,
+            LeftTrigger = 0x0400,
+            RightTrigger = 0x0800,
             A = 0x1000,
             B = 0x2000,
             X = 0x4000,
