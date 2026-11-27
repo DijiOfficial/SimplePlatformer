@@ -48,15 +48,15 @@ namespace diji
 
 		static bool AABBOverlap(const sf::FloatRect& a, const sf::FloatRect& b)
 		{
-			return !(Right(a) <= Left(b) ||
-					 Right(b) <= Left(a) ||
-					 Bottom(a) <= Top(b) ||
-					 Bottom(b) <= Top(a));
+			return (Right(a) <= Left(b) ||
+					Right(b) <= Left(a) ||
+					Bottom(a) <= Top(b) ||
+					Bottom(b) <= Top(a)) == false;
 		}
 		static float Right(const sf::FloatRect& r)  { return r.position.x + r.size.x; }
-		static float Left(const sf::FloatRect& r)	{ return r.position.x - r.size.x; }
+		static float Left(const sf::FloatRect& r)	{ return r.position.x; }
 		static float Bottom(const sf::FloatRect& r) { return r.position.y  + r.size.y; }
-		static float Top(const sf::FloatRect& r)	{ return r.position.y  - r.size.y; }
+		static float Top(const sf::FloatRect& r)	{ return r.position.y; }
 
 		std::optional<RaycastHit> Raycast(const sf::Vector2f& origin, const sf::Vector2f& direction, float maxDistance, const Collider* collider = nullptr, bool ignoreOverlapColliders = false) const;
 

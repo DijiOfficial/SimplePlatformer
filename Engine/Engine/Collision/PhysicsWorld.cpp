@@ -299,14 +299,15 @@ void diji::PhysicsWorld::RemoveFromTriggerLists(Collider* collider)
 
 void diji::PhysicsWorld::ProcessTriggerEvents()
 {
+    std::vector<TriggerPair> stayingTriggers;
     for (const auto& trigger : m_ActiveTriggers)
     {
         if (std::ranges::find(m_PreviousFrameTriggers, trigger) == m_PreviousFrameTriggers.end())
-        {
             NotifyTriggerEvent(trigger, EventType::Enter);
-        }
+        else
+            stayingTriggers.push_back(trigger);
     }
-    
+
     for (const auto& trigger : m_PreviousFrameTriggers)
     {
         if (std::ranges::find(m_ActiveTriggers, trigger) == m_ActiveTriggers.end())
@@ -314,13 +315,10 @@ void diji::PhysicsWorld::ProcessTriggerEvents()
             NotifyTriggerEvent(trigger, EventType::Exit);
         }
     }
-    
-    for (const auto& trigger : m_ActiveTriggers)
+
+    for (const TriggerPair& trigger : stayingTriggers)
     {
-        if (std::ranges::find(m_PreviousFrameTriggers, trigger) != m_PreviousFrameTriggers.end())
-        {
-            NotifyTriggerEvent(trigger, EventType::Stay);
-        }
+        NotifyTriggerEvent(trigger, EventType::Stay);
     }
 
     for (const auto& trigger : m_HitEventTriggers)
@@ -328,8 +326,7 @@ void diji::PhysicsWorld::ProcessTriggerEvents()
         NotifyHitEvent(trigger, EventType::Hit);
     }
 
-    // todo: could potentially allocate a lot of unused memory.
-    m_PreviousFrameTriggers = m_ActiveTriggers;
+    m_PreviousFrameTriggers.swap(m_ActiveTriggers);
     m_ActiveTriggers.clear();
     m_HitEventTriggers.clear();
 }
@@ -495,12 +492,12 @@ void diji::PhysicsWorld::DetectCollisions(std::vector<Prediction>& predictionsVe
             collider->QueueWake(); // maybe not needed?
             additionalPredictions.emplace_back(std::move(sleepingPrediction));
         }
+    }
 
-        if (additionalPredictions.empty() == false)
-        {
-            predictionsVec.reserve(predictionsVec.size() + additionalPredictions.size());
-            predictionsVec.insert(predictionsVec.end(), std::make_move_iterator(additionalPredictions.begin()), std::make_move_iterator(additionalPredictions.end()));
-        }
+    if (additionalPredictions.empty() == false)
+    {
+        predictionsVec.reserve(predictionsVec.size() + additionalPredictions.size());
+        predictionsVec.insert(predictionsVec.end(), std::make_move_iterator(additionalPredictions.begin()), std::make_move_iterator(additionalPredictions.end()));
     }
 }
 
