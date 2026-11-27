@@ -87,6 +87,9 @@ void diji::Collider::ClearAllIgnoredColliders()
 
 bool diji::Collider::IsIgnoringCollider(const Collider* collider) const
 {
+    if (m_IgnoredColliders.empty())
+        return false;
+
     return m_IgnoredColliders.contains(collider);
 }
 
