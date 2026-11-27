@@ -526,12 +526,13 @@ void diji::Scene::DrawGameObjects() const
     max.x += 1;
     max.y += 1;
 
+    // todo: rework or remove always render. it is drawn before every chunk regardless of render layers, so chunk objects can never go behind always rendered objects
     for (const auto& gameObjects : m_AlwaysRender | std::views::values)
     {
         for (const GameObject* gameObject : gameObjects)
             gameObject->Render();
     }
-    
+
     for (int y = min.y; y <= max.y; ++y)
     {
         for (int x = min.x; x <= max.x; ++x)
@@ -615,7 +616,7 @@ void diji::Scene::RegisterToChunk(const GameObject* object)
         return;
 
     const auto it = m_ObjectsUPtrMap.find(object->GetName());
-    if (it == m_ObjectsUPtrMap.end())
+    if (it == m_ObjectsUPtrMap.end() || it->second.get() != object)
         return;
 
     const auto layer = object->GetRenderLayer();

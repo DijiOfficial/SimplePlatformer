@@ -33,5 +33,6 @@ namespace superMarioBros
         PlayerCharacter* m_PlayerCharacterCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
+        bool m_WasRising = false;
     };
 }

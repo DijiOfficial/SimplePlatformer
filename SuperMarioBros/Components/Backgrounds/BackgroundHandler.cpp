@@ -48,7 +48,7 @@ void superMarioBros::BackgroundHandler::Init()
         { 'r', {0, 4} }, // CheckPoint
         { 's', {1, 0} }, // Piranha Plant (using top left pipe tile as it will replace the pipe tile to spawn the plant)
         { 't', {0, 4} }, // Hidden Block
-        { 'u', {3, 4} }, // BreakableBlock Green + Star
+        { 'u', {0, 4} }, // BreakableBlock Green + Star
         { 'v', {0, 4} }, // Brick PowerUp
         { 'D', {0, 2} }, // TopRight Side Pipe (Z priority)
         { 'E', {1, 2} }, // MiddleRight Side Pipe (Z priority)
@@ -59,8 +59,8 @@ void superMarioBros::BackgroundHandler::Init()
         { 'w', {1, 4} }, // Ground Green
         { 'G', {2, 4} }, // Floor Green
         { 'H', {0, 4} }, // BreakableBlock Green (invisible tile because it's rendered by BreakableBlock component)
-        { 'z', {3, 4} }, // BreakableBlock Green + multi coin
-        { 'I', {3, 4} }, // BreakableBlock Green + powerUp
+        { 'z', {0, 4} }, // BreakableBlock Green + multi coin
+        { 'I', {0, 4} }, // BreakableBlock Green + powerUp
         // ... etc.
     };
 

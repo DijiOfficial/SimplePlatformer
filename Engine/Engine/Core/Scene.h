@@ -93,7 +93,7 @@ namespace diji
         bool RemoveFromContainer(TMap& container, const GameObject* object)
         {
             const auto it = container.find(object->GetName());
-            if (it == container.end())
+            if (it == container.end() || it->second.get() != object)
                 return false;
 
             DestroyFromChunks(it);

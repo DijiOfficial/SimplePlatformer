@@ -66,10 +66,11 @@ sf::FloatRect diji::Collider::GetAABB() const
 sf::FloatRect diji::Collider::GetAABBAt(const sf::Vector2f& pos) const
 {
     sf::FloatRect rect;
-    const sf::FloatRect& local = m_Shape->GetLocalShapeBounds();
+    const sf::FloatRect local = m_Shape->GetLocalShapeBounds();
+    const sf::Vector2f offset = local.position - m_Shape->GetShape().getPosition();
 
-    rect.position.x = pos.x;
-    rect.position.y = pos.y;
+    rect.position.x = pos.x + offset.x;
+    rect.position.y = pos.y + offset.y;
     rect.size.x     = local.size.x;
     rect.size.y     = local.size.y;
     return rect;

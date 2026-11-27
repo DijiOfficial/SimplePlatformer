@@ -17,9 +17,19 @@ void superMarioBros::CheckPlayerTopPixel::Init()
 
 void superMarioBros::CheckPlayerTopPixel::Update()
 {
-    if (m_PlayerCharacterCompPtr->IsDeadOrPaused()) return;
-    if (m_ColliderCompPtr->GetVelocity().y >= 0) return;
-    
+    if (m_PlayerCharacterCompPtr->IsDeadOrPaused())
+    {
+        m_WasRising = false;
+        return;
+    }
+
+    const bool isRising = m_ColliderCompPtr->GetVelocity().y < 0.0f;
+    const bool wasRising = m_WasRising;
+    m_WasRising = isRising;
+
+    if (isRising == false && wasRising == false)
+        return;
+
     const float offset = m_PlayerCharacterCompPtr->IsSmallMario() ? 22.0f : 44.0f;
     const sf::Vector2f origin = m_TransformCompPtr->GetWorldPosition();
     constexpr sf::Vector2f dir = { 0, -1 };
@@ -33,6 +43,7 @@ void superMarioBros::CheckPlayerTopPixel::Update()
         if (hit->collider->GetCollisionResponse() == diji::Collider::CollisionResponse::Overlap && playerBumpableInterface == nullptr) return;
 
         m_PlayerInputManagerCompPtr->Bump();
+        m_WasRising = false;
 
         if (playerBumpableInterface == nullptr) return;
 

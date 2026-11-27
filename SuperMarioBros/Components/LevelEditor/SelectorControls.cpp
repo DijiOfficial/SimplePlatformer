@@ -142,7 +142,7 @@ void superMarioBros::SelectorControls::OpenBlocksMenu()
     
     EnterMenu();
     m_IsInMenu = true;
-    ChooseMenuItem(2);
+    ChooseMenuItem(3); //todo remove literals
     SelectCurrentMenuItem();
 }
 

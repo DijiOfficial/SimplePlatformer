@@ -665,8 +665,13 @@ void superMarioBros::PlayerCharacter::HandleLevelCompletion(const sf::Vector2f& 
     pointsText->GetComponent<PointsBehaviour>()->SetSpeed(-375.0f);
     pointsText->GetComponent<PointsBehaviour>()->SetMaxHeight(-75.0f);
 
-    diji::SceneManager::GetInstance().SpawnGameObject("ZZ_pointsText", std::move(pointsText), sf::Vector2f{ originalPos.x + 65.0f, 425.0f });
-    
+    const diji::GameObject* pointsTextObject = diji::SceneManager::GetInstance().SpawnGameObject("ZZ_pointsText", std::move(pointsText), sf::Vector2f{ originalPos.x + 65.0f, 425.0f });
+    if (const diji::GameObject* flag = diji::SceneManager::GetInstance().GetGameObject("E_flag"))
+    {
+        if (const diji::Transform* worldTransform = flag->GetRootComponent()->GetParent())
+            pointsTextObject->AttachToObject(worldTransform->GetGameObject(), true);
+    }
+
     OnLevelFinishedEvent.Broadcast();
 }
 

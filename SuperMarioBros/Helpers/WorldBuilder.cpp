@@ -75,6 +75,7 @@ void superMarioBros::WorldBuilder::Init()
         collider->SetTag("luckyBlock");
         collider->SetAffectedByGravity(false);
         collider->SetIsMoveable(false);
+        collider->QueueSleep();
 
         if (tile == 'e') go->AddComponent<BaseBlock>(BaseBlock::ItemSpawnType::Coin);
         else if (tile == 'y') go->AddComponent<PowerUpBlock>(BaseBlock::ItemSpawnType::StarPowerUp);
@@ -112,6 +113,7 @@ void superMarioBros::WorldBuilder::Init()
         collider->SetTag("breakBlock");
         collider->SetAffectedByGravity(false);
         collider->SetIsMoveable(false);
+        collider->QueueSleep();
 
         if (tile == 'd' || tile == 'H')
             go->AddComponent<BreakableBlock>(BaseBlock::ItemSpawnType::None);
@@ -321,6 +323,7 @@ void superMarioBros::WorldBuilder::Init()
         collider->SetTag("coin");
         collider->SetAffectedByGravity(false);
         collider->SetIsMoveable(false);
+        collider->QueueSleep();
         collider->SetCollisionResponse(diji::Collider::CollisionResponse::Overlap);
 
         const auto object = diji::SceneManager::GetInstance().SpawnGameObject("K_StaticCoin", std::move(go), center);
@@ -359,7 +362,7 @@ void superMarioBros::WorldBuilder::Init()
         plant->AddComponent<PiranhaPlant>();
         plant->GetComponent<PiranhaPlant>()->SetActivationMilestone(col - 20);
         plant->SetActive(false);
-        
+
         const auto collider = plant->GetComponent<diji::Collider>();
         collider->SetIsMoveable(false);
         collider->SetTag("plant");
@@ -368,6 +371,8 @@ void superMarioBros::WorldBuilder::Init()
 
         const auto object = diji::SceneManager::GetInstance().SpawnGameObject("BA_PiranhaPlant", std::move(plant), center);
         AttachToWorldObject(world, object);
+
+        SpawnVerticalPipeOverlay(world, row, col);
 
         // spawn a ground collider under the plant (mirrors original)
         auto ground = std::make_unique<diji::GameObject>();

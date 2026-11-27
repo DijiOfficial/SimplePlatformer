@@ -3,6 +3,7 @@
 #include "../..//Interfaces/IBumpable.h"
 #include "../..//Interfaces/IKillable.h"
 
+#include <algorithm>
 #include <string>
 
 namespace diji
@@ -33,14 +34,14 @@ namespace superMarioBros
         virtual void HandleStomp(const diji::Collider* other, const std::string& score) = 0;
         void HandleBumpedBehavior(bool isBumpingLeft, const bool addPoints = true) override = 0;
         void Kill(bool isBumpingLeft, const bool addPoints = true) override = 0;
-        void SetActivationMilestone(const int milestone) { m_ActivationMilestone = milestone; }
+        void SetActivationMilestone(const int milestone) { m_ActivationMilestone = std::max(milestone, 1); }
         void Pause();
 
     protected:
         diji::SpriteRenderComponent* m_SpriteRenderCompPtr = nullptr;
         diji::Collider* m_ColliderCompPtr = nullptr;
         diji::Transform* m_TransformCompPtr = nullptr;
-        const float BASE_SPEED = -200.f;
+        const float BASE_SPEED = -200.0f;
         float m_Speed = BASE_SPEED;
         int m_ActivationMilestone = -1;
         bool m_Paused = false;

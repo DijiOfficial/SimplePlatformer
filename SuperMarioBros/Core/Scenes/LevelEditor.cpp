@@ -108,7 +108,7 @@ void SceneLoader::LevelEditor()
     scene->SetGameObjectAsCanvasObject(selection);
     
     const auto items = scene->CreateGameObject("Z_UI_Items");
-    items->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.150f, menuYPosition });
+    items->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.175f, menuYPosition });
     items->AddComponent<TextureComp>("graphics/level_editor_item1.png");
     items->AddComponent<Render>(renderRatio);
     const auto& blockSelector = items->AddComponent<superMarioBros::BlockSelector>();
@@ -117,14 +117,14 @@ void SceneLoader::LevelEditor()
     scene->SetGameObjectAsCanvasObject(items);
 
     const auto itemChoices = scene->CreateGameObject("Z_UI_ItemsChoice");
-    itemChoices->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.150f, menuYPosition * 3 });
+    itemChoices->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.175f, menuYPosition * 3 });
     itemChoices->AddComponent<TextureComp>("graphics/tiles_sheet_selection.png");
     itemChoices->AddComponent<Render>(renderRatio);
     scene->SetGameObjectAsCanvasObject(itemChoices);
     itemChoices->AttachToObject(items, true);
 
     const auto enemies = scene->CreateGameObject("UI_Enemies");
-    enemies->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.175f, menuYPosition });
+    enemies->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.200f, menuYPosition });
     enemies->AddComponent<TextureComp>("graphics/level_editor_enemies.png");
     enemies->AddComponent<Render>(renderRatio);
     const auto& enemySelector = enemies->AddComponent<superMarioBros::EnemySelector>();
@@ -133,14 +133,14 @@ void SceneLoader::LevelEditor()
     scene->SetGameObjectAsCanvasObject(enemies);
 
     const auto enemyChoices = scene->CreateGameObject("UI_EnemiesChoice");
-    enemyChoices->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.175f, menuYPosition * 3 });
+    enemyChoices->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.200f, menuYPosition * 3 });
     enemyChoices->AddComponent<TextureComp>("graphics/enemies_sheet_selection.png");
     enemyChoices->AddComponent<Render>(renderRatio);
     scene->SetGameObjectAsCanvasObject(enemyChoices);
     enemyChoices->AttachToObject(enemies, true);
 
     const auto backgroundMenu = scene->CreateGameObject("UI_Background");
-    backgroundMenu->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.200f, menuYPosition });
+    backgroundMenu->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.225f, menuYPosition });
     backgroundMenu->AddComponent<TextureComp>("graphics/level_editor_background.png");
     backgroundMenu->AddComponent<Render>(renderRatio);
     const auto& backgroundSelector = backgroundMenu->AddComponent<superMarioBros::BackgroundSelector>();
@@ -148,14 +148,14 @@ void SceneLoader::LevelEditor()
     scene->SetGameObjectAsCanvasObject(backgroundMenu);
 
     const auto backgroundChoices = scene->CreateGameObject("UI_BackgroundChoice");
-    backgroundChoices->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.200f, menuYPosition * 3 });
+    backgroundChoices->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.225f, menuYPosition * 3 });
     backgroundChoices->AddComponent<TextureComp>("graphics/level_editor_backgrounds.png");
     backgroundChoices->AddComponent<Render>(renderRatio);
     scene->SetGameObjectAsCanvasObject(backgroundChoices);
     backgroundChoices->AttachToObject(backgroundMenu, true);
 
     const auto play = scene->CreateGameObject("UI_Play");
-    play->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.225f, menuYPosition });
+    play->SetObjectPosition({ static_cast<float>(window::VIEWPORT.x) * 0.150f, menuYPosition });
     play->AddComponent<TextureComp>("graphics/level_editor_play.png");
     play->AddComponent<Render>(renderRatio);
     play->AddComponent<superMarioBros::PlayMenu>();
